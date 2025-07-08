@@ -5,6 +5,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: advanced-security/python-lint-code-scanning-action@v1
         with:
           linter: flake8
