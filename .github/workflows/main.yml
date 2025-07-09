@@ -12,7 +12,9 @@ jobs:
         run: |
           apt update
           apt install -y pylint flake8
-      - name: Run Lint
+      - name: Run Pylint
         run: |
           pylint ./sbaid
+      - name: Run flake
+        run: |
           flake8 ./sbaid
