@@ -14,7 +14,7 @@ jobs:
           apt install -y pylint flake8 mypy
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          pylint ./sbaid
+          pylint --disable too-few-public-methods ./sbaid
       - name: Run flake (Formatting)
         run: |
           flake8 ./sbaid
