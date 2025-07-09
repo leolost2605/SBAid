@@ -11,8 +11,7 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y pip
-          pip install flake8 pylint
+          apt install -y pylint flake8
       - name: Run Lint
         run: |
           pylint ./sbaid
