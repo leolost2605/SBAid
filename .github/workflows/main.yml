@@ -11,10 +11,13 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y pylint flake8
-      - name: Run Pylint
+          apt install -y pylint flake8 mypy
+      - name: Run Pylint (Naming and PEP 8 style)
         run: |
           pylint ./sbaid
-      - name: Run flake
+      - name: Run flake (Formatting)
         run: |
           flake8 ./sbaid
+      - name: Run mypy (Type checking)
+        run: |
+          mypy ./sbaid
