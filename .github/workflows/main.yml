@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Python Linter
-        src: "src"
         uses: sunnysid3up/python-linter@master
         with:
+          src: "src"
           strict: "high"
