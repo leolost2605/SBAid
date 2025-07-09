@@ -8,4 +8,3 @@ class Image(Gdk.Paintable):
 
     def save_to_file(self, path: str) -> None:
         """Saves the image to a file at the specified path."""
-        pass
