@@ -1,5 +1,8 @@
+"""This module defines the BDisplay enum."""
 from enum import Enum
+
 class BDisplay(Enum):
+    """This enum represents the different types of B Display signals."""
     OFF = 0
     TRAFFIC_JAM = 1
     CONSTRUCTION = 2
