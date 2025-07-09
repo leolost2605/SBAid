@@ -16,10 +16,10 @@ jobs:
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          pylint ./sbaid
+          ~/venv/bin/python pylint ./sbaid
       - name: Run flake (Formatting)
         run: |
-          flake8 ./sbaid
+          ~/venv/bin/python flake8 ./sbaid
       - name: Run mypy (Type checking)
         run: |
-          mypy --strict ./sbaid
+          ~/venv/bin/python mypy --strict ./sbaid
