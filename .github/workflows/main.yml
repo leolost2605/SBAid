@@ -12,6 +12,7 @@ jobs:
         run: |
           apt update
           apt install -y pylint flake8 mypy
+          pip install pygobject-stubs
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
           pylint ./sbaid
