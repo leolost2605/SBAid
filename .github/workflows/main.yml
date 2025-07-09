@@ -20,4 +20,4 @@ jobs:
           flake8 ./sbaid
       - name: Run mypy (Type checking)
         run: |
-          mypy ./sbaid
+          mypy --strict ./sbaid
