@@ -1,4 +1,5 @@
-"""This module defines the ImageFormat enum, which represents the different types of image formats that are available."""
+"""This module defines the ImageFormat enum,
+which represents the different types of image formats that are available."""
 from enum import Enum
 
 class ImageFormat(Enum):

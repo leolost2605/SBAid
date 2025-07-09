@@ -1,4 +1,5 @@
-"""This module defines the CrossSectionType enum which represents the differnet types of cross sections."""
+"""This module defines the CrossSectionType enum
+which represents the differnet types of cross sections."""
 from enum import Enum
 
 class CrossSectionType(Enum):
