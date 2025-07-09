@@ -6,8 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Python Linter
-        uses: sunnysid3up/python-linter@master
-        with:
-          src: "src"
-          strict: "high"
+      - name: Install Dependencies
+        run: |
+          apt update
+          apt install -y pip
+          pip install flake8 pylint
+      - name: Run Lint
+        run: |
+          pylint ./sbaid
+          flake8 ./sbaid
