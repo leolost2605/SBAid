@@ -11,8 +11,9 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y pip pylint flake8 mypy
-          pip install pygobject-stubs
+          apt install -y pip
+          python3 -m venv ~/venv
+          ~/venv/pip install pygobject-stubs pylint flake8 mypy
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
           pylint ./sbaid
