@@ -1,10 +1,23 @@
 name: main.yml
-on: [push, pull_request]
+on: [pull_request, push]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/elementary/docker:development-target
     steps:
-      - uses: advanced-security/python-lint-code-scanning-action@v1
-        with:
-          linter: flake8
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          apt update
+          apt install -y pylint flake8 mypy
+      - name: Run Pylint (Naming and PEP 8 style)
+        run: |
+          pylint ./sbaid
+      - name: Run flake (Formatting)
+        run: |
+          flake8 ./sbaid
+      - name: Run mypy (Type checking)
+        run: |
+          mypy --strict ./sbaid
