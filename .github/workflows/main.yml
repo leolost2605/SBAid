@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: advanced-security/python-lint-code-scanning-action@v1
+      - name: Python Linter
+        uses: sunnysid3up/python-linter@master
         with:
-          linter: flake8
+          strict: "high"
