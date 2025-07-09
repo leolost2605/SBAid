@@ -16,7 +16,7 @@ jobs:
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          ~/venv/bin/pylint ./sbaid
+          ~/venv/bin/pylint --disable too-few-public-methods ./sbaid
       - name: Run flake (Formatting)
         run: |
           ~/venv/bin/flake8 ./sbaid
