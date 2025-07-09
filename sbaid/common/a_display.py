@@ -1,5 +1,9 @@
+"""This module defines the ADisplay enum."""
 from enum import Enum
+
+
 class ADisplay(Enum):
+    """This enum represents the different types of A Display signals."""
     OFF = 0
     SPEED_LIMIT_60 = 1
     SPEED_LIMIT_80 = 2
