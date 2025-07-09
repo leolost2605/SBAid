@@ -1,4 +1,6 @@
 """this module defines the SimulatorType class"""
+
+
 class SimulatorType:
     """This class represents a type of simulator.
     Attributes:

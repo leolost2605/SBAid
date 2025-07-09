@@ -1,4 +1,6 @@
 """This module defines the DiagramType class"""
+
+
 class DiagramType:
     """This class represents a type of diagram.
     Attributes:
