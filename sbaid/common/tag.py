@@ -1,5 +1,4 @@
 """This module defines the Tag class"""
-
 class Tag:
     """This class represents a tag.
     Attributes:

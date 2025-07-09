@@ -2,6 +2,7 @@
 which represents an image that can be painted within the UI"""
 from gi.repository import Gdk
 
+
 class Image(Gdk.Paintable):
     """This class represents an image that can be painted within the UI."""
     def __init__(self, *args, **kwargs):
