@@ -13,7 +13,7 @@ jobs:
           apt update
           apt install -y python3-full pip
           python3 -m venv ~/venv
-          ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy
+          ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
           ~/venv/bin/pylint --disable too-few-public-methods ./sbaid
