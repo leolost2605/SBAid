@@ -4,9 +4,8 @@ from gi.repository import Gdk
 
 
 class Image(Gdk.Paintable):
-    """This class represents an image that can be painted within the UI."""
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    """This class represents an image that can be painted within the UI.
+    It inherits from Gdk.Paintable,"""
 
     def save_to_file(self, path: str) -> None:
         """Saves the image to a file at the specified path."""
