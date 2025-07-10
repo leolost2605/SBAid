@@ -11,7 +11,7 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y python3-full pip
+          apt install -y python3-full pip gir1.2-girepository-2.0
           python3 -m venv ~/venv
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
