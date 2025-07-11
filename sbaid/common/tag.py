@@ -1,6 +1,7 @@
 """This module defines the Tag class"""
 from gi.repository import GObject
 
+
 class Tag(GObject.GObject):
     """TODO"""
 

@@ -1,6 +1,7 @@
 """This module defines the DiagramType class"""
 from gi.repository import GObject
 
+
 class DiagramType(GObject.GObject):
     """TODO"""
     diagram_type_id = GObject.Property(name=str, flags=GObject.PARAM_READABLE)
