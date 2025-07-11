@@ -1,5 +1,9 @@
 """This module defines the Image class,
 which represents an image that can be painted within the UI"""
+import gi
+
+gi.require_version('Gtk', '4.0')
+
 from gi.repository import Gdk
 
 
