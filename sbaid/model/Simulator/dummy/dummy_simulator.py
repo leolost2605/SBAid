@@ -1,5 +1,8 @@
-from sbaid.model.Simulator.simulator import Simulator
+"""This module contains the DummySimulator class."""
+from abc import ABC
+from ..simulator import Simulator
 
 
-class VissimSimulator(Simulator):
+class DummySimulator(Simulator, ABC):
+    """This class represents the dummy simulator."""
     pass
