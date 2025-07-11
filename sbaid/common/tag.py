@@ -1,11 +1,14 @@
 """This module defines the Tag class"""
+from gi.repository import GObject
 
+class Tag(GObject.GObject):
+    """
+    This class represents a tag.
+    """
 
-class Tag:
-    """This class represents a tag.
-    Attributes:
-        tag_id (str): The unique identifier for the tag.
-        name (str): The name of the tag."""
+    # GObject property definition
+    tag_id = GObject.Property(type=str)
+    name = GObject.Property(type=str)
 
     def __init__(self, tag_id: str, name: str) -> None:
         """Initialize the tag with an id and a name."""
