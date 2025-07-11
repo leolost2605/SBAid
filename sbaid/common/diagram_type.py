@@ -4,8 +4,8 @@ from gi.repository import GObject
 
 class DiagramType(GObject.GObject):
     """TODO"""
-    diagram_type_id = GObject.Property(name=str, flags=GObject.PARAM_READABLE)
-    name = GObject.Property(name=str, flags=GObject.PARAM_WRITABLE)
+    diagram_type_id = GObject.Property(type=str, flags=GObject.PARAM_READABLE)
+    name = GObject.Property(type=str, flags=GObject.PARAM_WRITABLE)
 
     def __init__(self, diagram_type_id: str, name: str) -> None:
         """Initialize the diagram type."""
