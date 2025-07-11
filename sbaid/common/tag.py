@@ -2,13 +2,11 @@
 from gi.repository import GObject
 
 class Tag(GObject.GObject):
-    """
-    This class represents a tag.
-    """
+    """TODO"""
 
     # GObject property definition
-    tag_id = GObject.Property(type=str)
-    name = GObject.Property(type=str)
+    tag_id = GObject.Property(type=str, flags=GObject.PARAM_READABLE)
+    name = GObject.Property(type=str, flags=GObject.PARAM_READWRITE)
 
     def __init__(self, tag_id: str, name: str) -> None:
         """Initialize the tag with an id and a name."""
