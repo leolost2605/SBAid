@@ -2,11 +2,9 @@
 from gi.repository import GObject
 
 class DiagramType(GObject.GObject):
-    """
-    This class represents a type of diagram.
-    """
-    diagram_type_id = GObject.Property(name=str)
-    name = GObject.Property(name=str)
+    """TODO"""
+    diagram_type_id = GObject.Property(name=str, flags=GObject.PARAM_READABLE)
+    name = GObject.Property(name=str, flags=GObject.PARAM_WRITABLE)
 
     def __init__(self, diagram_type_id: str, name: str) -> None:
         """Initialize the diagram type."""
