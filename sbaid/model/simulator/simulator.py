@@ -38,7 +38,7 @@ class Simulator(GObject.GObject, ABC):
 
     @abstractmethod
     def move_cross_section(self, cross_section_id: str,
-    new_coordinate: Coordinate) -> None:
+    new_position: Coordinate) -> None:
         """Move the cross section object."""
 
     @abstractmethod
