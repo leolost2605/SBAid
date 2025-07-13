@@ -9,7 +9,7 @@ class DiagramType(GObject.GObject):
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT)
     name = GObject.Property(
         type=str,
-        flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE)
 
     def __init__(self, diagram_type_id: str, name: str) -> None:
         """Initialize the diagram type."""

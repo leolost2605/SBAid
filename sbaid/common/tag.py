@@ -11,7 +11,7 @@ class Tag(GObject.GObject):
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT)
     name = GObject.Property(
         type=str,
-        flags=GObject.PARAM_READWRITE
+        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE
     )
 
     def __init__(self, tag_id: str, name: str) -> None:
