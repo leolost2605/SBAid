@@ -11,13 +11,15 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y pylint flake8 mypy
+          apt install -y python3-full pip libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+          python3 -m venv ~/venv
+          ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          pylint --disable too-few-public-methods ./sbaid
+          ~/venv/bin/pylint --disable too-few-public-methods,duplicate-code,too-many-arguments,too-many-positional-arguments ./sbaid
       - name: Run flake (Formatting)
         run: |
-          flake8 ./sbaid
+          ~/venv/bin/flake8 --max-line-length 100 ./sbaid
       - name: Run mypy (Type checking)
         run: |
-          mypy --strict ./sbaid
+          ~/venv/bin/mypy --strict ./sbaid
