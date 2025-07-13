@@ -12,6 +12,7 @@ except ImportError as exception:
 except ValueError as exception:
     print('Error: Gdk has an inappropriate argument value.', exception)
 
+
 # mypy: ignore-errors
 class Image(GObject.GObject, Gdk.Paintable):
     """TODO"""
