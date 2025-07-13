@@ -4,7 +4,7 @@ from gi.repository import GObject
 from sbaid.common.vehicle_type import VehicleType
 
 
-class VehicleSnapshot:
+class VehicleSnapshot(GObject.GObject):
     """ This class represents a vehicle snapshot.
     Attributes:
         vehicle_type (VehicleType): The type of the vehicle the snapshot represents.
@@ -31,6 +31,6 @@ class VehicleSnapshot:
 
     def __init__(self, lane_snapshot_id: str, vehicle_type: VehicleType, speed: float) -> None:
         """Initialize the vehicle snapshot class."""
-        self.vehicle_type = vehicle_type
-        self.speed = speed
-        self.lane_snapshot_id = lane_snapshot_id
+        super().__init__(vehicle_type=vehicle_type,
+                         speed=speed,
+                         lane_snapshot_id=lane_snapshot_id)

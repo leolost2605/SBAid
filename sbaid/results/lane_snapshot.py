@@ -6,7 +6,7 @@ from sbaid.common.a_display import ADisplay
 from sbaid.results.vehicle_snapshot import VehicleSnapshot
 
 
-class LaneSnapshot:
+class LaneSnapshot(GObject.GObject):
     """ This class represents a lane snapshot, which contains data collected from a specific
      traffic lane at a specific time in the simulation.
      Attributes:
@@ -63,12 +63,12 @@ class LaneSnapshot:
     def __init__(self, cross_section_snapshot_id: str, lane_snapshot_id: str, lane: int,
                  average_speed: float, traffic_volume: int, a_display: ADisplay) -> None:
         """ Initialize the lane snapshot object."""
-        self.cross_section_snapshot_id = cross_section_snapshot_id
-        self.lane_snapshot_id = lane_snapshot_id
-        self.lane = lane
-        self.average_speed = average_speed
-        self.traffic_volume = traffic_volume
-        self.a_display = a_display
+        super().__init__(cross_section_snapshot_id=cross_section_snapshot_id,
+                         lane_snapshot_id=lane_snapshot_id,
+                         lane=lane,
+                         average_speed=average_speed,
+                         traffic_volume=traffic_volume,
+                         a_display=a_display)
 
     def load_from_db(self) -> None:
         """todo"""

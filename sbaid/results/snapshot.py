@@ -5,7 +5,7 @@ from gi.repository import Gio, GObject
 from sbaid.results.cross_section_snapshot import CrossSectionSnapshot
 
 
-class Snapshot:
+class Snapshot(GObject.GObject):
     """ This class represents a snapshot, containing cross section snapshots
             with the same timestamp.
     Attributes:
@@ -34,8 +34,8 @@ class Snapshot:
 
     def __init__(self, snapshot_id: str, capture_timestamp: DateTime) -> None:
         """Initialize the Snapshot class."""
-        self.snapshot_id = snapshot_id
-        self.capture_timestamp = capture_timestamp
+        super().__init__(snapshot_id=snapshot_id,
+                         capture_timestamp=capture_timestamp)
 
     def load_from_db(self) -> None:
         """todo"""

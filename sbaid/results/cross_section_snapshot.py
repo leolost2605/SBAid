@@ -5,7 +5,7 @@ from sbaid.common.b_display import BDisplay
 from sbaid.results.lane_snapshot import LaneSnapshot
 
 
-class CrossSectionSnapshot:
+class CrossSectionSnapshot(GObject.GObject):
     """This class defines the cross section snapshot class.
     Attributes:
         snapshot_id (str): The unique identifier of the snapshot this
@@ -48,10 +48,10 @@ class CrossSectionSnapshot:
     def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
                  b_display: BDisplay) -> None:
         """todo"""
-        self.snapshot_id = snapshot_id
-        self.cross_section_snapshot_id = cross_section_snapshot_id
-        self.cross_section_name = cross_section_name
-        self.b_display = b_display
+        super().__init__(snapshot_id=snapshot_id,
+                         cross_section_snapshot_id=cross_section_snapshot_id,
+                         cross_section_name=cross_section_name,
+                         b_display=b_display)
 
     def load_from_db(self) -> None:
         """todo"""

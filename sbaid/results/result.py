@@ -6,7 +6,7 @@ from sbaid.common.tag import Tag
 from sbaid.results.snapshot import Snapshot
 
 
-class Result:
+class Result(GObject.GObject):
     """This class represents a result.
     Attributes: TODO checken ob kritische information fehlt
         result_id (str): The unique identifier of the result.
@@ -47,9 +47,9 @@ class Result:
 
     def __init__(self, result_id: str, project_name: str, creation_date_time: DateTime) -> None:
         """todo"""
-        self.result_id = result_id
-        self.project_name = project_name
-        self.creation_date_time = creation_date_time
+        super().__init__(result_id=result_id,
+                         project_name=project_name,
+                         creation_date_time=creation_date_time)
 
     def load(self) -> None:
         """todo"""
