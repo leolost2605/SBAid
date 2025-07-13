@@ -1,8 +1,8 @@
-"""TO DO"""
+"""TODO"""
 from typing import List
 
 
 class Route:
-    """TO DO"""
+    """TODO"""
     def __init__(self):
         self.points: List[Coordinates]

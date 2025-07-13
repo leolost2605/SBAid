@@ -1,5 +1,5 @@
 class CrossSection:
-    """TO DO"""
+    """TODO"""
     def __init__(self, simulator_cross_section: SimulatorCrossSection):
         self.cs_id: str
         self.cs_name: str
@@ -11,4 +11,4 @@ class CrossSection:
         self.b_display_active: bool
 
     def load_from_db(self):
-        """TO DO"""
+        """TODO"""

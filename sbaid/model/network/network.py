@@ -1,27 +1,28 @@
-"""TO DO"""
+"""TODO"""
 from typing import Tuple
+from gi.repository.Gio import File
 
 
 class Network:
-    """TO DO"""
+    """TODO"""
     def __init__(self, simulator: Simulator):
-        """TO DO"""
+        """TODO"""
 
     def load(self):
-        """TO DO"""
+        """TODO"""
 
     def import_from_file(self, file: File) -> Tuple[int, int]:
-        """TO DO"""
+        """TODO"""
 
     def create_cross_section(
             self,
             name: str,
             coordinates: Coordinates,
             cs_type: Common.CrossSectionType) -> int:
-        """TO DO"""
+        """TODO"""
 
     def delete_cross_section(self, cs_id: str):
-        """TO DO"""
+        """TODO"""
 
     def move_cross_section(self, cs_id: str, new_coordinates: Coordinates):
-        """TO DO"""
+        """TODO"""

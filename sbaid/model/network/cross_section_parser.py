@@ -1,15 +1,18 @@
-"""TO DO"""
+"""TODO"""
 from typing import Tuple, Callable
+from gi.repository.Gio import File
 
 
 class CrossSectionParser:
-    """TO DO"""
+    """TODO"""
 
     def can_handle_file(self, file) -> bool:
-        """TO DO"""
+        """TODO"""
 
-    def foreach_cross_section(self, file: File,
-                foreach_func: Callable[
-                    [str, Coordinates, Common.CrossSectionType], bool]
-    ) -> Tuple[int, int]:
-         """TO DO"""
+    def foreach_cross_section(self,
+                              file: File,
+                              foreach_func: Callable[
+                                  [str, Coordinates, Common.CrossSectionType],
+                                  bool]
+                              ) -> Tuple[int, int]:
+         """TODO"""
