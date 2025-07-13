@@ -13,6 +13,9 @@ run_files(){
     elif [[ $i == *.py ]]; then
       echo "Running $i..."
       ~/venv/bin/python "$i"
+      if [ $? != 0 ]; then
+        exit 1
+      fi
     fi
   done
 }
