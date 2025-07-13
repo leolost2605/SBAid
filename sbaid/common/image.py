@@ -1,19 +1,20 @@
 """This module defines the Image class,
 which represents an image that can be painted within the UI"""
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 import gi
 
 try:
     gi.require_version('Gdk', '4.0')
-    from gi.repository import Gdk
+    from gi.repository import GObject, Gdk
 except ImportError as exception:
     print('Error: Gdk is not installed correctly.', exception)
 except ValueError as exception:
     print('Error: Gdk has an inappropriate argument value.', exception)
 
 
-class Image(Gdk.Paintable, ABC):
+# mypy: ignore-errors
+class Image(GObject.GObject, Gdk.Paintable):
     """TODO"""
 
     @abstractmethod
