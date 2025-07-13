@@ -7,11 +7,11 @@ from sbaid.common.coordinate import Coordinate
 class NetworkState(GObject.GObject):
     """TODO"""
     route = GObject.Property(
-        type=list[Coordinate],
+        type=list,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
     cross_section_states = GObject.Property(
-        type=list[CrossSectionState],
+        type=list,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
