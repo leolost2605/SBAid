@@ -1,6 +1,6 @@
 """TODO"""
 from gi.repository import GObject
-from cross_section_state import CrossSectionState
+from sbaid.model.simulation.cross_section_state import CrossSectionState
 from sbaid.common.coordinate import Coordinate
 
 
@@ -15,5 +15,6 @@ class NetworkState(GObject.GObject):
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, route: list[Coordinate], cross_section_states: list[CrossSectionState]) -> None:
+    def __init__(self, route: list[Coordinate],
+                 cross_section_states: list[CrossSectionState]) -> None:
         super().__init__(route=route, cross_section_states=cross_section_states)

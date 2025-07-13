@@ -1,6 +1,6 @@
 """TODO"""
 from gi.repository import GObject
-from parameter_state import ParameterState
+from sbaid.model.simulation.parameter_state import ParameterState
 
 
 class Parameter(GObject.GObject):
