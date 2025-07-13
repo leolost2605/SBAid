@@ -38,7 +38,8 @@ class CrossSectionSnapshot(GObject.GObject):
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.CONSTRUCT_ONLY,
+        default=BDisplay.OFF)
     lane_snapshots = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |

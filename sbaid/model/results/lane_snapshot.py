@@ -53,7 +53,8 @@ class LaneSnapshot(GObject.GObject):
         type=ADisplay,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.CONSTRUCT_ONLY,
+        default=ADisplay.OFF)
     vehicle_snapshots = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |

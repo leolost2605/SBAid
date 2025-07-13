@@ -17,7 +17,8 @@ class VehicleSnapshot(GObject.GObject):
         type=VehicleType,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.CONSTRUCT_ONLY,
+        default=VehicleType.CAR)
     speed = GObject.Property(
         type=float,
         flags=GObject.ParamFlags.READABLE |
