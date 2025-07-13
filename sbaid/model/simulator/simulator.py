@@ -25,7 +25,7 @@ class Simulator(GObject.GObject, ABC):
         """Load the simulation file."""
 
     @abstractmethod
-    def create_cross_section(self, coordinates: Coordinate,
+    def create_cross_section(self, coordinate: Coordinate,
                              cross_section_type: CrossSectionType) -> int:
         """
         Create a cross section object, add it to the cross section list
@@ -38,7 +38,7 @@ class Simulator(GObject.GObject, ABC):
 
     @abstractmethod
     def move_cross_section(self, cross_section_id: str,
-    new_coordinates: Coordinate) -> None:
+    new_coordinate: Coordinate) -> None:
         """Move the cross section object."""
 
     @abstractmethod
