@@ -11,7 +11,8 @@ run_files(){
     if [ -d "$i" ]; then
       run_files "$i"
     elif [[ $i == *.py ]]; then
-      echo "$i is not a directory"
+      echo "Running $i..."
+      ~/venv/bin/python "$i"
     fi
   done
 }
