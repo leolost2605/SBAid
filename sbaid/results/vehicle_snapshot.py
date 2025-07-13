@@ -1,7 +1,8 @@
+"""This module defines the vehicle snapshot class."""
+
 from gi.repository import GObject
 from sbaid.common.vehicle_type import VehicleType
 
-"""This module defines the vehicle snapshot class."""
 
 class VehicleSnapshot:
     """ This class represents a vehicle snapshot.
@@ -12,9 +13,21 @@ class VehicleSnapshot:
     """
 
     #GObject.Property definitions
-    vehicle_type = GObject.Property(type=VehicleType)
-    speed = GObject.Property(type=float)
-    lane_snapshot_id = GObject.Property(type=str)
+    vehicle_type = GObject.Property(
+        type=VehicleType,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    speed = GObject.Property(
+        type=float,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    lane_snapshot_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
 
     def __init__(self,lane_snapshot_id: str, vehicle_type: VehicleType, speed: float) -> None:
@@ -22,5 +35,3 @@ class VehicleSnapshot:
         self.vehicle_type = vehicle_type
         self.speed = speed
         self.lane_snapshot_id = lane_snapshot_id
-
-

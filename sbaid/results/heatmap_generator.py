@@ -1,6 +1,7 @@
 """todo"""
-from sbaid.results.global_diagram_generator import GlobalDiagramHandler
 
-class HeatmapGenerator(GlobalDiagramHandler):
+from sbaid.results.global_diagram_generator import GlobalDiagramGenerator
+
+
+class HeatmapGenerator(GlobalDiagramGenerator):
     """todo"""
-    pass

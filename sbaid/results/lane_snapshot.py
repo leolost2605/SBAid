@@ -1,8 +1,10 @@
-from gi.repository import GLib, GObject
+"""This module defines the lane snapshot class."""
+
+
+from gi.repository import Gio, GObject
 from sbaid.common.a_display import ADisplay
 from sbaid.results.vehicle_snapshot import VehicleSnapshot
 
-"""This module defines the lane snapshot class."""
 
 class LaneSnapshot:
     """ This class represents a lane snapshot, which contains data collected from a specific
@@ -14,19 +16,49 @@ class LaneSnapshot:
          lane (int): The lane this snapshot represents.
          average_speed (float): The average speed of the vehicles in the lane snapshot.
          traffic_volume (int): The amount of vehicles that pass through the lane per hour.
-         a_display (ADisplay): The display the snapshot's lane is showing at the time of the snapshot.
-         vehicle_snapshots (ListModel<VehicleSnapshots>): A ListModel of the lane's vehicle snapshots.
+         a_display (ADisplay): The display the snapshot's lane is showing
+            at the time of the snapshot.
+         vehicle_snapshots (ListModel<VehicleSnapshots>): A ListModel of the
+            lane's vehicle snapshots.
     """
 
     #GObject.Property definitions
 
-    cross_section_snapshot_id = GObject.Property(type=str, default = "")
-    lane_snapshot_id = GObject.Property(type=str, default = "")
-    lane = GObject.Property(type=int, default = None)
-    average_speed = GObject.Property(type=float, default=None)
-    traffic_volume = GObject.Property(type=int, default=None)
-    a_display = GObject.Property(type=ADisplay, default=None)
-    vehicle_snapshots = GObject.Property(type=GLib.ListModel, default=None)
+    cross_section_snapshot_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    lane_snapshot_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    lane = GObject.Property(
+        type=int,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    average_speed = GObject.Property(
+        type=float,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    traffic_volume = GObject.Property(
+        type=int,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    a_display = GObject.Property(
+        type=ADisplay,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    vehicle_snapshots = GObject.Property(
+        type=Gio.ListModel,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, cross_section_snapshot_id: str, lane_snapshot_id: str, lane: int,
                  average_speed: float, traffic_volume: int, a_display: ADisplay) -> None:
@@ -40,8 +72,6 @@ class LaneSnapshot:
 
     def load_from_db(self) -> None:
         """todo"""
-        pass
 
     def add_vehicle_snapshot(self, snapshot: VehicleSnapshot) -> None:
         """todo"""
-        pass
