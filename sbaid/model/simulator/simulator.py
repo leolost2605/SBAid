@@ -8,7 +8,8 @@ from gi.repository import GObject, Gio
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.coordinate import Coordinate
-from sbaid.model.simulation import Input, Display
+from sbaid.model.simulation.input import Input
+from sbaid.model.simulation.display import Display
 
 
 class Simulator(GObject.GObject, ABC):
