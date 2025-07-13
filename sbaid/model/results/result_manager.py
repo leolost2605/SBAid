@@ -1,7 +1,7 @@
 """todo"""
 
 from gi.repository import Gio, GObject
-from sbaid.results.result import Result
+from sbaid.model.results.result import Result
 
 
 class ResultManager:
@@ -12,12 +12,12 @@ class ResultManager:
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.CONSTRUCT_ONLY)
     results = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self) -> None:
         """todo"""
@@ -25,7 +25,7 @@ class ResultManager:
     def load_from_db(self) -> None:
         """todo"""
 
-    def create_tag(self, name: str) -> None:
+    def create_tag(self, name: str) -> int:
         """todo"""
 
     def delete_tag(self, tag_id: str) -> None:

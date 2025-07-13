@@ -1,10 +1,11 @@
 """todo"""
 
-from xmlrpc.client import DateTime
+from gi.repository import GLib
 from sbaid.common.a_display import ADisplay
 from sbaid.common.vehicle_type import VehicleType
-from sbaid.results.result_manager import ResultManager
+from sbaid.model.results.result_manager import ResultManager
 from sbaid.common.b_display import BDisplay
+from sbaid.model.results.result import Result
 
 
 class ResultBuilder:
@@ -16,7 +17,7 @@ class ResultBuilder:
     def begin_result(self, project_name: str) -> None:
         """todo"""
 
-    def begin_snapshot(self, simulation_timestamp: DateTime) -> None:
+    def begin_snapshot(self, simulation_timestamp: GLib.DateTime) -> None:
         """todo"""
 
     def begin_cross_section(self, cross_section_name: str) -> None:
@@ -58,5 +59,5 @@ class ResultBuilder:
     def end_snapshot(self) -> None:
         """todo"""
 
-    def end_result(self) -> None:
+    def end_result(self) -> Result:
         """todo"""

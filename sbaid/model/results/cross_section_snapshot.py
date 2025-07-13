@@ -2,7 +2,7 @@
 
 from gi.repository import Gio, GObject
 from sbaid.common.b_display import BDisplay
-from sbaid.results.lane_snapshot import LaneSnapshot
+from sbaid.model.results.lane_snapshot import LaneSnapshot
 
 
 class CrossSectionSnapshot(GObject.GObject):
@@ -56,5 +56,5 @@ class CrossSectionSnapshot(GObject.GObject):
     def load_from_db(self) -> None:
         """todo"""
 
-    def add_lane_snapshots(self, snapshot: LaneSnapshot) -> None:
+    def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """todo"""

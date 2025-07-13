@@ -1,9 +1,8 @@
 """ This module represents the Result class."""
 
-from xmlrpc.client import DateTime
-from gi.repository import Gio, GObject
+from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
-from sbaid.results.snapshot import Snapshot
+from sbaid.model.results.snapshot import Snapshot
 
 
 class Result(GObject.GObject):
@@ -33,9 +32,9 @@ class Result(GObject.GObject):
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.CONSTRUCT_ONLY)
     creation_date_time = GObject.Property(
-        type=DateTime,
+        type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -43,9 +42,9 @@ class Result(GObject.GObject):
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.SELECTED_ONLY)
 
-    def __init__(self, result_id: str, project_name: str, creation_date_time: DateTime) -> None:
+    def __init__(self, result_id: str, project_name: str, creation_date_time: GLib.DateTime) -> None:
         """todo"""
         super().__init__(result_id=result_id,
                          project_name=project_name,

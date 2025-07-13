@@ -3,7 +3,7 @@
 
 from gi.repository import Gio, GObject
 from sbaid.common.a_display import ADisplay
-from sbaid.results.vehicle_snapshot import VehicleSnapshot
+from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 
 
 class LaneSnapshot(GObject.GObject):

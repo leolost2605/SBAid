@@ -1,8 +1,7 @@
 """ This module represents the Snapshot class."""
 
-from xmlrpc.client import DateTime
-from gi.repository import Gio, GObject
-from sbaid.results.cross_section_snapshot import CrossSectionSnapshot
+from gi.repository import Gio, GLib, GObject
+from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 
 
 class Snapshot(GObject.GObject):
@@ -22,7 +21,7 @@ class Snapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
     capture_timestamp = GObject.Property(
-        type=DateTime,
+        type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -32,7 +31,7 @@ class Snapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, snapshot_id: str, capture_timestamp: DateTime) -> None:
+    def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime) -> None:
         """Initialize the Snapshot class."""
         super().__init__(snapshot_id=snapshot_id,
                          capture_timestamp=capture_timestamp)
