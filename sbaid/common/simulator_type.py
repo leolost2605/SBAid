@@ -6,12 +6,12 @@ class SimulatorType(GObject.GObject):
     """TODO"""
     simulator_type_id = GObject.Property(
         type=str,
-        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT)
+        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
     name = GObject.Property(
         type=str,
-        flags=GObject.PARAM_READWRITE)
+        flags=GObject.ParamFlags.READABLE |
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
-        """Initialize the simulator type with an id and a name."""
-        self.simulator_type_id = simulator_type_id
-        self.name = name
+        super().__init__(simulator_type_id=simulator_type_id, name=name)

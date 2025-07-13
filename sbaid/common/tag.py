@@ -15,6 +15,5 @@ class Tag(GObject.GObject):
     )
 
     def __init__(self, tag_id: str, name: str) -> None:
-        """Initialize the tag with an id and a name."""
-        self.tag_id = tag_id
-        self.name = name
+        """TODO"""
+        super().__init__(tag_id=tag_id, name=name)
