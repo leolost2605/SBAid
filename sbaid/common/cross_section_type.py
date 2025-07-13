@@ -6,5 +6,5 @@ from enum import Enum
 class CrossSectionType(Enum):
     """This enum represents the different types of cross sections."""
     DISPLAY = 0
-    MEASUREING = 1
+    MEASURING = 1
     COMBINED = 2
