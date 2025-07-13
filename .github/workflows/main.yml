@@ -24,7 +24,4 @@ jobs:
         run: |
           ~/venv/bin/mypy --strict ./sbaid
       - name: Run all files
-        run: |
-          for filename in ./*.py; do
-            ~/venv/bin/python $filename
-          done
+        run: ./.github/workflows/naive_test.sh
