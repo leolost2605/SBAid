@@ -4,14 +4,14 @@ import gi
 
 try:
     gi.require_version('Gdk', '4.0')
-    from gi.repository import Gdk
+    from gi.repository import GObject, Gtk
 except ImportError as exception:
     print('Error: Gdk is not installed correctly.', exception)
 except ValueError as exception:
     print('Error: Gdk has an inappropriate argument value.', exception)
 
 
-class Image(Gdk.Paintable):
+class Image(GObject.GObject, Gdk.Paintable):
     """TODO"""
 
     def save_to_file(self, path: str) -> None:
