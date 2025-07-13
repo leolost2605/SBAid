@@ -10,7 +10,7 @@ run_files(){
   for i in "$target"/*; do
     if [ -d "$i" ]; then
       run_files "$i"
-    elif ".py" in "$i"; then
+    elif [[ $i == *.py ]]; then
       echo "$i is not a directory"
     fi
   done
