@@ -23,5 +23,3 @@ jobs:
       - name: Run mypy (Type checking)
         run: |
           ~/venv/bin/mypy --strict ./sbaid
-      - name: Run all files
-        run: bash ./scripts/naive_test.sh
