@@ -15,7 +15,7 @@ class Snapshot:
          snapshots the snapshot consists of.
     """
 
-    #GObject.Property definitions
+    # GObject.Property definitions
     snapshot_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |

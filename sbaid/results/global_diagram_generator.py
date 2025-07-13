@@ -14,5 +14,5 @@ class GlobalDiagramGenerator(DiagramHandler):
         """todo"""
 
     def get_diagram(self, result: Result, cross_section_ids: list,
-                    image_format: ImageFormat)-> Image:
+                    image_format: ImageFormat) -> Image:
         """todo"""

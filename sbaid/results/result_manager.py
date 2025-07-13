@@ -7,7 +7,7 @@ from sbaid.results.result import Result
 class ResultManager:
     """todo"""
 
-    #GObject.Property definitions
+    # GObject.Property definitions
     available_tags = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |

@@ -9,11 +9,11 @@ from sbaid.common.diagram_type import DiagramType
 class DiagramExporter:
     """todo"""
 
-    #GObject.Property definitions
+    # GObject.Property definitions
     available_diagram_types = GObject.Property(type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+                                               flags=GObject.ParamFlags.READABLE |
+                                               GObject.ParamFlags.WRITABLE |
+                                               GObject.ParamFlags.CONSTRUCT)
 
     def create_diagram(self, result: Result, cross_section_ids: list,
                        image_format: ImageFormat, diagram_type: DiagramType):

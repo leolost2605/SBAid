@@ -12,7 +12,7 @@ class VehicleSnapshot:
         lane_snapshot_id (str): The unique identifier of the lane the vehicle snapshot belongs to.
     """
 
-    #GObject.Property definitions
+    # GObject.Property definitions
     vehicle_type = GObject.Property(
         type=VehicleType,
         flags=GObject.ParamFlags.READABLE |
@@ -29,8 +29,7 @@ class VehicleSnapshot:
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-
-    def __init__(self,lane_snapshot_id: str, vehicle_type: VehicleType, speed: float) -> None:
+    def __init__(self, lane_snapshot_id: str, vehicle_type: VehicleType, speed: float) -> None:
         """Initialize the vehicle snapshot class."""
         self.vehicle_type = vehicle_type
         self.speed = speed

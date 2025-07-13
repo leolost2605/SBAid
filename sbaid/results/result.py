@@ -18,7 +18,7 @@ class Result:
          added to the result are selected.
     """
 
-    #GObject.Property definitions
+    # GObject.Property definitions
     result_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |

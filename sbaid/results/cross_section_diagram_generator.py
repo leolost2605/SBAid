@@ -14,5 +14,5 @@ class CrossSectionDiagramGenerator(DiagramHandler):
         """todo"""
 
     def get_diagram(self, result: Result, cross_section_id: str,
-                         image_format: ImageFormat)-> Image:
+                    image_format: ImageFormat) -> Image:
         """todo"""

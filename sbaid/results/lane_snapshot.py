@@ -22,7 +22,7 @@ class LaneSnapshot:
             lane's vehicle snapshots.
     """
 
-    #GObject.Property definitions
+    # GObject.Property definitions
 
     cross_section_snapshot_id = GObject.Property(
         type=str,
