@@ -1,3 +1,19 @@
-for filename in ./*.py; do
-  ~/venv/bin/python $filename
-done
+#!/bin/bash
+
+## Do not expand globs to themselves if they don't match
+shopt -s nullglob
+
+run_files(){
+  ## if a target has been passed as an argument, use that; if not,
+  ## default to '.', the current directory.
+  target=${1:-.}
+  for i in "$target"/*; do
+    if [ -d "$i" ]; then
+      run_files "$i"
+    elif ".py" in "$i"; then
+      echo "$i is not a directory"
+    fi
+  done
+}
+
+run_files "$@"
