@@ -10,8 +10,8 @@ class SimulatorType(GObject.GObject):
     name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
         super().__init__(simulator_type_id=simulator_type_id, name=name)
