@@ -1,8 +1,8 @@
 """This module defines the BDisplay enum."""
-from enum import Enum
+from gi.repository import GObject
 
 
-class BDisplay(Enum):
+class BDisplay(GObject.GEnum):
     """This enum represents the different types of B Display signals."""
     OFF = 0
     TRAFFIC_JAM = 1
