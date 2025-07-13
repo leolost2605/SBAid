@@ -10,4 +10,3 @@ class CrossSectionDiagramGenerator(DiagramHandler):
     def get_diagram_type(self) -> DiagramType:
         """todo"""
         return DiagramType("todo", "todo")
-

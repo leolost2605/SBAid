@@ -27,6 +27,7 @@ class ResultManager:
 
     def create_tag(self, name: str) -> int:
         """todo"""
+        return None
 
     def delete_tag(self, tag_id: str) -> None:
         """todo"""

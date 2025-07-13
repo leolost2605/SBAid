@@ -61,3 +61,4 @@ class ResultBuilder:
 
     def end_result(self) -> Result:
         """todo"""
+        return None
