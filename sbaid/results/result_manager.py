@@ -31,7 +31,7 @@ class ResultManager:
     def delete_tag(self, tag_id: str) -> None:
         """todo"""
 
-    def delete_result(self, result_id: str):
+    def delete_result(self, result_id: str) -> None:
         """todo"""
 
     def register_result(self, result: Result) -> None:

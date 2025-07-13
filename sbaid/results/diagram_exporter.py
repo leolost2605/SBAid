@@ -15,6 +15,6 @@ class DiagramExporter:
                                                GObject.ParamFlags.WRITABLE |
                                                GObject.ParamFlags.CONSTRUCT)
 
-    def create_diagram(self, result: Result, cross_section_ids: list,
-                       image_format: ImageFormat, diagram_type: DiagramType):
+    def create_diagram(self, result: Result, cross_section_ids: list[str],
+                       image_format: ImageFormat, diagram_type: DiagramType) -> None:
         """todo"""
