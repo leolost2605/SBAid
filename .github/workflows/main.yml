@@ -16,10 +16,12 @@ jobs:
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          ~/venv/bin/pylint --disable too-few-public-methods,duplicate-code,too-many-arguments,too-many-positional-arguments ./sbaid
+          ~/venv/bin/pylint ./sbaid
       - name: Run flake (Formatting)
         run: |
-          ~/venv/bin/flake8 --max-line-length 100 ./sbaid
+          ~/venv/bin/flake8 ./sbaid
       - name: Run mypy (Type checking)
         run: |
           ~/venv/bin/mypy --strict ./sbaid
+      - name: Run all files
+        run: bash ./scripts/naive_test.sh
