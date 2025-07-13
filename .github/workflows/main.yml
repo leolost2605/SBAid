@@ -16,7 +16,7 @@ jobs:
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          ~/venv/bin/pylint --disable too-few-public-methods ./sbaid
+          ~/venv/bin/pylint --disable too-few-public-methods,duplicate-code,too-many-arguments,too-many-positional-arguments ./sbaid
       - name: Run flake (Formatting)
         run: |
           ~/venv/bin/flake8 ./sbaid

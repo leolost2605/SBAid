@@ -1,14 +1,20 @@
 """this module defines the SimulatorType class"""
+from gi.repository import GObject
 
 
-class SimulatorType:
-    """This class represents a type of simulator.
-    Attributes:
-        simulator_type_id (str): The unique identifier for the simulator type.
-        name (str): The name of the simulator type.
-    """
+class SimulatorType(GObject.GObject):
+    """TODO"""
+    simulator_type_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+    name = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
-        """Initialize the simulator type with an id and a name."""
-        self.simulator_type_id = simulator_type_id
-        self.name = name
+        """TODO"""
+        super().__init__(simulator_type_id=simulator_type_id, name=name)
