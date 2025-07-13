@@ -8,6 +8,7 @@ from sbaid.model.algorithm import Algorithm
 class ParameterConfiguration(GObject.GObject):
     """This class defines the ParameterConfiguration class."""
 
+    # GObject property definition
     parameters = GObject.property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |

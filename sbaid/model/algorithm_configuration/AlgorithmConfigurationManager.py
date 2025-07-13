@@ -4,6 +4,7 @@ from sbaid.model.network import Network
 
 class AlgorithmConfigurationManager(GObject.GObject):
 
+    # GObject property definition
     selected_algorithm_configuration_id = GObject.property(
         type=str,
         flags=GObject.ParamFlags.READABLE |

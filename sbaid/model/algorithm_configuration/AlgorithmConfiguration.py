@@ -8,6 +8,7 @@ from sbaid.model.algorithm_configuration import ParameterConfiguration
 class AlgorithmConfiguration(GObject.GObject):
     """Todo"""
 
+    # GObject property definition
     id = GObject.property(
         type=str,
         flags=GObject.ParamFlags.READABLE |

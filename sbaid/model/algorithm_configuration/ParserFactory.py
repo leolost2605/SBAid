@@ -4,6 +4,7 @@ from sbaid.model.algorithm_configuration import ParameterParser
 
 class ParserFactory(GObject.GObject):
 
+    # GObject property definition
     parsers = GObject.property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
