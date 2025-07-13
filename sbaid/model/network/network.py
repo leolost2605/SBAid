@@ -1,4 +1,7 @@
 """TODO"""
+from common import CrossSectionType
+from simulator import Simulator
+from model import Coordinates
 from typing import Tuple
 from gi.repository.Gio import File
 
@@ -18,7 +21,7 @@ class Network:
             self,
             name: str,
             coordinates: Coordinates,
-            cs_type: Common.CrossSectionType) -> int:
+            cs_type: CrossSectionType) -> int:
         """TODO"""
 
     def delete_cross_section(self, cs_id: str):

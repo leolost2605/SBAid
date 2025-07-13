@@ -1,4 +1,5 @@
 """TODO"""
+from model import Coordinates
 from typing import List
 
 
