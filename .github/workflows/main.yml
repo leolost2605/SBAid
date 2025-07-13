@@ -19,7 +19,7 @@ jobs:
           ~/venv/bin/pylint --disable too-few-public-methods,duplicate-code,too-many-arguments,too-many-positional-arguments ./sbaid
       - name: Run flake (Formatting)
         run: |
-          ~/venv/bin/flake8 ./sbaid
+          ~/venv/bin/flake8 --max-line-length 100 ./sbaid
       - name: Run mypy (Type checking)
         run: |
           ~/venv/bin/mypy --strict ./sbaid
