@@ -1,3 +1,0 @@
-"""
-The algorithm configuration package.
-"""

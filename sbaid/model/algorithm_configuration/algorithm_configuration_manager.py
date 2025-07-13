@@ -2,57 +2,53 @@
 from gi.repository import GObject, Gio
 from sbaid.model.network import Network
 
-class AlgorithmConfigurationManager(GObject.GObject):
 
+class AlgorithmConfigurationManager(GObject.GObject):
+    """todo"""
     # GObject property definition
-    selected_algorithm_configuration_id = GObject.property(
+    selected_algorithm_configuration_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
-    available_tags = GObject.property(
+    available_tags = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    algorithm_configuration = GObject.property(
+    algorithm_configuration = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __network = GObject.property(
+    __network = GObject.Property(
         type=Network,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY
     )
 
-    def __init__(self, id: str, network: Network) -> None:
+    def __init__(self, manager_id: str, network: Network) -> None:
         """todo"""
-        self.id = id
+        self.id = manager_id
         self.network = network
-        pass
 
     def load(self) -> None:
         """todo"""
-        pass
 
-    def create_algorithm_configuration(self) -> int: #algorithm_configuration_list_position
+    def create_algorithm_configuration(self) -> int:
         """todo"""
-        pass
+        return None
 
     def delete_algorithm_configuration(self) -> None:
         """todo"""
-        pass
 
-    def create_tag(name: str) -> int: #list position
+    def create_tag(self, name: str) -> int:
         """todo"""
-        pass
+        return None
 
-    def delete_tag(id: str) -> None:
+    def delete_tag(self, tag_id: str) -> None:
         """todo"""
-        pass
-

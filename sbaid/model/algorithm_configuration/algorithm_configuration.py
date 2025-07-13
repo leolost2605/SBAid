@@ -1,70 +1,68 @@
 """This module defines the AlgorithmConfiguration class"""
-from gi.repository import GObject, Gio
+from gi.repository import GObject
 from sbaid.model.network import Network
 from sbaid.model.algorithm import Algorithm
-from sbaid.model.algorithm_configuration import ParameterConfiguration
+from sbaid.model.algorithm_configuration.parameter_configuration import (
+    ParameterConfiguration)
 
 
 class AlgorithmConfiguration(GObject.GObject):
     """Todo"""
 
     # GObject property definition
-    id = GObject.property(
+    id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    name = GObject.property(
+    name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
-    script_path = GObject.property(
+    script_path = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
-    evaluation_interval = GObject.property(
+    evaluation_interval = GObject.Property(
         type=int,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
-    display_interval = GObject.property(
+    display_interval = GObject.Property(
         type=int,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
-    algorithm = GObject.property(
+    algorithm = GObject.Property(
         type=Algorithm,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __network = GObject.property(
+    __network = GObject.Property(
         type=Network,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY
     )
 
-    parameter_configuration = GObject.property(
+    parameter_configuration = GObject.Property(
         type=ParameterConfiguration,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, id: str, network: Network) -> None:
+    def __init__(self, configuration_id: str, network: Network) -> None:
         """todo"""
-        self.id = id
+        self.id = configuration_id
         self.network = network
-        pass
 
     def load_from_db(self) -> None:
         """todo"""
-        pass
-
