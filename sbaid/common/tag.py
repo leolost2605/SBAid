@@ -8,10 +8,14 @@ class Tag(GObject.GObject):
     # GObject property definition
     tag_id = GObject.Property(
         type=str,
-        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT)
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
     name = GObject.Property(
         type=str,
-        flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT
     )
 
     def __init__(self, tag_id: str, name: str) -> None:
