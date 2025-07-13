@@ -4,7 +4,7 @@ which provides interfaces for loading files, cross section modification,
 and runtime simulation operations.
 """
 from abc import ABC, abstractmethod
-from gi.repository import GObject, Gio, Shumate
+from gi.repository import GObject, Gio
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.coordinate import Coordinate
@@ -12,6 +12,7 @@ from sbaid.model.simulation import Input, Display
 
 
 class Simulator(GObject.GObject, ABC):
+    """TODO"""
     type = GObject.Property(type=SimulatorType, flags=GObject.ParamFlags.READABLE |
     GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
     cross_sections = GObject.Property(type=Gio.ListModel, flags=GObject.ParamFlags.READABLE |
@@ -36,7 +37,7 @@ class Simulator(GObject.GObject, ABC):
 
     @abstractmethod
     def move_cross_section(self, cross_section_id: str,
-    new_coordinates: Shumate.Coordinate) -> None:
+    new_coordinates: Coordinate) -> None:
         """Move the cross section object."""
 
     @abstractmethod

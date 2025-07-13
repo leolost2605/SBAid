@@ -3,11 +3,9 @@ This module contains the abstract SimulatorCrossSection class
 which provides cross section GObject properties.
 """
 from abc import ABC
+from gi.repository import GObject
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.coordinate import Coordinate
-
-from gi.repository import GObject, Shumate
-
 
 
 class SimulatorCrossSection(GObject.GObject, ABC):
