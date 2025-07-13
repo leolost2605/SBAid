@@ -4,7 +4,7 @@ from gi.repository import Gio, GObject
 from sbaid.model.results.result import Result
 
 
-class ResultManager:
+class ResultManager(GObject.GObject):
     """todo"""
 
     # GObject.Property definitions

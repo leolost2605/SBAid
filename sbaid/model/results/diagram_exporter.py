@@ -6,7 +6,7 @@ from sbaid.common.image_format import ImageFormat
 from sbaid.common.diagram_type import DiagramType
 
 
-class DiagramExporter:
+class DiagramExporter(GObject.GObject):
     """todo"""
 
     # GObject.Property definitions

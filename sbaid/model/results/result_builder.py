@@ -1,6 +1,6 @@
 """todo"""
 
-from gi.repository import GLib
+from gi.repository import GLib, GObject
 from sbaid.common.a_display import ADisplay
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.results.result_manager import ResultManager
@@ -8,7 +8,7 @@ from sbaid.common.b_display import BDisplay
 from sbaid.model.results.result import Result
 
 
-class ResultBuilder:
+class ResultBuilder(GObject.GObject):
     """todo"""
 
     def __init__(self, result_manager: ResultManager) -> None:
