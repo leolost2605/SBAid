@@ -16,8 +16,6 @@ class ParameterConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    _network = Network
-
     def __init__(self, network: Network) -> None:
         """todo"""
         super().__init__()

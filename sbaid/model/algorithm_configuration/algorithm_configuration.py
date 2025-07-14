@@ -46,8 +46,6 @@ class AlgorithmConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    _network = Network
-
     parameter_configuration = GObject.Property(
         type=ParameterConfiguration,
         flags=GObject.ParamFlags.READABLE |

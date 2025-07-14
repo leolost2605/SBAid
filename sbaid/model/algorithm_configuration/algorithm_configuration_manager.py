@@ -24,8 +24,6 @@ class AlgorithmConfigurationManager(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    _network = Network
-
     def __init__(self, manager_id: str, network: Network) -> None:
         """todo"""
         super().__init__(id=manager_id)
