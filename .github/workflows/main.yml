@@ -37,10 +37,11 @@ jobs:
       image: ghcr.io/leolost2605/docker:ubuntu-pygobject
     steps:
       - uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: |
-          python3 -m venv ~/venv
-          ~/venv/bin/pip install pygobject-stubs pycairo PyGObject
+#      - name: Install Dependencies
+#        run: |
+#          python3 -m venv ~/venv
+#          ~/venv/bin/pip install pygobject-stubs pycairo PyGObject
       - name: Run tests
         run: |
-          ~/venv/bin/python -m unittest -v
+          pwd
+          /venv/bin/python -m unittest -v
