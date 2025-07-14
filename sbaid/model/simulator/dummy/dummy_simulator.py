@@ -21,6 +21,7 @@ class DummySimulator(Simulator):
     def prop_cross_sections(self) -> Gio.ListModel:
         """TODO"""
         return None
+
     def load_file(self, file: Gio.File) -> None:
         """TODO"""
 
