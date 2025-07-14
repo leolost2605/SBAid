@@ -3,7 +3,7 @@ from gi.repository import GObject
 from sbaid.model.simulation.parameter_state import ParameterState
 
 
-class Parameter(GObject.GObject):
+class ParameterConfigurationState(GObject.GObject):
     """TODO"""
 
     def __init__(self, parameter_states: list[ParameterState]) -> None:

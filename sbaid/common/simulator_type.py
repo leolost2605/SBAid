@@ -1,4 +1,4 @@
-"""this module defines the SimulatorType class"""
+"""This module defines the SimulatorType class"""
 from gi.repository import GObject
 
 
