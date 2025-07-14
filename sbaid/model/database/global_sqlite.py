@@ -1,17 +1,18 @@
 """TODO"""
-from gi.repository.GObject import GInterface
-from gi.repository.GObject import DateTime
+
+
+from gi.repository.GLib import DateTime
 from gi.repository.Gio import File
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.vehicle_type import VehicleType
+from sbaid.model.database.global_database import GlobalDatabase
 
 
-class GlobalDatabase(GInterface):
+class GlobalSQLite(GlobalDatabase):
     """TODO"""
-
     def open(self, file: File) -> None:
         """TODO"""
 

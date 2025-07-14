@@ -1,13 +1,14 @@
 """TODO"""
 from typing import Optional
 
-from gi.repository.GObject import GInterface
 from gi.repository.GLib import Variant
 from gi.repository.GObject import DateTime
 from gi.repository.Gio import File
 
+from sbaid.model.database.project_database import ProjectDatabase
 
-class ProjectDatabase(GInterface):
+
+class ProjectSQLite(ProjectDatabase):
     """TODO"""
 
     def open(self, file: File) -> None:
