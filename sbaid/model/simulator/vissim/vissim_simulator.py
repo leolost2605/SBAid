@@ -17,6 +17,7 @@ class VissimSimulator(Simulator):
     def create_cross_section(self, coordinate: Coordinate,
                              cross_section_type: CrossSectionType) -> int:
         """TODO"""
+        return 0
 
     def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
