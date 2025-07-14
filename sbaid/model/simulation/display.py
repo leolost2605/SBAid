@@ -13,7 +13,7 @@ class Display(GObject.GObject):
     _a_display: dict[str, dict[int, ADisplay]] = {}
     _b_display: dict[str, BDisplay] = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._a_display = {}
         self._b_display = {}
