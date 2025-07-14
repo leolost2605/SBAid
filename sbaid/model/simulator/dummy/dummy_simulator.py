@@ -1,6 +1,7 @@
 """This module contains the DummySimulator class."""
-from gi.repository import Gio
+from gi.repository import GObject, Gio
 
+from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
 from sbaid.common.coordinate import Coordinate
@@ -11,6 +12,15 @@ from sbaid.common.cross_section_type import CrossSectionType
 class DummySimulator(Simulator):
     """TODO"""
 
+    @GObject.Property(type=SimulatorType)
+    def prop_type(self) -> SimulatorType:
+        """TODO"""
+        return None
+
+    @GObject.Property(type=Gio.ListModel)
+    def prop_cross_sections(self) -> Gio.ListModel:
+        """TODO"""
+        return None
     def load_file(self, file: Gio.File) -> None:
         """TODO"""
 

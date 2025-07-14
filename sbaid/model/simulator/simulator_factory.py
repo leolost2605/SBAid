@@ -1,6 +1,6 @@
 """This module contains the factory for different simulators"""
 from sbaid.common.simulator_type import SimulatorType
-from .simulator import Simulator
+from sbaid.model.simulator.simulator import Simulator
 
 
 class SimulatorFactory:
