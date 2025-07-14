@@ -1,11 +1,12 @@
 """TODO"""
 from typing import Tuple, Callable
-from common import CrossSectionType
-from model import Coordinates
 from gi.repository.Gio import File
+from sbaid.common import CrossSectionType
+from sbaid.common.coordinate import Coordinate
+from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
 
 
-class CrossSectionParser:
+class CrossSectionParser(CSVCrossSectionParser):
     """TODO"""
 
     def can_handle_file(self, file) -> bool:
@@ -14,6 +15,6 @@ class CrossSectionParser:
     def foreach_cross_section(
         self,
         file: File,
-        foreach_func: Callable[[str, Coordinates, CrossSectionType], bool]
+        foreach_func: Callable[[str, Coordinate, CrossSectionType], bool]
     ) -> Tuple[int, int]:
          """TODO"""

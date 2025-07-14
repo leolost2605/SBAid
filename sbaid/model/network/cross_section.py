@@ -1,6 +1,7 @@
+"""TODO"""
 from model.simulation import SimulatorCrossSection
-from model import Coordinates
-from common import CrossSectionType
+from sbaid.common.coordinate import Coordinate
+from sbaid.common import CrossSectionType
 
 
 class CrossSection:
@@ -8,7 +9,7 @@ class CrossSection:
     def __init__(self, simulator_cross_section: SimulatorCrossSection):
         self.cs_id: str
         self.cs_name: str
-        self.position: Coordinates
+        self.position: Coordinate
         self.cs_type: CrossSectionType
         self.lanes: int
         self.hard_shoulder_available: bool
