@@ -8,14 +8,14 @@ class Snapshot(GObject.GObject):
     """ This class represents a snapshot, containing cross section snapshots
             with the same timestamp.
     Attributes:
-        snapshot_id (str): The unique identifier of the snapshot.
+        id (str): The unique identifier of the snapshot.
         capture_timestamp (DateTime): The timestamp of the snapshot capture.
         cross_section_snapshots (ListModel<CrossSectionSnapshot>): The list of cross section
          snapshots the snapshot consists of.
     """
 
     # GObject.Property definitions
-    snapshot_id = GObject.Property(
+    id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -33,7 +33,7 @@ class Snapshot(GObject.GObject):
 
     def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime) -> None:
         """Initialize the Snapshot class."""
-        super().__init__(snapshot_id=snapshot_id,
+        super().__init__(id=snapshot_id,
                          capture_timestamp=capture_timestamp)
 
     def load_from_db(self) -> None:
