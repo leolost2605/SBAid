@@ -19,7 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Dependencies
         run: |
-          apt update
           python3 -m venv ~/venv
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
@@ -38,7 +37,10 @@ jobs:
       image: ghcr.io/leolost2605/docker:ubuntu-pygobject
     steps:
       - uses: actions/checkout@v4
-      # We don't install our own dependencies because our image comes already with them
+      - name: Install Dependencies
+        run: |
+          python3 -m venv ~/venv
+          ~/venv/bin/pip install pygobject-stubs pycairo PyGObject
       - name: Run tests
         run: |
           ~/venv/bin/python -m unittest -v
