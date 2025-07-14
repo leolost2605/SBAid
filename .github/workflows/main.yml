@@ -1,5 +1,12 @@
 name: main.yml
-on: [pull_request, push]
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches: [main]
 
 jobs:
   lint:
@@ -23,3 +30,19 @@ jobs:
       - name: Run mypy (Type checking)
         run: |
           ~/venv/bin/mypy --strict ./sbaid
+
+  tests:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/elementary/docker:development-target
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          apt update
+          apt install -y python3-full pip libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+          python3 -m venv ~/venv
+          ~/venv/bin/pip install pygobject-stubs pycairo PyGObject
+      - name: Run tests
+        run: |
+          ~/venv/bin/python -m unittest -v
