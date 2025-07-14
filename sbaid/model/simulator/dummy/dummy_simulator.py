@@ -10,11 +10,12 @@ from sbaid.common.cross_section_type import CrossSectionType
 
 class DummySimulator(Simulator):
     """TODO"""
+
     def load_file(self, file: Gio.File) -> None:
         """TODO"""
 
     def create_cross_section(self, coordinate: Coordinate,
-                             cross_section_type: CrossSectionType) -> None:
+                             cross_section_type: CrossSectionType) -> int:
         """TODO"""
 
     def remove_cross_section(self, cross_section_id: str) -> None:
@@ -23,7 +24,7 @@ class DummySimulator(Simulator):
     def move_cross_section(self, cross_section_id: str, new_position: Coordinate) -> None:
         """TODO"""
 
-    def init_simulation(self):
+    def init_simulation(self) -> tuple[int, int]:
         return 0, 0
 
     def continue_simulation(self, span: int) -> None:

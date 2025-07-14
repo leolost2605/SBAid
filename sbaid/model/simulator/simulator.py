@@ -46,7 +46,7 @@ class Simulator(GObject.GObject, ABC):
         """Move the cross section object."""
 
     @abstractmethod
-    def init_simulation(self) -> (int, int):
+    def init_simulation(self) -> tuple[int, int]:
         """
         Initialize the simulation object. Return the internal simulation start time
         and runtime.
