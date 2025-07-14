@@ -1,9 +1,8 @@
 """This module represents the SimulationObserver class"""
-from abc import ABC
-from gi.repository import GLib
+from gi.repository import GLib, GObject
 
 
-class SimulationObserver(ABC):
+class SimulationObserver(GObject.GInterface):
     """todo"""
 
     def __init__(self) -> None:
