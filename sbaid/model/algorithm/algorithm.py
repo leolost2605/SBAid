@@ -12,13 +12,17 @@ class Algorithm(GObject.GInterface):
 
     def get_global_parameter_template(self) -> Gio.ListModel:
         """todo"""
+        return None
 
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
         """todo"""
+        return None
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
              network_state: NetworkState) -> None:
         """todo"""
+        return None
 
     def calculate_display(self, algorithm_input: list[Input]) -> Display:
         """todo"""
+        return None
