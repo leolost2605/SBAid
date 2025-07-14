@@ -16,7 +16,7 @@ class ParameterTemplate(GObject.GObject):
                                   flags=GObject.ParamFlags.READABLE |
                                   GObject.ParamFlags.WRITABLE |
                                   GObject.ParamFlags.CONSTRUCT_ONLY)
-    default_value = GObject.Property(type=GLib.Variant,
+    default_value = GObject.Property(type=GObject.TYPE_VARIANT,
                                      flags=GObject.ParamFlags.READABLE |
                                      GObject.ParamFlags.WRITABLE |
                                      GObject.ParamFlags.CONSTRUCT_ONLY)
