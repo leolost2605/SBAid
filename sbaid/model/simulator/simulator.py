@@ -14,10 +14,14 @@ from sbaid.model.simulation.display import Display
 
 class Simulator(GObject.GObject, ABC):
     """TODO"""
-    type = GObject.Property(type=SimulatorType, flags=GObject.ParamFlags.READABLE |
-    GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    cross_sections = GObject.Property(type=Gio.ListModel, flags=GObject.ParamFlags.READABLE |
-    GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    type = GObject.Property(type=SimulatorType,
+                            flags=GObject.ParamFlags.READABLE |
+                            GObject.ParamFlags.WRITABLE |
+                            GObject.ParamFlags.CONSTRUCT_ONLY)
+    cross_sections = GObject.Property(type=Gio.ListModel,
+                                      flags=GObject.ParamFlags.READABLE |
+                                      GObject.ParamFlags.WRITABLE |
+                                      GObject.ParamFlags.CONSTRUCT_ONLY)
     """This abstract class represents a simulator."""
 
     @abstractmethod
@@ -38,7 +42,7 @@ class Simulator(GObject.GObject, ABC):
 
     @abstractmethod
     def move_cross_section(self, cross_section_id: str,
-    new_position: Coordinate) -> None:
+                           new_position: Coordinate) -> None:
         """Move the cross section object."""
 
     @abstractmethod

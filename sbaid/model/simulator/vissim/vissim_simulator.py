@@ -7,6 +7,7 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
 
+
 class VissimSimulator(Simulator):
     """TODO"""
 
@@ -14,7 +15,7 @@ class VissimSimulator(Simulator):
         """TODO"""
 
     def create_cross_section(self, coordinate: Coordinate,
-    cross_section_type: CrossSectionType) -> None:
+                             cross_section_type: CrossSectionType) -> None:
         """TODO"""
 
     def remove_cross_section(self, cross_section_id: str) -> None:

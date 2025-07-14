@@ -14,7 +14,7 @@ class DummySimulator(Simulator):
         """TODO"""
 
     def create_cross_section(self, coordinate: Coordinate,
-    cross_section_type: CrossSectionType) -> None:
+                             cross_section_type: CrossSectionType) -> None:
         """TODO"""
 
     def remove_cross_section(self, cross_section_id: str) -> None:
@@ -24,7 +24,7 @@ class DummySimulator(Simulator):
         """TODO"""
 
     def init_simulation(self):
-        return 0,0
+        return 0, 0
 
     def continue_simulation(self, span: int) -> None:
         """TODO"""
