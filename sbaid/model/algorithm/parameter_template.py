@@ -18,7 +18,7 @@ class ParameterTemplate(GObject.GObject):
                                   GObject.ParamFlags.CONSTRUCT_ONLY)
     # there seems to be a bug that you can't use GLib.Variant as type argument,
     # so instead use the GType directly even though mypy thinks it's wrong :(
-    default_value = GObject.Property(type=GObject.TYPE_VARIANT, # type: ignore
+    default_value = GObject.Property(type=GObject.TYPE_VARIANT,  # type: ignore
                                      flags=GObject.ParamFlags.READABLE |
                                      GObject.ParamFlags.WRITABLE |
                                      GObject.ParamFlags.CONSTRUCT_ONLY)
