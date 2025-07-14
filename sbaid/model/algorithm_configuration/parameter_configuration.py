@@ -16,16 +16,11 @@ class ParameterConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __network = GObject.Property(
-        type=Network,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY
-    )
+    _network = Network
 
     def __init__(self, network: Network) -> None:
         """todo"""
-        self.network = network
+        super().__init__()
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
         """"todo"""

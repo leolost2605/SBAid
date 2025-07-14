@@ -46,12 +46,7 @@ class AlgorithmConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __network = GObject.Property(
-        type=Network,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY
-    )
+    _network = Network
 
     parameter_configuration = GObject.Property(
         type=ParameterConfiguration,
@@ -61,8 +56,7 @@ class AlgorithmConfiguration(GObject.GObject):
 
     def __init__(self, configuration_id: str, network: Network) -> None:
         """todo"""
-        self.id = configuration_id
-        self.network = network
+        super().__init__(id=configuration_id)
 
     def load_from_db(self) -> None:
         """todo"""

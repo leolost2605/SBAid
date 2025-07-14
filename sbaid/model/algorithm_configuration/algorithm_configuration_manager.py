@@ -24,17 +24,11 @@ class AlgorithmConfigurationManager(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __network = GObject.Property(
-        type=Network,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY
-    )
+    _network = Network
 
     def __init__(self, manager_id: str, network: Network) -> None:
         """todo"""
-        self.id = manager_id
-        self.network = network
+        super().__init__(id=manager_id)
 
     def load(self) -> None:
         """todo"""

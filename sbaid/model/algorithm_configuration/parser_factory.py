@@ -8,11 +8,7 @@ class ParserFactory(GObject.GObject):
     """todo"""
 
     # GObject property definition
-    parsers = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+    _parsers = Gio.ListModel
 
     def __init__(self) -> None:
         """todo"""

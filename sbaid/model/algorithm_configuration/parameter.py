@@ -1,7 +1,7 @@
 """This module defines the Parameter class."""
 from typing import Optional
 from gi.repository import GLib, GObject, Gio
-from sbaid.model.network import CrossSection
+from sbaid.model.network.crosssection import CrossSection
 from sbaid.common.tag import Tag
 
 
@@ -16,13 +16,13 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     value_type = GObject.Property(
-        type=GLib.VariantType,
+        type=GObject.TYPE_VARIANT,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     value = GObject.Property(
-        type=GLib.Variant,
+        type=GObject.TYPE_VARIANT,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -42,10 +42,7 @@ class Parameter(GObject.GObject):
     def __init__(self, name: str, value_type: GLib.VariantType,
                  value: GLib.Variant,
                  cross_section: Optional[CrossSection] = None) -> None:
-        self.name = name
-        self.value_type = value_type
-        self.value = value
-        self.cross_section = cross_section
+        super().__init__()
 
     def add_tag(self, tag: Tag) -> None:
         """todo"""
