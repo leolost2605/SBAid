@@ -16,29 +16,29 @@ class SimulatorCrossSection(GObject.GInterface):
     """
     # GObject.Property definitions
     @GObject.Property(type=str)
-    def prop_simulator_cross_section_id(self) -> str:
+    def simulator_cross_section_id(self) -> str:
         """TODO"""
 
     @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
-    def prop_simulator_cross_section_type(self) -> CrossSectionType:
+    def simulator_cross_section_type(self) -> CrossSectionType:
         """TODO"""
 
     @GObject.Property(type=Coordinate)
-    def prop_position(self) -> Coordinate:
+    def position(self) -> Coordinate:
         """TODO"""
 
     @GObject.Property(type=int)
-    def prop_lanes(self) -> int:
+    def lanes(self) -> int:
         """TODO"""
 
     @GObject.Property(type=bool, default=False)
-    def prop_hard_shoulder_available(self) -> bool:
+    def hard_shoulder_available(self) -> bool:
         """TODO"""
 
     @GObject.Property(type=bool, default=False)
-    def prop_hard_shoulder_active(self) -> bool:
+    def hard_shoulder_active(self) -> bool:
         """TODO"""
 
     @GObject.Property(type=bool, default=False)
-    def prop_b_display_active(self) -> bool:
+    def b_display_active(self) -> bool:
         """TODO"""

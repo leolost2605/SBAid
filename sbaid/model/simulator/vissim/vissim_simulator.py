@@ -13,12 +13,12 @@ class VissimSimulator(Simulator):
     """TODO"""
 
     @GObject.Property(type=SimulatorType)
-    def prop_type(self) -> SimulatorType:
+    def type(self) -> SimulatorType:
         """TODO"""
         return None
 
     @GObject.Property(type=Gio.ListModel)
-    def prop_cross_sections(self) -> Gio.ListModel:
+    def cross_sections(self) -> Gio.ListModel:
         """TODO"""
         return None
 

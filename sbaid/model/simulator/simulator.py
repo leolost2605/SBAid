@@ -17,11 +17,11 @@ class Simulator(GObject.GInterface):
     """TODO"""
 
     @GObject.Property(type=SimulatorType)
-    def prop_type(self) -> SimulatorType:
+    def type(self) -> SimulatorType:
         """TODO"""
 
     @GObject.Property(type=Gio.ListModel)
-    def prop_cross_sections(self) -> Gio.ListModel:
+    def cross_sections(self) -> Gio.ListModel:
         """TODO"""
 
     def load_file(self, file: Gio.File) -> None:
