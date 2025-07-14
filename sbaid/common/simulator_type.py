@@ -4,7 +4,7 @@ from gi.repository import GObject
 
 class SimulatorType(GObject.GObject):
     """TODO"""
-    simulator_type_id = GObject.Property(
+    id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -17,4 +17,4 @@ class SimulatorType(GObject.GObject):
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
         """TODO"""
-        super().__init__(simulator_type_id=simulator_type_id, name=name)
+        super().__init__(id=simulator_type_id, name=name)
