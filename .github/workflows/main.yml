@@ -16,6 +16,7 @@ jobs:
     container:
       image: ghcr.io/leolost2605/docker:ubuntu-pygobject
       credentials:
+        username: leolost2605
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
