@@ -2,7 +2,7 @@
 from gi.repository import GObject
 from model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.coordinate import Coordinate
-from sbaid.common import CrossSectionType
+from sbaid.common.cross_section_type import CrossSectionType
 
 
 class CrossSection:
@@ -41,8 +41,8 @@ class CrossSection:
                                         GObject.ParamFlags.WRITABLE |
                                         GObject.ParamFlags.CONSTRUCT)
 
-    def __init__(self, simulator_cross_section: SimulatorCrossSection):
+    def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """TODO"""
 
-    def load_from_db(self):
+    def load_from_db(self) -> None:
         """TODO"""

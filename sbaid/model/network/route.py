@@ -10,5 +10,5 @@ class Route:
                               GObject.ParamFlags.WRITABLE |
                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """TODO"""

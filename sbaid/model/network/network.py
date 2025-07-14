@@ -1,6 +1,6 @@
 """TODO"""
-from sbaid.common import CrossSectionType
-from sbaid.simulator import Simulator
+from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.model.simulator import Simulator
 from sbaid.common.coordinate import Coordinate
 from sbaid.model.network.route import Route
 from typing import Tuple
@@ -18,7 +18,7 @@ class Network(GObject.Object):
                              GObject.ParamFlags.WRITABLE |
                              GObject.ParamFlags.CONSTRUCT)
 
-    def __init__(self, simulator: Simulator):
+    def __init__(self, simulator: Simulator) -> None:
         super().__init__()
         """TODO"""
 
@@ -35,8 +35,8 @@ class Network(GObject.Object):
             cs_type: CrossSectionType) -> int:
         """TODO"""
 
-    def delete_cross_section(self, cs_id: str):
+    def delete_cross_section(self, cs_id: str) -> None:
         """TODO"""
 
-    def move_cross_section(self, cs_id: str, new_coordinates: Coordinate):
+    def move_cross_section(self, cs_id: str, new_coordinates: Coordinate) -> None:
         """TODO"""

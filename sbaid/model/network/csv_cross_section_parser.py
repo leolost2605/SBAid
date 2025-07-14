@@ -1,5 +1,5 @@
 """TODO"""
-from cross_section_parser import CrossSectionParser
+from sbaid.model.network.cross_section_parser import CrossSectionParser
 
 
 class CSVCrossSectionParser(CrossSectionParser):
