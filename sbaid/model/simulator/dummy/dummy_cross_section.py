@@ -9,12 +9,12 @@ from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 class DummyCrossSection(SimulatorCrossSection):
     """This class represents the dummy simulator cross section."""
     @GObject.Property(type=str)
-    def simulator_cross_section_id(self) -> str:
+    def id(self) -> str:
         """TODO"""
         return ""
 
     @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
-    def simulator_cross_section_type(self) -> CrossSectionType:
+    def type(self) -> CrossSectionType:
         """TODO"""
         return CrossSectionType.COMBINED
 

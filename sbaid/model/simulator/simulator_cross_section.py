@@ -16,11 +16,11 @@ class SimulatorCrossSection(GObject.GInterface):
     """
     # GObject.Property definitions
     @GObject.Property(type=str)
-    def simulator_cross_section_id(self) -> str:
+    def id(self) -> str:
         """TODO"""
 
     @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
-    def simulator_cross_section_type(self) -> CrossSectionType:
+    def type(self) -> CrossSectionType:
         """TODO"""
 
     @GObject.Property(type=Coordinate)
