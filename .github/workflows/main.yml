@@ -20,7 +20,6 @@ jobs:
       - name: Install Dependencies
         run: |
           apt update
-          apt install -y python3-full pip libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
           python3 -m venv ~/venv
           ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
       - name: Run Pylint (Naming and PEP 8 style)
@@ -36,15 +35,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu/python:3.13-25.04
+      image: ghcr.io/leolost2605/docker:ubuntu-pygobject
     steps:
       - uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: |
-          apt update
-          apt install -y python3-full pip libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
-          python3 -m venv ~/venv
-          ~/venv/bin/pip install pygobject-stubs pycairo PyGObject
+      # We don't install our own dependencies because our image comes already with them
       - name: Run tests
         run: |
           ~/venv/bin/python -m unittest -v
