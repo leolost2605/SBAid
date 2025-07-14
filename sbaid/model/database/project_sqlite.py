@@ -2,7 +2,7 @@
 from typing import Optional
 
 from gi.repository.GLib import Variant
-from gi.repository.GObject import DateTime
+from gi.repository.GLib import DateTime
 from gi.repository.Gio import File
 
 from sbaid.model.database.project_database import ProjectDatabase

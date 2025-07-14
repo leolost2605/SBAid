@@ -1,6 +1,6 @@
 """TODO"""
 from gi.repository.GObject import GInterface
-from gi.repository.GObject import DateTime
+from gi.repository.GLib import DateTime
 from gi.repository.Gio import File
 
 from sbaid.common.a_display import ADisplay
