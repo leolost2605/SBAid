@@ -2,15 +2,14 @@
 from sbaid.common import CrossSectionType
 from sbaid.simulator import Simulator
 from sbaid.common.coordinate import Coordinate
-from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.route import Route
 from typing import Tuple
 from gi.repository import Gio, GObject
 
 
-class Network:
+class Network(GObject.Object):
     """TODO"""
-    cross_sections = GObject.Property(type=Gio.ListModel[CrossSection],
+    cross_sections = GObject.Property(type=Gio.ListModel,
                                       flags=GObject.ParamFlags.READABLE |
                                       GObject.ParamFlags.WRITABLE |
                                       GObject.ParamFlags.CONSTRUCT)
@@ -20,8 +19,8 @@ class Network:
                              GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator: Simulator):
-        self.cross_sections: Gio.ListModel[CrossSection]
-        self.route: Route
+        super().__init__()
+        """TODO"""
 
     def load(self):
         """TODO"""
