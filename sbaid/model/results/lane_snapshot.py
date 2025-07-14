@@ -12,7 +12,7 @@ class LaneSnapshot(GObject.GObject):
      Attributes:
          cross_section_snapshot_id (str): The unique identifier of the cross section snapshot
          this lane snapshot belongs to.
-         lane_snapshot_id (str): The unique identifier of this lane snapshot.
+         id (str): The unique identifier of this lane snapshot.
          lane (int): The lane this snapshot represents.
          average_speed (float): The average speed of the vehicles in the lane snapshot.
          traffic_volume (int): The amount of vehicles that pass through the lane per hour.
@@ -29,7 +29,7 @@ class LaneSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    lane_snapshot_id = GObject.Property(
+    id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -65,7 +65,7 @@ class LaneSnapshot(GObject.GObject):
                  average_speed: float, traffic_volume: int, a_display: ADisplay) -> None:
         """ Initialize the lane snapshot object."""
         super().__init__(cross_section_snapshot_id=cross_section_snapshot_id,
-                         lane_snapshot_id=lane_snapshot_id,
+                         id=lane_snapshot_id,
                          lane=lane,
                          average_speed=average_speed,
                          traffic_volume=traffic_volume,
