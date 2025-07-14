@@ -6,4 +6,5 @@ disable=
     too-many-arguments,
     too-many-positional-arguments,
     unused-argument,
-    fixme
+    fixme,
+    too-many-public-methods
