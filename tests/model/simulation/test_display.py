@@ -11,10 +11,10 @@ class DisplayTestCase(unittest.TestCase):
     """This class tests the display using pythons unittest."""
 
     def test_empty_display(self):
-        """Test an empty display, getters returning None."""
+        """Test an empty display, raising a KeyError when getter is called."""
         display = Display()
-        self.assertIsNone(display.get_a_display("my_cross_section", 0))
-        self.assertIsNone(display.get_b_display("my_cross_section"))
+        self.assertRaises(KeyError, display.get_a_display, "my_cross_section", 0)
+        self.assertRaises(KeyError, display.get_b_display, "my_cross_section")
 
     def test_add_displays(self):
         """Test adding display."""
