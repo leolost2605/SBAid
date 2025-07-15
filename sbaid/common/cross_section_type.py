@@ -1,5 +1,5 @@
-"""This module defines the CrossSectionType enum
-which represents the differnet types of cross sections."""
+"""This module defines the CrossSectionType enum,
+which represents the different types of cross sections."""
 from gi.repository import GObject
 
 
