@@ -1,6 +1,6 @@
 """TODO"""
 from gi.repository import GObject
-from model.simulator.simulator_cross_section import SimulatorCrossSection
+from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 
