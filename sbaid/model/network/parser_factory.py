@@ -16,5 +16,5 @@ class ParserFactory:
         """TODO"""
 
     def get_parser(self, file: Gio.File) -> CrossSectionParser:
-        cross_section_parser = CrossSectionParser.__init__()
+        cross_section_parser = CrossSectionParser.__init__(self)
         return cross_section_parser  # TODO
