@@ -4,7 +4,6 @@ from typing import Tuple, Callable
 from gi.repository import Gio
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.coordinate import Coordinate
-from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
 
 
 class CrossSectionParser(ABC):
