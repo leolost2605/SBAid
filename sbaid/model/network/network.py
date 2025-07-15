@@ -33,7 +33,7 @@ class Network(GObject.Object):
             name: str,
             coordinates: Coordinate,
             cs_type: CrossSectionType) -> int:
-        return None # TODO
+        return None  # TODO
 
     def delete_cross_section(self, cs_id: str) -> None:
         """TODO"""
