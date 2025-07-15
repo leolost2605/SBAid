@@ -18,5 +18,4 @@ class ParserFactory(GObject.GObject):
         """TODO"""
 
     def get_parser(self, file: Gio.File) -> CrossSectionParser:
-        parser_class = self.parsers.get("csv")
-        return parser_class  # TODO
+        return None  # TODO
