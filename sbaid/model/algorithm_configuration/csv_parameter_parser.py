@@ -7,10 +7,10 @@ from sbaid.model.algorithm_configuration.parameter_parser import (
 class CSVParameterParser(ParameterParser):
     """TODO"""
 
-    def for_each_parameter(self, file: Gio.File,
-                           callback: ParameterParserForeachFunc) -> None:
-        """todo"""
-
     def can_handle(self, file: Gio.File) -> bool:
         """todo"""
         return None
+
+    def for_each_parameter(self, file: Gio.File,
+                           callback: ParameterParserForeachFunc) -> None:
+        """todo"""

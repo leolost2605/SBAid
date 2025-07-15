@@ -18,15 +18,15 @@ class AlgorithmConfigurationManager(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    algorithm_configuration = GObject.Property(
+    algorithm_configurations = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, manager_id: str, network: Network) -> None:
+    def __init__(self, network: Network) -> None:
         """todo"""
-        super().__init__(id=manager_id)
+        super().__init__()
 
     def load(self) -> None:
         """todo"""

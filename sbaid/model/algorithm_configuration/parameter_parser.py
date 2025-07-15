@@ -1,6 +1,6 @@
 """This module represents the interface ParameterParser"""
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 from gi.repository import Gio, GLib
 
 ParameterParserForeachFunc = Callable[[str, Optional[str], GLib.Variant], bool]
@@ -15,5 +15,5 @@ class ParameterParser(ABC):
 
     @abstractmethod
     def for_each_parameter(self, file: Gio.File,
-                           callback: ParameterParserForeachFunc) -> None:
+                           callback: ParameterParserForeachFunc) -> Tuple[int, int]:
         """todo"""

@@ -28,7 +28,7 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT)
 
     cross_section = GObject.Property(
-        type=Gio.ListModel,
+        type=Optional[CrossSection],
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)

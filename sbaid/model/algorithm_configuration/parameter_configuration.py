@@ -22,6 +22,7 @@ class ParameterConfiguration(GObject.GObject):
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
         """"todo"""
+        return None
 
     def load(self) -> None:
         """todo"""
