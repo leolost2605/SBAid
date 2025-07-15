@@ -1,6 +1,6 @@
 """TODO"""
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.model.simulator import Simulator
+from sbaid.model.simulator.simulator import Simulator
 from sbaid.common.coordinate import Coordinate
 from sbaid.model.network.route import Route
 from typing import Tuple

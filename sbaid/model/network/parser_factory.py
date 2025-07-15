@@ -2,7 +2,7 @@
 from gi.repository import Gio, GObject
 from gi.repository.Gio import ListModel
 from sbaid.model.network.cross_section_parser import CrossSectionParser
-from sbaid.model.simulator import Simulator
+from sbaid.model.simulator.simulator import Simulator
 
 
 class ParserFactory:
@@ -16,5 +16,5 @@ class ParserFactory:
         """TODO"""
 
     def get_parser(self, file: Gio.File) -> CrossSectionParser:
-        cross_section_parser = CrossSectionParser.__init__(self)
-        return cross_section_parser  # TODO
+        parser_class = self.parsers.get(file)
+        return parser_class  # TODO
