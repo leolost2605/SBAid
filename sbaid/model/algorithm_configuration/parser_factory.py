@@ -7,9 +7,6 @@ from sbaid.model.algorithm_configuration.parameter_parser import (
 class ParserFactory(GObject.GObject):
     """todo"""
 
-    # GObject property definition
-    _parsers = Gio.ListModel
-
     def __init__(self) -> None:
         """todo"""
 

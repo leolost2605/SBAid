@@ -16,7 +16,7 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     value_type = GObject.Property(
-        type=GObject.TYPE_VARIANT,
+        type=GLib.VariantType,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -25,7 +25,7 @@ class Parameter(GObject.GObject):
         type=GObject.TYPE_VARIANT,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.CONSTRUCT)
 
     cross_section = GObject.Property(
         type=Gio.ListModel,
@@ -41,7 +41,7 @@ class Parameter(GObject.GObject):
 
     def __init__(self, name: str, value_type: GLib.VariantType,
                  value: GLib.Variant,
-                 cross_section: Optional[CrossSection] = None) -> None:
+                 cross_section: Optional[CrossSection]) -> None:
         super().__init__()
 
     def add_tag(self, tag: Tag) -> None:
