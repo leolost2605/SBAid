@@ -23,17 +23,17 @@ class Network(GObject.Object):
         """TODO"""
 
     def load(self) -> None:
-        pass #TODO
+        pass  # TODO
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
-        pass #TODO
+        pass  # TODO
 
     def create_cross_section(
             self,
             name: str,
             coordinates: Coordinate,
             cs_type: CrossSectionType) -> int:
-        pass #TODO
+        pass  # TODO
 
     def delete_cross_section(self, cs_id: str) -> None:
         """TODO"""

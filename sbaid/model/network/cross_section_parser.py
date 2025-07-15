@@ -11,11 +11,11 @@ class CrossSectionParser(CSVCrossSectionParser):
     CrossSectionParserForeachFunc = Callable[[str, Coordinate, CrossSectionType], bool]
 
     def can_handle_file(self, file) -> bool:
-        pass #TODO
+        pass  # TODO
 
     def foreach_cross_section(
             self,
             file: Gio.File,
             foreach_func: CrossSectionParserForeachFunc
     ) -> Tuple[int, int]:
-        pass #TODO
+        pass  # TODO
