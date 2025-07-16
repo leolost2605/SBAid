@@ -40,21 +40,18 @@ class AlgorithmConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
 
+    algorithm = GObject.Property(
+        type=Algorithm,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+
     parameter_configuration = GObject.Property(
         type=ParameterConfiguration,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, configuration_id: str, algorithm: Algorithm, netowork: Network) -> None:
+    def __init__(self, configuration_id: str, network: Network) -> None:
         """todo"""
         super().__init__(id=configuration_id)
-        self.algorithm = algorithm
-
-    def load_from_db(self) -> None:
-        """todo"""
-
-    # not a GObject.Property in order to avoid Algorithm implementation GObject inheritance
-    def get_algorithm(self) -> Algorithm:
-        """Gets the algorithm."""
-        return self.algorithm
