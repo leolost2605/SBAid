@@ -47,11 +47,9 @@ class Result(GObject.GObject):
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
         """todo"""
-        self.selected_tags = Gio.ListStore.new(Tag)
-
-        super().__init__(result_id=result_id,
+        super().__init__(id=result_id,
                          project_name=project_name,
-                         creation_date_time=creation_date_time)
+                         creation_date_time=creation_date_time, selected_tags=Gio.ListStore.new(Tag))
 
     def load(self) -> None:
         """todo"""
@@ -61,12 +59,11 @@ class Result(GObject.GObject):
         if tag not in self.selected_tags:
             self.selected_tags.append(tag)
 
-
-
     def remove_tag(self, tag: Tag) -> None:
         """this method removes tag from the selected_tags list."""
-        if tag in self.selected_tags:
-            self.selected_tags.remove(tag)
+        position = self.selected_tags.find(tag)
+        if position[0]:
+            self.selected_tags.remove(position[1])
 
     def print_tags(self):
         """only for testing, todo delete this"""
