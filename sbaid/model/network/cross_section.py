@@ -5,7 +5,7 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 
 
-class CrossSection:
+class CrossSection(GObject.GObject):
     """TODO"""
 
     id = GObject.Property(type=str,
@@ -43,6 +43,7 @@ class CrossSection:
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """TODO"""
+        super().__init__()
 
     def load_from_db(self) -> None:
         """TODO"""
