@@ -16,12 +16,10 @@ class ProjectDatabase(ABC):
     @abstractmethod
     def get_created_at(self) -> DateTime:
         """TODO"""
-        return DateTime()
 
     @abstractmethod
     def get_last_modified(self) -> DateTime:
         """TODO"""
-        return DateTime()
 
     @abstractmethod
     def set_last_modified(self, new_last_modified: DateTime) -> None:
@@ -38,7 +36,6 @@ class ProjectDatabase(ABC):
     @abstractmethod
     def get_cross_section_name(self, cross_section_id: str) -> str:
         """TODO"""
-        return ""
 
     @abstractmethod
     def set_cross_section_name(self, name: str) -> None:
@@ -60,7 +57,6 @@ class ProjectDatabase(ABC):
     @abstractmethod
     def get_all_algorithm_configuration_ids(self) -> list[str]:
         """TODO"""
-        return []
 
     @abstractmethod
     def get_selected_algorithm_configuration_id(self) -> str:
@@ -81,7 +77,6 @@ class ProjectDatabase(ABC):
     @abstractmethod
     def get_evaluation_interval(self, algorithm_configuration_id: str) -> int:
         """TODO"""
-        return 0
 
     @abstractmethod
     def set_evaluation_interval(self, algorithm_configuration_id: str, interval: int) -> None:
