@@ -8,7 +8,7 @@ from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.network_state import NetworkState
 
 
-class Algorithm(GObject.GInterface):
+class Algorithm(GObject.GObject):
     """todo"""
 
     def get_global_parameter_template(self) -> Gio.ListModel:

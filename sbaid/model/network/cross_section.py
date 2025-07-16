@@ -5,7 +5,7 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 
 
-class CrossSection:
+class CrossSection(GObject.GObject):
     """TODO"""
 
     id = GObject.Property(type=str,
