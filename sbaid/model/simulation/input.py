@@ -28,12 +28,11 @@ class Input(GObject.GObject):
                                      .get(cross_section_id, {}).get(lane_number, []))))
         return result
 
-    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> Optional[float]:
-        # TODO: should this really be a float?
+    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> Optional[int]:
         """Return the amount of vehicles at the given cross-section and lane.
         Return None if there is no vehicle."""
-        volume: float = float(len(self._all_vehicle_infos.get(cross_section_id, {})
-                                  .get(lane_number, {})))
+        volume: int = len(self._all_vehicle_infos.get(cross_section_id, {})
+                          .get(lane_number, {}))
         if volume == 0:
             return None
         return volume
