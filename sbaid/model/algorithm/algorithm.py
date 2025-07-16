@@ -2,6 +2,7 @@
 """todo"""
 
 from gi.repository import Gio, GObject
+
 from sbaid.model.simulation.parameter_configuration_state import ParameterConfigurationState
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.display import Display

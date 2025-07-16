@@ -43,6 +43,7 @@ class CrossSection(GObject.GObject):
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """TODO"""
+        super().__init__()
 
     def load_from_db(self) -> None:
         """TODO"""
