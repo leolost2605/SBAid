@@ -6,13 +6,12 @@ from sbaid.common.vehicle_type import VehicleType
 
 
 class Input(GObject.GObject):
-    """
-    This class stores information about the state of the traffic within the simulation.
-    It is possible to access the information directly but also derive secondary attributes.
-    """
+    """This class stores information about the state of the traffic within the simulation.
+    It is possible to access the information directly but also derive secondary attributes."""
     _all_vehicle_infos: dict[str, dict[int, list[VehicleInfo]]] = {}
 
     def __init__(self) -> None:
+        """Construct a new Input."""
         super().__init__()
         self._all_vehicle_infos: dict[str, dict[int, list[VehicleInfo]]] = {}
 
