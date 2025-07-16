@@ -1,7 +1,7 @@
 """This module defines the AlgorithmConfiguration class"""
 from gi.repository import GObject
-from sbaid.model.network import Network
-from sbaid.model.algorithm import Algorithm
+from sbaid.model.network.network import Network
+from sbaid.model.algorithm.algorithm import Algorithm
 from sbaid.model.algorithm_configuration.parameter_configuration import (
     ParameterConfiguration)
 

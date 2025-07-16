@@ -1,6 +1,6 @@
 """This module represents the class AlgorithmConfigurationManager"""
 from gi.repository import GObject, Gio
-from sbaid.model.network import Network
+from sbaid.model.network.network import Network
 
 
 class AlgorithmConfigurationManager(GObject.GObject):

@@ -1,7 +1,7 @@
 """This module defines the Parameter class."""
 from typing import Optional
 from gi.repository import GLib, GObject, Gio
-from sbaid.model.network.crosssection import CrossSection
+from sbaid.model.network.cross_section import CrossSection
 from sbaid.common.tag import Tag
 
 
