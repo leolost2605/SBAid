@@ -1,8 +1,9 @@
 """ This module represents the Result class."""
-
+from typing import List
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
+import GlobalDatabase
 
 
 class Result(GObject.GObject):
@@ -44,34 +45,51 @@ class Result(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    __snapshots = List[Snapshot]
+
+
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
         """todo"""
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time, selected_tags=Gio.ListStore.new(Tag))
+        self.snapshots = []
 
     def load(self) -> None:
-        """todo"""
+        """todo this method handles the logic for loading snapshots."""
+        # todo will inevitably change when global database pushed to main
+        db_snapshots = GlobalDatabase.get_all_snapshots(self.id)
+
+        for snapshot in db_snapshots:
+            new_snapshot = Snapshot(snapshot)
+            new_snapshot.load_from_db()
+            self.add_snapshot(new_snapshot)
+
 
     def add_tag(self, tag: Tag) -> None:
-        """this method adds tag to the selected_tags list if it is not already present."""
+        """todo this method adds tag to the selected_tags list if it is not already present."""
         if tag not in self.selected_tags:
             self.selected_tags.append(tag)
 
     def remove_tag(self, tag: Tag) -> None:
-        """this method removes tag from the selected_tags list."""
+        """todo this method removes tag from the selected_tags list."""
         position = self.selected_tags.find(tag)
         if position[0]:
             self.selected_tags.remove(position[1])
 
-    def print_tags(self):
+    def print_listed_items(self):
         """only for testing, todo delete this"""
         for tag in self.selected_tags:
             print(tag.name)
+        for snapshot in self.snapshots:
+            print(snapshot.name)
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """todo"""
+        # do you need to control if it already exists?
+        # not really due to the implementation but maybe would be better practice to do so
+        self.snapshots.append(snapshot)
