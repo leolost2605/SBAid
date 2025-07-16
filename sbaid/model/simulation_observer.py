@@ -5,9 +5,6 @@ from gi.repository import GLib, GObject
 class SimulationObserver(GObject.GInterface):
     """todo"""
 
-    def __init__(self) -> None:
-        """todo"""
-
     def update_progress(self, percentage: float) -> None:
         """todo"""
 

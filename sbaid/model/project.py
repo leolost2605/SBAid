@@ -37,6 +37,12 @@ class Project(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    simulation_file_path = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
+
     created_at = GObject.Property(
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
@@ -70,9 +76,9 @@ class Project(GObject.GObject):
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str) -> None:
         """todo"""
-        self.project_id = project_id
-        self.type = sim_type
-        self.project_file_path = project_file_path
+        super().__init__(id=project_id, simulator_type=sim_type,
+                         simulation_file_path=simulation_file_path,
+                         project_file_path=project_file_path)
 
     def load(self) -> None:
         """todo"""
