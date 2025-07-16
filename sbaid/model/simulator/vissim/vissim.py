@@ -86,7 +86,7 @@ class VissimConnector:
         else:
             command.finish(*args)
 
-        return command.type == VissimCommandType.SHUTDOWN
+        return command.type != VissimCommandType.SHUTDOWN
 
     def _start_vissim(self) -> None:
         try:
@@ -108,7 +108,7 @@ async def main() -> None:
     man = VissimManager()
     await man.load_file(r"C:\Users\Public\Documents\PTV Vision\PTV Vissim 2025\Examples Demo\3D - Complex Intersection Karlsruhe.DE\Karlsruhe 3D.inpx")
     print(await man.init_simulation())
-    man.shutdown()
+    await man.shutdown()
 
 
 asyncio.run(main())
