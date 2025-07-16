@@ -1,4 +1,5 @@
 """ This module represents the Result class."""
+
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
@@ -7,7 +8,7 @@ from sbaid.model.results.snapshot import Snapshot
 class Result(GObject.GObject):
     """This class represents a result.
     Attributes: TODO checken ob kritische information fehlt
-        result_id (str): The unique identifier of the result.
+        id (str): The unique identifier of the result.
         result_name (str): The name of the result.
         project_name (str): The name of the project the result belongs to.
             Is created automatically from the result metadata.
@@ -17,7 +18,7 @@ class Result(GObject.GObject):
     """
 
     # GObject.Property definitions
-    result_id = GObject.Property(
+    id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -46,7 +47,6 @@ class Result(GObject.GObject):
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
         """todo"""
-
         self.selected_tags = Gio.ListStore.new(Tag)
 
         super().__init__(result_id=result_id,
@@ -78,5 +78,3 @@ class Result(GObject.GObject):
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """todo"""
-
-
