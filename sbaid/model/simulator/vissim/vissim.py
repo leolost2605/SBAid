@@ -1,12 +1,10 @@
 """TODO"""
-import _thread
-
 import win32com.client as com
 import asyncio
 import pythoncom
 from queue import Queue
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from threading import Thread
 
 
@@ -58,8 +56,23 @@ class VissimManager:
         return await self._push_command(VissimCommandType.INIT_SIMULATION).future
 
 
+class VissimConnectorCrossSection:
+    __data_collection_points: list[Any] = []
+
+    @property
+    def id(self) -> str:
+        cs_id = ""
+        for point in self.__data_collection_points:
+            cs_id += "-" + point.AttValue("No")
+        return cs_id
+
+    def add_point(self, point: Any) -> None:
+        self.__data_collection_points.append(point)
+
+
 class VissimConnector:
     _vissim: Any  # For the COM interface we use dynamic typing
+    __cross_sections: dict[int, dict[float, VissimConnectorCrossSection]] = {}
 
     def __init__(self, queue: Queue[VissimCommand]) -> None:
         pythoncom.CoInitialize()
@@ -74,6 +87,7 @@ class VissimConnector:
             case VissimCommandType.LOAD_FILE:
                 self._start_vissim()
                 self._load_network(command.kwargs["path"])
+                self._get_cross_sections()
 
             case VissimCommandType.INIT_SIMULATION:
                 args = self._init_simulation()
@@ -97,6 +111,27 @@ class VissimConnector:
     def _load_network(self, path: str) -> None:
         self._vissim.LoadNet(path, False)
 
+    def _get_cross_sections(self) -> list[Any]:
+        points = self._vissim.Net.DataCollectionPoints.GetAll()
+
+        if not points:
+            return []
+
+        for point in points:
+            link_index = point.Lane.Link.AttValue("No")
+            pos = point.AttValue("Pos")
+
+            if not link_index in self.__cross_sections:
+                self.__cross_sections[link_index] = {}
+
+            if not pos in self.__cross_sections[link_index]:
+                self.__cross_sections[link_index][pos] = VissimConnectorCrossSection()
+
+            self.__cross_sections[link_index][pos].add_point(point)
+
+        print(len(self.__cross_sections))
+
+
     def _init_simulation(self) -> tuple[int, int]:
         sim_duration = self._vissim.Simulation.AttValue('SimPeriod')
         self._vissim.Simulation.SetAttValue('UseMaxSimSpeed', True)
@@ -106,8 +141,8 @@ class VissimConnector:
 
 async def main() -> None:
     man = VissimManager()
-    await man.load_file(r"C:\Users\Public\Documents\PTV Vision\PTV Vissim 2025\Examples Demo\3D - Complex Intersection Karlsruhe.DE\Karlsruhe 3D.inpx")
-    print(await man.init_simulation())
+    await man.load_file(r"C:\Users\vx9186\Projekte\SBAid\Beispieldaten_Vissim\Beispieldaten_Vissim\A5_sarah.inpx")
+    # print(await man.init_simulation())
     await man.shutdown()
 
 
