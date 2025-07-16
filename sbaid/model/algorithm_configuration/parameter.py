@@ -22,7 +22,7 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     value = GObject.Property(
-        type=GObject.TYPE_VARIANT,
+        type=GObject.TYPE_VARIANT,  # type: ignore
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
