@@ -7,20 +7,36 @@ from sbaid.model.simulation.input import Input
 from sbaid.common.coordinate import Coordinate
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 
 class VissimSimulator(Simulator):
     """TODO"""
 
+    _type: SimulatorType
+    _cross_sections: Gio.ListModel
+
+    def __init__(self) -> None:
+        self._type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
+        self._cross_sections = Gio.ListStore.new(SimulatorCrossSection)
+
     @GObject.Property(type=SimulatorType)
     def type(self) -> SimulatorType:
-        """TODO"""
-        return None
+        """
+        Returns the simulator type, in this case PTV Vissim.
+        :return: the type of this simulator
+        """
+        return self._type
 
     @GObject.Property(type=Gio.ListModel)
     def cross_sections(self) -> Gio.ListModel:
-        """TODO"""
-        return None
+        """
+        Returns a Gio.ListModel containing the cross sections in this simulator file.
+        Returns an empty model if no file was loaded yet. The model is guaranteed to be
+        the same over the lifetime of this.
+        :return: A Gio.ListModel containing the cross sections in this simulator file.
+        """
+        return self._cross_sections
 
     def load_file(self, file: Gio.File) -> None:
         """TODO"""
