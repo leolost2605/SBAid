@@ -24,10 +24,10 @@ class NetworkStateTest(unittest.TestCase):
                                    Coordinate(1,1)]
         network_state = NetworkState(route, [])
         self.assertEqual(network_state.route.get_n_items(), 4)
-        self.assertEqual(network_state.cross_section_states.get_item(0), Coordinate(0,0))
-        self.assertEqual(network_state.cross_section_states.get_item(1), Coordinate(0,1))
-        self.assertEqual(network_state.cross_section_states.get_item(2), Coordinate(1,0))
-        self.assertEqual(network_state.cross_section_states.get_item(3), Coordinate(1,1))
+        self.assertEqual(network_state.route.get_item(0), Coordinate(0,0))
+        self.assertEqual(network_state.route.get_item(1), Coordinate(0,1))
+        self.assertEqual(network_state.route.get_item(2), Coordinate(1,0))
+        self.assertEqual(network_state.route.get_item(3), Coordinate(1,1))
 
     def test_cross_section_states(self):
         cs1: CrossSectionState = CrossSectionState("my_cs_id", CrossSectionType.COMBINED,
