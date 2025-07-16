@@ -1,7 +1,6 @@
 """TODO"""
 
-from gi.repository import Gio, GObject
-from gi.repository.Gio import ListModel
+from gi.repository import Gio
 from sbaid.model.network.cross_section_parser import CrossSectionParser
 from sbaid.model.simulator.simulator import Simulator
 
@@ -13,4 +12,5 @@ class ParserFactory:
         """TODO"""
 
     def get_parser(self, file: Gio.File) -> CrossSectionParser:
-        return None  # TODO
+        """TODO"""
+        return None

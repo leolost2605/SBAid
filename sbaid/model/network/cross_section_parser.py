@@ -12,7 +12,8 @@ class CrossSectionParser(ABC):
 
     @abstractmethod
     def can_handle_file(self, file: Gio.File) -> bool:
-        return None  # TODO
+        """TODO"""
+        return None
 
     @abstractmethod
     def foreach_cross_section(
@@ -20,4 +21,5 @@ class CrossSectionParser(ABC):
             file: Gio.File,
             foreach_func: CrossSectionParserForeachFunc
     ) -> Tuple[int, int]:
-        return None  # TODO
+        """TODO"""
+        return None
