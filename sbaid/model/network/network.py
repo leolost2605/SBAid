@@ -12,11 +12,11 @@ class Network(GObject.Object):
     cross_sections = GObject.Property(type=Gio.ListModel,
                                       flags=GObject.ParamFlags.READABLE |
                                       GObject.ParamFlags.WRITABLE |
-                                      GObject.ParamFlags.CONSTRUCT)
+                                      GObject.ParamFlags.CONSTRUCT_ONLY)
     route = GObject.Property(type=Route,
                              flags=GObject.ParamFlags.READABLE |
                              GObject.ParamFlags.WRITABLE |
-                             GObject.ParamFlags.CONSTRUCT)
+                             GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, simulator: Simulator) -> None:
         super().__init__()
