@@ -1,11 +1,11 @@
-"""TODO"""
+"""This module contains the ParameterState class."""
 from typing import Optional
 from gi.repository import GObject
 from gi.repository import GLib
 
 
 class ParameterState(GObject.GObject):
-    """TODO"""
+    """This class represents the immutable state of a single parameter."""
     name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
@@ -21,5 +21,5 @@ class ParameterState(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, name: str, value: GLib.Variant, cross_section_id: Optional[str]) -> None:
-        """TODO"""
+        """Constructs a ParameterState object."""
         super().__init__(name=name, value=value, cross_section_id=cross_section_id)
