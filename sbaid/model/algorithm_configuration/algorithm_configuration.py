@@ -55,3 +55,6 @@ class AlgorithmConfiguration(GObject.GObject):
     def __init__(self, configuration_id: str, network: Network) -> None:
         """todo"""
         super().__init__(id=configuration_id)
+
+    def load_from_db(self) -> None:
+        """todo"""
