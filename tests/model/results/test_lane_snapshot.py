@@ -10,7 +10,7 @@ from sbaid.common.vehicle_type import VehicleType
 class LaneSnapshotTest(unittest.TestCase):
 
     def test_add_vehicle_snapshot(self):
-        """Testing addind a vehicle snapshot."""
+        """Testing adding a vehicle snapshot."""
         now = GLib.DateTime.new_now_local()
 
         lane_snapshot = LaneSnapshot("cross_section_snapshot_id",
