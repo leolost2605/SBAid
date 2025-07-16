@@ -1,25 +1,40 @@
-name: main.yml
-on: [pull_request, push]
+permissions:
+  contents: read
+name: ci
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches: [main]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/elementary/docker:development-target
+      image: ghcr.io/leolost2605/docker:ubuntu-pygobject
     steps:
       - uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: |
-          apt update
-          apt install -y python3-full pip libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
-          python3 -m venv ~/venv
-          ~/venv/bin/pip install pygobject-stubs pylint flake8 mypy pycairo PyGObject
+      # Deps should for speed reasons be added to the docker file and not installed here
       - name: Run Pylint (Naming and PEP 8 style)
         run: |
-          ~/venv/bin/pylint ./sbaid
+          /venv/bin/pylint ./sbaid
       - name: Run flake (Formatting)
         run: |
-          ~/venv/bin/flake8 ./sbaid
+          /venv/bin/flake8 ./sbaid
       - name: Run mypy (Type checking)
         run: |
-          ~/venv/bin/mypy --strict ./sbaid
+          /venv/bin/mypy --strict ./sbaid
+
+  tests:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/leolost2605/docker:ubuntu-pygobject
+    steps:
+      - uses: actions/checkout@v4
+      # Deps should for speed reasons be added to the docker file and not installed here
+      - name: Run tests
+        run: |
+          /venv/bin/python -m unittest -v
