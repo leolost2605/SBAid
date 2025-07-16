@@ -13,7 +13,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.display import Display
 
 
-class Simulator(GObject.GInterface):
+class Simulator(GObject.GObject):
     """TODO"""
 
     @GObject.Property(type=SimulatorType)
@@ -23,6 +23,7 @@ class Simulator(GObject.GInterface):
     @GObject.Property(type=Gio.ListModel)
     def cross_sections(self) -> Gio.ListModel:
         """TODO"""
+        return Gio.ListStore.new(Gio.File)
 
     def load_file(self, file: Gio.File) -> None:
         """Load the simulation file."""
