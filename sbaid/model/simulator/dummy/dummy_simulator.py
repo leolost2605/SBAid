@@ -26,7 +26,7 @@ class DummySimulator(Simulator):
         """TODO"""
 
     async def create_cross_section(self, coordinate: Coordinate,
-                             cross_section_type: CrossSectionType) -> int:
+                                   cross_section_type: CrossSectionType) -> int:
         """TODO"""
         return 0
 

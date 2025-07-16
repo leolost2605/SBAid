@@ -28,7 +28,7 @@ class Simulator(GObject.GInterface):
         """Load the simulation file."""
 
     async def create_cross_section(self, coordinate: Coordinate,
-                             cross_section_type: CrossSectionType) -> int:
+                                   cross_section_type: CrossSectionType) -> int:
         """
         Create a cross section object, add it to the cross section list
         and return its position within the list
@@ -38,7 +38,7 @@ class Simulator(GObject.GInterface):
         """Remove the cross section object."""
 
     async def move_cross_section(self, cross_section_id: str,
-                           new_position: Coordinate) -> None:
+                                 new_position: Coordinate) -> None:
         """Move the cross section object."""
 
     async def init_simulation(self) -> tuple[int, int]:
