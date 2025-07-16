@@ -27,7 +27,7 @@ class Network(GObject.Object):
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
         """TODO"""
-        return None
+        return 0, 0
 
     def create_cross_section(
             self,
@@ -35,7 +35,7 @@ class Network(GObject.Object):
             coordinates: Coordinate,
             cs_type: CrossSectionType) -> int:
         """TODO"""
-        return None
+        return 0
 
     def delete_cross_section(self, cs_id: str) -> None:
         """TODO"""

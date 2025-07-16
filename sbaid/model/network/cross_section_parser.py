@@ -13,7 +13,6 @@ class CrossSectionParser(ABC):
     @abstractmethod
     def can_handle_file(self, file: Gio.File) -> bool:
         """TODO"""
-        return None
 
     @abstractmethod
     def foreach_cross_section(

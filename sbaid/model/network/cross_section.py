@@ -19,7 +19,7 @@ class CrossSection:
     position = GObject.Property(type=Coordinate,
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
-                                GObject.ParamFlags.CONSTRUCT)
+                                GObject.ParamFlags.CONSTRUCT_ONLY)
     type = GObject.Property(type=CrossSectionType,
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
@@ -27,11 +27,11 @@ class CrossSection:
     lanes = GObject.Property(type=int,
                              flags=GObject.ParamFlags.READABLE |
                              GObject.ParamFlags.WRITABLE |
-                             GObject.ParamFlags.CONSTRUCT)
+                             GObject.ParamFlags.CONSTRUCT_ONLY)
     hard_shoulder_available = GObject.Property(type=bool,
                                                flags=GObject.ParamFlags.READABLE |
                                                GObject.ParamFlags.WRITABLE |
-                                               GObject.ParamFlags.CONSTRUCT)
+                                               GObject.ParamFlags.CONSTRUCT_ONLY)
     hard_shoulder_active = GObject.Property(type=bool,
                                             flags=GObject.ParamFlags.READABLE |
                                             GObject.ParamFlags.WRITABLE |
