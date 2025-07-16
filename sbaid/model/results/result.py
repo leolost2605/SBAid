@@ -3,7 +3,7 @@ from typing import List
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
-import GlobalDatabase
+#import GlobalDatabase
 
 
 class Result(GObject.GObject):
@@ -45,7 +45,12 @@ class Result(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __snapshots = List[Snapshot]
+    snapshots = GObject.Property(
+        type=Gio.ListModel,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY
+    )
 
 
     def __init__(self, result_id: str, project_name: str,
@@ -53,19 +58,19 @@ class Result(GObject.GObject):
         """todo"""
         super().__init__(id=result_id,
                          project_name=project_name,
-                         creation_date_time=creation_date_time, selected_tags=Gio.ListStore.new(Tag))
-        self.snapshots = []
+                         creation_date_time=creation_date_time,
+                         selected_tags=Gio.ListStore.new(Tag), snapshots=Gio.ListStore.new(Snapshot))
+
 
     def load(self) -> None:
         """todo this method handles the logic for loading snapshots."""
         # todo will inevitably change when global database pushed to main
-        db_snapshots = GlobalDatabase.get_all_snapshots(self.id)
+        db_snapshots = [] #GlobalDatabase.get_all_snapshots(self.id)
 
         for snapshot in db_snapshots:
             new_snapshot = Snapshot(snapshot)
             new_snapshot.load_from_db()
             self.add_snapshot(new_snapshot)
-
 
     def add_tag(self, tag: Tag) -> None:
         """todo this method adds tag to the selected_tags list if it is not already present."""
@@ -77,13 +82,6 @@ class Result(GObject.GObject):
         position = self.selected_tags.find(tag)
         if position[0]:
             self.selected_tags.remove(position[1])
-
-    def print_listed_items(self):
-        """only for testing, todo delete this"""
-        for tag in self.selected_tags:
-            print(tag.name)
-        for snapshot in self.snapshots:
-            print(snapshot.name)
 
     def load_from_db(self) -> None:
         """todo"""

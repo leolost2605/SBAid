@@ -25,6 +25,7 @@ class Snapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+
     cross_section_snapshots = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
@@ -34,10 +35,12 @@ class Snapshot(GObject.GObject):
     def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime) -> None:
         """Initialize the Snapshot class."""
         super().__init__(id=snapshot_id,
-                         capture_timestamp=capture_timestamp)
+                         capture_timestamp=capture_timestamp,
+                         cross_section_snapshots=Gio.ListStore.new(CrossSectionSnapshot))
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_cross_section_snapshot(self, snapshot: CrossSectionSnapshot) -> None:
-        """todo"""
+        """This method adds a cross section snapshot."""
+        self.cross_section_snapshots.append(snapshot)

@@ -69,10 +69,12 @@ class LaneSnapshot(GObject.GObject):
                          lane=lane,
                          average_speed=average_speed,
                          traffic_volume=traffic_volume,
-                         a_display=a_display)
+                         a_display=a_display,
+                         vehicle_snapshots=Gio.ListStore.new(VehicleSnapshot))
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_vehicle_snapshot(self, snapshot: VehicleSnapshot) -> None:
         """todo"""
+        self.vehicle_snapshots.append(snapshot)
