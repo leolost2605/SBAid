@@ -22,4 +22,3 @@ class CrossSectionParser(ABC):
             foreach_func: CrossSectionParserForeachFunc
     ) -> Tuple[int, int]:
         """TODO"""
-        return None
