@@ -35,7 +35,8 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_result(self, result_id: str, project_name: str, creation_date_time: DateTime) -> None:
+    async def save_result(self, result_id: str, result_name: str, project_name: str,
+                          creation_date_time: DateTime) -> None:
         """TODO"""
 
     @abstractmethod
@@ -47,7 +48,7 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def get_all_tags(self) -> list[str]:
+    async def get_all_tags(self) -> list[str, str]:
         """TODO"""
 
     @abstractmethod
@@ -67,8 +68,9 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_cross_section_snapshot(self, snapshot_id: str, cross_section_snapshot_ic: str,
-                                    time: DateTime) -> None:
+    async def save_cross_section_snapshot(self, cross_section_snapshot_id: str,
+                                    cross_section_name: str, b_display: BDisplay,
+                                          snapshot_id: str,) -> None:
         """TODO"""
 
     @abstractmethod
@@ -77,8 +79,7 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_lane_snapshot(self, cross_section_snapshot_id: str, lane_snapshot_id: str,
-                           lane: int, average_speed: float, traffic_volume: int,
+    async def save_lane_snapshot(self, lane_snapshot_id: str, lane: int, cross_section_snapshot_id: str,
                            a_display: ADisplay) -> None:
         """TODO"""
 
@@ -87,6 +88,6 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_vehicle_snapshot(self, lane_snapshot_id: str,
+    async def save_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
                               vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""

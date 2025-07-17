@@ -1,7 +1,9 @@
 """TODO"""
+import datetime
 import sqlite3
 
-from gi.repository import GObject, GLib, Gio
+from gi.repository import GLib, Gio
+from gi.repository.GLib import TimeZone
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -10,14 +12,9 @@ from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.global_database import GlobalDatabase
 
 
-class GlobalSQLite(GObject.GObject):
+class GlobalSQLite(GlobalDatabase):
     """TODO"""
     _connection: sqlite3.Connection
-
-    def __init__(self):
-        super().__init__()
-        self.init_contents = ""
-
 
     async def open(self, file: Gio.File) -> None:
         path = file.get_path()
@@ -26,102 +23,220 @@ class GlobalSQLite(GObject.GObject):
         path = file.get_path()
 
         self._connection = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+        
+        self._connection.cursor().executescript("""DROP TABLE project;
+DROP TABLE result;
+DROP TABLE result_tag;
+DROP TABLE tag;
+DROP TABLE snapshot;
+DROP TABLE cross_section_snapshot;
+DROP TABLE lane_snapshot;
+DROP TABLE vehicle_snapshot;
 
-        sql_file = Gio.File.new_for_path(
-            "/Users/fuchs/PycharmProjects/SBAid/sbaid/model/database/init_global_sqlite.txt")
-
-        def _load_contents_callback(giofile, async_result: Gio.AsyncResult) -> None:
-            print("Path: ", giofile.get_path())
-            # try:
-            success, content, etag = giofile.load_contents_finish(async_result)
-            self.init_contents = content
-            print(success)
-            print(content)
-            # except GLib.GError as error:
-            #     print("Error: ", error)
-            #     return
-
-        sql_file.load_contents_async(None, _load_contents_callback, file)
-
-        print("RESULT: ", self.init_contents)
+CREATE TABLE project (
+    id TEXT PRIMARY KEY,
+    simulator_type_id TEXT,
+    simulator_type_name TEXT,
+    simulator_file_path TEXT,
+    project_file_path TEXT
+);
+CREATE TABLE result (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    project_name TEXT,
+    date TIMESTAMP
+);
+CREATE TABLE result_tag (
+    id TEXT PRIMARY KEY,
+    tag_id TEXT,
+    result_id TEXT,
+    FOREIGN KEY (result_id) REFERENCES result (id),
+    FOREIGN KEY (tag_id) REFERENCES tag (id)
+);
+CREATE TABLE tag (
+    id TEXT PRIMARY KEY,
+    name TEXT
+);
+CREATE TABLE snapshot (
+    id TEXT PRIMARY KEY,
+    date TIMESTAMP,
+    result_id TEXT,
+    FOREIGN KEY (result_id) REFERENCES result (id)
+);
+CREATE TABLE cross_section_snapshot (
+    id TEXT PRIMARY KEY,
+    cross_section_name TEXT,
+    b_display TEXT,
+    snapshot_id TEXT,
+    FOREIGN KEY (snapshot_id) REFERENCES snapshot (id)
+);
+CREATE TABLE lane_snapshot (
+    id TEXT PRIMARY KEY,
+    lane_number INT,
+    a_display TEXT,
+    cross_section_snapshot_id TEXT,
+    FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id)
+);
+CREATE TABLE vehicle_snapshot (
+    id TEXT PRIMARY KEY,
+    vehicle_type INT,   
+    speed REAL,
+    lane_snapshot_id TEXT,
+    FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id)
+);""")
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                     simulator_file_path: str, project_file_path: str) -> None:
-        self._connection.cursor().execute("""
-        INSERT INTO projects (project_id, simulator_type, simulator_file_path, project_file_path)
+        self._connection.cursor().execute(f"""
+        INSERT INTO project (id, simulator_type_id, simulator_type_name, simulator_file_path, project_file_path)
+        VALUES ('{project_id}', '{simulator_type.id}', '{simulator_type.name}', '{simulator_file_path}', '{project_file_path}');
         """)
 
     async def get_all_projects(self) -> list[tuple[str, SimulatorType, str, str,]]:
         """TODO"""
         def func(db_input: tuple[str, str, str, str, str]) -> tuple[str, SimulatorType, str, str,]:
             return db_input[0], SimulatorType(db_input[1], db_input[2]), db_input[3], db_input[4]
-        return list(map(func, self._connection.cursor().execute("""
-        SELECT (project_id, simulator_type_id, simulator_type_name, simulator_file_path, project_file_path)
-        FROM project
+        return list(map(func, self._connection.cursor().execute(f"""
+        SELECT * FROM project;
         """).fetchall()))
 
     async def remove_project(self, project_id: str) -> None:
         """TODO"""
-        self._connection.cursor().execute("""
-        DELETE FROM projects (project_id, simulator_type, simulator_file_path, project_file_path)
+        self._connection.cursor().execute(f"""
+        DELETE FROM project WHERE id = '{project_id}';
         """)
 
     async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
-        return self._connection.cursor().execute("""
-        SELECT (project_id, simulator_type_id, simulator_type_name, simulator_file_path, project_file_path)
-        FROM result
-        """).fetchall()
+        def func(values: tuple[str, str, str, datetime.datetime]) -> tuple[str, GLib.DateTime]:
+            return values[0], datetime_to_glib(values[3])
 
-    async def save_result(self, result_id: str, project_name: str,
+        result = list(map(func, self._connection.cursor().execute("""
+        SELECT * FROM result;""").fetchall()))
+        return result
+
+    async def save_result(self, result_id: str, result_name: str, project_name: str,
                           creation_date_time: GLib.DateTime) -> None:
         """TODO"""
+        self._connection.cursor().execute(f"""
+        INSERT INTO result (id, name, project_name, date)
+        VALUES ('{result_id}', '{result_name}', '{project_name}', '{glib_to_datetime(creation_date_time)}');
+        """)
 
 
     async def delete_result(self, result_id: str) -> None:
         """TODO"""
+        self._connection.cursor().execute(f"""
+        DELETE FROM result WHERE id = '{result_id}';
+        """)
 
     async def get_result_name(self, result_id: str) -> str:
         """TODO"""
-        return ""
+        all_results = self._connection.cursor().execute(f"""
+        SELECT name FROM result WHERE id = '{result_id}';
+        """).fetchall()[0]
+        if len(all_results) == 0:
+            return all_results[0]
+        else:
+            raise RuntimeError  # TODO
 
-    async def get_all_tags(self) -> list[str]:
+    async def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
-        return []
+        return self._connection.cursor().execute(f"""
+        SELECT * FROM tag';
+        """).fetchall()
 
     async def get_result_tags(self, result_id: str) -> list[str]:
         """TODO"""
-        return []
+        return self._connection.cursor().execute(f"""
+        SELECT id FROM result_tag WHERE result_id = '{result_id}';
+        """).fetchall()
 
     async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
-        return []
 
-    async def save_snapshot(self, result_id: str, snapshot_id: str, time: GLib.DateTime) -> None:
-        """TODO"""
+        def func(values: tuple[str, datetime.datetime, str]) -> tuple[str, GLib.DateTime]:
+            return values[0], datetime_to_glib(values[1])
 
-    async def get_all_cross_section_snapshots(self, snapshot_id: str) -> list[tuple[str, str, BDisplay]]:
-        """TODO"""
-        return []
+        return list(map(func, self._connection.cursor().execute("""
+        SELECT * FROM snapshot;""").fetchall()))
 
-    async def save_cross_section_snapshot(self, snapshot_id: str, cross_section_snapshot_ic: str,
-                                    time: GLib.DateTime) -> None:
+    async def save_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
         """TODO"""
+        self._connection.cursor().execute(f"""
+        INSERT INTO snapshot (id, date, result_id)
+        VALUES ('{result_id}', '{glib_to_datetime(time)}', '{snapshot_id}'');
+        """)
+
+    async def get_all_cross_section_snapshots(self, snapshot_id: str) -> list[tuple[str, str, BDisplay, str]]:
+        """TODO"""
+        def func(values: tuple[str, str, str, str]) -> tuple[str, str, BDisplay, str]:
+            return values[0], values[1], BDisplay(values[2]), values[3]
+        return list(map(func, (self._connection.cursor().execute(f"""
+        SELECT * FROM cross_section_snapshot WHERE snapshot_id = '{snapshot_id}';
+        """).fetchall())))
+
+    async def save_cross_section_snapshot(self, cross_section_snapshot_id: str,
+                                    cross_section_name: str, b_display: BDisplay,
+                                          snapshot_id: str,) -> None:
+        """TODO"""
+        self._connection.cursor().execute(f"""
+        INSERT INTO cross_section_snapshot (id, cross_section_name, b_display, snapshot_id)
+        VALUES ('{cross_section_snapshot_id}', '{cross_section_name}', '{str(b_display)}', '{snapshot_id}');
+        """)
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str)\
-            -> list[tuple[str, int, float, int, ADisplay]]:
+            -> list[tuple[str, int, ADisplay, str]]:
         """TODO"""
-        return []
+        def func(values: tuple[str, int, str, str]) -> tuple[str, int, ADisplay, str]:
+            return values[0], values[1], ADisplay(values[2]), values[3]
+        return list(map(func, self._connection.cursor().execute(f"""
+        SELECT * FROM lane_snapshot WHERE snapshot_id = '{cross_section_snapshot_id}';
+        """).fetchall()))
 
-    async def save_lane_snapshot(self, cross_section_snapshot_id: str, lane_snapshot_id: str,
-                           lane: int, average_speed: float, traffic_volume: int,
+    async def save_lane_snapshot(self, lane_snapshot_id: str, lane: int, cross_section_snapshot_id: str,
                            a_display: ADisplay) -> None:
         """TODO"""
+        self._connection.cursor().execute(f"""
+        INSERT INTO lane_snapshot ('{lane_snapshot_id}', '{lane}', '{str(a_display)}',
+        '{cross_section_snapshot_id});
+        """)
 
-    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) -> list[tuple[VehicleType, float]]:
+    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str)\
+            -> list[tuple[VehicleType, float]]:
         """TODO"""
-        return []
 
-    async def save_vehicle_snapshot(self, lane_snapshot_id: str,
+        def func(values: tuple[str, float]) -> tuple[VehicleType, float]:
+            return VehicleType(values[0]), values[1]
+
+        return list(map(func, self._connection.cursor().execute(f"""
+        SELECT * FROM vehicle_snapshot WHERE lane_snapshot_id = '{lane_snapshot_id}';
+        """).fetchall()))
+
+    async def save_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
                               vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""
+        self._connection.cursor().execute(f"""
+        INSERT INTO vehicle_snapshot ('{vehicle_snapshot_id}', '{str(vehicle_type)}', '{speed}',
+        '{lane_snapshot_id});
+        """)
+
+
+def glib_to_datetime(glib_date: GLib.DateTime) -> datetime.datetime:
+    return datetime.datetime.combine(datetime.date(glib_date.get_ymd()[0],
+                                                           glib_date.get_ymd()[1],
+                                                           glib_date.get_ymd()[2]),
+                                             datetime.time(glib_date.get_hour(),
+                                                           glib_date.get_minute(),
+                                                           glib_date.get_second(),
+                                                           glib_date.get_microsecond()))
+
+def datetime_to_glib(datetime_date: datetime.datetime) -> GLib.DateTime:
+    return GLib.DateTime.new(TimeZone.new("Europe/Berlin"),
+                             datetime_date.year,
+                             datetime_date.month,
+                             datetime_date.day,
+                             datetime_date.hour,
+                             datetime_date.minute,
+                             datetime_date.second + datetime_date.microsecond / (10 ** 6))
+
