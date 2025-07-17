@@ -5,7 +5,7 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 
 
-class CrossSection:
+class CrossSection(GObject.GObject):
     """TODO"""
 
     id = GObject.Property(type=str,
@@ -20,7 +20,7 @@ class CrossSection:
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
                                 GObject.ParamFlags.CONSTRUCT_ONLY)
-    type = GObject.Property(type=CrossSectionType,
+    type = GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED,
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -28,21 +28,22 @@ class CrossSection:
                              flags=GObject.ParamFlags.READABLE |
                              GObject.ParamFlags.WRITABLE |
                              GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_available = GObject.Property(type=bool,
+    hard_shoulder_available = GObject.Property(type=bool, default=False,
                                                flags=GObject.ParamFlags.READABLE |
                                                GObject.ParamFlags.WRITABLE |
                                                GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_active = GObject.Property(type=bool,
+    hard_shoulder_active = GObject.Property(type=bool, default=False,
                                             flags=GObject.ParamFlags.READABLE |
                                             GObject.ParamFlags.WRITABLE |
                                             GObject.ParamFlags.CONSTRUCT)
-    b_display_active = GObject.Property(type=bool,
+    b_display_active = GObject.Property(type=bool, default=False,
                                         flags=GObject.ParamFlags.READABLE |
                                         GObject.ParamFlags.WRITABLE |
                                         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """TODO"""
+        super().__init__()
 
     def load_from_db(self) -> None:
         """TODO"""
