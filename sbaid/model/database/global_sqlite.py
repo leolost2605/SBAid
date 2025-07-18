@@ -135,10 +135,14 @@ CREATE TABLE vehicle_snapshot (
         """, (result_id,)).fetchone()
         return result[0]
 
-    async def add_result_tag(self, result_id: str, tag_id: str) -> None:
+    async def add_result_tag(self, result_id: str, tag_id: str, tag_name) -> None:
         """TODO"""
         self._connection.cursor().execute("""
-        INSERT INTO result_tag (id, tag_name) VALUES (?, ?);""", (result_id, tag_id))
+        INSERT INTO tag (id, name) VALUES (?, ?);""", (tag_id, tag_name))
+
+        self._connection.cursor().execute("""
+        INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
+                                          (GLib.uuid_string_random(),result_id, tag_id))
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
@@ -149,7 +153,7 @@ CREATE TABLE vehicle_snapshot (
     async def get_result_tags(self, result_id: str) -> list[str]:
         """TODO"""
         return self._connection.cursor().execute("""
-        SELECT id FROM result_tag WHERE result_id = ?;
+        SELECT tag_id FROM result_tag WHERE result_id = ?;
         """, (result_id,)).fetchall()
 
     async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:

@@ -47,7 +47,7 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_result_tag(self, result_id: str, tag_id: str) -> None:
+    async def add_result_tag(self, result_id: str, tag_id: str, tag_name: str) -> None:
         """TODO"""
 
     @abstractmethod
