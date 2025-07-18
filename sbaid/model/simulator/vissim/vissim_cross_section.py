@@ -1,7 +1,7 @@
 """This module contains the VissimCrossSection class."""
 from gi.repository import GObject
 
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
@@ -18,10 +18,10 @@ class VissimCrossSection(SimulatorCrossSection):
         """TODO"""
         return CrossSectionType.COMBINED
 
-    @GObject.Property(type=Coordinate)
-    def position(self) -> Coordinate:
+    @GObject.Property(type=Location)
+    def position(self) -> Location:
         """TODO"""
-        return Coordinate(0, 0)
+        return Location(0, 0)
 
     @GObject.Property(type=int)
     def lanes(self) -> int:
