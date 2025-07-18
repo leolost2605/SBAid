@@ -1,9 +1,8 @@
 """ This module represents the Result class."""
-from typing import List
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
-#import GlobalDatabase
+# import GlobalDatabase
 
 
 class Result(GObject.GObject):
@@ -52,20 +51,19 @@ class Result(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY
     )
 
-
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
-        """todo"""
+        """Constructor for the Result class."""
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
-                         selected_tags=Gio.ListStore.new(Tag), snapshots=Gio.ListStore.new(Snapshot))
-
+                         selected_tags=Gio.ListStore.new(Tag),
+                         snapshots=Gio.ListStore.new(Snapshot))
 
     def load(self) -> None:
         """todo this method handles the logic for loading snapshots."""
-        # todo will inevitably change when global database pushed to main
-        db_snapshots = [] #GlobalDatabase.get_all_snapshots(self.id)
+        # will inevitably change when global database pushed to main
+        db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
 
         for snapshot in db_snapshots:
             new_snapshot = Snapshot(snapshot)
