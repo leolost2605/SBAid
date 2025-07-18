@@ -3,7 +3,7 @@ from gi.repository import GObject
 
 from sbaid.model.simulation_observer import SimulationObserver
 from sbaid.model.network.network import Network
-from sbaid.model.algorithm_configuration import AlgorithmConfiguration
+from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.results.result_manager import ResultManager
 
