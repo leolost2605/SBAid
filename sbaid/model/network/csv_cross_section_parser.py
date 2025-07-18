@@ -1,6 +1,8 @@
 """This module consists of the CSV cross section parser. TODO"""
 import csv
 from abc import ABC
+from unittest import case
+
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
@@ -16,30 +18,38 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
 
     def foreach_cross_section(self, file: Gio.File,
                               foreach_func: CrossSectionParserForeachFunc) -> tuple[int, int]:
-        """TODO:
-        - check for a valid header; if there isn't one go back and start reading from the first line
-        - read file
-        - convert row for row, skip if invalid (increment invalid counter)
-        - create cross section instances with valid rows, increment valid counter
-        """
+        """Reads the input CSV file row by row, representing a cross section to be imported,
+        and attempts to add the cross section to the network. Returns the amount of added and skipped cross sections."""
         with open(file.get_path(), newline='') as csvfile:
-            valid_cross_sections = 0
-            invalid_cross_sections = 0
+            cross_section_count = (0,0)
             csv_reader = csv.reader(csvfile)
             try:
                 has_header = self.__has_valid_header(csv_reader)
             except StopIteration:
                 raise InvalidFileFormattingException("Empty file.")
             if not has_header:
-                csvfile.seek(0)
+                csvfile.seek(0)  # restart reading from the beginning of file
             for row in csv_reader:
-                if self.__parse_cross_section(row):
-                    valid_cross_sections += 1  # falls creation funktioniert?
-
+                parsed_info = self.__parse_cross_section(row)
+                if parsed_info[0]:
+                    # TODO method calls for cross section creation - use foreach_func
+                    # try except for exceptions that might happen when creating the cross section
+                    try:
+                        foreach_func(row[2], parsed_info[0], parsed_info[1])
+                        cross_section_count = cross_section_count[0]+1, cross_section_count[1]
+                    except ValueError:  #TODO change error - this is already checked by the parser:
+                        # - create exception for already existing location etc.
+                        cross_section_count = cross_section_count[0], cross_section_count[1]+1
                 else:
                     next(csv_reader)
-                    invalid_cross_sections += 1
+                    cross_section_count = cross_section_count[0], cross_section_count[1]+1
+        if cross_section_count[0] == 0:
+            raise InvalidFileFormattingException("File has no valid cross section definitions.")
+        return cross_section_count
 
+
+    def __convert_to_location(self, x: str, y: str) -> Coordinate | None:
+        return Coordinate(float(x),float(y))
 
     def __has_valid_header(self, csv_reader: csv.reader) -> bool:
             row = next(csv_reader)
@@ -48,25 +58,34 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
                     and row[2].casefold() == "Y-Coordinate".casefold()
                     and row[3].casefold() == "Type".casefold())
 
-    def __parse_cross_section(self, row: list) -> Coordinate | None:
+    def __parse_cross_section(self, row: list) -> tuple[Coordinate, CrossSectionType] | None:
         if len(row) != 4:
             return None
         try:
             coordinates = Coordinate(float(row[1]),float(row[2]))
         except ValueError:
             return None
-        if not self.__cross_section_type_valid(row[3]):
-            return None
-        return coordinates
+        cs_type = self.__get_enum_from_type_str(row[3])
+        if cs_type:
+            return coordinates, cs_type
+        return None
 
-    def __cross_section_type_valid(self, cross_section_type: str) -> int | None:
+    def __get_enum_from_type_str(self, cross_section_type: str) -> CrossSectionType | None:
         try:
-            return CrossSectionType[cross_section_type.upper()].value
+            type_value = CrossSectionType[cross_section_type.upper()]
+            match type_value:
+                case 0:
+                    return CrossSectionType.DISPLAY
+                case 1:
+                    return CrossSectionType.MEASURING
+                case 2:
+                    return CrossSectionType.COMBINED
         except KeyError:
             return None
 
 class InvalidFileFormattingException(Exception):
-    """Exception raised when the user inputs a file with invalid formatting."""
+    """Exception raised when the user inputs an invalid file.
+    Error message is the first found invalid formatting."""
     def __init__(self, formatting_error: str):
-        self.message = "Illegal file formatting: \n %s"%formatting_error
+        self.message = "Illegal file: \n %s"%formatting_error
 

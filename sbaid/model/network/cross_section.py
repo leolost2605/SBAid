@@ -16,7 +16,7 @@ class CrossSection(GObject.GObject):
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    position = GObject.Property(type=Coordinate,
+    location = GObject.Property(type=Coordinate,
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
                                 GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -47,3 +47,15 @@ class CrossSection(GObject.GObject):
 
     def load_from_db(self) -> None:
         """TODO"""
+
+    def set_name(self, name: str) -> None:
+        """Sets the cross section's name."""
+        self.name = name
+
+    def toggle_hard_shoulder(self) -> None:
+        """Toggles the hard shoulder status."""
+        self.hard_shoulder_active = not self.hard_shoulder_active
+
+    def toggle_b_display_active(self) -> None:
+        """Toggles the b display status."""
+        self.b_display_active = not self.b_display_active
