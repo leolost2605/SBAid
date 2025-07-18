@@ -8,7 +8,7 @@ from gi.repository import GObject, Gio
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.display import Display
 
@@ -27,7 +27,7 @@ class Simulator(GObject.GInterface):
     def load_file(self, file: Gio.File) -> None:
         """Load the simulation file."""
 
-    def create_cross_section(self, coordinate: Coordinate,
+    def create_cross_section(self, location: Location,
                              cross_section_type: CrossSectionType) -> int:
         """
         Create a cross section object, add it to the cross section list
@@ -38,7 +38,7 @@ class Simulator(GObject.GInterface):
         """Remove the cross section object."""
 
     def move_cross_section(self, cross_section_id: str,
-                           new_position: Coordinate) -> None:
+                           new_position: Location) -> None:
         """Move the cross section object."""
 
     def init_simulation(self) -> tuple[int, int]:

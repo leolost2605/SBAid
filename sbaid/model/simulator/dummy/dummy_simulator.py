@@ -4,7 +4,7 @@ from gi.repository import GObject, Gio
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
 
@@ -25,7 +25,7 @@ class DummySimulator(Simulator):
     def load_file(self, file: Gio.File) -> None:
         """TODO"""
 
-    def create_cross_section(self, coordinate: Coordinate,
+    def create_cross_section(self, location: Location,
                              cross_section_type: CrossSectionType) -> int:
         """TODO"""
         return 0
@@ -33,7 +33,7 @@ class DummySimulator(Simulator):
     def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
 
-    def move_cross_section(self, cross_section_id: str, new_position: Coordinate) -> None:
+    def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
         """TODO"""
 
     def init_simulation(self) -> tuple[int, int]:
