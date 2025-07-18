@@ -1,3 +1,4 @@
+import asyncio
 import unittest
 
 from gi.repository import Gio
@@ -95,13 +96,27 @@ class GlobalSQLiteTest(unittest.TestCase):
         await db.save_cross_section_snapshot("my_cross_section_snapshot_id",
                                              "my_cross_section_name", BDisplay.OFF,
                                              "my_snapshot_id")
-        await db.save_lane_snapshot("my_lane_snapshot_id", 1, "my_cross_section_snapshot_id", ADisplay.OFF)
+        await db.save_lane_snapshot("my_lane_snapshot_id", 1,  ADisplay.OFF, "my_cross_section_snapshot_id")
 
         self.assertEqual(len(await db.get_all_lane_snapshots("my_cross_section_snapshot_id")), 1)
         cs_snapshot = await db.get_all_lane_snapshots("my_cross_section_snapshot_id")
         self.assertEqual(cs_snapshot[0][2], ADisplay.OFF)
 
-
+    async def test_times(self):
+        red_revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
+                                                       TimeZone.new("Europe/Berlin"))
+        db = GlobalSQLite()
+        file = Gio.File.new_for_path("/Users/fuchs/PycharmProjects/SBAid/sbaid/model/database/test.db")
+        await db.open(file)
+        await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+                             "my_simulator_file_path",
+                             "my_project_file_path")
+        await db.save_result("my_result_id", "my_result_name",
+                             "my_project_name",
+                             red_revo_date)
+        all_results = await db.get_all_results()
+        result_time = all_results[0][1]
+        self.assertEqual(result_time.format_iso8601(), red_revo_date.format_iso8601())
 
 
 
@@ -110,5 +125,6 @@ class GlobalSQLiteTest(unittest.TestCase):
 # asyncio.run(GlobalSQLiteTest().test_snapshot())
 # asyncio.run(GlobalSQLiteTest().test_cross_section_snapshot())
 # asyncio.run(GlobalSQLiteTest().test_lane_snapshot())
+# asyncio.run(GlobalSQLiteTest().test_times())
 
 

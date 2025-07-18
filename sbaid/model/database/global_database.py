@@ -1,8 +1,7 @@
 """TODO"""
 from abc import ABC, abstractmethod
 
-from gi.repository.GLib import DateTime
-from gi.repository.Gio import File
+from gi.repository import GLib, Gio
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -14,12 +13,12 @@ class GlobalDatabase(ABC):
     """TODO"""
 
     @abstractmethod
-    async def open(self, file: File) -> None:
+    async def open(self, file: Gio.File) -> None:
         """TODO"""
 
     @abstractmethod
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
-                    simulator_file_path: str, project_file_path: str) -> None:
+                          simulator_file_path: str, project_file_path: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -31,12 +30,12 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def get_all_results(self) -> list[tuple[str, DateTime]]:
+    async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
 
     @abstractmethod
     async def save_result(self, result_id: str, result_name: str, project_name: str,
-                          creation_date_time: DateTime) -> None:
+                          creation_date_time: GLib.DateTime) -> None:
         """TODO"""
 
     @abstractmethod
@@ -48,7 +47,7 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def get_all_tags(self) -> list[str, str]:
+    async def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
 
     @abstractmethod
@@ -56,38 +55,41 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def get_all_snapshots(self, result_id: str) -> list[tuple[str, DateTime]]:
+    async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
 
     @abstractmethod
-    async def save_snapshot(self, result_id: str, snapshot_id: str, time: DateTime) -> None:
+    async def save_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
         """TODO"""
 
     @abstractmethod
-    async def get_all_cross_section_snapshots(self, snapshot_id: str) -> list[tuple[str, str, BDisplay]]:
+    async def get_all_cross_section_snapshots(self, snapshot_id: str)\
+            -> list[tuple[str, str, BDisplay, str]]:
         """TODO"""
 
     @abstractmethod
     async def save_cross_section_snapshot(self, cross_section_snapshot_id: str,
-                                    cross_section_name: str, b_display: BDisplay,
-                                          snapshot_id: str,) -> None:
+                                          cross_section_name: str,
+                                          b_display: BDisplay,
+                                          snapshot_id: str) -> None:
         """TODO"""
 
     @abstractmethod
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str)\
-            -> list[tuple[str, int, float, int, ADisplay]]:
+            -> list[tuple[str, int, ADisplay, str]]:
         """TODO"""
 
     @abstractmethod
-    async def save_lane_snapshot(self, lane_snapshot_id: str, lane: int, cross_section_snapshot_id: str,
-                           a_display: ADisplay) -> None:
+    async def save_lane_snapshot(self, lane_snapshot_id: str, lane: int,
+                                 a_display: ADisplay, cross_section_snapshot_id: str) -> None:
         """TODO"""
 
     @abstractmethod
-    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) -> list[tuple[VehicleType, float]]:
+    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str)\
+            -> list[tuple[VehicleType, float]]:
         """TODO"""
 
     @abstractmethod
     async def save_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
-                              vehicle_type: VehicleType, speed: float) -> None:
+                                    vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""
