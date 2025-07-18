@@ -114,8 +114,8 @@ CREATE TABLE vehicle_snapshot (
         SELECT * FROM result;""").fetchall()))
         return result
 
-    async def save_result(self, result_id: str, result_name: str, project_name: str,
-                          creation_date_time: GLib.DateTime) -> None:
+    async def add_result(self, result_id: str, result_name: str, project_name: str,
+                         creation_date_time: GLib.DateTime) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO result (id, name, project_name, date)
@@ -165,7 +165,7 @@ CREATE TABLE vehicle_snapshot (
         return list(map(func, self._connection.cursor().execute("""
         SELECT * FROM snapshot;""").fetchall()))
 
-    async def save_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
+    async def add_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO snapshot (id, date, result_id)
@@ -181,9 +181,9 @@ CREATE TABLE vehicle_snapshot (
         SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;
         """, (snapshot_id,)).fetchall())))
 
-    async def save_cross_section_snapshot(self, cross_section_snapshot_id: str,
-                                          cross_section_name: str, b_display: BDisplay,
-                                          snapshot_id: str,) -> None:
+    async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
+                                         cross_section_name: str, b_display: BDisplay,
+                                         snapshot_id: str, ) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO cross_section_snapshot (id, cross_section_name, b_display, snapshot_id)
@@ -199,9 +199,9 @@ CREATE TABLE vehicle_snapshot (
         SELECT * FROM lane_snapshot WHERE cross_section_snapshot_id = ?;
         """, (cross_section_snapshot_id,)).fetchall()))
 
-    async def save_lane_snapshot(self, lane_snapshot_id: str,
-                                 lane: int, a_display: ADisplay,
-                                 cross_section_snapshot_id: str) -> None:
+    async def add_lane_snapshot(self, lane_snapshot_id: str,
+                                lane: int, a_display: ADisplay,
+                                cross_section_snapshot_id: str) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO lane_snapshot (id, lane_number, a_display, cross_section_snapshot_id)
@@ -219,8 +219,8 @@ CREATE TABLE vehicle_snapshot (
         SELECT * FROM vehicle_snapshot WHERE lane_snapshot_id = ?;
         """, (lane_snapshot_id,)).fetchall()))
 
-    async def save_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
-                                    vehicle_type: VehicleType, speed: float) -> None:
+    async def add_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
+                                   vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO vehicle_snapshot (?, ?, ?, ?);

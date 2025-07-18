@@ -34,8 +34,8 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_result(self, result_id: str, result_name: str, project_name: str,
-                          creation_date_time: GLib.DateTime) -> None:
+    async def add_result(self, result_id: str, result_name: str, project_name: str,
+                         creation_date_time: GLib.DateTime) -> None:
         """TODO"""
 
     @abstractmethod
@@ -63,7 +63,7 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
+    async def add_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -72,10 +72,10 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_cross_section_snapshot(self, cross_section_snapshot_id: str,
-                                          cross_section_name: str,
-                                          b_display: BDisplay,
-                                          snapshot_id: str) -> None:
+    async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
+                                         cross_section_name: str,
+                                         b_display: BDisplay,
+                                         snapshot_id: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -84,8 +84,8 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_lane_snapshot(self, lane_snapshot_id: str, lane: int,
-                                 a_display: ADisplay, cross_section_snapshot_id: str) -> None:
+    async def add_lane_snapshot(self, lane_snapshot_id: str, lane: int,
+                                a_display: ADisplay, cross_section_snapshot_id: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -94,6 +94,6 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def save_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
-                                    vehicle_type: VehicleType, speed: float) -> None:
+    async def add_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
+                                   vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""
