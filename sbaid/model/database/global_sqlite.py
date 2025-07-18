@@ -135,6 +135,11 @@ CREATE TABLE vehicle_snapshot (
         """, (result_id,)).fetchone()
         return result[0]
 
+    async def add_result_tag(self, result_id: str, tag_id: str) -> None:
+        """TODO"""
+        self._connection.cursor().execute("""
+        INSERT INTO result_tag (id, tag_name) VALUES (?, ?);""", (result_id, tag_id))
+
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
         return self._connection.cursor().execute("""
