@@ -108,7 +108,7 @@ CREATE TABLE vehicle_snapshot (
     async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
         def func(values: tuple[str, str, str, str]) -> tuple[str, GLib.DateTime]:
-            return values[0], GLib.DateTime.new_from_iso8601(values[3])
+            return values[0], GLib.DateTime.new_from_iso8601(values[3])  # pylint:disable=no-member
 
         result = list(map(func, self._connection.cursor().execute("""
         SELECT * FROM result;""").fetchall()))
@@ -151,7 +151,7 @@ CREATE TABLE vehicle_snapshot (
         """TODO"""
 
         def func(values: tuple[str, str, str]) -> tuple[str, GLib.DateTime]:
-            return values[0], GLib.DateTime.new_from_iso8601(values[1])
+            return values[0], GLib.DateTime.new_from_iso8601(values[1])  # pylint:disable=no-member
 
         return list(map(func, self._connection.cursor().execute("""
         SELECT * FROM snapshot;""").fetchall()))
