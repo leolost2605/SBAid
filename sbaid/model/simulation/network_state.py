@@ -17,7 +17,7 @@ class NetworkState(GObject.GObject):
 
     def __init__(self, route: list[Coordinate],
                  cross_section_states: list[CrossSectionState]) -> None:
-        """Consruct a new network state. Lists are turned into ListModels in O(n) time."""
+        """Construct a new NetworkState. Lists are turned into ListModels in O(n) time."""
         coordinates_list_model: Gio.ListStore = Gio.ListStore()
         cross_sections_list_model: Gio.ListStore = Gio.ListStore()
         for coordinate in route:
