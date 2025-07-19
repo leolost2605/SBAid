@@ -117,7 +117,8 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_parameter_tag(self, parameter_tag_id: str, parameter_id: str, tag_id: str) -> None:
+    async def add_parameter_tag(self, parameter_tag_id: str, parameter_id: str, tag_id: str)\
+            -> None:
         """TODO"""
 
     @abstractmethod
