@@ -36,7 +36,7 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def set_cross_section_name(self, name: str) -> None:
+    async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -44,7 +44,8 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def set_algorithm_configuration_name(self, name: str) -> None:
+    async def set_algorithm_configuration_name(self, algorithm_configuration_id: str,
+                                               name: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -95,7 +96,30 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def set_parameter_value(self, algorithm_configuration_id: str,
-                                  parameter_name: str, cross_section_id: str | None,
-                                  parameter_value: GLib.Variant) -> None:
+    async def set_parameter_value(self, parameter_id: str, parameter_value: GLib.Variant) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def add_parameter(self, parameter_id: str, name: str, algorithm_configuration_id: str,
+                            cross_section_id: str, value: GLib.Variant) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def remove_parameter(self, parameter_id: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def add_tag(self, tag_id: str, name: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def remove_tag(self, tag_id: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def add_parameter_tag(self, parameter_tag_id: str, parameter_id: str, tag_id: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """TODO"""
