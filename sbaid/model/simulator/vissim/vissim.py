@@ -4,8 +4,12 @@ import asyncio
 import pythoncom
 from queue import Queue
 from enum import Enum
-from typing import Any
+from typing import Any, NamedTuple
 from threading import Thread
+
+from sbaid.common.coordinate import Coordinate
+from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
 class VissimNotFoundException(Exception):
@@ -29,6 +33,28 @@ class VissimCommand:
     def finish(self, *results: Any) -> None:
         self.future.get_loop().call_soon_threadsafe(self.future.set_result, results)
 
+
+class VissimConnectorCrossSectionState(NamedTuple):
+    id: str
+    type: CrossSectionType
+    position: Coordinate
+    lanes: int
+
+
+class CommandQueue(Queue):
+    async def _put_command(self, command_type: VissimCommandType, **kwargs) -> tuple[Any, ...]:
+        command = VissimCommand(command_type, **kwargs)
+        self.put(command)
+        return await command.future
+
+    async def load_file(self, path: str) -> list[VissimConnectorCrossSectionState]:
+        return await self._put_command(VissimCommandType.LOAD_FILE, path=path)
+
+    async def init_simulation(self) -> tuple[int, int]:
+        return await self._put_command(VissimCommandType.INIT_SIMULATION)
+    
+    async def shutdown(self) -> None:
+        await self._put_command(VissimCommandType.SHUTDOWN)
 
 class VissimManager:
     _command_queue: Queue[VissimCommand]
@@ -58,16 +84,41 @@ class VissimManager:
 
 class VissimConnectorCrossSection:
     __data_collection_points: list[Any] = []
+    __des_speed_decisions: list[Any] = []
 
     @property
     def id(self) -> str:
-        cs_id = ""
-        for point in self.__data_collection_points:
-            cs_id += "-" + point.AttValue("No")
-        return cs_id
+        if self.__data_collection_points:
+            return str(self.__data_collection_points[0].AttVal("No"))
+
+        return str(self.__des_speed_decisions[0].AttVal("No"))
+
+    @property
+    def type(self) -> CrossSectionType:
+        if not self.__des_speed_decisions:
+            return CrossSectionType.MEASURING
+
+        if not self.__data_collection_points:
+            return CrossSectionType.DISPLAY
+
+        return CrossSectionType.COMBINED
+
+    @property
+    def position(self) -> Coordinate:
+        return None
+
+    @property
+    def lanes(self) -> int:
+        if self.__data_collection_points:
+            return len(self.__data_collection_points)
+
+        return len(self.__des_speed_decisions)
 
     def add_point(self, point: Any) -> None:
         self.__data_collection_points.append(point)
+
+    def get_state(self) -> VissimConnectorCrossSectionState:
+        return VissimConnectorCrossSectionState(self.id, self.type, self.position, self.lanes)
 
 
 class VissimConnector:
@@ -87,7 +138,7 @@ class VissimConnector:
             case VissimCommandType.LOAD_FILE:
                 self._start_vissim()
                 self._load_network(command.kwargs["path"])
-                self._get_cross_sections()
+                args = (self._get_cross_sections(),)
 
             case VissimCommandType.INIT_SIMULATION:
                 args = self._init_simulation()
@@ -111,7 +162,7 @@ class VissimConnector:
     def _load_network(self, path: str) -> None:
         self._vissim.LoadNet(path, False)
 
-    def _get_cross_sections(self) -> list[Any]:
+    def _get_cross_sections(self) -> list[VissimConnectorCrossSectionState]:
         points = self._vissim.Net.DataCollectionPoints.GetAll()
 
         if not points:
@@ -129,8 +180,13 @@ class VissimConnector:
 
             self.__cross_sections[link_index][pos].add_point(point)
 
-        print(len(self.__cross_sections))
+        cross_sections = []
 
+        for link_index in self.__cross_sections:
+            for position in self.__cross_sections[link_index]:
+                cross_sections.append(self.__cross_sections[link_index][position].get_state())
+
+        return cross_sections
 
     def _init_simulation(self) -> tuple[int, int]:
         sim_duration = self._vissim.Simulation.AttValue('SimPeriod')

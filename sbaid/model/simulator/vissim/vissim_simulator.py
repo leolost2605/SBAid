@@ -1,4 +1,6 @@
 """This module contains the VissimCrossSection class."""
+from threading import Thread
+
 from gi.repository import GObject, Gio
 
 from sbaid.common.simulator_type import SimulatorType
@@ -8,17 +10,24 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
+from sbaid.model.simulator.vissim.vissim import CommandQueue, VissimConnector
 
 
 class VissimSimulator(Simulator):
     """TODO"""
 
-    _type: SimulatorType
-    _cross_sections: Gio.ListModel
+    __type: SimulatorType
+    __cross_sections: Gio.ListModel
+    __command_queue: CommandQueue
+    __thread: Thread
 
     def __init__(self) -> None:
-        self._type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
-        self._cross_sections = Gio.ListStore.new(SimulatorCrossSection)
+        self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
+        self.__cross_sections = Gio.ListStore.new(SimulatorCrossSection)
+        self.__command_queue = CommandQueue()
+
+        self.__thread = Thread(target=VissimConnector, args=(self.__command_queue,), daemon=True)
+        self.__thread.start()
 
     @GObject.Property(type=SimulatorType)
     def type(self) -> SimulatorType:
@@ -26,7 +35,7 @@ class VissimSimulator(Simulator):
         Returns the simulator type, in this case PTV Vissim.
         :return: the type of this simulator
         """
-        return self._type
+        return self.__type
 
     @GObject.Property(type=Gio.ListModel)
     def cross_sections(self) -> Gio.ListModel:
@@ -36,7 +45,7 @@ class VissimSimulator(Simulator):
         the same over the lifetime of this.
         :return: A Gio.ListModel containing the cross sections in this simulator file.
         """
-        return self._cross_sections
+        return self.__cross_sections
 
     async def load_file(self, file: Gio.File) -> None:
         """TODO"""
