@@ -40,8 +40,7 @@ class GlobalSQLite(GlobalDatabase):
         """TODO"""
         return ""
 
-    async def add_result_tag(self, result_tag_id: str, result_id: str,
-                             tag_id: str, tag_name: str) -> None:
+    async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """TODO"""
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
