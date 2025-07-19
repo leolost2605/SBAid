@@ -75,13 +75,15 @@ CREATE TABLE parameter_tag (
 
     async def get_created_at(self) -> GLib.DateTime:
         """TODO"""
-        return GLib.DateTime.new_from_iso8601(self._connection.execute("""
-        SELECT created_at FROM meta_information""").fetchone())
+        return GLib.DateTime.new_from_iso8601(self._connection  # pylint: disable=no-member
+                                              .execute("""SELECT created_at
+                                              FROM meta_information""").fetchone())
 
     async def get_last_modified(self) -> GLib.DateTime:
         """TODO"""
-        return GLib.DateTime.new_from_iso8601(self._connection.execute("""
-        SELECT last_modified FROM meta_information""").fetchone())
+        return GLib.DateTime.new_from_iso8601(self._connection  # pylint: disable=no-member
+                                              .execute("""SELECT last_modified
+                                              FROM meta_information""").fetchone())
 
     async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
         """TODO"""
@@ -217,7 +219,8 @@ CREATE TABLE parameter_tag (
         self._connection.execute("""
         INSERT INTO algorithm_configuration (id, name, evaluation_interval, display_interval,
         script_path, is_selected) VALUES (?, ?, ?, ?, ?, ?)""", (algorithm_configuration_id, name,
-                                                                 evaluation_interval, display_interval,
+                                                                 evaluation_interval,
+                                                                 display_interval,
                                                                  script_path, is_selected))
 
     async def remove_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
@@ -258,4 +261,3 @@ CREATE TABLE parameter_tag (
         """TODO"""
         self._connection.execute("""
         DELETE FROM parameter WHERE id = ?""", [parameter_tag_id])
-
