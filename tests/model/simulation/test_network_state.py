@@ -3,7 +3,7 @@
 import unittest
 from typing import List
 
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.cross_section_state import CrossSectionState
 from sbaid.model.simulation.network_state import NetworkState
@@ -20,14 +20,14 @@ class NetworkStateTest(unittest.TestCase):
 
     def test_route(self):
         """Test a network state """
-        route: List[Coordinate] = [Coordinate(0,0), Coordinate(0,1), Coordinate(1,0),
-                                   Coordinate(1,1)]
+        route: List[Location] = [Location(0, 0), Location(0, 1), Location(1, 0),
+                                 Location(1, 1)]
         network_state = NetworkState(route, [])
         self.assertEqual(network_state.route.get_n_items(), 4)
-        self.assertEqual(network_state.route.get_item(0), Coordinate(0,0))
-        self.assertEqual(network_state.route.get_item(1), Coordinate(0,1))
-        self.assertEqual(network_state.route.get_item(2), Coordinate(1,0))
-        self.assertEqual(network_state.route.get_item(3), Coordinate(1,1))
+        self.assertEqual(network_state.route.get_item(0), Location(0, 0))
+        self.assertEqual(network_state.route.get_item(1), Location(0, 1))
+        self.assertEqual(network_state.route.get_item(2), Location(1, 0))
+        self.assertEqual(network_state.route.get_item(3), Location(1, 1))
 
     def test_cross_section_states(self):
         cs1: CrossSectionState = CrossSectionState("my_cs_id", CrossSectionType.COMBINED,

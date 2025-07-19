@@ -6,7 +6,7 @@ which provides cross section GObject properties.
 from gi.repository import GObject
 
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 
 
 class SimulatorCrossSection(GObject.GInterface):
@@ -23,8 +23,8 @@ class SimulatorCrossSection(GObject.GInterface):
     def type(self) -> CrossSectionType:
         """TODO"""
 
-    @GObject.Property(type=Coordinate)
-    def position(self) -> Coordinate:
+    @GObject.Property(type=Location)
+    def position(self) -> Location:
         """TODO"""
 
     @GObject.Property(type=int)
