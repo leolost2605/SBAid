@@ -47,7 +47,8 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_result_tag(self, result_id: str, tag_id: str, tag_name: str) -> None:
+    async def add_result_tag(self, result_tag_id: str, result_id: str,
+                             tag_id: str, tag_name: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -63,29 +64,30 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
+    async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
         """TODO"""
 
     @abstractmethod
     async def get_all_cross_section_snapshots(self, snapshot_id: str)\
-            -> list[tuple[str, str, BDisplay, str]]:
+            -> list[tuple[str, str, BDisplay]]:
         """TODO"""
 
     @abstractmethod
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
+                                         snapshot_id: str,
                                          cross_section_name: str,
-                                         b_display: BDisplay,
-                                         snapshot_id: str) -> None:
+                                         b_display: BDisplay) -> None:
         """TODO"""
 
     @abstractmethod
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str)\
-            -> list[tuple[str, int, ADisplay, str]]:
+            -> list[tuple[str, int, float, int, ADisplay]]:
         """TODO"""
 
     @abstractmethod
-    async def add_lane_snapshot(self, lane_snapshot_id: str, lane: int,
-                                a_display: ADisplay, cross_section_snapshot_id: str) -> None:
+    async def add_lane_snapshot(self, lane_snapshot_id: str, cross_section_snapshot_id: str,
+                                lane: int, average_speed: float, traffic_volume: int,
+                                a_display: ADisplay) -> None:
         """TODO"""
 
     @abstractmethod
@@ -94,6 +96,6 @@ class GlobalDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
+    async def add_vehicle_snapshot(self, lane_snapshot_id: str,
                                    vehicle_type: VehicleType, speed: float) -> None:
         """TODO"""

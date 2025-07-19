@@ -15,6 +15,7 @@ class GlobalSQLite(GlobalDatabase):
     _connection: sqlite3.Connection
 
     async def open(self, file: Gio.File) -> None:
+        """TODO"""
         path = file.get_path()
         if path is None:
             file.create(Gio.FileCreateFlags.REPLACE_DESTINATION)
@@ -111,7 +112,7 @@ CREATE TABLE vehicle_snapshot (
             return values[0], GLib.DateTime.new_from_iso8601(values[3])  # pylint:disable=no-member
 
         result = list(map(func, self._connection.cursor().execute("""
-        SELECT * FROM result;""").fetchall()))
+                SELECT * FROM result;""").fetchall()))
         return result
 
     async def add_result(self, result_id: str, result_name: str, project_name: str,
@@ -128,14 +129,15 @@ CREATE TABLE vehicle_snapshot (
         DELETE FROM result WHERE id = ?;
         """, (result_id,)).close()
 
-    async def get_result_name(self, result_id: str) -> str:
+    def get_result_name(self, result_id: str) -> str:
         """TODO"""
         result: str = self._connection.cursor().execute("""
         SELECT name FROM result WHERE id = ?;
         """, (result_id,)).fetchone()
         return result[0]
 
-    async def add_result_tag(self, result_id: str, tag_id: str, tag_name: str) -> None:
+    async def add_result_tag(self, result_tag_id: str, result_id: str,
+                             tag_id: str, tag_name: str) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO tag (id, name) VALUES (?, ?);""", (tag_id, tag_name))
@@ -144,13 +146,13 @@ CREATE TABLE vehicle_snapshot (
         INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
                                           (new_result_tag_id, result_id, tag_id))
 
-    async def get_all_tags(self) -> list[tuple[str, str]]:
+    def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
         return self._connection.cursor().execute("""
         SELECT * FROM tag';
         """).fetchall()
 
-    async def get_result_tags(self, result_id: str) -> list[str]:
+    def get_result_tags(self, result_id: str) -> list[str]:
         """TODO"""
         return self._connection.cursor().execute("""
         SELECT tag_id FROM result_tag WHERE result_id = ?;
@@ -158,14 +160,13 @@ CREATE TABLE vehicle_snapshot (
 
     async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:
         """TODO"""
-
         def func(values: tuple[str, str, str]) -> tuple[str, GLib.DateTime]:
             return values[0], GLib.DateTime.new_from_iso8601(values[1])  # pylint:disable=no-member
 
         return list(map(func, self._connection.cursor().execute("""
         SELECT * FROM snapshot;""").fetchall()))
 
-    async def add_snapshot(self, snapshot_id: str, time: GLib.DateTime, result_id: str) -> None:
+    async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO snapshot (id, date, result_id)
@@ -173,55 +174,53 @@ CREATE TABLE vehicle_snapshot (
         """, (snapshot_id, time.format_iso8601(), result_id))
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str)\
-            -> list[tuple[str, str, BDisplay, str]]:
+            -> list[tuple[str, str, BDisplay]]:
         """TODO"""
         def func(values: tuple[str, str, BDisplay, str]) -> tuple[str, str, BDisplay, str]:
             return values[0], values[1], values[2], values[3]
         return list(map(func, (self._connection.cursor().execute("""
         SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;
-        """, (snapshot_id,)).fetchall())))
+        """, (snapshot_id,)).fetchall())))  # TODO change
 
-    async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
-                                         cross_section_name: str, b_display: BDisplay,
-                                         snapshot_id: str, ) -> None:
+    async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
+                                         cross_section_name: str, b_display: BDisplay) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO cross_section_snapshot (id, cross_section_name, b_display, snapshot_id)
         VALUES (?, ?, ?, ?);
         """, (cross_section_snapshot_id, cross_section_name, b_display.value, snapshot_id))
 
-    async def get_all_lane_snapshots(self, cross_section_snapshot_id: str)\
-            -> list[tuple[str, int, ADisplay, str]]:
+    async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
+                                     tuple[str, int, float, int, ADisplay]]:
         """TODO"""
         def func(values: tuple[str, int, ADisplay, str]) -> tuple[str, int, ADisplay, str]:
             return values[0], values[1], values[2], values[3]
         return list(map(func, self._connection.cursor().execute("""
         SELECT * FROM lane_snapshot WHERE cross_section_snapshot_id = ?;
-        """, (cross_section_snapshot_id,)).fetchall()))
+        """, (cross_section_snapshot_id,)).fetchall()))  # TODO change
 
-    async def add_lane_snapshot(self, lane_snapshot_id: str,
-                                lane: int, a_display: ADisplay,
-                                cross_section_snapshot_id: str) -> None:
+    async def add_lane_snapshot(self, lane_snapshot_id: str, cross_section_snapshot_id: str,
+                                lane: int, average_speed: float, traffic_volume: int,
+                                a_display: ADisplay) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO lane_snapshot (id, lane_number, a_display, cross_section_snapshot_id)
         VALUES (?, ?, ?, ?);
-        """, (lane_snapshot_id, lane, a_display.value, cross_section_snapshot_id))
+        """, (lane_snapshot_id, lane, a_display.value, cross_section_snapshot_id))  # TODO change
 
     async def get_all_vehicle_snapshots(self, lane_snapshot_id: str)\
             -> list[tuple[VehicleType, float]]:
         """TODO"""
-
         def func(values: tuple[VehicleType, float]) -> tuple[VehicleType, float]:
-            return values[0], values[1]
+            return values[0], values[1]  # TODO this can be left out
 
         return list(map(func, self._connection.cursor().execute("""
         SELECT * FROM vehicle_snapshot WHERE lane_snapshot_id = ?;
         """, (lane_snapshot_id,)).fetchall()))
 
-    async def add_vehicle_snapshot(self, vehicle_snapshot_id: str, lane_snapshot_id: str,
-                                   vehicle_type: VehicleType, speed: float) -> None:
+    async def add_vehicle_snapshot(self, lane_snapshot_id: str, vehicle_type:
+                                   VehicleType, speed: float) -> None:
         """TODO"""
         self._connection.cursor().execute("""
         INSERT INTO vehicle_snapshot (?, ?, ?, ?);
-        """, (vehicle_snapshot_id, vehicle_type.value, speed, lane_snapshot_id))
+        """, (vehicle_snapshot_id, vehicle_type.value, speed, lane_snapshot_id))  # TODO doesn't work
