@@ -16,12 +16,11 @@ class GlobalSQLite(GlobalDatabase):
 
     async def open(self, file: Gio.File) -> None:
         """TODO"""
+        if not file.query_exists():
+            file.create_async(Gio.FileCreateFlags.NONE, 0)
+        else:
+            raise FileExistsError("File already exists")
         path = file.get_path()
-        if path is None:
-            file.create(Gio.FileCreateFlags.REPLACE_DESTINATION)
-        path = file.get_path()
-        if path is None:
-            return
         self._connection = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES |
                                            sqlite3.PARSE_COLNAMES)
         self._connection.cursor().executescript("""DROP TABLE IF EXISTS project;
