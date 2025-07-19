@@ -51,8 +51,8 @@ CREATE TABLE result_tag (
     id TEXT PRIMARY KEY,
     tag_id TEXT,
     result_id TEXT,
-    FOREIGN KEY (result_id) REFERENCES result (id),
-    FOREIGN KEY (tag_id) REFERENCES tag (id)
+    FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE
 );
 CREATE TABLE tag (
     id TEXT PRIMARY KEY,
@@ -62,14 +62,14 @@ CREATE TABLE snapshot (
     id TEXT PRIMARY KEY,
     result_id TEXT,
     date TEXT,
-    FOREIGN KEY (result_id) REFERENCES result (id)
+    FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE
 );
 CREATE TABLE cross_section_snapshot (
     id TEXT PRIMARY KEY,
     snapshot_id TEXT,
     cross_section_name TEXT,
     b_display INT,
-    FOREIGN KEY (snapshot_id) REFERENCES snapshot (id)
+    FOREIGN KEY (snapshot_id) REFERENCES snapshot (id) ON DELETE CASCADE
 );
 CREATE TABLE lane_snapshot (
     id TEXT PRIMARY KEY,
@@ -78,14 +78,14 @@ CREATE TABLE lane_snapshot (
     average_speed REAL,
     traffic_volume INT,
     a_display INT,
-    FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id)
+    FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id) ON DELETE CASCADE
 );
 CREATE TABLE vehicle_snapshot (
     id TEXT PRIMARY KEY,
     lane_snapshot_id TEXT,
     vehicle_type INT,
     speed REAL,
-    FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id)
+    FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id) ON DELETE CASCADE
 );""")
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
@@ -139,15 +139,31 @@ CREATE TABLE vehicle_snapshot (
         """, (result_id,)).fetchone()
         return result[0]
 
-    async def add_result_tag(self, result_tag_id: str, result_id: str,
-                             tag_id: str, tag_name: str) -> None:
+    async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """TODO"""
         self._connection.cursor().execute("""
-        INSERT INTO tag (id, name) VALUES (?, ?);""", (tag_id, tag_name))
-        new_result_tag_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
+        INSERT INTO tag (id, name) VALUES (?, ?)""", (tag_id, tag_name))
+
+    async def remove_tag(self, tag_id: str) -> None:
+        """TODO"""
+        self._connection.cursor().execute("""
+        DELETE FROM tag WHERE id = ?;""", (tag_id,))
+
+    async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
+        """TODO"""
+        tags = self._connection.cursor().execute("""
+        SELECT * FROM tag WHERE id = ?;""", (tag_id,)).fetchall()
+        if len(tags) == 0:
+            raise KeyError("Tag id is invalid")
+
+        results = self._connection.cursor().execute("""
+        SELECT * FROM result WHERE id = ?;""", (result_id,)).fetchall()
+        if len(results) == 0:
+            raise KeyError("Result id is invalid")
+
         self._connection.cursor().execute("""
         INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
-                                          (new_result_tag_id, result_id, tag_id))
+                                          (result_tag_id, result_id, tag_id))
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """TODO"""
