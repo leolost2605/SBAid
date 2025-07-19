@@ -57,8 +57,8 @@ class GlobalSQLiteTest(unittest.TestCase):
 
         self.assertEqual(len(await db.get_all_snapshots("my_result_id")), 0)
 
-        await db.add_snapshot("my_snapshot_id", DateTime.new_now(TimeZone.new("Europe/Berlin")),
-                               "my_result_id")
+        await db.add_snapshot("my_snapshot_id", "my_result_id",
+         DateTime.new_now(TimeZone.new("Europe/Berlin")))
 
         self.assertEqual(len(await db.get_all_snapshots("my_snapshot_id")), 1)
 
@@ -72,12 +72,12 @@ class GlobalSQLiteTest(unittest.TestCase):
         await db.add_result("my_result_id", "my_result_name",
                              "my_project_name", DateTime.new_now(TimeZone.new("Europe/Berlin")))
         await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
-                                             "my_cross_section_name", BDisplay.OFF,
-                                             "my_snapshot_id")
+                                            "my_snapshot_id", "my_cross_section_name",
+                                            BDisplay.OFF)
         self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 1)
         await db.add_cross_section_snapshot("my_cross_section_snapshot_id_2",
-                                             "my_cross_section_name", BDisplay.OFF,
-                                             "my_snapshot_id")
+                                            "my_snapshot_id", "my_cross_section_name",
+                                            BDisplay.OFF)
         self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 2)
 
         # self.assertRaises(sqlite3.OperationalError, db.save_cross_section_snapshot, "my_cross_section_snapshot_id",
@@ -93,14 +93,14 @@ class GlobalSQLiteTest(unittest.TestCase):
                              "my_project_file_path")
         await db.add_result("my_result_id", "my_result_name",
                              "my_project_name", DateTime.new_now(TimeZone.new("Europe/Berlin")))
-        await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
-                                             "my_cross_section_name", BDisplay.OFF,
-                                             "my_snapshot_id")
-        await db.add_lane_snapshot("my_lane_snapshot_id", 1, ADisplay.OFF, "my_cross_section_snapshot_id")
+        await db.add_cross_section_snapshot("my_cross_section_snapshot_id", "my_snapshot_id",
+                                             "my_cross_section_name", BDisplay.OFF)
+        await db.add_lane_snapshot("my_lane_snapshot_id", "my_cross_section_snapshot_id",
+                                   1, 129.35, 25, ADisplay.OFF)
 
         self.assertEqual(len(await db.get_all_lane_snapshots("my_cross_section_snapshot_id")), 1)
         cs_snapshot = await db.get_all_lane_snapshots("my_cross_section_snapshot_id")
-        self.assertEqual(cs_snapshot[0][2], ADisplay.OFF)
+        self.assertEqual(cs_snapshot[0][4], ADisplay.OFF)
 
     async def test_times(self):
         red_revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
@@ -131,10 +131,11 @@ class GlobalSQLiteTest(unittest.TestCase):
                              "my_project_name",
                             red_revo_date)
 
-        await db.add_result_tag("my_result_id", "my_result_tag_id", "my_result_tag_name")
+        await db.add_result_tag("my_result_tag_id", "my_result_id", "my_tag_id",
+                                "my_result_tag_name")
         my_project_tags = await db.get_result_tags("my_result_id")
         self.assertEqual(len(my_project_tags), 1)
-        self.assertEqual(my_project_tags[0][0], "my_result_tag_id")
+        self.assertEqual(my_project_tags[0][0], "my_tag_id")
 
 
 # asyncio.run(GlobalSQLiteTest().test_remove())
