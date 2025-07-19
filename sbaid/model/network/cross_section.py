@@ -42,8 +42,9 @@ class CrossSection(GObject.GObject):
                                         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
-        """TODO"""
-        super().__init__()
+        """Constructs a new cross section with the given simulator cross section data."""
+        super().__init__(location=simulator_cross_section.position,
+                         type=simulator_cross_section.type)
 
     def load_from_db(self) -> None:
         """TODO"""

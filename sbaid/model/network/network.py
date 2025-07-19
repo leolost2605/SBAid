@@ -51,17 +51,15 @@ class Network(GObject.Object):
                 self.simulator.remove_cross_section(existing_cross_section.id)
                 position = self.simulator.create_cross_section(coordinates, CrossSectionType.COMBINED)
                 network_cross_section = self.cross_sections.get_item(position)
-                # concatenate names to create new name:
                 network_cross_section.set_name(name + existing_cross_section.name)
             else:
                 # cross section is added without combination
-                position = self.simulator.create_cross_section(coordinates, cs_type) # unnecessary?
-                network_cross_section = self.cross_sections.get_item(-1)  #TODO is this legal?
+                position = self.simulator.create_cross_section(coordinates, cs_type)
+                network_cross_section = self.cross_sections.get_item(position)
                 network_cross_section.set_name(name)
 
     def delete_cross_section(self, cs_id: str) -> None:
-        """Deletes a cross section by calling the simulator's remove_cross_section method.
-         TODO perguntar se isto chega, tirar segunda parte"""
+        """Deletes a cross section by calling the simulator's remove_cross_section method."""
         self.simulator.remove_cross_section(cs_id)
 
     def move_cross_section(self, cs_id: str, new_coordinates: Coordinate) -> None:

@@ -18,15 +18,16 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
 
     def foreach_cross_section(self, file: Gio.File,
                               foreach_func: CrossSectionParserForeachFunc) -> tuple[int, int]:
-        """Reads the input CSV file row by row, representing a cross section to be imported,
-        and attempts to add the cross section to the network. Returns the amount of added and skipped cross sections."""
+        """Reads the input CSV file row by row, and attempts to add the cross section the row
+        represents to the network. Returns the amount of added and skipped cross sections."""
         with open(file.get_path(), newline='') as csvfile:
-            cross_section_count = (0,0)
+            valid_cross_sections = 0
+            invalid_cross_sections = 0
             csv_reader = csv.reader(csvfile)
             try:
                 has_header = self.__has_valid_header(csv_reader)
-            except StopIteration:
-                raise InvalidFileFormattingException("Empty file.")
+            except StopIteration:  # raised if the file is empty and there is no line to read from
+                raise InvalidFileFormattingException()
             if not has_header:
                 csvfile.seek(0)  # restart reading from the beginning of file
             for row in csv_reader:
@@ -35,28 +36,27 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
                     # TODO method calls for cross section creation - use foreach_func
                     # try except for exceptions that might happen when creating the cross section
                     try:
-                        foreach_func(row[2], parsed_info[0], parsed_info[1])
-                        cross_section_count = cross_section_count[0]+1, cross_section_count[1]
+                        foreach_func(row[0], parsed_info[0], parsed_info[1])
+                        valid_cross_sections += 1
                     except ValueError:  #TODO change error - this is already checked by the parser:
                         # - create exception for already existing location etc.
-                        cross_section_count = cross_section_count[0], cross_section_count[1]+1
+                        invalid_cross_sections += 1
                 else:
                     next(csv_reader)
-                    cross_section_count = cross_section_count[0], cross_section_count[1]+1
-        if cross_section_count[0] == 0:
-            raise InvalidFileFormattingException("File has no valid cross section definitions.")
-        return cross_section_count
-
+                    invalid_cross_sections += 1
+        if valid_cross_sections == 0:
+            raise InvalidFileFormattingException()
+        return valid_cross_sections, invalid_cross_sections
 
     def __convert_to_location(self, x: str, y: str) -> Coordinate | None:
         return Coordinate(float(x),float(y))
 
     def __has_valid_header(self, csv_reader: csv.reader) -> bool:
             row = next(csv_reader)
-            return (row[0].casefold() == "Name".casefold()
-                    and row[1].casefold() == "X-Coordinate".casefold()
-                    and row[2].casefold() == "Y-Coordinate".casefold()
-                    and row[3].casefold() == "Type".casefold())
+            return (row[0].casefold() == "name"
+                    and row[1].casefold() == "x-coordinate"
+                    and row[2].casefold() == "y-Coordinate"
+                    and row[3].casefold() == "type")
 
     def __parse_cross_section(self, row: list) -> tuple[Coordinate, CrossSectionType] | None:
         if len(row) != 4:
@@ -86,6 +86,6 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
 class InvalidFileFormattingException(Exception):
     """Exception raised when the user inputs an invalid file.
     Error message is the first found invalid formatting."""
-    def __init__(self, formatting_error: str):
-        self.message = "Illegal file: \n %s"%formatting_error
+    def __init__(self):
+        self.message = "File has no valid cross section definitions."
 
