@@ -14,6 +14,6 @@ class Route(GObject.GObject):
                               GObject.ParamFlags.WRITABLE |
                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, coordinates: List[Location]) -> None:
+    def __init__(self, locations: List[Location]) -> None:
         super().__init__()
         # TODO: turn list into listmodel
