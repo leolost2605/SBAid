@@ -7,7 +7,7 @@ from sbaid.model.results.snapshot import Snapshot
 
 class Result(GObject.GObject):
     """This class represents a result.
-    Attributes: TODO checken ob kritische information fehlt
+    Attributes: TODO check if critical information is missing
         id (str): The unique identifier of the result.
         result_name (str): The name of the result.
         project_name (str): The name of the project the result belongs to.
@@ -23,21 +23,25 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+
     result_name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
+
     project_name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+
     creation_date_time = GObject.Property(
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+
     selected_tags = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
@@ -53,7 +57,8 @@ class Result(GObject.GObject):
 
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
-        """Constructor for the Result class."""
+        """Initialize for the Result class."""
+        # todo ask should the id not be generated internally?
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
@@ -62,30 +67,27 @@ class Result(GObject.GObject):
 
     def load(self) -> None:
         """todo this method handles the logic for loading snapshots."""
-        # will inevitably change when global database pushed to main
-        db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
+     #   db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
 
-        for snapshot in db_snapshots:
+        """ for snapshot in db_snapshots:
             new_snapshot = Snapshot(snapshot)
             new_snapshot.load_from_db()
-            self.add_snapshot(new_snapshot)
+            self.add_snapshot(new_snapshot) """
 
     def add_tag(self, tag: Tag) -> None:
-        """todo this method adds tag to the selected_tags list if it is not already present."""
+        """Adds tag to the selected_tags list if it is not already present."""
         if tag not in self.selected_tags:
             self.selected_tags.append(tag)
 
     def remove_tag(self, tag: Tag) -> None:
-        """todo this method removes tag from the selected_tags list."""
-        position = self.selected_tags.find(tag)
-        if position[0]:
-            self.selected_tags.remove(position[1])
+        """Removes tag from the selected_tags list."""
+        exists, position = self.selected_tags.find(tag)
+        if exists:
+            self.selected_tags.remove(position)
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
-        """todo"""
-        # do you need to control if it already exists?
-        # not really due to the implementation but maybe would be better practice to do so
+        """Adds a snapshot toe the list of snapshots"""
         self.snapshots.append(snapshot)

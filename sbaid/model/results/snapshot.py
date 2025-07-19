@@ -20,6 +20,7 @@ class Snapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+
     capture_timestamp = GObject.Property(
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
@@ -42,5 +43,5 @@ class Snapshot(GObject.GObject):
         """todo"""
 
     def add_cross_section_snapshot(self, snapshot: CrossSectionSnapshot) -> None:
-        """This method adds a cross section snapshot."""
+        """This method adds a cross-section snapshot to the existing list."""
         self.cross_section_snapshots.append(snapshot)

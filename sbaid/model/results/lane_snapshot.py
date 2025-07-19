@@ -76,5 +76,5 @@ class LaneSnapshot(GObject.GObject):
         """todo"""
 
     def add_vehicle_snapshot(self, snapshot: VehicleSnapshot) -> None:
-        """todo"""
+        """Adds a vehicle snapshot to the list in this lane snapshot."""
         self.vehicle_snapshots.append(snapshot)

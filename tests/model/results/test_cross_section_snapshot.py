@@ -1,29 +1,47 @@
+"""This module contains unittests for the CrossSection"""
 import unittest
 
 from gi.repository import GLib
-
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.lane_snapshot import LaneSnapshot
 from sbaid.common.b_display import BDisplay
 from sbaid.common.a_display import ADisplay
 
-
-
-
 class CrossSectionSnapshotTest(unittest.TestCase):
+    """This class tests the CrossSectionSnapshot class."""
+
+    cross_section_snapshot = CrossSectionSnapshot(GLib.uuid_string_random(),
+                                                  GLib.uuid_string_random(),
+                                                  "Julia",
+                                                  BDisplay.SNOW)
+
+    lane_snapshot_1 = LaneSnapshot(GLib.uuid_string_random(),
+                                   GLib.uuid_string_random(), 0,
+                                   70.6, 9, ADisplay.SPEED_LIMIT_100)
+    lane_snapshot_2 = LaneSnapshot(GLib.uuid_string_random(),
+                                   GLib.uuid_string_random(), 1,
+                                   99.3, 5, ADisplay.SPEED_LIMIT_100)
+
     def test_add_lane_snapshot(self):
-        """Testing addind a lane snapshot."""
+        """Tests adding lane snapshots."""
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 0) # assert length
 
-        now = GLib.DateTime.new_now_local()
-        cross_section_snapshot = CrossSectionSnapshot("random", "random", "Leonhard", BDisplay.SNOW)
-        lane_snapshot_1 = LaneSnapshot("cross_section_snapshot_id",
-                                       "lane_snapshot_id", 4,
-                                       70.6, 9, ADisplay.SPEED_LIMIT_100)
+        # add lane_snapshots then assert new state of the list
+        self.cross_section_snapshot.add_lane_snapshot(self.lane_snapshot_1)
 
-        cross_section_snapshot.add_lane_snapshot(lane_snapshot_1)
+        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots)
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 1)
 
-        self.assertIn(lane_snapshot_1, cross_section_snapshot.lane_snapshots)
+        self.cross_section_snapshot.add_lane_snapshot(self.lane_snapshot_2)
+
+        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots)
+        self.assertIn(self.lane_snapshot_2, self.cross_section_snapshot.lane_snapshots)
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 2)
 
 
-if __name__ == '__main__':
-    unittest.main()
+
+    def test_calculate_average_speed(self):
+        """Tests calculating the average speed. todo this ASSUMES previous method has run, maybe not best practice."""
+
+        print(len(self.cross_section_snapshot.lane_snapshots))
+        print(self.cross_section_snapshot.calculate_cs_average_speed())

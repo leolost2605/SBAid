@@ -1,4 +1,4 @@
-"""This module defines the cross section snapshot class."""
+"""This module defines the CrossSectionSnapshot class."""
 
 from gi.repository import Gio, GObject
 from sbaid.common.b_display import BDisplay
@@ -52,10 +52,24 @@ class CrossSectionSnapshot(GObject.GObject):
         super().__init__(snapshot_id=snapshot_id,
                          cross_section_snapshot_id=cross_section_snapshot_id,
                          cross_section_name=cross_section_name,
-                         b_display=b_display)
+                         b_display=b_display,
+                         lane_snapshots=Gio.ListStore.new(LaneSnapshot))
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
-        """todo"""
+        """Add a LaneSnapshot to this CrossSectionSnapshot."""
+        self.lane_snapshots.append(snapshot)
+
+    def calculate_cs_average_speed(self) -> float:
+        """Calculate the average of the average speed value from all lanes in this cross section snapshot. """
+        counter = 0
+        n = len(self.lane_snapshots)
+        for i in range(n):
+            lane_snapshot = self.lane_snapshots.get_item(i)
+            counter += lane_snapshot.average_speed
+
+        return counter / n
+
+
