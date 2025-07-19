@@ -3,7 +3,7 @@ from gi.repository import GObject
 
 
 class Location(GObject.GObject):
-    """Represents cartesian coordinates."""
+    """Represents a location, consisting of a pair of cartesian coordinates."""
     x = GObject.Property(
         type=float,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |

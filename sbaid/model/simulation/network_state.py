@@ -21,9 +21,9 @@ class NetworkState(GObject.GObject):
         locations_list_model: Gio.ListStore = Gio.ListStore()
         cross_sections_list_model: Gio.ListStore = Gio.ListStore()
         for location in route:
-            coordinates_list_model.append(location)
+            locations_list_model.append(location)
 
         for cross_section_state in cross_section_states:
             cross_sections_list_model.append(cross_section_state)
-        super().__init__(route=coordinates_list_model,
+        super().__init__(route=locations_list_model,
                          cross_section_states=cross_sections_list_model)
