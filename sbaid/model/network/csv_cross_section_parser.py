@@ -1,6 +1,7 @@
 """TODO"""
-from cross_section_parser import CrossSectionParser
+from abc import ABC
+from sbaid.model.network.cross_section_parser import CrossSectionParser
 
 
-class CSVCrossSectionParser(CrossSectionParser):
+class CSVCrossSectionParser(CrossSectionParser, ABC):
     """TODO"""
