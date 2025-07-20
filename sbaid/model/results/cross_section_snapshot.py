@@ -63,13 +63,7 @@ class CrossSectionSnapshot(GObject.GObject):
         self.lane_snapshots.append(snapshot)
 
     def calculate_cs_average_speed(self) -> float:
-        """Calculate the average of the average speed value from all lanes in this cross section snapshot. """
-        counter = 0
-        n = len(self.lane_snapshots)
-        for i in range(n):
-            lane_snapshot = self.lane_snapshots.get_item(i)
-            counter += lane_snapshot.average_speed
-
-        return counter / n
-
-
+        """Calculate the average of the average speed value from
+         all lanes in this cross section snapshot. """
+        return sum([lane_snapshot.average_speed for lane_snapshot
+                    in self.lane_snapshots]) / len(self.lane_snapshots)

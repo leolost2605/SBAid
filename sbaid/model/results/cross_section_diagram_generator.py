@@ -1,17 +1,15 @@
 """todo"""
-from sbaid.common.diagram_type import DiagramType
+from abc import abstractmethod
+from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.diagram_handler import DiagramHandler
-from sbaid.common.diagram_type import DiagramType
-
+from sbaid.model.results.result import Result
 
 
 class CrossSectionDiagramGenerator(DiagramHandler):
     """todo"""
+    is_global = False
 
-    def get_diagram_type(self) -> DiagramType:
+    @abstractmethod
+    def get_diagram(self, result: Result, cross_section_id: str,
+                    export_format: ImageFormat) -> None:
         """todo"""
-        return DiagramType("todo", "todo")
-
-    # def get_diagram_(self, result: Result, cross_section_id: str ) -> None:
-      #   """todo"""
-

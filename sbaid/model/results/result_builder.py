@@ -1,4 +1,4 @@
-"""todo"""
+"""This module defines the ResultBuilder class"""
 
 from gi.repository import GLib, GObject
 from sbaid.common.a_display import ADisplay
@@ -9,7 +9,7 @@ from sbaid.model.results.result import Result
 
 
 class ResultBuilder(GObject.GObject):
-    """todo"""
+    """Contains methods to build the results"""
 
     def __init__(self, result_manager: ResultManager) -> None:
         """todo"""

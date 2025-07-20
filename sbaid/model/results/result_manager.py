@@ -4,6 +4,7 @@ from gi.repository import Gio, GObject, GLib
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
 
+
 class ResultManager(GObject.GObject):
     """This class handles a list of results and tags."""
 

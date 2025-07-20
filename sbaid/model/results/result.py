@@ -67,7 +67,7 @@ class Result(GObject.GObject):
 
     def load(self) -> None:
         """todo this method handles the logic for loading snapshots."""
-     #   db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
+        # db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
 
         """ for snapshot in db_snapshots:
             new_snapshot = Snapshot(snapshot)
