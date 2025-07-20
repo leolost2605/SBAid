@@ -60,10 +60,12 @@ class CrossSectionSnapshot(GObject.GObject):
 
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """Add a LaneSnapshot to this CrossSectionSnapshot."""
-        self.lane_snapshots.append(snapshot)
+        self.lane_snapshots.append(snapshot)  # pylint:disable=no-member
 
     def calculate_cs_average_speed(self) -> float:
         """Calculate the average of the average speed value from
          all lanes in this cross section snapshot. """
-        return sum([lane_snapshot.average_speed for lane_snapshot
-                    in self.lane_snapshots]) / len(self.lane_snapshots)
+        counter = 0
+        for i in range(len(self.lane_snapshots)):
+            counter += self.lane_snapshots.get_item(i).average_speed  # pylint:disable=no-member
+        return counter / len(self.lane_snapshots)

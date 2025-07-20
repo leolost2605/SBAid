@@ -77,4 +77,4 @@ class LaneSnapshot(GObject.GObject):
 
     def add_vehicle_snapshot(self, snapshot: VehicleSnapshot) -> None:
         """Adds a vehicle snapshot to the list in this lane snapshot."""
-        self.vehicle_snapshots.append(snapshot)
+        self.vehicle_snapshots.append(snapshot)  # pylint:disable=no-member

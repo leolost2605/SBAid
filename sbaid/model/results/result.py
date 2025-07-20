@@ -69,25 +69,24 @@ class Result(GObject.GObject):
         """todo this method handles the logic for loading snapshots."""
         # db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
 
-        """ for snapshot in db_snapshots:
-            new_snapshot = Snapshot(snapshot)
-            new_snapshot.load_from_db()
-            self.add_snapshot(new_snapshot) """
+        # for snapshot in db_snapshots:
+        # new_snapshot = Snapshot(snapshot)
+        # new_snapshot.load_from_db()
+        # self.add_snapshot(new_snapshot)
 
     def add_tag(self, tag: Tag) -> None:
-        """Adds tag to the selected_tags list if it is not already present."""
-        if tag not in self.selected_tags:
-            self.selected_tags.append(tag)
+        """Adds tag to the selected_tags list"""
+        self.selected_tags.append(tag)  # pylint:disable=no-member
 
     def remove_tag(self, tag: Tag) -> None:
         """Removes tag from the selected_tags list."""
-        exists, position = self.selected_tags.find(tag)
+        exists, position = self.selected_tags.find(tag)  # pylint:disable=no-member
         if exists:
-            self.selected_tags.remove(position)
+            self.selected_tags.remove(position)  # pylint:disable=no-member
 
     def load_from_db(self) -> None:
         """todo"""
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""
-        self.snapshots.append(snapshot)
+        self.snapshots.append(snapshot)  # pylint:disable=no-member

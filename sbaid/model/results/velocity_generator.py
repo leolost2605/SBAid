@@ -10,7 +10,7 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
 
     diagram_name = "Velocity-Diagram"
 
-    def get_diagram_type(self) -> DiagramType:
+    def get_diagram_type(self) -> DiagramType:  # pylint:disable=useless-parent-delegation
         """todo"""
         return super().get_diagram_type()
 

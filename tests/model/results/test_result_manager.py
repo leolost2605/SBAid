@@ -63,9 +63,3 @@ class ResultManagerTest(unittest.TestCase):
         # assert state of results list
         self.assertEqual(len(self.result_manager.results), 2)
         self.assertNotIn(result, self.result_manager.results)
-
-
-
-
-
-

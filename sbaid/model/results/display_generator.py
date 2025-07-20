@@ -10,7 +10,8 @@ class DisplayGenerator(CrossSectionDiagramGenerator):
 
     diagram_name = "Display-Diagram"
 
-    def get_diagram_type(self) -> DiagramType:
+    # todo ask if this here is legal
+    def get_diagram_type(self) -> DiagramType:  # pylint:disable=useless-parent-delegation
         """return DiagramType"""
         return super().get_diagram_type()
 

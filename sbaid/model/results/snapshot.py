@@ -44,4 +44,4 @@ class Snapshot(GObject.GObject):
 
     def add_cross_section_snapshot(self, snapshot: CrossSectionSnapshot) -> None:
         """This method adds a cross-section snapshot to the existing list."""
-        self.cross_section_snapshots.append(snapshot)
+        self.cross_section_snapshots.append(snapshot)   # pylint:disable=no-member

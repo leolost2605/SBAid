@@ -8,7 +8,6 @@ from sbaid.model.results.result import Result
 
 class GlobalDiagramGenerator(DiagramHandler):
     """todo"""
-    is_global = False
 
     @abstractmethod
     def get_diagram(self, result: Result, cross_section_ids: list[str],
