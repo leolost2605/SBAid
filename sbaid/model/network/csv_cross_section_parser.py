@@ -33,13 +33,9 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
             for row in csv_reader:
                 parsed_info = self.__parse_cross_section(row)
                 if parsed_info[0]:
-                    # TODO method calls for cross section creation - use foreach_func
-                    # try except for exceptions that might happen when creating the cross section
-                    try:
-                        foreach_func(row[0], parsed_info[0], parsed_info[1])
+                    if foreach_func(row[0], parsed_info[0], parsed_info[1]):
                         valid_cross_sections += 1
-                    except ValueError:  #TODO change error - this is already checked by the parser:
-                        # - create exception for already existing location etc.
+                    else:
                         invalid_cross_sections += 1
                 else:
                     next(csv_reader)

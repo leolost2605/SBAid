@@ -24,20 +24,27 @@ class Network(GObject.Object):
     def __init__(self, simulator: Simulator) -> None:
         """TODO"""
         self.simulator = simulator
-        super().__init__(cross_sections = Gtk.MapListModel(simulator.cross_sections,
-                       self.__map_func(SimulatorCrossSection), self), route = Gio.ListStore())  #TODO fix simulator cross section thing
+        super().__init__(cross_sections = Gtk.MapListModel.new(simulator.cross_sections(),
+                         self.__map_func, self), route = Gio.ListStore())
 
     def load(self) -> None:
         """TODO"""
 
     def import_from_file(self, file: Gio.File) -> tuple[int, int]:
-        """TODO:
-        - parse the file, call the create cross section method ??
-        """
+        """Parses the given csv file and creates the cross sections defined in it."""
         parser_for_file = ParserFactory().get_parser(file)
-        parser_for_file.foreach_cross_section(self, file, ("""???"""))  # TODO nao sei como isto funciona :'(
+        import_result = parser_for_file.foreach_cross_section(file, self.__successful_cross_section_creation)
+        return import_result
 
-        return None
+    def __successful_cross_section_creation(self, name: str, location: Coordinate,
+                                            cross_section_type: CrossSectionType) -> bool:
+        try:
+            self.create_cross_section(name, location, cross_section_type)
+            return True
+        except ValueError:  #TODO write error for unsuccessful creation
+            return False
+
+
 
     def create_cross_section(self, name: str, coordinates: Coordinate,
                              cs_type: CrossSectionType) -> None:
@@ -46,7 +53,7 @@ class Network(GObject.Object):
         sections can be combined (of types DISPLAY-MEASURING or MEASURING-DISPLAY)."""
         compatible_tuple = self.__cross_sections_compatible(coordinates, cs_type)
         if compatible_tuple[0]:  # CS can be added
-            if compatible_tuple[1]:
+            if compatible_tuple[1]:  # cross section can be added by combination
                 existing_cross_section = compatible_tuple[2]
                 self.simulator.remove_cross_section(existing_cross_section.id)
                 position = self.simulator.create_cross_section(coordinates, CrossSectionType.COMBINED)
