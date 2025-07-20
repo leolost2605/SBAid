@@ -23,31 +23,26 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-
     result_name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
-
     project_name = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-
     creation_date_time = GObject.Property(
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-
     selected_tags = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-
     snapshots = GObject.Property(
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
@@ -82,7 +77,7 @@ class Result(GObject.GObject):
         """Removes tag from the selected_tags list."""
         exists, position = self.selected_tags.find(tag)  # pylint:disable=no-member
         if exists:
-            self.selected_tags.remove(position)  # pylint:disable=no-member
+            self.selected_tags.remove(position) # pylint:disable=no-member
 
     def load_from_db(self) -> None:
         """todo"""
