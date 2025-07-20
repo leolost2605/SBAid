@@ -43,6 +43,11 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+    snapshots = GObject.Property(
+        type=Gio.ListModel,
+        flags=GObject.ParamFlags.READABLE |
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
