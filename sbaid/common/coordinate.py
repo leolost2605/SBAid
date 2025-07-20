@@ -25,3 +25,9 @@ class Coordinate(GObject.GObject):
 
     def __repr__(self) -> str:
         return f"Coordinate({self.x}, {self.y})"
+
+    def is_between(self, point_one: 'Coordinate', point_two: 'Coordinate') -> bool:
+        pass
+
+    def distance(self, other: 'Coordinate') -> float:
+        pass

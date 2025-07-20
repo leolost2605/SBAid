@@ -1,6 +1,4 @@
 """This module contains the VissimCrossSection class."""
-from threading import Thread
-
 from gi.repository import GObject, Gio
 
 from sbaid.common.simulator_type import SimulatorType
@@ -11,23 +9,22 @@ from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.model.simulator.vissim.vissim import CommandQueue, VissimConnector
+from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
 class VissimSimulator(Simulator):
     """TODO"""
 
     __type: SimulatorType
-    __cross_sections: Gio.ListModel
+    __cross_sections: Gio.ListStore
     __command_queue: CommandQueue
-    __thread: Thread
+    __connector: VissimConnector
 
     def __init__(self) -> None:
         self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
         self.__cross_sections = Gio.ListStore.new(SimulatorCrossSection)
         self.__command_queue = CommandQueue()
-
-        self.__thread = Thread(target=VissimConnector, args=(self.__command_queue,), daemon=True)
-        self.__thread.start()
+        self.__connector = VissimConnector(self.__command_queue)
 
     @GObject.Property(type=SimulatorType)
     def type(self) -> SimulatorType:
@@ -48,7 +45,10 @@ class VissimSimulator(Simulator):
         return self.__cross_sections
 
     async def load_file(self, file: Gio.File) -> None:
-        """TODO"""
+        cross_sections = await self.__command_queue.load_file(file.get_path())
+
+        for cs in cross_sections:
+            self.__cross_sections.append(VissimCrossSection(self.__command_queue, cs))
 
     async def create_cross_section(self, coordinate: Coordinate,
                                    cross_section_type: CrossSectionType) -> int:
