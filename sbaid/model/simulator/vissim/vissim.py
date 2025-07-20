@@ -11,7 +11,6 @@ from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulator.vissim.vissim_network import VissimNetwork
-from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
 class VissimNotFoundException(Exception):
@@ -85,15 +84,19 @@ class VissimManager:
 
 
 class VissimConnectorCrossSection:
-    data_collection_points: list[Any] = []
-    des_speed_decisions: list[Any] = []
+    data_collection_points: list[Any]
+    des_speed_decisions: list[Any]
+
+    def __init__(self):
+        self.data_collection_points = []
+        self.des_speed_decisions = []
 
     @property
     def main_id(self) -> int:
         if self.data_collection_points:
-            return self.data_collection_points[0].AttVal("No")
+            return self.data_collection_points[0].AttValue("No")
 
-        return self.des_speed_decisions[0].AttVal("No")
+        return self.des_speed_decisions[0].AttValue("No")
 
     @property
     def type(self) -> CrossSectionType:
@@ -130,7 +133,7 @@ class VissimConnectorCrossSection:
             cs_id = self.main_id
             lane_index = point.Lane.AttValue("Index")
             for measurement in point.DataCollMeas.GetAll():
-                avg_speed = measurement.AttVal("SpeedAvgArith(Current,Last,All)")
+                avg_speed = measurement.AttValue("SpeedAvgArith(Current,Last,All)")
                 print(f"avg speed for {cs_id} on lane {lane_index} : {avg_speed}")
 
 
@@ -178,17 +181,17 @@ class VissimConnector:
 
         return command.type != VissimCommandType.SHUTDOWN
 
-    def __start_vissim(self) -> None:
+    def start_vissim(self) -> None:
         try:
             self.__vissim = com.gencache.EnsureDispatch("Vissim.Vissim")
         except Exception as e:
             raise VissimNotFoundException(e)
 
-    def __load_network(self, path: str) -> None:
+    def load_network(self, path: str) -> None:
         self.__vissim.LoadNet(path, False)
-        self.__network = VissimNetwork(self.__vissim.Net)
+        # self.__network = VissimNetwork(self.__vissim.Net)
 
-    def __get_cross_sections(self) -> list[VissimConnectorCrossSectionState]:
+    def get_cross_sections(self) -> list[VissimConnectorCrossSectionState]:
         points = self.__vissim.Net.DataCollectionPoints.GetAll()
 
         if not points:
@@ -198,10 +201,10 @@ class VissimConnector:
             link_index = point.Lane.Link.AttValue("No")
             pos = point.AttValue("Pos")
 
-            if not link_index in self.__cross_sections:
+            if link_index not in self.__cross_sections:
                 self.__cross_sections[link_index] = {}
 
-            if not pos in self.__cross_sections[link_index]:
+            if pos not in self.__cross_sections[link_index]:
                 self.__cross_sections[link_index][pos] = VissimConnectorCrossSection()
 
             self.__cross_sections[link_index][pos].add_data_collection_point(point)
@@ -271,7 +274,7 @@ class VissimConnector:
 
         cross_section.des_speed_decisions.clear()
 
-    def __init_simulation(self, eval_interval: int) -> tuple[int, int]:
+    def init_simulation(self, eval_interval: int) -> tuple[int, int]:
         sim_duration = self.__vissim.Simulation.AttValue('SimPeriod')
 
         self.__vissim.Net.Evaluation.SetAttValue("DataCollCollectData", 1)
@@ -283,27 +286,23 @@ class VissimConnector:
         self.__vissim.Simulation.RunSingleStep()
         return 0, sim_duration
 
-    def __continue_simulation(self, span: int) -> None:
+    def continue_simulation(self, span: int) -> None:
         current_break = self.__vissim.Simulation.AttValue('SimBreakAt')
         self.__vissim.Simulation.SetAttValue('SimBreakAt', current_break + span)
         self.__vissim.Simulation.RunContinuous()
 
-    def __measure(self) -> Input:
+    def measure(self) -> Input:
         algo_input = Input()
         for cross_section in self.__cross_sections_by_id.values():
             cross_section.measure(algo_input)
 
         return algo_input
 
-    def __stop_simulation(self) -> None:
+    def stop_simulation(self) -> None:
         self.__vissim.Simulation.Stop()
 
-
-async def main() -> None:
-    man = VissimManager()
-    await man.load_file(r"C:\Users\vx9186\Projekte\SBAid\Beispieldaten_Vissim\Beispieldaten_Vissim\A5_sarah.inpx")
-    # print(await man.init_simulation())
-    await man.shutdown()
-
-
-asyncio.run(main())
+conn = VissimConnector(Queue())
+conn.start_vissim()
+conn.load_network(r"C:\Users\vx9186\Projekte\sbaid_old\A5_sarah.inpx")
+for cs in conn.get_cross_sections():
+    print(cs)
