@@ -22,31 +22,31 @@ class VissimSimulator(Simulator):
         """TODO"""
         return None
 
-    def load_file(self, file: Gio.File) -> None:
+    async def load_file(self, file: Gio.File) -> None:
         """TODO"""
 
-    def create_cross_section(self, coordinate: Coordinate,
-                             cross_section_type: CrossSectionType) -> int:
+    async def create_cross_section(self, coordinate: Coordinate,
+                                   cross_section_type: CrossSectionType) -> int:
         """TODO"""
         return 0
 
-    def remove_cross_section(self, cross_section_id: str) -> None:
+    async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
 
-    def move_cross_section(self, cross_section_id: str, new_position: Coordinate) -> None:
+    async def move_cross_section(self, cross_section_id: str, new_position: Coordinate) -> None:
         """TODO"""
 
-    def init_simulation(self) -> tuple[int, int]:
+    async def init_simulation(self) -> tuple[int, int]:
         return 0, 0
 
-    def continue_simulation(self, span: int) -> None:
+    async def continue_simulation(self, span: int) -> None:
         """TODO"""
 
-    def measure(self) -> Input:
+    async def measure(self) -> Input:
         return None
 
-    def set_display(self, display: Display) -> None:
+    async def set_display(self, display: Display) -> None:
         """TODO"""
 
-    def stop_simulation(self) -> None:
+    async def stop_simulation(self) -> None:
         """TODO"""
