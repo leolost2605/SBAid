@@ -16,7 +16,7 @@ class Link:
         self.__points = []
 
         for point in vissim_link.LinkPolyPts.GetAll():
-            self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LonWGS84")))
+            self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
 
     @property
     def id(self) -> int:
@@ -36,14 +36,14 @@ class Link:
 
 
 class VissimNetwork:
-    __vissim: Any
+    __vissim_network: Any
     __links: list[Link]
 
-    def __init__(self, vissim: Any):
-        self.__vissim = vissim
+    def __init__(self, network: Any):
+        self.__vissim_network = network
 
         self.__links = []
-        links = self.__vissim.Net.Links.GetAll()
+        links = self.__vissim_network.Links.GetAll()
         for link in links:
             self.__links.append(Link(link))
 

@@ -7,8 +7,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.common.coordinate import Coordinate
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-from sbaid.model.simulator.vissim.vissim import CommandQueue, VissimConnector
+from sbaid.model.simulator.vissim.vissim import VissimConnector
 from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
@@ -17,14 +16,12 @@ class VissimSimulator(Simulator):
 
     __type: SimulatorType
     __cross_sections: Gio.ListStore
-    __command_queue: CommandQueue
     __connector: VissimConnector
 
     def __init__(self) -> None:
         self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
-        self.__cross_sections = Gio.ListStore.new(SimulatorCrossSection)
-        self.__command_queue = CommandQueue()
-        self.__connector = VissimConnector(self.__command_queue)
+        self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
+        self.__connector = VissimConnector()
 
     @GObject.Property(type=SimulatorType)
     def type(self) -> SimulatorType:
@@ -45,33 +42,44 @@ class VissimSimulator(Simulator):
         return self.__cross_sections
 
     async def load_file(self, file: Gio.File) -> None:
-        cross_sections = await self.__command_queue.load_file(file.get_path())
+        cross_sections = await self.__connector.load_file(file.get_path())
 
         for cs in cross_sections:
-            self.__cross_sections.append(VissimCrossSection(self.__command_queue, cs))
+            self.__cross_sections.append(VissimCrossSection(cs))
 
     async def create_cross_section(self, coordinate: Coordinate,
                                    cross_section_type: CrossSectionType) -> int:
         """TODO"""
-        return 0
+        new_cs_state = await self.__connector.create_cross_section(coordinate, cross_section_type)
+        self.__cross_sections.append(VissimCrossSection(new_cs_state))
+        return self.__cross_sections.get_n_items() - 1
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
+        #TODO: Remove from store
+        await self.__connector.remove_cross_section(cross_section_id)
 
     async def move_cross_section(self, cross_section_id: str, new_position: Coordinate) -> None:
         """TODO"""
+        new_cs_state = await self.__connector.move_cross_section(cross_section_id, new_position)
+        # TODO: update state
 
     async def init_simulation(self) -> tuple[int, int]:
-        return 0, 0
+        """TODO"""
+        return await self.__connector.init_simulation(60)
 
     async def continue_simulation(self, span: int) -> None:
         """TODO"""
+        await self.__connector.continue_simulation(span)
 
     async def measure(self) -> Input:
-        return None
+        """TODO"""
+        return await self.__connector.measure()
 
     async def set_display(self, display: Display) -> None:
         """TODO"""
+        await self.__connector.set_display(display)
 
     async def stop_simulation(self) -> None:
         """TODO"""
+        await self.__connector.stop_simulation()
