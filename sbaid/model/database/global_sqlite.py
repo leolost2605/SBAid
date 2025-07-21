@@ -1,6 +1,6 @@
-# mypy: disable-error-code="func-returns-value, arg-type, import-not-found, no-any-return"
+# mypy: disable-error-code="func-returns-value, arg-type, no-any-return"
 """This module contains the GLobalSQLite class."""
-import aiosqlite  # pylint: disable=import-error
+import aiosqlite
 
 from gi.repository import GLib, Gio
 
