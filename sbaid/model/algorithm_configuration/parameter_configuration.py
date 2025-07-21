@@ -2,6 +2,8 @@
 from typing import Tuple
 from gi.repository import GObject
 from gi.repository import Gio
+
+from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.network.network import Network
 from sbaid.model.algorithm.algorithm import Algorithm
 
@@ -22,6 +24,7 @@ class ParameterConfiguration(GObject.GObject):
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
         """"todo"""
+        parser = ParserFactory().get_parser(file)
         return None
 
     def load(self) -> None:
