@@ -42,13 +42,23 @@ class Parameter(GObject.GObject):
     def __init__(self, name: str, value_type: GLib.VariantType,
                  value: GLib.Variant,
                  cross_section: Optional[CrossSection]) -> None:
-        super().__init__()
+
+        super().__init__(name=name,
+                         value_type=value_type,
+                         value=value,
+                         cross_section=cross_section,
+                         selected_tags=Gio.ListStore.new(Tag))
 
     def add_tag(self, tag: Tag) -> None:
-        """todo"""
+        """Adds a tag to the list of selected tags."""
+        self.selected_tags.append(tag)
+
 
     def remove_tag(self, tag: Tag) -> None:
-        """todo"""
+        """Removes a tag from the list of selected tags."""
+        exists, position = self.selected_tags.find(tag)
+        if exists:
+            self.selected_tags.remove(position)
 
     def load_from_db(self) -> None:
         """todo"""
