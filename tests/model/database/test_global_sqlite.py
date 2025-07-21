@@ -3,6 +3,7 @@ import unittest
 
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
+from gi.events import GLibEventLoopPolicy
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -16,6 +17,12 @@ def event_loop_instance(request):
     request.cls.event_loop.close()
 
 class GlobalSQLiteTest(unittest.TestCase):
+
+    def setUp(self):
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(GlobalSQLiteTest().run_all_tests())
+        loop.run_until_complete(task)
 
     async def run_all_tests(self) -> None:
         await self.test_remove()
@@ -161,8 +168,3 @@ class GlobalSQLiteTest(unittest.TestCase):
         self.assertEqual(my_project_tags[0][0], "my_tag_id")
 
         file.trash_async(0)
-
-
-asyncio.run(GlobalSQLiteTest().run_all_tests())
-
-
