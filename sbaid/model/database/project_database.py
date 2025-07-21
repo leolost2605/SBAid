@@ -50,7 +50,7 @@ class ProjectDatabase(ABC):
 
     @abstractmethod
     async def get_algorithm_configuration(self, algorithm_configuration_id: str) \
-            -> tuple[str, int, int, str]:
+            -> tuple[str, str, int, int, str, bool]:
         """TODO"""
 
     @abstractmethod
