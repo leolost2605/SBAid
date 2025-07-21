@@ -1,6 +1,7 @@
 import asyncio
 import unittest
 
+from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
@@ -27,6 +28,12 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.test_times()
         await self.test_tags()
 
+    def on_delete_async(feld, file, result, user_data):
+        try:
+            file.delete_finish(result)
+        except GLib.Error as e:
+            raise e
+
     async def test_remove(self) -> None:
         db = GlobalSQLite()
         file = Gio.File.new_for_path("test.db")
@@ -44,7 +51,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         all_projects = await db.get_all_projects()
         self.assertEqual(len(all_projects), 1)
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_result(self) -> None:
         db = GlobalSQLite()
@@ -65,7 +72,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         all_results = await db.get_all_results()
         self.assertEqual(len(all_results), 0)
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_snapshot(self):
         db = GlobalSQLite()
@@ -84,7 +91,7 @@ class GlobalSQLiteTest(unittest.TestCase):
 
         self.assertEqual(len(await db.get_all_snapshots("my_snapshot_id")), 1)
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_cross_section_snapshot(self):
         db = GlobalSQLite()
@@ -104,7 +111,7 @@ class GlobalSQLiteTest(unittest.TestCase):
                                             BDisplay.OFF)
         self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 2)
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_lane_snapshot(self):
         db = GlobalSQLite()
@@ -124,7 +131,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         cs_snapshot = await db.get_all_lane_snapshots("my_cross_section_snapshot_id")
         self.assertEqual(cs_snapshot[0][4], ADisplay.OFF)
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_times(self):
         red_revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
@@ -142,7 +149,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         result_time = all_results[0][1]
         self.assertEqual(result_time.format_iso8601(), red_revo_date.format_iso8601())
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def test_tags(self):
         red_revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
@@ -164,4 +171,4 @@ class GlobalSQLiteTest(unittest.TestCase):
         self.assertEqual(len(my_project_tags), 1)
         self.assertEqual(my_project_tags[0][0], "my_tag_id")
 
-        await file.trash_async(0)
+        file.delete_async(0, None, self.on_delete_async, None)
