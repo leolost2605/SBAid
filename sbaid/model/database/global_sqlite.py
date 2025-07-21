@@ -109,7 +109,7 @@ CREATE TABLE vehicle_snapshot (
     async def remove_project(self, project_id: str) -> None:
         """Remove a project from the database."""
         async with aiosqlite.connect(self._db_path) as db:
-            await db.execute("""DELETE FROM project""")
+            await db.execute("""DELETE FROM project WHERE id = ?;""", [project_id])
             await db.commit()
 
     async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
