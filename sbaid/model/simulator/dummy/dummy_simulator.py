@@ -1,18 +1,15 @@
 """This module contains the DummySimulator class."""
 import asyncio
+import json
 
 from gi.repository import GObject, Gio
 
-import csv
-
 from sbaid.common.simulator_type import SimulatorType
-from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
 from sbaid.common.coordinate import Coordinate
 from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 
 class DummySimulator(Simulator):
@@ -25,8 +22,8 @@ class DummySimulator(Simulator):
     _pointer: int
 
     def __init__(self) -> None:
-        self._type = SimulatorType("dummy.csv", "CSV Dummy")
-        self._cross_sections = Gio.ListStore.new(SimulatorCrossSection)
+        self._type = SimulatorType("dummy.json", "CSV Dummy")
+        # self._cross_sections = Gio.ListStore.new()
         self._sequence = {}
         self._pointer = 0
 
@@ -40,32 +37,21 @@ class DummySimulator(Simulator):
         """TODO"""
         return self._cross_sections
 
-
     async def load_file(self, file: Gio.File) -> None:
         """TODO"""
-        with open(file.get_path()) as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=",")
-            first_line = next(csv_reader)
-            if first_line != {'AVG_SPEED': '125.0', 'TRAFFIC_VOL': '12'}:
-                return
-            temp_sequence = {}
-            counter = 0
-            for line in csv_reader:
-                temp_sequence[counter] = line
-                counter += 1
-
-            counter = 0
-            for line in temp_sequence.values():
-                new_input = Input()
-                vehicle_amount = line.get("TRAFFIC_VOL")
-                for i in vehicle_amount:
-                    new_input.add_vehicle_info("cross_section", 0, VehicleType.CAR,
-                                               float(line.get("AVG_SPEED")))
-                self._sequence[counter] = new_input
-                counter += 1
-
-            print(self._sequence.values())
-
+        with open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
+            data = json.load(json_file)
+            for timestamp in data["vehicle_infos"]:
+                current_input = Input()
+                for cs in data["vehicle_infos"][timestamp]:
+                    for lane in data["vehicle_infos"][timestamp][cs]:
+                        for i in enumerate(data["vehicle_infos"][timestamp][cs][lane]):
+                            print(data["vehicle_infos"][timestamp][cs][lane][i[0]]["type"])
+                            print(data["vehicle_infos"][timestamp][cs][lane][i[0]]["speed"])
+                            veh_type = data["vehicle_infos"][timestamp][cs][lane][i[0]]["type"]
+                            veh_speed = data["vehicle_infos"][timestamp][cs][lane][i[0]]["speed"]
+                            current_input.add_vehicle_info(cs, int(lane), veh_type, veh_speed)
+                self._sequence[int(timestamp)] = current_input
 
     async def create_cross_section(self, coordinate: Coordinate,
                                    cross_section_type: CrossSectionType) -> int:
@@ -95,6 +81,9 @@ class DummySimulator(Simulator):
         """TODO"""
         self._pointer = 0
 
+
 sim = DummySimulator()
-file = Gio.File.new_for_path("test.csv")
-asyncio.run(sim.load_file(file))
+
+
+cur_file = Gio.File.new_for_path("test.json")
+asyncio.run(sim.load_file(cur_file))
