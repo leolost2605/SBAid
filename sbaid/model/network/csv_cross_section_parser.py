@@ -1,8 +1,6 @@
 """This module consists of the CSV cross section parser. TODO"""
 import csv
 from abc import ABC
-from unittest import case
-
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
@@ -26,7 +24,7 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
             csv_reader = csv.reader(csvfile)
             try:
                 has_header = self.__has_valid_header(csv_reader)
-            except StopIteration:  # raised if the file is empty and there is no line to read from
+            except StopIteration:  # raised if the file is empty
                 raise InvalidFileFormattingException()
             if not has_header:
                 csvfile.seek(0)  # restart reading from the beginning of file
@@ -84,4 +82,3 @@ class InvalidFileFormattingException(Exception):
     Error message is the first found invalid formatting."""
     def __init__(self):
         self.message = "File has no valid cross section definitions."
-

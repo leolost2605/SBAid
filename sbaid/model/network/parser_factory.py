@@ -19,20 +19,12 @@ class ParserFactory:
 
         self.__parsers.append(CSVCrossSectionParser)
 
-    def get_parser(self, file: Gio.File) -> CrossSectionParser:  #TODO: change to parser optional or leave it like it is?
+    def get_parser(self, file: Gio.File) -> CrossSectionParser | None:  #TODO: change to parser optional or leave it like it is?
         """ Iterates the list of existing parsers and looks for one suitable to parse
          the given file. Raises a NoSuitableParserException if no such parser if found."""
-
         for parser in self.__parsers:
             if parser.can_handle_file(file):
                 return parser
-        raise NoSuitableParserException(Gio.content_type_guess(file.get_path())[0])
+        return None
 
-
-class NoSuitableParserException(Exception):
-    """Exception raised when the user inputs a file in a format
-        SBAid does not support for cross section input."""
-
-    def __init__(self, file_format: str) -> None:
-        self.message = "File format %s not supported." % file_format
 

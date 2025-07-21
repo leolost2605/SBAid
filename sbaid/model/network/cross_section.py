@@ -1,8 +1,9 @@
-"""TODO"""
+"""This module contains the cross section class."""
 from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.model.database.project_database import ProjectDatabase
 
 
 class CrossSection(GObject.GObject):
@@ -47,16 +48,9 @@ class CrossSection(GObject.GObject):
                          type=simulator_cross_section.type)
 
     def load_from_db(self) -> None:
-        """TODO"""
+        """Loads cross section details from the database."""
+        #self.set_name(get_cross_section_name(self.id)) TODO: get a database instance so this works??
 
     def set_name(self, name: str) -> None:
         """Sets the cross section's name."""
         self.name = name
-
-    def toggle_hard_shoulder(self) -> None:
-        """Toggles the hard shoulder status."""
-        self.hard_shoulder_active = not self.hard_shoulder_active
-
-    def toggle_b_display_active(self) -> None:
-        """Toggles the b display status."""
-        self.b_display_active = not self.b_display_active
