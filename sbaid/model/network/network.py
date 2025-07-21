@@ -31,7 +31,7 @@ class Network(GObject.Object):
         """Loads the network from the database. The route gets automatic updates
         from the simulator route ListModel."""
         self.cross_sections = self.simulator.cross_sections
-        for sim_cross_section in self.cross_sections():
+        for sim_cross_section in self.cross_sections:  #TODO fix: porque listModels nao sao iterable
             network_cross_section = CrossSection(sim_cross_section)  #TODO fix
             network_cross_section.load_from_db()
             self.cross_sections.append(network_cross_section)
@@ -42,7 +42,7 @@ class Network(GObject.Object):
         if not parser_for_file:
             raise NoSuitableParserException
         import_result = parser_for_file.foreach_cross_section(file,
-                                                              self.__successful_cross_section_creation)
+                                                  self.__successful_cross_section_creation)
         return import_result
 
     def __successful_cross_section_creation(self, name: str, location: Coordinate,
@@ -52,8 +52,6 @@ class Network(GObject.Object):
             return True
         except FailedCrossSectionCreationException:
             return False
-
-
 
     def create_cross_section(self, name: str, coordinates: Coordinate,
                              cs_type: CrossSectionType) -> None:
@@ -88,9 +86,12 @@ class Network(GObject.Object):
                                     incoming_cross_section_type: CrossSectionType)\
             -> tuple[bool, bool, CrossSection | None]:
         """Checks if the incoming cross section can be added, and if so if it can be added by
-        itself or if it must be combined with a preexisting one. Accepts the combination and returns the
-        preexisting cross section in the given location if one of the cross sections is of type
-        DISPLAY and the other one MEASURING, discards the incoming one in any other cases."""
+        itself or if it must be combined with a preexisting one. Returns a tuple with 3 elements:
+        - A boolean value, depicting if the cross section can be added,
+        - Another boolean value, representing if the cross section has to be added through
+            combination with a preexisting one or if the location was free and valid
+        - an optional of a cross section object. Returns a combined cross section if the incoming cross
+            section has to be combined with another one in order to be added."""
         clashing_cross_section = self.__get_cross_section_in_location(location)
         if clashing_cross_section:
             if ((clashing_cross_section.type.value == 1 and incoming_cross_section_type.value == 2)
@@ -104,7 +105,6 @@ class Network(GObject.Object):
         return True, False, None
 
     def __get_cross_section_in_location(self, coordinate: Coordinate) -> CrossSection | None:
-        
         for cross_section in self.cross_sections:
             if cross_section.coordinate == coordinate:
                 return cross_section
@@ -120,3 +120,8 @@ class Network(GObject.Object):
 class FailedCrossSectionCreationException(Exception):
     """Exception raised when the creation of a cross section fails.
     No error message needed as the exception doesn't show up to the user as an error. - TODO?"""
+
+class NoSuitableParserException(Exception):
+    """Exception raised when a file sbaid has no parser for is input."""
+    def __init__(self):
+        self.message = "Input file format not supported by SBAid."

@@ -1,6 +1,5 @@
 """This module consists of the CSV cross section parser. TODO"""
 import csv
-from abc import ABC
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
@@ -8,10 +7,11 @@ from sbaid.common.coordinate import Coordinate
 from gi.repository import Gio
 
 
-class CSVCrossSectionParser(CrossSectionParser, ABC):
+class CSVCrossSectionParser(CrossSectionParser):
     """This class handles the parsing of CSV files containing cross sections."""
 
     def can_handle_file(self, file_path: str) -> bool:
+        """Checks if the given file is a csv file."""
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
     def foreach_cross_section(self, file: Gio.File,
@@ -49,7 +49,7 @@ class CSVCrossSectionParser(CrossSectionParser, ABC):
             row = next(csv_reader)
             return (row[0].casefold() == "name"
                     and row[1].casefold() == "x-coordinate"
-                    and row[2].casefold() == "y-Coordinate"
+                    and row[2].casefold() == "y-coordinate"
                     and row[3].casefold() == "type")
 
     def __parse_cross_section(self, row: list) -> tuple[Coordinate, CrossSectionType] | None:
