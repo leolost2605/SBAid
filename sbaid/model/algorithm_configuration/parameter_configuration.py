@@ -18,7 +18,7 @@ class ParameterConfiguration(GObject.GObject):
 
     def __init__(self, network: Network) -> None:
         """todo"""
-        super().__init__()
+        super().__init__(network=network)
 
     def import_from_file(self, file: Gio.File) -> Tuple[int, int]:
         """"todo"""
