@@ -145,7 +145,7 @@ CREATE TABLE vehicle_snapshot (
             async with db.execute("""
         SELECT name FROM result WHERE id = ?;
         """, [result_id]) as db_cursor:
-                return list(await db_cursor.fetchall())[0][0]
+                return str(list(await db_cursor.fetchall())[0][0])
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
