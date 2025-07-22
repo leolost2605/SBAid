@@ -1,5 +1,6 @@
-"""TODO"""
-import sqlite3
+# mypy: disable-error-code="func-returns-value, arg-type, no-any-return"
+"""This module contains the GLobalSQLite class."""
+import aiosqlite
 
 from gi.repository import GLib, Gio
 
@@ -11,21 +12,18 @@ from sbaid.model.database.global_database import GlobalDatabase
 
 
 class GlobalSQLite(GlobalDatabase):
-    """TODO"""
-    _connection: sqlite3.Connection
+    """This class implements the GlobalDatabase interface which allows for the all results
+    and project metadata to be stored."""
+    _db_path: str
 
     async def open(self, file: Gio.File) -> None:
-        """TODO"""
+        """Creates a new database file and initialize the database schema."""
         if not file.query_exists():
-            file.create_async(Gio.FileCreateFlags.NONE, 0)  # pylint: disable=no-member
-        else:
-            raise FileExistsError("File already exists")
-        path = file.get_path()
-        if path is None:
-            raise FileNotFoundError("Path is invalid")
-        self._connection = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES |
-                                           sqlite3.PARSE_COLNAMES)
-        self._connection.cursor().executescript("""DROP TABLE IF EXISTS project;
+            await file.create_async(
+                Gio.FileCreateFlags.NONE, 0)  # pylint: disable=no-member
+        self._db_path = str(file.get_path())
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.executescript("""DROP TABLE IF EXISTS project;
 DROP TABLE IF EXISTS result;
 DROP TABLE IF EXISTS result_tag;
 DROP TABLE IF EXISTS tag;
@@ -87,160 +85,195 @@ CREATE TABLE vehicle_snapshot (
     speed REAL,
     FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id) ON DELETE CASCADE
 );""")
+            await db.commit()
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
-        self._connection.cursor().execute("""
+        """Add a project to the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO project (id, simulator_type_id, simulator_type_name,
         simulator_file_path, project_file_path)
         VALUES (?, ?, ?, ?, ?);
         """, (project_id, simulator_type.id, simulator_type.name,
               simulator_file_path, project_file_path))
+            await db.commit()
 
     async def get_all_projects(self) -> list[tuple[str, SimulatorType, str, str,]]:
-        """TODO"""
-        def func(db_input: tuple[str, str, str, str, str]) -> tuple[str, SimulatorType, str, str,]:
-            return db_input[0], SimulatorType(db_input[1], db_input[2]), db_input[3], db_input[4]
-        return list(map(func, self._connection.cursor().execute("""
-        SELECT * FROM project;
-        """).fetchall()))
+        """Return meta-information about all projects in the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""SELECT * FROM project;""") as db_cursor:
+                return list(map(lambda x: (x[0], SimulatorType(x[1], x[2]), x[3], x[4]),
+                                list(await db_cursor.fetchall())))
 
     async def remove_project(self, project_id: str) -> None:
-        """TODO"""
-        self._connection.cursor().execute("DELETE FROM project WHERE id = ?;", (project_id,))
+        """Remove a project from the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""DELETE FROM project WHERE id = ?;""", [project_id])
+            await db.commit()
 
     async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
-        """TODO"""
-        def func(values: tuple[str, str, str, str]) -> tuple[str, GLib.DateTime]:
-            return values[0], GLib.DateTime.new_from_iso8601(values[3])  # pylint:disable=no-member
-
-        result = list(map(func, self._connection.cursor().execute("""
-                SELECT * FROM result;""").fetchall()))
-        return result
+        """Return all results in the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""SELECT id, date FROM result;""") as db_cursor:
+                return list(map(lambda x: (x[0], GLib.DateTime  # pylint:disable=no-member
+                                           .new_from_iso8601(x[1])  # pylint:disable=no-member
+                                           ),
+                                await db_cursor.fetchall()))
 
     async def add_result(self, result_id: str, result_name: str, project_name: str,
                          creation_date_time: GLib.DateTime) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Add a result to the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO result (id, name, project_name, date)
         VALUES (?, ?, ?, ?);
         """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
+            await db.commit()
 
     async def delete_result(self, result_id: str) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Remove a result and all sub-results from the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         DELETE FROM result WHERE id = ?;
-        """, (result_id,)).close()
+        """, [result_id])
+            await db.commit()
 
     async def get_result_name(self, result_id: str) -> str:
-        """TODO"""
-        result: str = self._connection.cursor().execute("""
+        """Return the name of the given result_id from the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
         SELECT name FROM result WHERE id = ?;
-        """, (result_id,)).fetchone()
-        return result[0]
+        """, [result_id]) as db_cursor:
+                return str(list(await db_cursor.fetchall())[0][0])
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Add a tag to the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO tag (id, name) VALUES (?, ?)""", (tag_id, tag_name))
+            await db.commit()
 
     async def remove_tag(self, tag_id: str) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Remove a tag from the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         DELETE FROM tag WHERE id = ?;""", (tag_id,))
+            await db.commit()
 
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
-        """TODO"""
-        tags = self._connection.cursor().execute("""
-        SELECT * FROM tag WHERE id = ?;""", (tag_id,)).fetchall()
+        """Add a tag to a result."""""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
+        SELECT * FROM tag WHERE id = ?;""", (tag_id,)) as db_cursor:
+                tags = list(await db_cursor.fetchall())
+
         if len(tags) == 0:
             raise KeyError("Tag id is invalid")
 
-        results = self._connection.cursor().execute("""
-        SELECT * FROM result WHERE id = ?;""", (result_id,)).fetchall()
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
+        SELECT * FROM result WHERE id = ?;""", (result_id,)) as db_cursor:
+                results = list(await db_cursor.fetchall())
         if len(results) == 0:
             raise KeyError("Result id is invalid")
 
-        self._connection.cursor().execute("""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
-                                          (result_tag_id, result_id, tag_id))
+                             (result_tag_id, result_id, tag_id))
+            await db.commit()
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
-        """TODO"""
-        return self._connection.cursor().execute("""
-        SELECT * FROM tag';
-        """).fetchall()
+        """Return all tags in the database."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""SELECT * FROM tag';""") as db_cursor:
+                return await db_cursor.fetchall()
 
     async def get_result_tags(self, result_id: str) -> list[str]:
-        """TODO"""
-        return self._connection.cursor().execute("""
+        """Return all tags that belong to the given result."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
         SELECT tag_id FROM result_tag WHERE result_id = ?;
-        """, (result_id,)).fetchall()
+        """, (result_id,)) as db_cursor:
+                return await db_cursor.fetchall()
 
     async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:
-        """TODO"""
-        def func(values: tuple[str, str, str]) -> tuple[str, GLib.DateTime]:
-            return values[0], GLib.DateTime.new_from_iso8601(values[2])  # pylint:disable=no-member
-
-        return list(map(func, self._connection.cursor().execute("""
-        SELECT * FROM snapshot;""").fetchall()))
+        """Return all snapshots from a given result."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""SELECT id, date FROM snapshot;""") as db_cursor:
+                values = await db_cursor.fetchall()
+                return list(
+                    map(lambda x: (x[0], GLib.DateTime  # pylint:disable=no-member
+                                   .new_from_iso8601(x[1])),  # pylint:disable=no-member
+                        values))
 
     async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
-        """TODO"""
+        """Add a snapshot to a given result."""
         time_string = time.format_iso8601()
-        self._connection.cursor().execute("""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO snapshot (id, result_id, date)
         VALUES (?, ?, ?);
         """, (snapshot_id, result_id, time_string))
+            await db.commit()
 
-    async def get_all_cross_section_snapshots(self, snapshot_id: str)\
+    async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, BDisplay]]:
-        """TODO"""
-        def func(values: tuple[str, str, str, BDisplay]) -> tuple[str, str, BDisplay]:
-            return values[0], values[1], values[3]
-        return list(map(func, (self._connection.cursor().execute("""
-        SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;
-        """, (snapshot_id,)).fetchall())))  # TODO double check
+        """Return all cross section snapshots from a given snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
+        SELECT id, snapshot_id, b_display FROM cross_section_snapshot WHERE snapshot_id = ?;
+        """, [snapshot_id]) as db_cursor:
+                return await db_cursor.fetchall()
 
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
                                          cross_section_name: str, b_display: BDisplay) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Add a cross section snapshot to a given snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_name, b_display)
         VALUES (?, ?, ?, ?);
         """, (cross_section_snapshot_id, snapshot_id, cross_section_name, b_display.value))
+            await db.commit()
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
                                      tuple[str, int, float, int, ADisplay]]:
-        """TODO"""
-        def func(values: tuple[str, str, int, float, int, ADisplay])\
-                -> tuple[str, int, float, int, ADisplay]:
-            return values[0], values[2], values[3], values[4], values[5]
-        return list(map(func, self._connection.cursor().execute("""
-        SELECT * FROM lane_snapshot WHERE cross_section_snapshot_id = ?;
-        """, (cross_section_snapshot_id,)).fetchall()))
+        """Return all lane snapshots from a given cross section snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
+        SELECT id, lane_number, average_speed, traffic_volume, a_display
+        FROM lane_snapshot WHERE cross_section_snapshot_id = ?;
+        """, (cross_section_snapshot_id,)) as db_cursor:
+                return await db_cursor.fetchall()
 
     async def add_lane_snapshot(self, lane_snapshot_id: str, cross_section_snapshot_id: str,
                                 lane: int, average_speed: float, traffic_volume: int,
                                 a_display: ADisplay) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Add a lane snapshot to a given cross section snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
         average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
         """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
               traffic_volume, a_display.value))
+            await db.commit()
 
-    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str)\
+    async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) \
             -> list[tuple[VehicleType, float]]:
-        """TODO"""
-        return self._connection.cursor().execute("""
+        """Return all vehicle snapshots from a given lane snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            async with db.execute("""
         SELECT * FROM vehicle_snapshot WHERE lane_snapshot_id = ?;
-        """, (lane_snapshot_id,)).fetchall()
+        """, (lane_snapshot_id,)) as db_cursor:
+                return await db_cursor.fetchall()
 
     async def add_vehicle_snapshot(self, lane_snapshot_id: str, vehicle_type:
                                    VehicleType, speed: float) -> None:
-        """TODO"""
-        self._connection.cursor().execute("""
+        """Add a venicle snapshot to a given lane snapshot."""
+        async with aiosqlite.connect(self._db_path) as db:
+            await db.execute("""
         INSERT INTO vehicle_snapshot (?, ?, ?, ?);
         """, (GLib.uuid_string_random(),  # pylint:disable=no-value-for-parameter
               lane_snapshot_id, vehicle_type.value, speed))
+            await db.commit()
