@@ -119,7 +119,8 @@ class ProjectDatabase(ABC):
     @abstractmethod
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
-        """Remove a parameter with the given algorithm configuration and parameter name and possibly cross section."""
+        """Remove a parameter with the given algorithm configuration and parameter name
+        and possibly cross section."""
 
     @abstractmethod
     async def add_algorithm_configuration(self, algorithm_configuration_id: str, name: str,
