@@ -1,22 +1,18 @@
 """TODO"""
 from abc import ABC, abstractmethod
 
-from gi.repository import GLib, Gio
+from gi.repository import GLib
 
 
 class ProjectDatabase(ABC):
     """TODO"""
 
-    @abstractmethod
-    async def open(self, file: Gio.File) -> None:
-        """TODO"""
+    # @abstractmethod
+    # async def open(self, file: Gio.File) -> None:
+    #     """TODO"""
 
     @abstractmethod
     async def get_created_at(self) -> GLib.DateTime:
-        """TODO"""
-
-    @abstractmethod
-    async def get_last_modified(self) -> GLib.DateTime:
         """TODO"""
 
     @abstractmethod
@@ -46,6 +42,10 @@ class ProjectDatabase(ABC):
     @abstractmethod
     async def set_algorithm_configuration_name(self, algorithm_configuration_id: str,
                                                name: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def get_last_modified(self) -> GLib.DateTime:
         """TODO"""
 
     @abstractmethod
@@ -91,23 +91,45 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
+    async def get_all_parameters(self, algorithm_configuration_id: str) -> list[tuple[str, str]]:
+        """TODO"""
+
+    @abstractmethod
     async def get_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
-                                  cross_section_id: str | None) -> str:
+                                  cross_section_id: str | None) -> GLib.Variant | None:
         """TODO"""
 
     @abstractmethod
     async def set_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
-                                  cross_section_id: str | None, parameter_value: GLib.Variant) -> None:
+                                  cross_section_id: str | None,
+                                  parameter_value: GLib.Variant) -> None:
         """TODO"""
 
     @abstractmethod
-    async def add_parameter(self, name: str, algorithm_configuration_id: str,
-                            cross_section_id: str, value: GLib.Variant) -> None:
+    async def add_cross_section(self, cross_section_id: str, name: str) -> None:
         """TODO"""
 
     @abstractmethod
-    async def remove_parameter(self, name: str, algorithm_configuration_id: str,
-                               cross_section_id: str) -> None:
+    async def remove_cross_section(self, cross_section_id: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def add_parameter(self, algorithm_configuration_id: str, name: str,
+                            cross_section_id: str | None, value: GLib.Variant) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def remove_parameter(self, algorithm_configuration_id: str, name: str,
+                               cross_section_id: str | None) -> None:
+        """TODO"""
+    @abstractmethod
+    async def add_algorithm_configuration(self, algorithm_configuration_id: str, name: str,
+                                          evaluation_interval: int, display_interval: int,
+                                          script_path: str, is_selected: bool = True) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def remove_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -120,10 +142,16 @@ class ProjectDatabase(ABC):
 
     @abstractmethod
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
-                                algorithm_configuration_id: str, cross_section_id: str,
+                                algorithm_configuration_id: str, cross_section_id: str | None,
                                 tag_id: str) -> None:
         """TODO"""
 
     @abstractmethod
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
+        """TODO"""
+
+    @abstractmethod
+    async def get_all_tag_ids_for_parameter(self, algorithm_configuration_id: str,
+                                            parameter_name: str,
+                                            cross_section_id: str | None) -> list[str]:
         """TODO"""
