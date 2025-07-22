@@ -96,16 +96,18 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def set_parameter_value(self, parameter_id: str, parameter_value: GLib.Variant) -> None:
+    async def set_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
+                                  cross_section_id: str | None, parameter_value: GLib.Variant) -> None:
         """TODO"""
 
     @abstractmethod
-    async def add_parameter(self, parameter_id: str, name: str, algorithm_configuration_id: str,
+    async def add_parameter(self, name: str, algorithm_configuration_id: str,
                             cross_section_id: str, value: GLib.Variant) -> None:
         """TODO"""
 
     @abstractmethod
-    async def remove_parameter(self, parameter_id: str) -> None:
+    async def remove_parameter(self, name: str, algorithm_configuration_id: str,
+                               cross_section_id: str) -> None:
         """TODO"""
 
     @abstractmethod
@@ -117,8 +119,9 @@ class ProjectDatabase(ABC):
         """TODO"""
 
     @abstractmethod
-    async def add_parameter_tag(self, parameter_tag_id: str, parameter_id: str, tag_id: str)\
-            -> None:
+    async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
+                                algorithm_configuration_id: str, cross_section_id: str,
+                                tag_id: str) -> None:
         """TODO"""
 
     @abstractmethod
