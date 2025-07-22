@@ -7,7 +7,7 @@ from sbaid.model.algorithm_configuration.parameter_configuration import (
 
 
 class AlgorithmConfiguration(GObject.GObject):
-    """Todo"""
+    """This class defines the AlgorithmConfiguration class."""
 
     # GObject property definition
     id = GObject.Property(
@@ -58,6 +58,7 @@ class AlgorithmConfiguration(GObject.GObject):
         self.network = network
 
     def load_from_db(self) -> None:
+        """todo"""
         self.parameter_configuration.load_from_db()
         for parameter in self.parameter_configuration.parameters:
             parameter.load_from_db()

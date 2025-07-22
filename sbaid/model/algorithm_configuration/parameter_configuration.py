@@ -2,6 +2,7 @@
 from typing import Tuple
 from gi.repository import GObject
 from gi.repository import Gio
+
 from sbaid.model.network.network import Network
 from sbaid.model.algorithm.algorithm import Algorithm
 

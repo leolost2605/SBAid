@@ -1,5 +1,7 @@
 """This module represents the class AlgorithmConfigurationManager"""
 import uuid
+from zoneinfo import available_timezones
+
 from gi.repository import GObject, Gio
 
 from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
@@ -8,7 +10,7 @@ from sbaid.model.network.network import Network
 
 
 class AlgorithmConfigurationManager(GObject.GObject):
-    """todo"""
+    """This class defines the AlgorithmConfigurationManager class."""
     # GObject property definition
     selected_algorithm_configuration_id = GObject.Property(
         type=str,
@@ -34,23 +36,30 @@ class AlgorithmConfigurationManager(GObject.GObject):
         self.network = network
 
     def load(self) -> None:
+        """todo"""
         for algorithm_configuration in self.algorithm_configurations:
-            algorithm_configuration.load()
+            algorithm_configuration.load_from_db()
 
     def create_algorithm_configuration(self) -> int:
+        """todo"""
         algo_config = AlgorithmConfiguration(str(uuid.uuid4()), self.network)
         param_config = ParameterConfiguration(algo_config.network)
-        parameters = param_config.import_from_file()  # create the list of params, file?
-        return None
+        param_config.import_from_file(algo_config.script_path)
+        return self.algorithm_configurations.idex(algo_config)
 
     def delete_algorithm_configuration(self) -> None:
-        selected_id = self.selected_algorithm_configuration_id
-        selected_algo_config = self.algorithm_configurations.get_by_id(selected_id)
+        """todo"""
+        selected_algo_id = self.selected_algorithm_configuration_id
+        selected_algo_config = self.algorithm_configurations.get_by_id(selected_algo_id)
         self.algorithm_configurations.delete(selected_algo_config)
 
     def create_tag(self, name: str) -> int:
         """todo"""
-        return None
+        self.available_tags.append(name)
+        return self.available_tags.index(name)
 
     def delete_tag(self, tag_id: str) -> None:
         """todo"""
+        exists, tag = self.available_tags.find(tag_id)
+        if exists:
+            self.available_tags.remove(tag)
