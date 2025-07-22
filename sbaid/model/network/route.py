@@ -4,7 +4,7 @@ from typing import List
 from gi.repository import GObject
 from gi.repository import Gio
 
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 
 
 class Route(GObject.GObject):
@@ -14,6 +14,6 @@ class Route(GObject.GObject):
                               GObject.ParamFlags.WRITABLE |
                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, coordinates: List[Coordinate]) -> None:
+    def __init__(self, locations: List[Location]) -> None:
         super().__init__()
         # TODO: turn list into listmodel

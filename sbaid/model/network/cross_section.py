@@ -1,7 +1,7 @@
 """TODO"""
 from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 
 
@@ -16,7 +16,7 @@ class CrossSection(GObject.GObject):
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    position = GObject.Property(type=Coordinate,
+    position = GObject.Property(type=Location,
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
                                 GObject.ParamFlags.CONSTRUCT_ONLY)

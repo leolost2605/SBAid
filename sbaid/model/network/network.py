@@ -3,7 +3,7 @@ from typing import Tuple
 from gi.repository import Gio, GObject
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.model.network.route import Route
 
 
@@ -32,7 +32,7 @@ class Network(GObject.Object):
     def create_cross_section(
             self,
             name: str,
-            coordinates: Coordinate,
+            location: Location,
             cs_type: CrossSectionType) -> int:
         """TODO"""
         return 0
@@ -40,5 +40,5 @@ class Network(GObject.Object):
     def delete_cross_section(self, cs_id: str) -> None:
         """TODO"""
 
-    def move_cross_section(self, cs_id: str, new_coordinates: Coordinate) -> None:
+    def move_cross_section(self, cs_id: str, new_location: Location) -> None:
         """TODO"""
