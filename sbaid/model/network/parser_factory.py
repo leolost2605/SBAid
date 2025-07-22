@@ -9,7 +9,7 @@ from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
 class ParserFactory:
     """This class handles the creation of implementations of the CrossSectionParser
     interface, as well as their assignment to user-given files."""
-    __parsers = []
+    __parsers = [CrossSectionParser]
 
     def __init__(self) -> None:
         """ Constructs an instance of ParserFactory.

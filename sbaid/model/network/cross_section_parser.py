@@ -23,5 +23,6 @@ class CrossSectionParser(ABC):
     async def foreach_cross_section(self, file: Gio.File,
                                     foreach_func: CrossSectionParserForeachFunc) \
             -> tuple[int, int]:
-        """Calls create_cross_section function and returns the amount of valid cross sections
-        added to the network and the amount of invalid ones. TODO"""
+        """Calls a function that returns the success boolean of creating a a cross section
+         and returns the amount of valid cross sections added to the network and
+         the amount of invalid ones that were skipped."""

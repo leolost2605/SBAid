@@ -1,6 +1,6 @@
 """
 The common module contains classes and functions that are useful
-to all other sbaid modules.
+to all other SBAid modules.
 """
 
 from typing import Any, Generator

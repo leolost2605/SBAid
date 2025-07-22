@@ -1,6 +1,8 @@
 """This module contains the Network class and exceptions related to cross section importing."""
 
 from gi.repository import Gio, GObject, Gtk
+
+from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.common.location import Location
@@ -31,8 +33,7 @@ class Network(GObject.Object):
         """Loads the network from the database. The route gets automatic updates
         from the simulator route ListModel."""
         self.cross_sections = self.simulator.cross_sections
-        for sim_cross_section in self.cross_sections:
-            # TODO fix: porque listModels nao sao iterable
+        for sim_cross_section in list_model_iterator(self.cross_sections()):
             network_cross_section = CrossSection(sim_cross_section)
             network_cross_section.load_from_db()
             self.cross_sections.append(network_cross_section)
@@ -109,14 +110,14 @@ class Network(GObject.Object):
         return True, False, None
 
     def __get_cross_section_in_location(self, location: Location) -> CrossSection | None:
-        for cross_section in self.cross_sections:
+        for cross_section in list_model_iterator(self.cross_sections()):
             if cross_section.coordinate == location:
                 return cross_section
         return None
 
     def __map_func(self, sim_cross_section: SimulatorCrossSection) -> CrossSection | None:
         # maps simulator cross sections to network cross sections
-        for cross_section in self.cross_sections:
+        for cross_section in list_model_iterator(self.cross_sections()):
             if cross_section.id == sim_cross_section.id:
                 return cross_section
         return None
@@ -128,5 +129,5 @@ class FailedCrossSectionCreationException(Exception):
 
 class NoSuitableParserException(Exception):
     """Exception raised when a file SBAid has no parser for is input."""
-    def __init__(self):
+    def __init__(self) -> None:
         self.message = "Input file format not supported by SBAid."

@@ -4,7 +4,7 @@ from gi.repository import Gio
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 
 
 class CSVCrossSectionParser(CrossSectionParser):
@@ -24,10 +24,11 @@ class CSVCrossSectionParser(CrossSectionParser):
         if not file_as_str:  # file is empty
             raise InvalidFileFormattingException()
         csv_file_rows = file_as_str.splitlines()
+        print(csv_file_rows[0])
         valid_cross_sections = 0
         invalid_cross_sections = 0
         if not self.__is_header(csv_file_rows[0]):
-            if self.__create_from_row(csv_file_rows[0], foreach_func):
+            if await self.__create_from_row(csv_file_rows[0], foreach_func):
                 valid_cross_sections += 1
             else:
                 invalid_cross_sections += 1
@@ -55,12 +56,12 @@ class CSVCrossSectionParser(CrossSectionParser):
                 and split_header_words[3].casefold() == "type")
 
     def __parse_cross_section_syntax(self, row: str) -> (
-            tuple[Coordinate, CrossSectionType] | None):
+            tuple[Location, CrossSectionType] | None):
         separated_row_elements = row.split(",")
         if len(separated_row_elements) != 4:
             return None
         try:
-            coordinates = Coordinate(float(separated_row_elements[1]),
+            coordinates = Location(float(separated_row_elements[1]),
                                      float(separated_row_elements[2]))
         except ValueError:
             return None
