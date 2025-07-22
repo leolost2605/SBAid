@@ -9,16 +9,18 @@ from sbaid.model.results.result_manager import ResultManager
 
 
 class SimulationManager(GObject.GObject):
-    """TODO"""
+    """This class defines the SimulationManager class"""
 
     def __init__(self, project_name: str, algorithm_configuration: AlgorithmConfiguration,
                  network: Network, simulator: Simulator, result_manager: ResultManager,
                  observer: SimulationObserver) -> None:
-
-        """todo"""
+        """Initialize the SimulationManager class"""
+        super().__init__(project_name=project_name, algorithm_configuration=algorithm_configuration,
+                         network=network, simulator=simulator, result_manager=result_manager,
+                         observer=observer)
 
     def cancel(self) -> None:
-        """todo"""
+        """Cancel the simulation"""
 
     def start(self) -> None:
-        """todo"""
+        """Start the simulation"""
