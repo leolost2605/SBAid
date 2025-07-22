@@ -310,7 +310,8 @@ CREATE TABLE parameter_tag (
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
-        """Remove a parameter with the given algorithm configuration and parameter name and possibly cross section."""
+        """Remove a parameter with the given algorithm configuration and parameter name
+        and possibly cross section."""
         if cross_section_id is None:
             await self._connection.execute("""DELETE FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
