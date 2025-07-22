@@ -15,6 +15,7 @@ def list_model_iterator(model: Gio.ListModel) -> Generator[Any | None, Any, None
 
 
 async def make_directory_with_parents_async(dir: Gio.File | None) -> None:
+    """Creates a directory and - if they don't exist - its parents asynchronously."""
     if dir is None:
         raise FileNotFoundError("Cannot create dir with parents. No root directory found.")
 
