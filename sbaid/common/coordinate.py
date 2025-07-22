@@ -27,7 +27,7 @@ class Coordinate(GObject.GObject):
         return f"Coordinate({self.x}, {self.y})"
 
     def is_between(self, point_one: 'Coordinate', point_two: 'Coordinate') -> bool:
-        pass
+        return True
 
     def distance(self, other: 'Coordinate') -> float:
-        pass
+        return 1

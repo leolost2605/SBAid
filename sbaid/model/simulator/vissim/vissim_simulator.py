@@ -15,11 +15,13 @@ class VissimSimulator(Simulator):
     """TODO"""
 
     __type: SimulatorType
+    __route: Gio.ListStore
     __cross_sections: Gio.ListStore
     __connector: VissimConnector
 
     def __init__(self) -> None:
         self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
+        self.__route = Gio.ListStore.new(Coordinate)
         self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
         self.__connector = VissimConnector()
 
@@ -32,6 +34,11 @@ class VissimSimulator(Simulator):
         return self.__type
 
     @GObject.Property(type=Gio.ListModel)
+    def route(self):
+        """TODO"""
+        return self.__route
+
+    @GObject.Property(type=Gio.ListModel)
     def cross_sections(self) -> Gio.ListModel:
         """
         Returns a Gio.ListModel containing the cross sections in this simulator file.
@@ -42,7 +49,10 @@ class VissimSimulator(Simulator):
         return self.__cross_sections
 
     async def load_file(self, file: Gio.File) -> None:
-        cross_sections = await self.__connector.load_file(file.get_path())
+        route, cross_sections = await self.__connector.load_file(file.get_path())
+
+        for coord in route:
+            self.__route.append(coord)
 
         for cs in cross_sections:
             self.__cross_sections.append(VissimCrossSection(cs))
