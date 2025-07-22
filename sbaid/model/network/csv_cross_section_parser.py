@@ -14,57 +14,65 @@ class CSVCrossSectionParser(CrossSectionParser):
         """Checks if the given file is a csv file."""
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
-    def foreach_cross_section(self, file: Gio.File,
+    async def foreach_cross_section(self, file: Gio.File,
                               foreach_func: CrossSectionParserForeachFunc) -> tuple[int, int]:
-        """Reads the input CSV file row by row, and attempts to add the cross section the row
-        represents to the network. Returns the amount of added and skipped cross sections."""
-        with open(file.get_path(), newline='') as csvfile:
-            valid_cross_sections = 0
-            invalid_cross_sections = 0
-            csv_reader = csv.reader(csvfile)
-            try:
-                has_header = self.__has_valid_header(csv_reader)
-            except StopIteration:  # raised if the file is empty
-                raise InvalidFileFormattingException()
-            if not has_header:
-                csvfile.seek(0)  # restart reading from the beginning of file
-            for row in csv_reader:
-                parsed_info = self.__parse_cross_section(row)
-                if parsed_info[0]:
-                    if foreach_func(row[0], parsed_info[0], parsed_info[1]):
-                        valid_cross_sections += 1
-                    else:
-                        invalid_cross_sections += 1
-                else:
-                    next(csv_reader)
-                    invalid_cross_sections += 1
+        """Loads the file contents asynchronously and reads the input CSV file row by row,
+        attempting to add the cross section the row represents to the network.
+        Returns the amount of added and skipped cross sections."""
+        file_as_str = str(file.load_contents_async())
+        if not file_as_str:  #file is empty
+            raise InvalidFileFormattingException()
+        csv_file_rows = file_as_str.splitlines()
+        valid_cross_sections = 0
+        invalid_cross_sections = 0
+        if not self.__is_header(csv_file_rows[0]):
+            if self.__create_from_row(csv_file_rows[0], foreach_func):
+                valid_cross_sections += 1
+            else:
+                invalid_cross_sections += 1
+        for row in csv_file_rows[1:]:
+            if self.__create_from_row(row, foreach_func):
+                valid_cross_sections += 1
+            else:
+                invalid_cross_sections += 1
         if valid_cross_sections == 0:
             raise InvalidFileFormattingException()
         return valid_cross_sections, invalid_cross_sections
 
-    def __convert_to_location(self, x: str, y: str) -> Coordinate | None:
-        return Coordinate(float(x),float(y))
+    def __create_from_row(self, row: str, foreach_func: CrossSectionParserForeachFunc) -> bool:
+        parsed_info = self.__parse_cross_section_syntax(row)
+        if parsed_info[0]:
+            if foreach_func(row[0], parsed_info[0], parsed_info[1]):
+                return True
+            else:
+                return False
+        else:
+            return False
 
-    def __has_valid_header(self, csv_reader: csv.reader) -> bool:
-            row = next(csv_reader)
-            return (row[0].casefold() == "name"
-                    and row[1].casefold() == "x-coordinate"
-                    and row[2].casefold() == "y-coordinate"
-                    and row[3].casefold() == "type")
+    def __is_header(self, row: str) -> bool:
+        split_header_words = row.split(",")
+        return (split_header_words[0].casefold() == "name"
+                and split_header_words[1].casefold() == "x-coordinate"
+                and split_header_words[2].casefold() == "y-coordinate"
+                and split_header_words[3].casefold() == "type")
 
-    def __parse_cross_section(self, row: list) -> tuple[Coordinate, CrossSectionType] | None:
-        if len(row) != 4:
+    def __parse_cross_section_syntax(self, row: str) -> (
+            tuple[Coordinate, CrossSectionType] | None):
+        separated_row_elements = row.split(",")
+        if len(separated_row_elements) != 4:
             return None
         try:
-            coordinates = Coordinate(float(row[1]),float(row[2]))
+            coordinates = Coordinate(float(separated_row_elements[1]),
+                                     float(separated_row_elements[2]))
         except ValueError:
             return None
-        cs_type = self.__get_enum_from_type_str(row[3])
+        cs_type = self.__get_enum_from_type_str(separated_row_elements[3])
         if cs_type:
             return coordinates, cs_type
         return None
 
-    def __get_enum_from_type_str(self, cross_section_type: str) -> CrossSectionType | None:
+    def __get_enum_from_type_str(self, cross_section_type: str) \
+            -> CrossSectionType | None:
         try:
             type_value = CrossSectionType[cross_section_type.upper()]
             match type_value:
@@ -78,7 +86,7 @@ class CSVCrossSectionParser(CrossSectionParser):
             return None
 
 class InvalidFileFormattingException(Exception):
-    """Exception raised when the user inputs an invalid file.
-    Error message is the first found invalid formatting."""
+    """Exception raised when the user inputs a file that has
+    no valid cross section definitions."""
     def __init__(self):
         self.message = "File has no valid cross section definitions."

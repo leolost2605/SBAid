@@ -11,12 +11,12 @@ class CrossSectionParser(ABC):
     """This interface defines the methods cross section parsers must implement."""
 
     @abstractmethod
-    def can_handle_file(self, file: Gio.File) -> bool:
+    def can_handle_file(self, file: Gio.File) -> bool:  #TODO make async?
         """Takes in a file and returns a boolean indicating if the specific
         implementation can parse the given file."""
 
     @abstractmethod
-    def foreach_cross_section(self, file: Gio.File,
+    async def foreach_cross_section(self, file: Gio.File,
                               foreach_func: CrossSectionParserForeachFunc) -> tuple[int, int]:
         """Calls create_cross_section function and returns the amount of valid cross sections
         added to the network and the amount of invalid ones. TODO"""

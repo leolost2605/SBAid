@@ -36,7 +36,7 @@ class Network(GObject.Object):
             network_cross_section.load_from_db()
             self.cross_sections.append(network_cross_section)
 
-    def import_from_file(self, file: Gio.File) -> tuple[int, int]:
+    async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
         """Parses the given csv file and creates the cross sections defined in it."""
         parser_for_file = ParserFactory().get_parser(file)
         if not parser_for_file:
@@ -53,7 +53,7 @@ class Network(GObject.Object):
         except FailedCrossSectionCreationException:
             return False
 
-    def create_cross_section(self, name: str, coordinates: Coordinate,
+    async def create_cross_section(self, name: str, coordinates: Coordinate,
                              cs_type: CrossSectionType) -> None:
         """Checks if the received cross section can be added to the Network
         and how it is to be added. Creates a combined cross section if the preexisting & incoming
@@ -62,7 +62,7 @@ class Network(GObject.Object):
         if compatible_tuple[0]:  # cross section can be added
             if compatible_tuple[1]:  # cross section can be added by combination
                 existing_cross_section = compatible_tuple[2]
-                self.simulator.remove_cross_section(existing_cross_section.id)
+                await self.delete_cross_section(existing_cross_section.id)
                 position = self.simulator.create_cross_section(coordinates, CrossSectionType.COMBINED)
                 network_cross_section = self.cross_sections.get_item(position)
                 network_cross_section.set_name(name + existing_cross_section.name)
@@ -73,9 +73,9 @@ class Network(GObject.Object):
         else:  # cross section cannot be added
             raise FailedCrossSectionCreationException()
 
-    def delete_cross_section(self, cs_id: str) -> None:
+    async def delete_cross_section(self, cs_id: str) -> None:
         """Deletes a cross section by calling the simulator's remove_cross_section method."""
-        self.simulator.remove_cross_section(cs_id)
+        await self.simulator.remove_cross_section(cs_id)
 
     def move_cross_section(self, cs_id: str, new_coordinates: Coordinate) -> None:
         """Calls the simulator's move_cross_section method, updating the simulator's

@@ -19,7 +19,7 @@ class ParserFactory:
 
         self.__parsers.append(CSVCrossSectionParser)
 
-    def get_parser(self, file: Gio.File) -> CrossSectionParser | None:  #TODO: change to parser optional or leave it like it is?
+    async def get_parser(self, file: Gio.File) -> CrossSectionParser | None:  #TODO: change to parser optional or leave it like it is?
         """ Iterates the list of existing parsers and looks for one suitable to parse
          the given file. Raises a NoSuitableParserException if no such parser if found."""
         for parser in self.__parsers:
