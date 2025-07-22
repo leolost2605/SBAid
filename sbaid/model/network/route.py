@@ -3,6 +3,7 @@
 from gi.repository import GObject
 from gi.repository import Gio
 
+
 class Route(GObject.GObject):
     """This class represents a route on a motorway, consisting of a series of coordinates."""
     points = GObject.Property(type=Gio.ListModel,

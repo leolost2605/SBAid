@@ -1,10 +1,10 @@
-"""This module consists of the CSV cross section parser. TODO"""
-import csv
+"""This module consists of the CSV cross section parser and InvalidFileFormattingException,
+which can be raised during file parsing and handling."""
+from gi.repository import Gio
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.coordinate import Coordinate
-from gi.repository import Gio
 
 
 class CSVCrossSectionParser(CrossSectionParser):
@@ -15,12 +15,13 @@ class CSVCrossSectionParser(CrossSectionParser):
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
     async def foreach_cross_section(self, file: Gio.File,
-                              foreach_func: CrossSectionParserForeachFunc) -> tuple[int, int]:
+                                    foreach_func: CrossSectionParserForeachFunc)\
+            -> tuple[int, int]:
         """Loads the file contents asynchronously and reads the input CSV file row by row,
         attempting to add the cross section the row represents to the network.
         Returns the amount of added and skipped cross sections."""
-        file_as_str = str(file.load_contents_async())
-        if not file_as_str:  #file is empty
+        file_as_str = str(await file.load_contents_async())
+        if not file_as_str:  # file is empty
             raise InvalidFileFormattingException()
         csv_file_rows = file_as_str.splitlines()
         valid_cross_sections = 0
@@ -39,15 +40,12 @@ class CSVCrossSectionParser(CrossSectionParser):
             raise InvalidFileFormattingException()
         return valid_cross_sections, invalid_cross_sections
 
-    def __create_from_row(self, row: str, foreach_func: CrossSectionParserForeachFunc) -> bool:
+    async def __create_from_row(self, row: str,
+                                foreach_func: CrossSectionParserForeachFunc) -> bool:
         parsed_info = self.__parse_cross_section_syntax(row)
-        if parsed_info[0]:
-            if foreach_func(row[0], parsed_info[0], parsed_info[1]):
-                return True
-            else:
-                return False
-        else:
-            return False
+        if parsed_info and parsed_info[0]:
+            return await foreach_func(row[0], parsed_info[0], parsed_info[1])
+        return False
 
     def __is_header(self, row: str) -> bool:
         split_header_words = row.split(",")
@@ -85,8 +83,9 @@ class CSVCrossSectionParser(CrossSectionParser):
         except KeyError:
             return None
 
+
 class InvalidFileFormattingException(Exception):
     """Exception raised when the user inputs a file that has
     no valid cross section definitions."""
-    def __init__(self):
+    def __init__(self) -> None:
         self.message = "File has no valid cross section definitions."
