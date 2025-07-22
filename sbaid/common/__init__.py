@@ -14,14 +14,14 @@ def list_model_iterator(model: Gio.ListModel) -> Generator[Any | None, Any, None
         yield model.get_item(i)
 
 
-async def make_directory_with_parents_async(dir: Gio.File | None) -> None:
+async def make_directory_with_parents_async(directory: Gio.File | None) -> None:
     """Creates a directory and - if they don't exist - its parents asynchronously."""
-    if dir is None:
+    if directory is None:
         raise FileNotFoundError("Cannot create dir with parents. No root directory found.")
 
-    if dir.query_exists():
+    if directory.query_exists():
         return
 
-    await make_directory_with_parents_async(dir.get_parent())
+    await make_directory_with_parents_async(directory.get_parent())
 
-    await dir.make_directory_async(GLib.PRIORITY_DEFAULT)
+    await directory.make_directory_async(GLib.PRIORITY_DEFAULT)
