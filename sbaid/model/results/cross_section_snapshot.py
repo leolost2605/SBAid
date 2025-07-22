@@ -2,6 +2,7 @@
 
 from gi.repository import Gio, GObject
 from sbaid.common.b_display import BDisplay
+from sbaid.model.results import lane_snapshot, snapshot
 from sbaid.model.results.lane_snapshot import LaneSnapshot
 
 
@@ -34,6 +35,11 @@ class CrossSectionSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+    cross_section_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
     b_display = GObject.Property(
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |
@@ -46,12 +52,13 @@ class CrossSectionSnapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
+    def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str, cross_section_id: str,
                  b_display: BDisplay) -> None:
         """todo"""
         super().__init__(snapshot_id=snapshot_id,
                          cross_section_snapshot_id=cross_section_snapshot_id,
                          cross_section_name=cross_section_name,
+                         cross_section_id=cross_section_id,
                          b_display=b_display)
 
     def load_from_db(self) -> None:
@@ -59,3 +66,11 @@ class CrossSectionSnapshot(GObject.GObject):
 
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """todo"""
+
+    def get_average_speed(self) -> float:
+        #TODO: better way to do this? built-in func?
+        speed_sum = 0
+        for snapshot in self.lane_snapshots:
+            speed_sum += snapshot.average_speed
+        return speed_sum/len(self.lane_snapshots)
+
