@@ -6,7 +6,6 @@ from sbaid.model.algorithm_configuration.algorithm_configuration import Algorith
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.network.cross_section import CrossSection
-from sbaid.model.results.result_builder import ResultBuilder
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.simulation_observer import SimulationObserver
 from sbaid.model.simulation_manager import SimulationManager
@@ -101,15 +100,17 @@ class Project(GObject.GObject):
         list_algo_config_ids = ProjectDatabase.get_all_algorithm_configuration_ids()
         selected_algo_config_id = ProjectDatabase.get_selected_algorithm_configuration_id()
         algorithm_configurations = Gtk.ListModel()
+
         for id in list_algo_config_ids:
             algo_config = AlgorithmConfiguration(id, self.network)
             param_config = ParameterConfiguration(self.network)
             parameters = Gtk.FlattenListModel()
             name, evaluation_interval, display_interval, script_path = ProjectDatabase.get_algorithm_configuration(id)
-            algo_config.load(script_path)  # todo
-            algorithm = Algorithm()
-            param_config.set_algorithm(algorithm)
+            algo_config.load_algorithm(script_path)  # todo no load algorithm in algo class
+            algo_config.algorithm = Algorithm()
+            param_config.set_algorithm(algo_config.algorithm)
             algorithm_configurations.append(algo_config)
+
 
     def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """todo"""
@@ -118,16 +119,7 @@ class Project(GObject.GObject):
         simulation_manager = SimulationManager(self.name, algorithm_configuration,
                                                self.network, self.simulator, result_manager, observer)
         simulation_manager.start()
-        result_builder = ResultBuilder(result_manager)
-        result_builder.begin_result(self.name)
-        simulation_manager.build_parameter_config_state()  # todo
-        simulation_manager.build_network()  # todo
-        simulator = Simulator()
-        parameter_configuration_state, network_state = simulator.init_simulation()
-
-
-
-        return None
+        return simulation_manager
 
     def load_from_db(self) -> None:
         """todo: check privacy"""

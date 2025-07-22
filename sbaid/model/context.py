@@ -52,7 +52,7 @@ class Context(GObject.GObject):
         result_manager.results = Gtk.ListModel()
         result_manager.load_from_db()
         result_manager.available_tags = GlobalDatabase.get_all_tags()
-        results: List[str] = GlobalDatabase.get_all_results()
+        results = GlobalDatabase.get_all_results()
 
         for id, date in results:
             result = Result(id, date)
@@ -65,7 +65,7 @@ class Context(GObject.GObject):
                        project_file_path: str) -> str:
         """todo"""
         project = Project(name, sim_type, simulation_file_path, project_file_path)
-        project.simulator = Simulator(simulation_file_path)
+        project.simulator = Simulator()
         project.network = Network(project.simulator)
         project.network.cross_sections = Gtk.MapListModel()
         project.algorithm_configuration_manager = AlgorithmConfigurationManager(project.network)
@@ -73,9 +73,10 @@ class Context(GObject.GObject):
 
         self.projects.append(project)
 
-        # todo project initialise ???
-
-        return None
+        return self.projects.index(project)
 
     def delete_project(self, project_id: str) -> None:
         """todo"""
+        project_model = self.projects[project_id]
+        self.projects.remove(project_model)
+        project_model.delete()
