@@ -1,4 +1,5 @@
 """This module defines the Context Class"""
+from os import path
 from typing import List, Tuple
 from gi.repository import GObject, Gio, Gtk, Glib
 from sbaid.common.simulator_type import SimulatorType
@@ -43,7 +44,7 @@ class Context(GObject.GObject):
 
             project.load_from_db()
 
-            # todo open(file.new_build_file_name(path, 'db')) ???
+            ProjectDatabase.open(Gio.file.new_build_file_name(path, 'db'))
 
             project_name = ProjectDatabase.get_project_name()
             last_modified_at = ProjectDatabase.get_last_modified()
