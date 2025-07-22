@@ -1,7 +1,7 @@
 """This module contains the cross section class."""
 from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 # from sbaid.model.database.project_database import ProjectDatabase
 
@@ -17,11 +17,11 @@ class CrossSection(GObject.GObject):
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    location = GObject.Property(type=Coordinate,
+    location = GObject.Property(type=Location,
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
                                 GObject.ParamFlags.CONSTRUCT_ONLY)
-    type = GObject.Property(type=CrossSectionType,
+    type = GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED,
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -29,7 +29,7 @@ class CrossSection(GObject.GObject):
                              flags=GObject.ParamFlags.READABLE |
                              GObject.ParamFlags.WRITABLE |
                              GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_available = GObject.Property(type=bool,
+    hard_shoulder_available = GObject.Property(type=bool, default=False,
                                                flags=GObject.ParamFlags.READABLE |
                                                GObject.ParamFlags.WRITABLE |
                                                GObject.ParamFlags.CONSTRUCT_ONLY)

@@ -4,14 +4,15 @@ from collections.abc import Callable
 from typing import Any, Coroutine
 from gi.repository import Gio
 from sbaid.common.cross_section_type import CrossSectionType
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 
-CrossSectionParserForeachFunc = Callable[[str, Coordinate, CrossSectionType],
+CrossSectionParserForeachFunc = Callable[[str, Location, CrossSectionType],
                                          Coroutine[Any, Any, bool]]
 
 
 class CrossSectionParser(ABC):
     """This interface defines the methods cross section parsers must implement."""
+    CrossSectionParserForeachFunc = Callable[[str, Location, CrossSectionType], bool]
 
     @abstractmethod
     def can_handle_file(self, file_path: str) -> bool:

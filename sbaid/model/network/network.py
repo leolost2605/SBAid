@@ -3,8 +3,8 @@
 from gi.repository import Gio, GObject, Gtk
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
+from sbaid.common.location import Location
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-from sbaid.common.coordinate import Coordinate
 from sbaid.model.network.route import Route
 from sbaid.model.network.parser_factory import ParserFactory
 from sbaid.model.network.cross_section import CrossSection
@@ -47,7 +47,7 @@ class Network(GObject.Object):
                                                      self.__successful_cross_section_creation))
         return import_result
 
-    async def __successful_cross_section_creation(self, name: str, location: Coordinate,
+    async def __successful_cross_section_creation(self, name: str, location: Location,
                                                   cross_section_type: CrossSectionType)\
             -> bool:
         try:
@@ -56,22 +56,22 @@ class Network(GObject.Object):
         except FailedCrossSectionCreationException:
             return False
 
-    async def create_cross_section(self, name: str, coordinates: Coordinate,
+    async def create_cross_section(self, name: str, location: Location,
                                    cs_type: CrossSectionType) -> None:
         """Checks if the received cross section can be added to the Network
         and how it is to be added. Creates a combined cross section if the preexisting & incoming
         cross sections can be combined (of types DISPLAY-MEASURING or MEASURING-DISPLAY)."""
-        compatible_tuple = self.__cross_sections_compatible(coordinates, cs_type)
+        compatible_tuple = self.__cross_sections_compatible(location, cs_type)
         if compatible_tuple[0]:  # cross section can be added
             if compatible_tuple[1]:  # cross section can be added by combination
                 existing_cross_section = compatible_tuple[2]
                 await self.delete_cross_section(existing_cross_section.id)
-                position = await self.simulator.create_cross_section(coordinates,
+                position = await self.simulator.create_cross_section(location,
                                                                      CrossSectionType.COMBINED)
                 network_cross_section = self.cross_sections.get_item(position)
                 network_cross_section.set_name(name + existing_cross_section.name)
             else:  # cross section can be added without combination
-                position = await self.simulator.create_cross_section(coordinates, cs_type)
+                position = await self.simulator.create_cross_section(location, cs_type)
                 network_cross_section = self.cross_sections.get_item(position)
                 network_cross_section.set_name(name)
         else:  # cross section cannot be added
@@ -81,12 +81,12 @@ class Network(GObject.Object):
         """Deletes a cross section by calling the simulator's remove_cross_section method."""
         await self.simulator.remove_cross_section(cs_id)
 
-    async def move_cross_section(self, cs_id: str, new_coordinates: Coordinate) -> None:
+    async def move_cross_section(self, cs_id: str, new_coordinates: Location) -> None:
         """Calls the simulator's move_cross_section method, updating the simulator's
         cross section's location, automatically updating it for the network's cross section."""
         await self.simulator.move_cross_section(cs_id, new_coordinates)
 
-    def __cross_sections_compatible(self, location: Coordinate,
+    def __cross_sections_compatible(self, location: Location,
                                     incoming_cross_section_type: CrossSectionType)\
             -> tuple[bool, bool, CrossSection | None]:
         """Checks if the incoming cross section can be added, and if so if it can be added by
@@ -108,9 +108,9 @@ class Network(GObject.Object):
         # location is not taken, cross section can be added without combination
         return True, False, None
 
-    def __get_cross_section_in_location(self, coordinate: Coordinate) -> CrossSection | None:
+    def __get_cross_section_in_location(self, location: Location) -> CrossSection | None:
         for cross_section in self.cross_sections:
-            if cross_section.coordinate == coordinate:
+            if cross_section.coordinate == location:
                 return cross_section
         return None
 
@@ -120,7 +120,6 @@ class Network(GObject.Object):
             if cross_section.id == sim_cross_section.id:
                 return cross_section
         return None
-
 
 class FailedCrossSectionCreationException(Exception):
     """Exception raised when the creation of a cross section fails.
