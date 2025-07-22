@@ -4,21 +4,25 @@
 import aiosqlite
 from gi.repository import GLib, Gio
 
+from sbaid.common import make_directory_with_parents_async
 from sbaid.model.database.project_database import ProjectDatabase
 
 
 class ProjectSQLite(ProjectDatabase):
     """This class implements the ProjectDatabase interface which allows for the
     project specific data to be stored."""
+    _file: Gio.File
     _db_path: str
     _connection: aiosqlite.Connection
 
     def __init__(self, file: Gio.File) -> None:
-        if not file.query_exists():
-            file.create(Gio.FileCreateFlags.NONE)  # pylint: disable=no-member
+        self._file = file
         self._db_path = str(file.get_path())
 
     async def __aenter__(self) -> ProjectDatabase:
+        if not self._file.query_exists():
+            await make_directory_with_parents_async(self._file.get_parent())
+            self._file.create(Gio.FileCreateFlags.NONE)  # pylint: disable=no-member
         self._connection = await aiosqlite.connect(self._db_path)
 
         await self._connection.executescript("""PRAGMA foreign_keys = ON;

@@ -122,7 +122,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
 
     async def tag_and_parameter_tag(self):
-        file = Gio.File.new_for_path("test.db")
+        file = Gio.File.new_for_path("./recursive/directories/test/apparently/successful/test.db")
         async with ProjectSQLite(file) as db:
             await db.add_algorithm_configuration("my_algorithm_configuration_id",
                                                  "my_algorithm_configuration_name", 1, 1, "my_path")
