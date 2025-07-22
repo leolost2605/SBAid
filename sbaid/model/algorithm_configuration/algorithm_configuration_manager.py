@@ -43,8 +43,9 @@ class AlgorithmConfigurationManager(GObject.GObject):
     def create_algorithm_configuration(self) -> int:
         """todo"""
         algo_config = AlgorithmConfiguration(str(uuid.uuid4()), self.network)
-        param_config = ParameterConfiguration(algo_config.network)
-        param_config.import_from_file(algo_config.script_path)
+        algo_config.parameter_configuration = ParameterConfiguration(algo_config.network)
+        algo_config.parameter_configuration.import_from_file(algo_config.script_path)
+        self.algorithm_configurations.append(algo_config)
         return self.algorithm_configurations.idex(algo_config)
 
     def delete_algorithm_configuration(self) -> None:
