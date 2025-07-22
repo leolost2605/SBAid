@@ -178,7 +178,7 @@ CREATE TABLE parameter_tag (
         await self._connection.commit()
 
     async def get_display_interval(self, algorithm_configuration_id: str) -> int:
-        """Retrun the display interval of the given algorithm_configuration id."""
+        """Return the display interval of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT display_interval FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             return list(await cursor.fetchone())[0]
@@ -190,7 +190,7 @@ CREATE TABLE parameter_tag (
         await self._connection.commit()
 
     async def get_evaluation_interval(self, algorithm_configuration_id: str) -> int:
-        """Retrun the evaluation interval of the given algorithm_configuration id."""
+        """Return the evaluation interval of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT evaluation_interval
         FROM algorithm_configuration WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             return list(await cursor.fetchone())[0]
@@ -310,7 +310,7 @@ CREATE TABLE parameter_tag (
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
-        """Remove a parameter with the given name, a"""
+        """Remove a parameter with the given algorithm configuration and parameter name and possibly cross section."""
         if cross_section_id is None:
             await self._connection.execute("""DELETE FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
