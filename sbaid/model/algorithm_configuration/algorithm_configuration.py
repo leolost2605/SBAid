@@ -1,5 +1,7 @@
 """This module defines the AlgorithmConfiguration class"""
 from gi.repository import GObject
+
+from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.network.network import Network
 from sbaid.model.algorithm.algorithm import Algorithm
 from sbaid.model.algorithm_configuration.parameter_configuration import (
@@ -62,5 +64,5 @@ class AlgorithmConfiguration(GObject.GObject):
         self.parameter_configuration.load_from_db()
         for parameter in self.parameter_configuration.parameters:
             parameter.load_from_db()
-            param_value = parameter.get_parameter_value(self.id, self.name)  # crossSection?
+            param_value = ProjectDatabase.get_parameter_value(self.id, self.name)  # crossSection?
             parameter.set_parameter_value(self.id, param_value)

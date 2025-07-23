@@ -46,7 +46,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
         algo_config.parameter_configuration = ParameterConfiguration(algo_config.network)
         algo_config.parameter_configuration.import_from_file(algo_config.script_path)
         self.algorithm_configurations.append(algo_config)
-        return self.algorithm_configurations.idex(algo_config)
+        return self.algorithm_configurations.index(algo_config)
 
     def delete_algorithm_configuration(self) -> None:
         """todo"""
