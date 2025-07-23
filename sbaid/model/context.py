@@ -1,7 +1,7 @@
 """This module defines the Context Class"""
 from os import path
 from typing import List, Tuple
-from gi.repository import GObject, Gio, Gtk, Glib
+from gi.repository import GObject, Gio, Gtk
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 from sbaid.model.database.global_database import GlobalDatabase
@@ -14,7 +14,8 @@ from sbaid.model.simulator.simulator import Simulator
 
 
 class Context(GObject.GObject):
-    """This class defines the Context class."""
+    """This class defines the Context class. The root class that is created at startup.
+    Manages the projects and holds a reference to the ResultManager."""
 
     result_manager = GObject.Property(
         type=ResultManager,
@@ -29,9 +30,9 @@ class Context(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def load(self) -> None:
-        """todo"""
+        """Loads the projects and the results."""
         self.projects = Gtk.ListModel()
-        GlobalDatabase.open()  # todo
+        GlobalDatabase.open()  # todo change database implementation
         projects: List[Tuple[int, str, str, str]] = GlobalDatabase.get_all_projects()
         for project_id, project_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, project_type, simulation_file_path, project_file_path)
@@ -64,7 +65,8 @@ class Context(GObject.GObject):
 
     def create_project(self, name: str, sim_type: SimulatorType, simulation_file_path: str,
                        project_file_path: str) -> str:
-        """todo"""
+        """Creates a new project with the given data and returns the unique ID of the new
+        project."""
         project = Project(name, sim_type, simulation_file_path, project_file_path)
         project.simulator = Simulator()
         project.network = Network(project.simulator)
@@ -77,7 +79,7 @@ class Context(GObject.GObject):
         return self.projects.index(project)
 
     def delete_project(self, project_id: str) -> None:
-        """todo"""
+        """Deletes the project with the given ID."""
         project_model = self.projects[project_id]
         self.projects.remove(project_model)
         project_model.delete()

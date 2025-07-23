@@ -16,7 +16,9 @@ from sbaid.model.network.network import Network
 
 
 class Project(GObject.GObject):
-    """This class defines the Project class."""
+    """This class defines the Project class. It holds all metadata related to the project,
+    as well as references to the individual parts that make up the project. In addition, this
+    class is the entry point for a simulation."""
 
     id = GObject.Property(
         type=str,
@@ -80,13 +82,14 @@ class Project(GObject.GObject):
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str) -> None:
-        """todo"""
+        """Creates a new project. The network and algorithm configuration manager
+        are already created, but not yet loaded."""
         super().__init__(id=project_id, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
 
     def load(self) -> None:
-        """todo"""
+        """Loads the project, i.e. the algorithm configurations and the network."""
         self.network.load()
         sim_cross_sections = self.network.observe_cross_sections()
         self.network.set_list_model(sim_cross_sections)
@@ -113,7 +116,9 @@ class Project(GObject.GObject):
 
 
     def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
-        """todo"""
+        """Starts a simulation with the currently selected algorithm configuration. The transferred observer
+        is regularly informed about the progress of the simulation. The returned
+        SimulationManager manages the simulation and can be used to control it."""
         algorithm_configuration = self.algorithm_configuration_manager.get_algorithm_configurations()
         result_manager = ResultManager()
         simulation_manager = SimulationManager(self.name, algorithm_configuration,
@@ -122,4 +127,6 @@ class Project(GObject.GObject):
         return simulation_manager
 
     def load_from_db(self) -> None:
+        """Loads the attributes of the project, such as name and last modification date,
+        from the database."""
         """todo: check privacy"""
