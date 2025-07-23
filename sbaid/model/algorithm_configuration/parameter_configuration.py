@@ -1,6 +1,5 @@
 """This module defines the ParameterConfiguration class."""
 import sys
-from typing import Tuple
 
 import gi
 
@@ -20,7 +19,11 @@ except (ImportError, ValueError) as exc:
 
 
 class ParameterConfiguration(GObject.GObject):
-    """This class defines the ParameterConfiguration class."""
+    """
+    This class manages the parameters for an algorithm configuration. It automatically
+    maps the template taken from the algorithm to actual parameters. If a parameter template
+    is per cross section it builds a parameter for each cross section currently in the network.
+    """
 
     __network: Network
     __cs_params_map_model: Gtk.MapListModel
@@ -29,11 +32,10 @@ class ParameterConfiguration(GObject.GObject):
 
     @GObject.Property(type=Gio.ListModel)
     def parameters(self) -> Gio.ListModel:
-        """TODO"""
+        """The list of global and per cross section parameters for each cross section."""
         return self.__parameters
 
     def __init__(self, network: Network) -> None:
-        """todo"""
         super().__init__()
         self.__network = network
 
@@ -46,7 +48,12 @@ class ParameterConfiguration(GObject.GObject):
         self.__parameters = Gtk.FlattenListModel.new(global_and_cs_list_store)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
-        """"todo"""
+        """
+        Imports parameter values from the given file. If the file or no parser for the file type
+        exists, an exception is raised. If a parameter is invalid it will be skipped.
+        :param file: The file to import
+        :return: The number of valid parameters and the number of invalid parameters
+        """
         parser = ParserFactory().get_parser(file)
         return await parser.for_each_parameter(file, self.__import_param_func)
 
@@ -61,14 +68,16 @@ class ParameterConfiguration(GObject.GObject):
 
         return False
 
-
     def load(self) -> None:
-        """todo"""
+        """Loads the parameter values from the database."""
         for param in common.list_model_iterator(self.__parameters):
             param.load_from_db()
 
     def set_algorithm(self, algorithm: Algorithm) -> None:
-        """todo"""
+        """
+        Informs the param configuration about the currently used algorithm.
+        It will then build the list of parameters from the algorithms template.
+        """
         self.__global_params_map_model.set_model(algorithm.get_global_parameter_template())
         self.__cs_params_map_model.set_model(algorithm.get_cross_section_parameter_template())
 
