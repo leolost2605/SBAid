@@ -1,5 +1,4 @@
 """This module contains the DummySimulator class."""
-import asyncio
 import json
 
 from gi.repository import GObject, Gio
@@ -16,43 +15,39 @@ from sbaid.common.cross_section_type import CrossSectionType
 class DummySimulator(Simulator):
     """TODO"""
 
-    _type: SimulatorType
-    _cross_sections: Gio.ListModel
 
     _sequence: dict[int, Input]
     _pointer: int
 
+    type = GObject.Property(type=SimulatorType)
+    cross_section = Gio.ListStore.new(DummyCrossSection)
+
     def __init__(self) -> None:
-        self._type = SimulatorType("dummy.json", "CSV Dummy")
-        self._cross_sections = Gio.ListStore.new(DummyCrossSection)
-        super().__init__(type=self._type, cross_sections=self._cross_sections)
+        """TODO"""
+        super().__init__(type=SimulatorType("dummy.json", "CSV Dummy"),
+                         cross_sections=Gio.ListStore.new(DummyCrossSection))
         self._sequence = {}
         self._pointer = 0
 
-    @GObject.Property(type=SimulatorType)
-    def type(self) -> SimulatorType:
-        """TODO"""
-        return self._type
-
-    @GObject.Property(type=Gio.ListModel)
-    def cross_sections(self) -> Gio.ListModel:
-        """TODO"""
-        return self._cross_sections
 
     async def load_file(self, file: Gio.File) -> None:
         """TODO"""
         with open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
             data = json.load(json_file)
-            for timestamp in data["vehicle_infos"]:
+            for i, timestamp in enumerate(data["vehicle_infos"]):
                 current_input = Input()
                 for cs in data["vehicle_infos"][timestamp]:
+                    max_lanes = 0
                     for lane in data["vehicle_infos"][timestamp][cs]:
                         for i in enumerate(data["vehicle_infos"][timestamp][cs][lane]):
-                            print(data["vehicle_infos"][timestamp][cs][lane][i[0]]["type"])
-                            print(data["vehicle_infos"][timestamp][cs][lane][i[0]]["speed"])
                             veh_type = data["vehicle_infos"][timestamp][cs][lane][i[0]]["type"]
                             veh_speed = data["vehicle_infos"][timestamp][cs][lane][i[0]]["speed"]
                             current_input.add_vehicle_info(cs, int(lane), veh_type, veh_speed)
+                        max_lanes = max(max_lanes, int(lane))
+                    if i == 0:
+                        self.cross_sections.append(DummyCrossSection(cs, CrossSectionType.MEASURING,
+                                                                  Location(0, 0), max_lanes,
+                                                                  False, False, False))
                 self._sequence[int(timestamp)] = current_input
 
     async def create_cross_section(self, location: Location,
