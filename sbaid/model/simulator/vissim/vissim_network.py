@@ -59,7 +59,8 @@ class _Link:
     def vissim_link(self) -> Any:
         return self.__vissim_link
 
-    def __init__(self, links_by_no: dict[int, '_Link'], vissim_net: Any, vissim_link: Any):
+    def __init__(self, links_by_no: dict[int, '_Link'], vissim_link: Any,
+                 connectors_by_from_link: dict[int, list[int]]) -> None:
         self.__links_by_no = links_by_no
         self.__no = vissim_link.AttValue("No")
         self.__successor_nos = []
@@ -69,10 +70,9 @@ class _Link:
 
         if vissim_link.AttValue("IsConn"):
             self.__successor_nos.append(vissim_link.ToLink.AttValue("No"))
-        else:
-            for connector in vissim_net.Links.GetFilteredSet("[IsConn]=1"):
-                if connector.FromLink.AttValue("No") == self.no:
-                    self.__successor_nos.append(connector.AttValue("No"))
+        elif self.__no in connectors_by_from_link:
+            for connector_no in connectors_by_from_link[self.__no]:
+                self.__successor_nos.append(connector_no)
 
         for point in vissim_link.LinkPolyPts.GetAll():
             self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
@@ -125,8 +125,18 @@ class VissimNetwork:
         self.__links_by_no = {}
         self.__vissim_network = vissim_network
 
+        connectors_by_from_link = {}
+        for connector in vissim_network.Links.GetFilteredSet("[IsConn]=1"):
+            connector_no = connector.AttValue("No")
+            connector_from_link_no = connector.FromLink.AttValue("No")
+
+            if connector_from_link_no not in connectors_by_from_link:
+                connectors_by_from_link[connector_from_link_no] = []
+
+            connectors_by_from_link[connector_from_link_no].append(connector_no)
+
         for vissim_link in vissim_network.Links.GetAll():
-            link = _Link(self.__links_by_no, vissim_network, vissim_link)
+            link = _Link(self.__links_by_no, vissim_link, connectors_by_from_link)
             self.__links_by_no[link.no] = link
 
     def add_cross_section(self, link_no: int, pos: float, cross_section_id: str) -> None:
