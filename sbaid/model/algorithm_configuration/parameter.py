@@ -55,10 +55,9 @@ class Parameter(GObject.GObject):
             return
 
         if not value.is_of_type(self.value_type):
-            expected_type_str = self.value_type.dup_string()
             raise ValueError(f"The given value is not of the correct value type. "
                              f"Is: {value.get_type_string()}, "
-                             f"Expected: {expected_type_str}")
+                             f"Expected: {self.value_type.dup_string()}")
         self.__value = value
         # TODO: Write to db
 
