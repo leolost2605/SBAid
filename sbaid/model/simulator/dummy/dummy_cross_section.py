@@ -8,37 +8,17 @@ from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 class DummyCrossSection(SimulatorCrossSection):
     """This class represents the dummy simulator cross section."""
-    @GObject.Property(type=str)
-    def id(self) -> str:
-        """TODO"""
-        return ""
+    id = GObject.Property(type=str)
+    type = GObject.Property(type=str, default=CrossSectionType.COMBINED)
+    location = GObject.Property(type=Location)
+    lanes = GObject.Property(type=int)
+    hard_shoulder_available = GObject.Property(type=bool, default=False)
+    hard_should_active = GObject.Property(type=bool, default=False)
+    b_display_active = GObject.Property(type=bool, default=False)
 
-    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
-    def type(self) -> CrossSectionType:
-        """TODO"""
-        return CrossSectionType.COMBINED
-
-    @GObject.Property(type=Location)
-    def position(self) -> Location:
-        """TODO"""
-        return Location(0, 0)
-
-    @GObject.Property(type=int)
-    def lanes(self) -> int:
-        """TODO"""
-        return 0
-
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_available(self) -> bool:
-        """TODO"""
-        return False
-
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_active(self) -> bool:
-        """TODO"""
-        return False
-
-    @GObject.Property(type=bool, default=False)
-    def b_display_active(self) -> bool:
-        """TODO"""
-        return False
+    def __init__(self, cs_id: str, cs_type: CrossSectionType, location: Location, lanes: int,
+                 hard_shoulder_available: bool, hard_shoulder_active: bool,
+                 b_display_active: bool) -> None:
+        super().__init__(id=cs_id, type=cs_type, location=location, lanes=lanes,
+                         hard_shoulder_available=hard_shoulder_available, hard_shoulder_active=hard_shoulder_active,
+                         b_display_active=b_display_active)

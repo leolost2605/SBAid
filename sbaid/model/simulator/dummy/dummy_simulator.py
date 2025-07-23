@@ -4,6 +4,7 @@ import json
 
 from gi.repository import GObject, Gio
 
+from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
@@ -23,7 +24,8 @@ class DummySimulator(Simulator):
 
     def __init__(self) -> None:
         self._type = SimulatorType("dummy.json", "CSV Dummy")
-        # self._cross_sections = Gio.ListStore.new()
+        self._cross_sections = Gio.ListStore.new(DummyCrossSection)
+        super().__init__(type=self._type, cross_sections=self._cross_sections)
         self._sequence = {}
         self._pointer = 0
 
@@ -56,7 +58,7 @@ class DummySimulator(Simulator):
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
         """TODO"""
-        return 0
+        return -1
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
@@ -80,10 +82,3 @@ class DummySimulator(Simulator):
     async def stop_simulation(self) -> None:
         """TODO"""
         self._pointer = 0
-
-
-sim = DummySimulator()
-
-
-cur_file = Gio.File.new_for_path("test.json")
-asyncio.run(sim.load_file(cur_file))
