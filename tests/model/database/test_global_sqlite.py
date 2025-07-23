@@ -6,8 +6,8 @@ from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
 
-from common.vehicle_type import VehicleType
-from model.database.foreign_key_error import ForeignKeyError
+from sbaid.common.vehicle_type import VehicleType
+from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
