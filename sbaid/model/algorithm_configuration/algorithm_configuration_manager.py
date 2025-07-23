@@ -2,7 +2,8 @@
 import uuid
 from zoneinfo import available_timezones
 
-from gi.repository import GObject, Gio
+from gi.repository import GObject, Gio, Gtk
+from numpy.ma.core import empty
 
 from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
@@ -28,11 +29,18 @@ class AlgorithmConfigurationManager(GObject.GObject):
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.CONSTRUCT)
+
+    network = GObject.Property(
+        type=Gio.ListModel,
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, network: Network) -> None:
         """todo"""
         super().__init__(network=network)
+        self.algorithm_configurations = Gio.ListModel().__init__()
         self.network = network
 
     def load(self) -> None:
