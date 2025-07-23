@@ -38,8 +38,13 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(type=GObject.TYPE_VARIANT)
-    def value(self) -> GLib.Variant | None:  # pylint: disable=method-hidden
+    value = GObject.Property(
+        type=GObject.TYPE_VARIANT,  # type: ignore[arg-type]
+        flags=GObject.ParamFlags.READABLE |
+        GObject.ParamFlags.WRITABLE)
+
+    @value.getter  # type: ignore[no-redef]
+    def value(self) -> GLib.Variant | None:
         """Returns the current value of the parameter."""
         return self.__value
 
@@ -72,7 +77,7 @@ class Parameter(GObject.GObject):
                  value: GLib.Variant | None,
                  cross_section: CrossSection | None) -> None:
         super().__init__(name=name, value_type=value_type, cross_section=cross_section)
-        self.value = value  # type: ignore[method-assign]
+        self.value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
 
     def add_tag(self, tag: Tag) -> None:
