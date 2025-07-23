@@ -39,7 +39,7 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     @GObject.Property(type=GObject.TYPE_VARIANT)
-    def value(self) -> GLib.Variant | None:  #pylint: disable=method-hidden
+    def value(self) -> GLib.Variant | None:  # pylint: disable=method-hidden
         """Returns the current value of the parameter."""
         return self.__value
 
