@@ -48,10 +48,14 @@ class VissimConnectorCrossSectionState(NamedTuple):
 
 
 class _CrossSection:
-    __successors: list['_CrossSection']
+    __network: VissimNetwork
 
     __data_collection_points: list[Any]
     __des_speed_decisions: list[Any]
+
+    @property
+    def successors(self) -> list[str]:
+        return self.__network.get_cross_section_successors(self.link_no, self.link_pos)
 
     @property
     def link_no(self) -> int:
@@ -105,8 +109,13 @@ class _CrossSection:
     def des_speed_decisions(self) -> list[Any]:
         return self.__des_speed_decisions.copy()
 
-    def __init__(self) -> None:
-        self.__successors = []
+    @property
+    def state(self) -> VissimConnectorCrossSectionState:
+        return VissimConnectorCrossSectionState(self.id, self.type, self.position,
+                                                self.lanes, self.successors)
+
+    def __init__(self, network: VissimNetwork) -> None:
+        self.__network = network
 
         self.__data_collection_points = []
         self.__des_speed_decisions = []
@@ -122,82 +131,6 @@ class _CrossSection:
 
     def remove_des_speed_decision(self, des_speed_decision: Any) -> None:
         self.__des_speed_decisions.remove(des_speed_decision)
-
-    def update_successors(self, successors: list['_CrossSection']) -> None:
-        self.__successors = successors
-
-    # def add_to_vissim(self, position: Coordinate, cs_type: CrossSectionType) -> None:
-    #     self.__add_to_vissim(position, cs_type, None)
-    #     self.__update_all_successors()
-    #
-    # def remove_from_vissim(self) -> None:
-    #     self.__remove_from_vissim()
-    #     self.__update_all_successors()
-    #
-    # def move_in_vissim(self, new_position: Coordinate) -> None:
-    #     # The properties are calculated automatically through the data points, so cache them
-    #     # because deletion will delete the points and therefore reset the properties
-    #     old_id = self.id
-    #     cs_type = self.type
-    #     primary_point_id = self.primary_point_id
-    #
-    #     self.__remove_from_vissim()
-    #     self.__add_to_vissim(new_position, cs_type, primary_point_id)
-    #
-    #     assert self.id == old_id  # If this doesn't hold we get a bunch of problems so better assert it
-    #
-    #     self.__update_all_successors()
-    #
-    # def __add_to_vissim(self, position: Coordinate, cs_type: CrossSectionType, first_id: int | None) -> None:
-    #     link, pos = self.__network.get_link_and_position(position)
-    #
-    #     link_no = link.AttValue("No")
-    #
-    #     if link_no not in cs_by_link_and_pos:
-    #         cs_by_link_and_pos[link_no] = {}
-    #
-    #     # If this doesn't hold we currently get problems, so assert it for now but maybe TODO conflict detection
-    #     assert pos not in cs_by_link_and_pos[link_no]
-    #
-    #     cs_by_link_and_pos[link_no][pos] = self
-    #
-    #     data_collection_points = self.__vissim.Net.DataCollectionPoints
-    #     des_speed_decisions = self.__vissim.Net.DesSpeedDecisions
-    #
-    #     for lane in link.Lanes.GetAll():
-    #         if cs_type == CrossSectionType.MEASURING or cs_type == CrossSectionType.COMBINED:
-    #             point = data_collection_points.AddDataCollectionPoint(first_id, lane, pos)
-    #             first_id = None
-    #             self.__data_collection_points.append(point)
-    #
-    #         if cs_type == CrossSectionType.DISPLAY or cs_type == CrossSectionType.COMBINED:
-    #             decision = des_speed_decisions.AddDesSpeedDecision(first_id, lane, pos)
-    #             first_id = None
-    #             self.__des_speed_decisions.append(decision)
-    #
-    # def __remove_from_vissim(self) -> None:
-    #     cs_by_link_and_pos[self.link_no].pop(self.pos_on_link)
-    #
-    #     if not cs_by_link_and_pos[self.link_no]:
-    #         cs_by_link_and_pos.pop(self.link_no)
-    #
-    #     point_container = self.__vissim.Net.DataCollectionPoints
-    #
-    #     for point in self.__data_collection_points:
-    #         point_container.RemoveDataCollectionPoint(point)
-    #
-    #     self.__data_collection_points.clear()
-    #
-    #     decision_container = self.__vissim.Net.DesSpeedDecisions
-    #
-    #     for decision in self.__des_speed_decisions:
-    #         decision_container.RemoveDesSpeedDecision(decision)
-    #
-    #     self.__des_speed_decisions.clear()
-
-    def get_state(self) -> VissimConnectorCrossSectionState:
-        successor_ids = list(map(lambda cs: cs.id, self.__successors))
-        return VissimConnectorCrossSectionState(self.id, self.type, self.position, self.lanes, successor_ids)
 
     def measure(self, algo_input: Input) -> None:
         for i, point in enumerate(self.__data_collection_points):
@@ -265,13 +198,6 @@ class VissimConnector:
         self.__network = None
         pythoncom.CoUninitialize()
 
-    def __update_all_successors(self) -> None:
-        assert threading.current_thread() == self.__thread
-
-        for cs in self.__cross_sections_by_id.values():
-            successor_ids = self.__network.get_cross_section_successors(cs.link_no, cs.link_pos)
-            cs.update_successors(list(map(lambda x: self.__cross_sections_by_id[x], successor_ids)))
-
     async def load_file(self, path: str) -> tuple[list[Coordinate], list[VissimConnectorCrossSectionState]]:
         return await self.__push_command(self.__load_file, path)
 
@@ -299,7 +225,7 @@ class VissimConnector:
                 cs_by_link_and_pos[link_no] = {}
 
             if pos not in cs_by_link_and_pos[link_no]:
-                cs_by_link_and_pos[link_no][pos] = _CrossSection()
+                cs_by_link_and_pos[link_no][pos] = _CrossSection(self.__network)
 
             cs_by_link_and_pos[link_no][pos].add_data_collection_point(point)
 
@@ -309,10 +235,8 @@ class VissimConnector:
                 self.__cross_sections_by_id[cs.id] = cs
                 self.__network.add_cross_section(link_no, pos, cs.id)
 
-        self.__update_all_successors()
-
         route, cross_section_ids = self.__network.get_main_route()
-        return route, list(map(lambda x: self.__cross_sections_by_id[x].get_state(), cross_section_ids))
+        return route, list(map(lambda x: self.__cross_sections_by_id[x].state, cross_section_ids))
 
     async def create_cross_section(self, position: Coordinate,
                                    cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
@@ -322,15 +246,13 @@ class VissimConnector:
                                cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
-        cross_section = _CrossSection()
+        cross_section = _CrossSection(self.__network)
 
         self.__add_cs_to_vissim(cross_section, position, cs_type)
 
         self.__cross_sections_by_id[cross_section.id] = cross_section
 
-        self.__update_all_successors()
-
-        return cross_section.get_state()
+        return cross_section.state
 
     async def remove_cross_section(self, cs_id: str) -> None:
         await self.__push_command(self.__remove_cross_section, cs_id)
@@ -340,8 +262,6 @@ class VissimConnector:
 
         cross_section = self.__cross_sections_by_id.pop(cs_id)
         self.__remove_cs_from_vissim(cross_section)
-
-        self.__update_all_successors()
 
     async def move_cross_section(self, cs_id: str, new_position: Coordinate) -> VissimConnectorCrossSectionState:
         return await self.__push_command(self.__move_cross_section, cs_id, new_position)
@@ -361,9 +281,7 @@ class VissimConnector:
 
         assert cross_section.id == cs_id  # If this doesn't hold we get a bunch of problems so better assert it
 
-        self.__update_all_successors()
-
-        return cross_section.get_state()
+        return cross_section.state
 
     def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Coordinate,
                            cs_type: CrossSectionType, first_id: int | None = None) -> None:
@@ -468,15 +386,17 @@ class VissimConnector:
 async def run_test():
     conn = VissimConnector()
     route, css = await conn.load_file(r"C:\Users\vx9186\Projekte\sbaid_old\A5_sarah.inpx")
-    # for coord in route:
-    #     print(f"{coord.x},{coord.y}")
+    for coord in route:
+        print(f"{coord.x}, {coord.y}")
     for cs in css:
         print(cs)
-    # await conn.create_cross_section(Coordinate(0, 0), CrossSectionType.MEASURING)
-    # await conn.remove_cross_section(result[-1].id)
-    # await conn.move_cross_section(result[-2].id, Coordinate(0, 0))
+    print("Remove cross section")
+    # await conn.remove_cross_section(css[-1].id)
+    print("Move cross section")
+    # await conn.move_cross_section(css[-2].id, Coordinate(0, 0))
+    print("Init simulation")
     # await conn.init_simulation(60)
-    # await conn.shutdown()
+    await conn.shutdown()
 
 loop = asyncio.get_event_loop()
 task = loop.create_task(run_test())
