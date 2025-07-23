@@ -1,7 +1,7 @@
 """This module contains the GlobalDatabase interface."""
 from abc import ABC, abstractmethod
 
-from gi.repository import GLib, Gio
+from gi.repository import GLib
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -12,10 +12,6 @@ from sbaid.common.vehicle_type import VehicleType
 class GlobalDatabase(ABC):
     """This interface provides methods that ecapsule
     the global database functionality."""
-
-    @abstractmethod
-    async def open(self, file: Gio.File) -> None:
-        """Initializes the database."""
 
     @abstractmethod
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
