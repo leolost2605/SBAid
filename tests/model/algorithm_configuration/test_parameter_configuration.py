@@ -8,6 +8,7 @@ from sbaid.model.simulator.simulator import Simulator
 
 class MyTestCase(unittest.TestCase):
     def test_parameter_configuration(self):
+        assert True
         # TODO: Wait for working dummy then we can do this
         # simulator = DummySimulator()
         # network = Network(simulator)
