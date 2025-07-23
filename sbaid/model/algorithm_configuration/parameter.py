@@ -22,6 +22,7 @@ class Parameter(GObject.GObject):
     applies to.
     """
 
+    __value: GLib.Variant | None = None
     __selected_tags: Gio.ListStore
 
     # GObject Property Definitions
@@ -37,11 +38,24 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    value = GObject.Property(
-        type=GObject.TYPE_VARIANT,  # type: ignore
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+    @GObject.Property(type=GObject.TYPE_VARIANT)
+    def value(self) -> GLib.Variant | None:  #pylint: disable=method-hidden
+        """Returns the current value of the parameter."""
+        return self.__value
+
+    @value.setter  # type: ignore[no-redef]
+    def value(self, value: GLib.Variant | None) -> None:
+        if not value:
+            self.__value = None
+            return
+
+        if not value.is_of_type(self.value_type):
+            expected_type_str = self.value_type.dup_string()
+            raise ValueError(f"The given value is not of the correct value type. "
+                             f"Is: {value.get_type_string()}, "
+                             f"Expected: {expected_type_str}")
+        self.__value = value
+        # TODO: Write to db
 
     cross_section = GObject.Property(
         type=CrossSection,
@@ -55,11 +69,11 @@ class Parameter(GObject.GObject):
         return self.__selected_tags
 
     def __init__(self, name: str, value_type: GLib.VariantType,
-                 value: GLib.Variant,
+                 value: GLib.Variant | None,
                  cross_section: CrossSection | None) -> None:
-        super().__init__(name=name, value_type=value_type, value=value, cross_section=cross_section)
+        super().__init__(name=name, value_type=value_type, cross_section=cross_section)
+        self.value = value  # type: ignore[method-assign]
         self.__selected_tags = Gio.ListStore.new(Tag)
-        self.connect("notify::value", self.__on_value_changed)
 
     def add_tag(self, tag: Tag) -> None:
         """Adds the given tag to the list. Raises an exception if the tag was already added."""
@@ -76,13 +90,10 @@ class Parameter(GObject.GObject):
         for i, t in enumerate(common.list_model_iterator(self.__selected_tags)):
             if t == tag:
                 self.__selected_tags.remove(i)
+                return
 
         raise TagNotFoundException("Tried to remove tag, that wasn't set.")
 
     def load_from_db(self) -> None:
         """todo"""
         # TODO: Datbase load value
-
-    def __on_value_changed(self) -> None:
-        # TODO: Datbase set value
-        pass
