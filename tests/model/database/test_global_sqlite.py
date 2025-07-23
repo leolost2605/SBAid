@@ -6,6 +6,8 @@ from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
 
+from common.vehicle_type import VehicleType
+from model.database.foreign_key_error import ForeignKeyError
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
@@ -27,6 +29,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.lane_snapshot()
         await self.times()
         await self.tags()
+        await self.foreign_key_error()
 
     def on_delete_async(feld, file, result, user_data):
         try:
@@ -64,7 +67,6 @@ class GlobalSQLiteTest(unittest.TestCase):
                                  "my_project_name", DateTime.new_now(TimeZone.new_utc()))
             all_results = await db.get_all_results()
             self.assertEqual(len(all_results), 1)
-            print(await db.get_result_name("my_result_id"))
             self.assertEqual(await db.get_result_name("my_result_id"), "my_result_name")
             await db.delete_result("my_result_id")
             all_results = await db.get_all_results()
@@ -98,6 +100,9 @@ class GlobalSQLiteTest(unittest.TestCase):
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
                                  "my_project_name", DateTime.new_now(TimeZone.new_utc()))
+            await db.add_snapshot("my_snapshot_id", "my_result_id",
+                                  DateTime.new_now(TimeZone.new_utc()))
+
             await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
                                                 "my_snapshot_id", "my_cross_section_name",
                                                 BDisplay.OFF)
@@ -117,6 +122,8 @@ class GlobalSQLiteTest(unittest.TestCase):
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
                                  "my_project_name", DateTime.new_now(TimeZone.new_utc()))
+            await db.add_snapshot("my_snapshot_id", "my_result_id",
+                                  DateTime.new_now(TimeZone.new_utc()))
             await db.add_cross_section_snapshot("my_cross_section_snapshot_id", "my_snapshot_id",
                                                  "my_cross_section_name", BDisplay.OFF)
             await db.add_lane_snapshot("my_lane_snapshot_id", "my_cross_section_snapshot_id",
@@ -164,4 +171,35 @@ class GlobalSQLiteTest(unittest.TestCase):
             self.assertEqual(len(my_project_tags), 1)
             self.assertEqual(my_project_tags[0][0], "my_tag_id")
 
+        file.delete_async(0, None, self.on_delete_async, None)
+
+    async def foreign_key_error(self):
+        file = Gio.File.new_for_path("test.db")
+        async with GlobalSQLite(file) as db:
+            try:
+                await db.add_snapshot("my_snapshot_id", "my_nonexistent_result_id",
+                                      DateTime.new_now(TimeZone.new_utc()))
+            except ForeignKeyError:
+                self.assertTrue(True)
+            try:
+                await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
+                                                    "my_nonexistent_snapshot_id",
+                                                    "my_cross_section_name", BDisplay.OFF)
+            except ForeignKeyError:
+                self.assertTrue(True)
+            try:
+                await db.add_lane_snapshot("my_lane_snapshot_id",
+                                           "my_nonexistent_snapshot_id", 0, 0.0, 0, ADisplay.OFF)
+            except ForeignKeyError:
+                self.assertTrue(True)
+            try:
+                await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
+                                              VehicleType.CAR, 100.0)
+            except ForeignKeyError:
+                self.assertTrue(True)
+
+                file.delete_async(0, None, self.on_delete_async, None)
+                return
+
+            self.assertTrue(False)
         file.delete_async(0, None, self.on_delete_async, None)
