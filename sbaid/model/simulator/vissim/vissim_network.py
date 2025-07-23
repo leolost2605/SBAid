@@ -1,4 +1,5 @@
 from typing import Any
+from sortedcontainers import SortedDict
 
 from sbaid.common.coordinate import Coordinate
 
@@ -17,14 +18,11 @@ class _Link:
     __successor_nos: list[int]
     __vissim_link: Any
     __points: list[Coordinate]
+    __cross_sections: SortedDict[float, str]
 
     @property
     def no(self) -> int:
         return self.__no
-
-    @property
-    def successor_nos(self) -> list[int]:
-        return self.__successor_nos.copy()
 
     @property
     def successors(self) -> list['_Link']:
@@ -54,25 +52,57 @@ class _Link:
         return self.__points.copy()
 
     @property
+    def cross_sections(self) -> list[str]:
+        return list(self.__cross_sections.values())
+
+    @property
     def vissim_link(self) -> Any:
         return self.__vissim_link
 
     def __init__(self, links_by_no: dict[int, '_Link'], vissim_net: Any, vissim_link: Any):
         self.__links_by_no = links_by_no
         self.__no = vissim_link.AttValue("No")
+        self.__successor_nos = []
         self.__vissim_link = vissim_link
         self.__points = []
+        self.__cross_sections = SortedDict()
 
-        for point in vissim_link.LinkPolyPts.GetAll():
-            self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
-
-        self.__successor_nos = []
         if vissim_link.AttValue("IsConn"):
             self.__successor_nos.append(vissim_link.ToLink.AttValue("No"))
         else:
             for connector in vissim_net.Links.GetFilteredSet("[IsConn]=1"):
                 if connector.FromLink.AttValue("No") == self.no:
                     self.__successor_nos.append(connector.AttValue("No"))
+
+        for point in vissim_link.LinkPolyPts.GetAll():
+            self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
+
+    def add_cross_section(self, pos: float, cross_section_id: str):
+        assert pos not in self.__cross_sections
+
+        self.__cross_sections[pos] = cross_section_id
+
+    def remove_cross_section(self, pos: float):
+        self.__cross_sections.pop(pos)
+
+    def get_cross_section_successors(self, pos: float) -> list[str]:
+        return self.__get_cs_successors(pos, set())
+
+    def __get_cs_successors(self, pos: float, walked: set['_Link']) -> list[str]:
+        if self in walked:
+            return []
+
+        walked.add(self)
+
+        for p, cs_id in self.__cross_sections.items():
+            if pos < p:
+                return [cs_id]
+
+        result = []
+        for successor in self.successors:
+            result += successor.__get_cs_successors(-1, walked)
+
+        return result
 
     def contains_point(self, point: Coordinate) -> tuple[bool, float]:
         other_point = self.__points[0]
@@ -99,8 +129,14 @@ class VissimNetwork:
             link = _Link(self.__links_by_no, vissim_network, vissim_link)
             self.__links_by_no[link.no] = link
 
-    def get_successors(self, link_no: int) -> list[int]:
-        return self.__links_by_no[link_no].successor_nos
+    def add_cross_section(self, link_no: int, pos: float, cross_section_id: str) -> None:
+        self.__links_by_no[link_no].add_cross_section(pos, cross_section_id)
+
+    def remove_cross_section(self, link_no: int, pos: float) -> None:
+        self.__links_by_no[link_no].remove_cross_section(pos)
+
+    def get_cross_section_successors(self, link_no: int, pos: float) -> list[str]:
+        return self.__links_by_no[link_no].get_cross_section_successors(pos)
 
     def get_link_and_position(self, location: Coordinate) -> tuple[Any, float]:
         for link in self.__links_by_no.values():
@@ -110,14 +146,22 @@ class VissimNetwork:
 
         raise InvalidPositionException("No link with the given position found")
 
-    def get_main_route(self, starting_link_no: int | None = None) -> list[Coordinate]:
+    def get_main_route(self, starting_link_no: int | None = None) -> tuple[list[Coordinate], list[str]]:
         if starting_link_no is not None:
             link = self.__links_by_no[starting_link_no]
         else:
             link = next(iter(self.__links_by_no.values()))
 
+        walked = set()
         points = link.points
+        cross_sections = link.cross_sections
         while link := link.left_most_successor:
-            points += link.points
+            if link in walked:
+                break
 
-        return points
+            walked.add(link)
+
+            points += link.points
+            cross_sections += link.cross_sections
+
+        return points, cross_sections

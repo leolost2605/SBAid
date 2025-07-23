@@ -48,22 +48,19 @@ class VissimConnectorCrossSectionState(NamedTuple):
 
 
 class _CrossSection:
-    __cs_by_link_and_pos: dict[int, dict[float, '_CrossSection']]
-    __network: VissimNetwork
-
-    __successors: list[tuple[int, '_CrossSection']]
+    __successors: list['_CrossSection']
 
     __data_collection_points: list[Any]
     __des_speed_decisions: list[Any]
 
     @property
-    def link_index(self) -> int:
+    def link_no(self) -> int:
         if self.__data_collection_points:
             return self.__data_collection_points[0].Lane.Link.AttValue("No")
         return self.__des_speed_decisions[0].Lane.Link.AttValue("No")
 
     @property
-    def pos_on_link(self) -> float:
+    def link_pos(self) -> float:
         if self.__data_collection_points:
             return self.__data_collection_points[0].AttValue("Pos")
         return self.__des_speed_decisions[0].AttValue("Pos")
@@ -108,11 +105,7 @@ class _CrossSection:
     def des_speed_decisions(self) -> list[Any]:
         return self.__des_speed_decisions.copy()
 
-    def __init__(self, cs_by_link_and_pos: dict[int, dict[float, '_CrossSection']],
-                 network: VissimNetwork) -> None:
-        self.__cs_by_link_and_pos = cs_by_link_and_pos
-        self.__network = network
-
+    def __init__(self) -> None:
         self.__successors = []
 
         self.__data_collection_points = []
@@ -130,41 +123,8 @@ class _CrossSection:
     def remove_des_speed_decision(self, des_speed_decision: Any) -> None:
         self.__des_speed_decisions.remove(des_speed_decision)
 
-    def update_successors(self) -> None:
-        """Walks the network and adds the first cross section on every possible route as successor"""
-        self.__successors.clear()
-
-        if self.__data_collection_points:
-            link_no = self.__data_collection_points[0].Lane.Link.AttValue("No")
-        else:
-            link_no = self.__des_speed_decisions[0].Lane.Link.AttValue("No")
-
-        self.__walk_link(link_no, set())
-
-    def __walk_link(self, link_no: int, walked: set[int]) -> None:
-        if link_no in walked:  # Protect against cycles
-            return
-
-        walked.add(link_no)
-
-        if self.__add_successor(link_no):
-            return
-
-        for successor in self.__network.get_successors(link_no):
-            self.__walk_link(successor, walked)
-
-    def __add_successor(self, link_no: int) -> bool:
-        if link_no not in self.__cs_by_link_and_pos:
-            return False
-
-        sorted_pos = list(self.__cs_by_link_and_pos[link_no].keys())
-        sorted_pos.sort()
-        for pos in sorted_pos:
-            if (cs := self.__cs_by_link_and_pos[link_no][pos]) != self:  # TODO: doesn't check for earlier ones
-                self.__successors.append((0, cs))
-                return True
-
-        return False
+    def update_successors(self, successors: list['_CrossSection']) -> None:
+        self.__successors = successors
 
     # def add_to_vissim(self, position: Coordinate, cs_type: CrossSectionType) -> None:
     #     self.__add_to_vissim(position, cs_type, None)
@@ -193,13 +153,13 @@ class _CrossSection:
     #
     #     link_no = link.AttValue("No")
     #
-    #     if link_no not in self.__cs_by_link_and_pos:
-    #         self.__cs_by_link_and_pos[link_no] = {}
+    #     if link_no not in cs_by_link_and_pos:
+    #         cs_by_link_and_pos[link_no] = {}
     #
     #     # If this doesn't hold we currently get problems, so assert it for now but maybe TODO conflict detection
-    #     assert pos not in self.__cs_by_link_and_pos[link_no]
+    #     assert pos not in cs_by_link_and_pos[link_no]
     #
-    #     self.__cs_by_link_and_pos[link_no][pos] = self
+    #     cs_by_link_and_pos[link_no][pos] = self
     #
     #     data_collection_points = self.__vissim.Net.DataCollectionPoints
     #     des_speed_decisions = self.__vissim.Net.DesSpeedDecisions
@@ -216,10 +176,10 @@ class _CrossSection:
     #             self.__des_speed_decisions.append(decision)
     #
     # def __remove_from_vissim(self) -> None:
-    #     self.__cs_by_link_and_pos[self.link_index].pop(self.pos_on_link)
+    #     cs_by_link_and_pos[self.link_no].pop(self.pos_on_link)
     #
-    #     if not self.__cs_by_link_and_pos[self.link_index]:
-    #         self.__cs_by_link_and_pos.pop(self.link_index)
+    #     if not cs_by_link_and_pos[self.link_no]:
+    #         cs_by_link_and_pos.pop(self.link_no)
     #
     #     point_container = self.__vissim.Net.DataCollectionPoints
     #
@@ -236,7 +196,7 @@ class _CrossSection:
     #     self.__des_speed_decisions.clear()
 
     def get_state(self) -> VissimConnectorCrossSectionState:
-        successor_ids = list(map(lambda cs: cs[1].id, self.__successors))
+        successor_ids = list(map(lambda cs: cs.id, self.__successors))
         return VissimConnectorCrossSectionState(self.id, self.type, self.position, self.lanes, successor_ids)
 
     def measure(self, algo_input: Input) -> None:
@@ -280,7 +240,6 @@ class VissimConnector:
     __queue: Queue[VissimCommand]
     __vissim: Any  # For the COM interface we use dynamic typing
     __network: VissimNetwork | None
-    __cs_by_link_and_pos: dict[int, dict[float, _CrossSection]]
     __cross_sections_by_id: dict[str, _CrossSection]
 
     def __init__(self) -> None:
@@ -310,7 +269,8 @@ class VissimConnector:
         assert threading.current_thread() == self.__thread
 
         for cs in self.__cross_sections_by_id.values():
-            cs.update_successors()
+            successor_ids = self.__network.get_cross_section_successors(cs.link_no, cs.link_pos)
+            cs.update_successors(list(map(lambda x: self.__cross_sections_by_id[x], successor_ids)))
 
     async def load_file(self, path: str) -> tuple[list[Coordinate], list[VissimConnectorCrossSectionState]]:
         return await self.__push_command(self.__load_file, path)
@@ -318,7 +278,6 @@ class VissimConnector:
     def __load_file(self, path: str) -> tuple[list[Coordinate], list[VissimConnectorCrossSectionState]]:
         assert threading.current_thread() == self.__thread
 
-        self.__cs_by_link_and_pos = {}
         self.__cross_sections_by_id = {}
 
         try:
@@ -329,37 +288,31 @@ class VissimConnector:
         self.__vissim.LoadNet(path, False)
         self.__network = VissimNetwork(self.__vissim.Net)
 
-        print("Network created")
-
+        cs_by_link_and_pos = {}
         points = self.__vissim.Net.DataCollectionPoints.GetAll()
 
         for point in points:
-            link_index = point.Lane.Link.AttValue("No")
+            link_no = point.Lane.Link.AttValue("No")
             pos = point.AttValue("Pos")
 
-            if link_index not in self.__cs_by_link_and_pos:
-                self.__cs_by_link_and_pos[link_index] = {}
+            if link_no not in cs_by_link_and_pos:
+                cs_by_link_and_pos[link_no] = {}
 
-            if pos not in self.__cs_by_link_and_pos[link_index]:
-                self.__cs_by_link_and_pos[link_index][pos] = _CrossSection(self.__cs_by_link_and_pos, self.__network)
+            if pos not in cs_by_link_and_pos[link_no]:
+                cs_by_link_and_pos[link_no][pos] = _CrossSection()
 
-            self.__cs_by_link_and_pos[link_index][pos].add_data_collection_point(point)
+            cs_by_link_and_pos[link_no][pos].add_data_collection_point(point)
 
-        states = []
-
-        for link_index in self.__cs_by_link_and_pos:
-            for position in self.__cs_by_link_and_pos[link_index]:
-                cs = self.__cs_by_link_and_pos[link_index][position]
-                cs.update_successors()
-
+        for link_no in cs_by_link_and_pos:
+            for pos in cs_by_link_and_pos[link_no]:
+                cs = cs_by_link_and_pos[link_no][pos]
                 self.__cross_sections_by_id[cs.id] = cs
+                self.__network.add_cross_section(link_no, pos, cs.id)
 
-                states.append(cs.get_state())
+        self.__update_all_successors()
 
-        print("cross sections created")
-
-        # return self.__network.get_main_route(), states
-        return [], states
+        route, cross_section_ids = self.__network.get_main_route()
+        return route, list(map(lambda x: self.__cross_sections_by_id[x].get_state(), cross_section_ids))
 
     async def create_cross_section(self, position: Coordinate,
                                    cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
@@ -369,7 +322,7 @@ class VissimConnector:
                                cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
-        cross_section = _CrossSection(self.__cs_by_link_and_pos, self.__network)
+        cross_section = _CrossSection()
 
         self.__add_cs_to_vissim(cross_section, position, cs_type)
 
@@ -412,21 +365,11 @@ class VissimConnector:
 
         return cross_section.get_state()
 
-    def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Coordinate, cs_type: CrossSectionType,
-                           first_id: int | None = None) -> None:
+    def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Coordinate,
+                           cs_type: CrossSectionType, first_id: int | None = None) -> None:
         assert threading.current_thread() == self.__thread
 
         link, pos = self.__network.get_link_and_position(position)
-
-        link_no = link.AttValue("No")
-
-        if link_no not in self.__cs_by_link_and_pos:
-            self.__cs_by_link_and_pos[link_no] = {}
-
-        # If this doesn't hold we currently get problems, so assert it for now but maybe TODO conflict detection
-        assert pos not in self.__cs_by_link_and_pos[link_no]
-
-        self.__cs_by_link_and_pos[link_no][pos] = cross_section
 
         data_collection_points = self.__vissim.Net.DataCollectionPoints
         des_speed_decisions = self.__vissim.Net.DesSpeedDecisions
@@ -442,13 +385,13 @@ class VissimConnector:
                 first_id = None
                 cross_section.add_des_speed_decision(decision)
 
+        self.__network.add_cross_section(cross_section.link_no, cross_section.link_pos,
+                                         cross_section.id)
+
     def __remove_cs_from_vissim(self, cross_section: _CrossSection) -> None:
         assert threading.current_thread() == self.__thread
 
-        self.__cs_by_link_and_pos[cross_section.link_index].pop(cross_section.pos_on_link)
-
-        if not self.__cs_by_link_and_pos[cross_section.link_index]:
-            self.__cs_by_link_and_pos.pop(cross_section.link_index)
+        self.__network.remove_cross_section(cross_section.link_no, cross_section.link_pos)
 
         point_container = self.__vissim.Net.DataCollectionPoints
 
