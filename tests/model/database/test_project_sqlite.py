@@ -5,6 +5,7 @@ from gi.repository import GLib
 from gi.repository import Gio
 from gi.events import GLibEventLoopPolicy
 
+from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.model.database.project_sqlite import ProjectSQLite
 
 
@@ -156,4 +157,27 @@ class ProjectSQLiteTest(unittest.TestCase):
 
             file.delete_async(0, None, self.on_delete_async, None)
 
+    async def foreign_key_error(self):
+        file = Gio.File.new_for_path("test.db")
+        async with ProjectSQLite(file) as db:
+            try:
+                await db.add_parameter("my_nonexistent_algorithm_configuration_d",
+                                       "my_parameter_name", None, GLib.Variant.new_boolean(True))
+            except ForeignKeyError:
+                self.assertTrue(True)
+            try:
+                await db.add_algorithm_configuration("my_algorithm_configuration_id",
+                                                     "my_algorithm_configuration_name",
+                                                     0, 0, "my_path")
+                await db.add_parameter_tag("my_nonexistent_parameter_tag_id", "my_parameter_name",
+                                           "my_algorithm_configuration_name",
+                                           "my_nonexistent_cross_section_id", "my_tag_id")
+            except ForeignKeyError:
+                self.assertTrue(True)
+
+                file.delete_async(0, None, self.on_delete_async, None)
+                return
+
+            self.assertTrue(False)
+        file.delete_async(0, None, self.on_delete_async, None)
 

@@ -1,9 +1,11 @@
 # mypy: disable-error-code="func-returns-value, arg-type, no-any-return"
 """This module contains the ProjectSQLite class."""
+import sqlite3
 
 import aiosqlite
 from gi.repository import GLib, Gio
 
+from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.model.database.project_database import ProjectDatabase
 
@@ -24,7 +26,6 @@ class ProjectSQLite(ProjectDatabase):
             await make_directory_with_parents_async(self._file.get_parent())
             self._file.create(Gio.FileCreateFlags.NONE)  # pylint: disable=no-member
         self._connection = await aiosqlite.connect(self._db_path)
-
         await self._connection.executescript("""PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS meta_information;
 DROP TABLE IF EXISTS algorithm_configuration;
@@ -303,10 +304,13 @@ CREATE TABLE parameter_tag (
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
-        await self._connection.execute("""INSERT INTO parameter (algorithm_configuration_id, name,
-        cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                                       (algorithm_configuration_id, name, value.print_(True)))
-        await self._connection.commit()
+        try:
+            await self._connection.execute("""INSERT INTO parameter (algorithm_configuration_id,
+            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
+                                           (algorithm_configuration_id, name, value.print_(True)))
+            await self._connection.commit()
+        except sqlite3.IntegrityError as e:
+            raise ForeignKeyError("Foreign key does not exist!") from e
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
@@ -339,11 +343,14 @@ CREATE TABLE parameter_tag (
                                 cross_section_id: str | None, tag_id: str) -> None:
         """Add a new parameter tag entry which represents a tag
         belonging to the given parameter."""
-        await self._connection.execute("""INSERT INTO parameter_tag (id, parameter_name,
-        algorithm_configuration_id, cross_section_id, tag_id)
-        VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name, algorithm_configuration_id,
-                                    cross_section_id, tag_id))
-        await self._connection.commit()
+        try:
+            await self._connection.execute("""INSERT INTO parameter_tag (id, parameter_name,
+            algorithm_configuration_id, cross_section_id, tag_id)
+            VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
+                                        algorithm_configuration_id, cross_section_id, tag_id))
+            await self._connection.commit()
+        except sqlite3.IntegrityError as e:
+            raise ForeignKeyError("Foreign key does not exist!") from e
 
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
@@ -355,23 +362,26 @@ CREATE TABLE parameter_tag (
                                             parameter_name: str,
                                             cross_section_id: str | None) -> list[str]:
         """Return all tag ids belonging to the given parameter."""
-        if cross_section_id is None:
-            async with self._connection.execute("""SELECT tag_id FROM parameter_tag
-                WHERE parameter_name = ? AND algorithm_configuration_id = ?
-                AND cross_section_id IS NULL""", (parameter_name,
-                                                  algorithm_configuration_id)) as cursor:
-                result_cursor = await cursor.fetchall()
-                result = map(lambda x: x[0], result_cursor)
-                if result is None:
-                    return []
-                return list(result)
-        else:
-            async with self._connection.execute("""SELECT tag_id FROM parameter_tag
-                WHERE algorithm_configuration_id = ? AND parameter_name = ?
-                AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
-                                              cross_section_id)) as cursor:
-                result_cursor = await cursor.fetchall()
-                result = map(lambda x: x[0], result_cursor)
-                if result is None:
-                    return []
-                return list(result)
+        try:
+            if cross_section_id is None:
+                async with self._connection.execute("""SELECT tag_id FROM parameter_tag
+                    WHERE parameter_name = ? AND algorithm_configuration_id = ?
+                    AND cross_section_id IS NULL""", (parameter_name,
+                                                      algorithm_configuration_id)) as cursor:
+                    result_cursor = await cursor.fetchall()
+                    result = map(lambda x: x[0], result_cursor)
+                    if result is None:
+                        return []
+                    return list(result)
+            else:
+                async with self._connection.execute("""SELECT tag_id FROM parameter_tag
+                    WHERE algorithm_configuration_id = ? AND parameter_name = ?
+                    AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
+                                                  cross_section_id)) as cursor:
+                    result_cursor = await cursor.fetchall()
+                    result = map(lambda x: x[0], result_cursor)
+                    if result is None:
+                        return []
+                    return list(result)
+        except sqlite3.IntegrityError as e:
+            raise ForeignKeyError("Foreign key does not exist!") from e
