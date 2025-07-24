@@ -26,16 +26,10 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         pass
 
     def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
-        """TODO:
-                needed data:
-                - Result: (name, project_name, creation_date_time)
-                - Snapshot: (capture_timestamp) show only full hours
-                - CrossSectionSnapshot: (cross_section_name + cross_section_snapshot.get_average_speed())
-                """
-        diagram_data = []  #lists for all measuring times with the average speed for all selected cross sections
+        diagram_data = []
         cross_sections = []
         timestamps = []
-        for snapshot in result.snapshots:  # TODO needs the iterable listmodel fix
+        for snapshot in result.snapshots:
             timestamp = snapshot.get_timestamp()
             if timestamp.getMinute() == 0 and timestamp.getSecond() == 0:
                 timestamps.append(snapshot.capture_timestamp)
@@ -45,7 +39,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
             for cs_snapshot in snapshot.cross_section_snapshots:
                 if cs_snapshot.cross_section.id in cross_section_ids:
                     cross_sections.append(cs_snapshot.cross_section.id)
-                    average_speeds.append(cs_snapshot.get_average_speed())
+                    average_speeds.append(cs_snapshot.calculate_cs_average_speed())
             diagram_data.append(average_speeds)
         return diagram_data, cross_sections, timestamps
 
