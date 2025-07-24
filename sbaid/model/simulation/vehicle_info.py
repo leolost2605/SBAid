@@ -25,3 +25,7 @@ class VehicleInfo(GObject.GObject):
         """Override."""
         return (isinstance(other, VehicleInfo) and other.speed == self.speed
                 and other.speed == self.speed)
+
+    def __hash__(self) -> int:
+        """Override."""
+        return hash((self.vehicle_type, self.speed))
