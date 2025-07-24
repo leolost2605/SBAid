@@ -36,7 +36,7 @@ class GlobalSQLite(GlobalDatabase):
     async def __aenter__(self) -> GlobalDatabase:
         if not self._file.query_exists():
             await make_directory_with_parents_async(self._file.get_parent())
-            self._file.create(Gio.FileCreateFlags.NONE)  # pylint: disable=no-member
+            self._file.create_async(Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT)
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
         await self._connection.executescript("""PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS project;
