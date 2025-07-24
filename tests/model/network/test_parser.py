@@ -11,6 +11,7 @@ from sbaid.common.location import Location
 
 class CsvParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
+    __added_cross_sections = []
 
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
@@ -25,11 +26,13 @@ class CsvParserTest(unittest.TestCase):
     async def _test_valid_csv(self):
         parser = CSVCrossSectionParser()
         file = Gio.File.new_for_path("valid_input.csv")
-        await parser.foreach_cross_section(file, self.callbackthing)
-        return None
+        self.assertEqual(await parser.foreach_cross_section(file, self.callbackthing), (20,0))
 
     async def callbackthing(self, name: str, location: Location, cs_type: CrossSectionType) -> bool:
-        print("cross section %s in location %s with type %s added"%(name, location, cs_type))
+        if f"{name}, {location}, {cs_type}" in self.__added_cross_sections:
+            return False
+        #TODO check for combination; wait until dummy things exist
+        self.__added_cross_sections.append(f"{name}, {location}, {cs_type}")
         return True
 
     def test_empty_csv(self):
