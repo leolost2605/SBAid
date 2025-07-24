@@ -1,5 +1,6 @@
 """This module contains the DummySimulator class."""
 import json
+from jsonschema import validate, ValidationError
 
 from gi.repository import GObject, Gio
 
@@ -12,19 +13,93 @@ from sbaid.model.simulation.display import Display
 from sbaid.common.cross_section_type import CrossSectionType
 
 
+class JSONExeption(Exception):
+    """This exception is raised when a JSON file does not match the required format
+    for a dummy simulator."""
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class EndOfSimulationException(Exception):
+    """This exception is raised when the simulation is tried to be run beyond its run time."""
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
 class DummySimulator(Simulator):
     """This class implements the DummySimulator class using a JSON file for Input measurements."""
 
     _sequence: dict[int, Input]
     _pointer: int
+    _type: SimulatorType
+    _cross_sections: Gio.ListModel
+    _schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+            "vehicle_infos": {
+                "type": "object",
+                "patternProperties": {
+                    "^[0-9]+$": {
+                        "type": "object",
+                        "properties": {
+                            "cs1": {
+                                "$ref": "#/$defs/csData"
+                            },
+                            "cs2": {
+                                "$ref": "#/$defs/csData"
+                            }
+                        },
+                        "required": ["cs1", "cs2"],
+                        "additionalProperties": False
+                    }
+                },
+                "additionalProperties": False
+            }
+        },
+        "required": ["vehicle_infos"],
+        "additionalProperties": False,
+        "$defs": {
+            "csData": {
+                "type": "object",
+                "patternProperties": {
+                    "^[0-9]+$": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "integer"
+                                },
+                                "speed": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["type", "speed"],
+                            "additionalProperties": False
+                        }
+                    }
+                },
+                "additionalProperties": False
+            }
+        }
+    }
 
-    type = GObject.Property(type=SimulatorType)
-    cross_section = Gio.ListStore.new(DummyCrossSection)
+    @GObject.Property(type=SimulatorType)
+    def type(self) -> SimulatorType:
+        """TODO"""
+        return self._type
+
+    @GObject.Property(type=Gio.ListModel)
+    def cross_sections(self) -> Gio.ListModel:
+        """TODO"""
+        return self._cross_sections
 
     def __init__(self) -> None:
         """Create a new dummy simulator."""
-        super().__init__(type=SimulatorType("dummy.json", "CSV Dummy"),
-                         cross_sections=Gio.ListStore.new(DummyCrossSection))
+        super().__init__()
+        self._cross_sections = Gio.ListStore.new(DummyCrossSection)
+        self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
         self._sequence = {}
         self._pointer = 0
 
@@ -32,22 +107,29 @@ class DummySimulator(Simulator):
         """Loads a new file that is used to create simulator cross sections and the deterministic
         sequence of input measurements."""
         with open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
+            if self._pointer != 0:
+                raise RuntimeError("Cannot open new file during simulation")
             data = json.load(json_file)
-            for i, timestamp in enumerate(data["vehicle_infos"]):
+            try:
+                validate(instance=data, schema=self._schema)
+            except ValidationError as e:
+                raise JSONExeption(e.message) from e
+
+            for snapshot_id, snapshot in data["vehicle_infos"].items():
                 current_input = Input()
-                for cs in data["vehicle_infos"][timestamp]:
+                for cross_section, lanes in snapshot.items():
                     max_lanes = 0
-                    for lane in data["vehicle_infos"][timestamp][cs]:
-                        for data in data["vehicle_infos"][timestamp][cs][lane]:
-                            veh_type = data["vehicle_infos"][timestamp][cs][lane][data[0]]["type"]
-                            veh_speed = data["vehicle_infos"][timestamp][cs][lane][data[0]]["speed"]
-                            current_input.add_vehicle_info(cs, int(lane), veh_type, veh_speed)
-                        max_lanes = max(max_lanes, int(lane))
-                    if i == 0:
-                        self.cross_sections.append(DummyCrossSection(cs, CrossSectionType.MEASURING,
-                                                                     Location(0, 0), max_lanes,
-                                                                     False, False, False))
-                self._sequence[int(timestamp)] = current_input
+                    for lane_id, vehicles in lanes.items():
+                        for vehicle in vehicles:
+                            vehicle_type = vehicle["type"]
+                            current_input.add_vehicle_info(str(cross_section), int(lane_id),
+                                                           vehicle_type, float(vehicle["speed"]))
+                        max_lanes = max(max_lanes, int(lane_id))
+                    self.cross_sections.append(DummyCrossSection(cross_section,
+                                                                 CrossSectionType.MEASURING,
+                                                                 Location(0, 0), max_lanes,
+                                                                 False, False, False))
+                self._sequence[int(snapshot_id)] = current_input
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
@@ -63,14 +145,20 @@ class DummySimulator(Simulator):
     async def init_simulation(self) -> tuple[int, int]:
         """Initialize the simulator. Always returns 0 as the starting point
         and the amount of input measurements as the simulation length."""
+        self._pointer = 0
         return 0, len(self._sequence)
 
     async def continue_simulation(self, span: int) -> None:
         """Set the measuring pointer to the next position in the measurements."""
-        self._pointer = self._pointer + span
+        if (self._pointer + span) < len(self._sequence):
+            self._pointer = self._pointer + span
+        else:
+            raise EndOfSimulationException(f"The simulation cannot be continued {span} steps.")
 
     async def measure(self) -> Input:
         """Return the current input of the simulator."""
+        if not self._sequence:
+            raise FileNotFoundError("No simulator file has been loaded.")
         return self._sequence.get(self._pointer)
 
     async def set_display(self, display: Display) -> None:
