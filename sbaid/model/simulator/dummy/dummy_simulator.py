@@ -16,12 +16,14 @@ from sbaid.common.cross_section_type import CrossSectionType
 class JSONExeption(Exception):
     """This exception is raised when a JSON file does not match the required format
     for a dummy simulator."""
+
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
 
 class EndOfSimulationException(Exception):
     """This exception is raised when the simulation is tried to be run beyond its run time."""
+
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
@@ -42,15 +44,26 @@ class DummySimulator(Simulator):
                 "patternProperties": {
                     "^[0-9]+$": {
                         "type": "object",
-                        "properties": {
-                            "cs1": {
-                                "$ref": "#/$defs/csData"
-                            },
-                            "cs2": {
-                                "$ref": "#/$defs/csData"
+                        "patternProperties": {
+                            "^cs[\\w\\d_]+$": {
+                                "type": "object",
+                                "patternProperties": {
+                                    "^[0-9]+$": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {"type": "integer"},
+                                                "speed": {"type": "number"}
+                                            },
+                                            "required": ["type", "speed"],
+                                            "additionalProperties": False
+                                        }
+                                    }
+                                },
+                                "additionalProperties": False
                             }
                         },
-                        "required": ["cs1", "cs2"],
                         "additionalProperties": False
                     }
                 },
@@ -58,31 +71,7 @@ class DummySimulator(Simulator):
             }
         },
         "required": ["vehicle_infos"],
-        "additionalProperties": False,
-        "$defs": {
-            "csData": {
-                "type": "object",
-                "patternProperties": {
-                    "^[0-9]+$": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "integer"
-                                },
-                                "speed": {
-                                    "type": "number"
-                                }
-                            },
-                            "required": ["type", "speed"],
-                            "additionalProperties": False
-                        }
-                    }
-                },
-                "additionalProperties": False
-            }
-        }
+        "additionalProperties": False
     }
 
     @GObject.Property(type=SimulatorType)
@@ -166,5 +155,4 @@ class DummySimulator(Simulator):
 
     async def stop_simulation(self) -> None:
         """Resets the simulator to its initial state."""
-        self._sequence = {}
         self._pointer = 0
