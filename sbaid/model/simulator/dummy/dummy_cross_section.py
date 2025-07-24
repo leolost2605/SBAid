@@ -20,5 +20,6 @@ class DummyCrossSection(SimulatorCrossSection):
                  hard_shoulder_available: bool, hard_shoulder_active: bool,
                  b_display_active: bool) -> None:
         super().__init__(id=cs_id, type=cs_type, location=location, lanes=lanes,
-                         hard_shoulder_available=hard_shoulder_available, hard_shoulder_active=hard_shoulder_active,
+                         hard_shoulder_available=hard_shoulder_available,
+                         hard_shoulder_active=hard_shoulder_active,
                          b_display_active=b_display_active)
