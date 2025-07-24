@@ -34,11 +34,3 @@ class SimulatorCrossSection(GObject.GInterface):
     @GObject.Property(type=bool, default=False)
     def hard_shoulder_available(self) -> bool:
         """TODO"""
-
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_active(self) -> bool:
-        """TODO"""
-
-    @GObject.Property(type=bool, default=False)
-    def b_display_active(self) -> bool:
-        """TODO"""
