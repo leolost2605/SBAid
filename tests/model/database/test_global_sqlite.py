@@ -22,6 +22,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         loop.run_until_complete(task)
 
     async def test(self) -> None:
+        await self.path()
         await self.remove()
         await self.result()
         await self.snapshot()
@@ -36,6 +37,12 @@ class GlobalSQLiteTest(unittest.TestCase):
             file.delete_finish(result)
         except GLib.Error as e:
             raise e
+
+    async def path(self):
+        file = Gio.File.new_for_path("recursive/directories/test/apparently/successful/test.db")
+        async with GlobalSQLite(file) as db:
+            self.assertTrue(file.query_exists())
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def remove(self) -> None:
         file = Gio.File.new_for_path("test.db")
