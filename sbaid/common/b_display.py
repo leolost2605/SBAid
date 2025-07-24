@@ -11,3 +11,4 @@ class BDisplay(GObject.GEnum):
     CAUTION_FOG = 4
     SNOW = 5
     SLIPPERY_ROAD = 6
+    LORRY_NO_OVERTAKING = 7

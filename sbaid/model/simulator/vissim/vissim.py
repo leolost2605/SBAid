@@ -4,11 +4,13 @@ import threading
 import win32com.client as com
 import asyncio
 import pythoncom
+import bisect
 from queue import Queue
 from typing import Any, NamedTuple, Callable
 from threading import Thread
 
 from sbaid.common.a_display import ADisplay
+from sbaid.common.b_display import BDisplay
 from sbaid.common.coordinate import Coordinate
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
@@ -52,6 +54,9 @@ class _CrossSection:
 
     __data_collection_points: list[Any]
     __des_speed_decisions: list[Any]
+
+    __current_a_display: dict[int, ADisplay]
+    __current_b_display: BDisplay
 
     @property
     def successors(self) -> list[str]:
@@ -120,11 +125,16 @@ class _CrossSection:
         self.__data_collection_points = []
         self.__des_speed_decisions = []
 
+        self.__current_a_display = {}
+        self.__current_b_display = BDisplay.OFF
+
     def add_data_collection_point(self, point: Any) -> None:
-        self.__data_collection_points.append(point)
+        bisect.insort(self.__data_collection_points, point,
+                      key=lambda x: x.Lane.AttValue("Index"))
 
     def add_des_speed_decision(self, des_speed_decision: Any) -> None:
-        self.__des_speed_decisions.append(des_speed_decision)
+        bisect.insort(self.__des_speed_decisions, des_speed_decision,
+                      key=lambda x: x.Lane.AttValue("Index"))
 
     def remove_data_collection_point(self, point: Any) -> None:
         self.__data_collection_points.remove(point)
@@ -133,39 +143,89 @@ class _CrossSection:
         self.__des_speed_decisions.remove(des_speed_decision)
 
     def measure(self, algo_input: Input) -> None:
-        for i, point in enumerate(self.__data_collection_points):
-            lane_index = point.Lane.AttValue("Index") - 1
+        if not self.__data_collection_points:
+            return
+
+        for lane_index, point in enumerate(self.__data_collection_points, 1):
             for measurement in point.DataCollMeas.GetAll():
                 avg_speed = measurement.AttValue("SpeedAvgArith(Current,Last,All)")
-                print(f"avg speed for {self.id} on lane {lane_index}: {avg_speed}")
+                traffic_volume = measurement.AttValue("Vehs(Current,Last,All)")
+                algo_input.add_lane_info(self.id, lane_index, avg_speed, traffic_volume)
 
-    def set_display(self, display: Display) -> None:
+    def set_display(self, display: Display, distr_by_speed: dict[int, int]) -> None:
         if not self.__des_speed_decisions:
             return
 
-        for decision in self.__des_speed_decisions:
-            lane_index = decision.Lane.AttValue("Index") - 1
-            a_display = display.get_a_display(self.id, lane_index)
-            speed = 130
-            match a_display:
-                case ADisplay.SPEED_LIMIT_60:
-                    speed = 60
-                case ADisplay.SPEED_LIMIT_80:
-                    speed = 80
-                case ADisplay.SPEED_LIMIT_100:
-                    speed = 100
-                case ADisplay.SPEED_LIMIT_110:
-                    speed = 110
-                case ADisplay.SPEED_LIMIT_120:
-                    speed = 120
-                case ADisplay.SPEED_LIMIT_130:
-                    speed = 130
+        b_display = display.get_b_display(self.id)
 
-            decision.SetAttValue("DesSpeedDistr(All)", speed)
+        display_changed = self.__current_b_display != b_display
+        for lane_index in range(1, self.lanes + 1):
+            if display_changed:
+                break
 
-            blocked = "10, 11, 20, 21, 30" if a_display == ADisplay.CLOSED_LANE else ""
-            decision.Lane.SetAttValue("BlockedVehClasses", blocked)
-            # Maybe TODO: neighbor_lane.SetAttValue("NoLnChRAllVehTypes", True)
+            display_changed = (self.__current_a_display.get(lane_index) !=
+                               display.get_a_display(self.id, lane_index - 1))
+
+        if not display_changed:
+            return
+
+        self.__current_b_display = b_display
+
+        lorry_no_overtaking = b_display == BDisplay.LORRY_NO_OVERTAKING
+
+        found_open_lane = False
+        for lane_index, decision in enumerate(self.__des_speed_decisions, 1):
+            a_display = display.get_a_display(self.id, lane_index - 1)
+
+            self.__current_a_display[lane_index] = a_display
+
+            speed, closed = self.__get_lane_config(a_display)
+
+            distr = distr_by_speed[speed]
+            decision.SetAttValue("DesSpeedDistr(10)", distr)
+            decision.SetAttValue("DesSpeedDistr(11)", distr)
+            decision.SetAttValue("DesSpeedDistr(20)", distr)
+            decision.SetAttValue("DesSpeedDistr(21)", distr)
+            decision.SetAttValue("DesSpeedDistr(30)", distr)
+
+            blocked_vehicle_classes = ""
+            if closed:
+                blocked_vehicle_classes = "10, 11, 20, 21, 30"
+            elif found_open_lane and lorry_no_overtaking:  # We need at least one open lane
+                blocked_vehicle_classes = "20, 21, 30"
+            else:
+                found_open_lane = True
+
+            self.__configure_lane_blocked(lane_index, blocked_vehicle_classes)
+
+    def __get_lane_config(self, a_display: ADisplay) -> tuple[int, bool]:
+        speed = 130
+        match a_display:
+            case ADisplay.SPEED_LIMIT_60:
+                speed = 60
+            case ADisplay.SPEED_LIMIT_80:
+                speed = 80
+            case ADisplay.SPEED_LIMIT_100:
+                speed = 100
+            case ADisplay.SPEED_LIMIT_110:
+                speed = 110
+            case ADisplay.SPEED_LIMIT_120:
+                speed = 120
+            case ADisplay.SPEED_LIMIT_130:
+                speed = 130
+
+        return speed, a_display == ADisplay.CLOSED_LANE
+
+    def __configure_lane_blocked(self, lane_index: int, blocked: str) -> None:
+        for i, decision in enumerate(self.__des_speed_decisions, 1):
+            lane = decision.Lane
+
+            if i == lane_index + 1:
+                lane.SetAttValue("NoLnChRVehClasses", blocked)
+            elif i == lane_index:
+                lane.SetAttValue("BlockedVehClasses", blocked)
+            elif i == lane_index - 1:
+                lane.SetAttValue("NoLnChLVehClasses", blocked)
 
 
 class VissimConnector:
@@ -174,6 +234,7 @@ class VissimConnector:
     __vissim: Any  # For the COM interface we use dynamic typing
     __network: VissimNetwork | None
     __cross_sections_by_id: dict[str, _CrossSection]
+    __speed_distr_by_speed: dict[int, int]
 
     def __init__(self) -> None:
         self.__queue = Queue()
@@ -214,9 +275,11 @@ class VissimConnector:
         self.__vissim.LoadNet(path, False)
         self.__network = VissimNetwork(self.__vissim.Net)
 
-        cs_by_link_and_pos = {}
-        points = self.__vissim.Net.DataCollectionPoints.GetAll()
+        self.__init_speed_distributions()
 
+        cs_by_link_and_pos = {}
+
+        points = self.__vissim.Net.DataCollectionPoints.GetAll()
         for point in points:
             link_no = point.Lane.Link.AttValue("No")
             pos = point.AttValue("Pos")
@@ -229,6 +292,24 @@ class VissimConnector:
 
             cs_by_link_and_pos[link_no][pos].add_data_collection_point(point)
 
+        decisions = self.__vissim.Net.DesSpeedDecisions.GetAll()
+        for dec in decisions:
+            link_no = dec.Lane.Link.AttValue("No")
+            pos = dec.AttValue("Pos")
+
+            if link_no not in cs_by_link_and_pos:
+                cs_by_link_and_pos[link_no] = {}
+            elif pos not in cs_by_link_and_pos:  # Maybe adjust pos to merge with a measuring cross section
+                existing_cs = cs_by_link_and_pos[link_no].values()
+                for cs in existing_cs:
+                    if abs(pos - cs.link_pos) <= 5:
+                        pos = cs.link_pos
+
+            if pos not in cs_by_link_and_pos[link_no]:
+                cs_by_link_and_pos[link_no][pos] = _CrossSection(self.__network)
+
+            cs_by_link_and_pos[link_no][pos].add_des_speed_decision(dec)
+
         for link_no in cs_by_link_and_pos:
             for pos in cs_by_link_and_pos[link_no]:
                 cs = cs_by_link_and_pos[link_no][pos]
@@ -236,7 +317,31 @@ class VissimConnector:
                 self.__network.add_cross_section(link_no, pos, cs.id)
 
         route, cross_section_ids = self.__network.get_main_route()
+
+        for cs_id in list(self.__cross_sections_by_id.keys()):
+            if cs_id not in cross_section_ids:
+                self.__cross_sections_by_id.pop(cs_id)
+
         return route, list(map(lambda x: self.__cross_sections_by_id[x].state, cross_section_ids))
+
+    def __init_speed_distributions(self) -> None:
+        distr_60 = [50, 0, 60, 1]
+        distr_80 = [70, 0, 80, 1]
+        distr_100 = [80, 0, 100, 1]
+        distr_110 = [90, 0, 110, 1]
+        distr_120 = [100, 0, 120, 1]
+        distr_130 = [100, 0, 130, 1]
+
+        self.__speed_distr_by_speed = {60: self.__add_speed_distribution(distr_60),
+                                       80: self.__add_speed_distribution(distr_80),
+                                       100: self.__add_speed_distribution(distr_100),
+                                       110: self.__add_speed_distribution(distr_110),
+                                       120: self.__add_speed_distribution(distr_120),
+                                       130: self.__add_speed_distribution(distr_130)}
+
+    def __add_speed_distribution(self, points: list[float]) -> int:
+        distr = self.__vissim.Net.DesSpeedDistributions.AddDesSpeedDistribution(None, points)
+        return distr.AttValue("No")
 
     async def create_cross_section(self, position: Coordinate,
                                    cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
@@ -369,7 +474,7 @@ class VissimConnector:
         assert threading.current_thread() == self.__thread
 
         for cross_section in self.__cross_sections_by_id.values():
-            cross_section.set_display(display)
+            cross_section.set_display(display, self.__speed_distr_by_speed)
 
     async def stop_simulation(self) -> None:
         await self.__push_command(self.__stop_simulation)
@@ -383,21 +488,21 @@ class VissimConnector:
         await self.__push_command(None)
 
 
-async def run_test():
-    conn = VissimConnector()
-    route, css = await conn.load_file(r"C:\Users\vx9186\Projekte\sbaid_old\A5_sarah.inpx")
-    for coord in route:
-        print(f"{coord.x}, {coord.y}")
-    for cs in css:
-        print(cs)
-    print("Remove cross section")
-    # await conn.remove_cross_section(css[-1].id)
-    print("Move cross section")
-    # await conn.move_cross_section(css[-2].id, Coordinate(0, 0))
-    print("Init simulation")
-    # await conn.init_simulation(60)
-    await conn.shutdown()
+# async def run_test():
+#     conn = VissimConnector()
+#     route, css = await conn.load_file(r"C:\Users\vx9186\Projekte\sbaid_old\A5_sarah.inpx")
+#     for coord in route:
+#         print(f"{coord.x}, {coord.y}")
+#     for cs in css:
+#         print(cs)
+#     print("Remove cross section")
+#     # await conn.remove_cross_section(css[-1].id)
+#     print("Move cross section")
+#     # await conn.move_cross_section(css[-2].id, Coordinate(0, 0))
+#     print("Init simulation")
+#     # await conn.init_simulation(60)
+#     await conn.shutdown()
 
-loop = asyncio.get_event_loop()
-task = loop.create_task(run_test())
-loop.run_forever()
+# loop = asyncio.get_event_loop()
+# task = loop.create_task(run_test())
+# loop.run_forever()

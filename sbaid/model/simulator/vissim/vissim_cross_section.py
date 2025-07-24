@@ -31,10 +31,10 @@ class VissimCrossSection(SimulatorCrossSection):
     def lanes(self) -> int:
         return self.__lanes
 
-    @GObject.Property(type=bool, default=False)
+    @GObject.Property(type=bool, default=True)
     def hard_shoulder_available(self) -> bool:
         """TODO"""
-        return False
+        return True
 
     @GObject.Property(type=bool, default=False)
     def hard_shoulder_active(self) -> bool:
