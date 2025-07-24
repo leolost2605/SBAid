@@ -67,8 +67,7 @@ class CrossSectionSnapshot(GObject.GObject):
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """todo"""
 
-    def get_average_speed(self) -> float:
-        #TODO: better way to do this? built-in func?
+    def calculate_cs_average_speed(self) -> float:
         speed_sum = 0
         for snapshot in self.lane_snapshots:
             speed_sum += snapshot.average_speed
