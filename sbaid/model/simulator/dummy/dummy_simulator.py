@@ -87,12 +87,12 @@ class DummySimulator(Simulator):
 
     @GObject.Property(type=SimulatorType)
     def type(self) -> SimulatorType:
-        """TODO"""
+        """Property definition for the simulator type."""
         return self._type
 
     @GObject.Property(type=Gio.ListModel)
     def cross_sections(self) -> Gio.ListModel:
-        """TODO"""
+        """Property definition for the simulator cross section list model."""
         return self._cross_sections
 
     def __init__(self) -> None:
@@ -166,4 +166,5 @@ class DummySimulator(Simulator):
 
     async def stop_simulation(self) -> None:
         """Resets the simulator to its initial state."""
+        self._sequence = {}
         self._pointer = 0
