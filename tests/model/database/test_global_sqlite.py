@@ -33,10 +33,8 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.foreign_key_error()
 
     def on_delete_async(feld, file, result, user_data):
-        try:
-            file.delete_finish(result)
-        except GLib.Error as e:
-            raise e
+        file.delete_finish(result)
+
 
     async def path(self):
         file = Gio.File.new_for_path("recursive/directories/test/apparently/successful/test.db")
