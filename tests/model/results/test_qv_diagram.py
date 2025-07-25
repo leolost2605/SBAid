@@ -1,18 +1,15 @@
 import unittest
-from random import random
-
-from sbaid.common.a_display import ADisplay
+from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.qv_generator import QVGenerator
+from tests.model.results.test_velocity_generator import VelocityGeneratorTest
+
 
 class QVDiagramTest(unittest.TestCase):
     def test_qv_(self):
+        test = VelocityGeneratorTest()
         qv_generator = QVGenerator()
-        average_speed = [80, 100, 85, 40, 45]
-        density = [50, 20, 50, 40, 45]
-        a_displays = [ADisplay.SPEED_LIMIT_100, ADisplay.SPEED_LIMIT_120, ADisplay.SPEED_LIMIT_80,
-                      ADisplay.SPEED_LIMIT_60, ADisplay.SPEED_LIMIT_60]
+        qv_generator.get_diagram(test.generate_random_result(), "test_id", ImageFormat.PNG)
 
-        qv_generator.generate_diagram(average_speed, density, a_displays)
 
 
 if __name__ == '__main__':

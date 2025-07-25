@@ -77,7 +77,7 @@ class Result(GObject.GObject):
         """Removes tag from the selected_tags list."""
         exists, position = self.selected_tags.find(tag)  # pylint:disable=no-member
         if exists:
-            self.selected_tags.remove(position) # pylint:disable=no-member
+            self.selected_tags.remove(position)  # pylint:disable=no-member
 
     def load_from_db(self) -> None:
         """todo"""
