@@ -29,7 +29,7 @@ class CSVCrossSectionParser(CrossSectionParser):
             invalid_cross_sections = 0
             csv_reader = csv.reader(await csvfile.readlines())
             try:
-                has_header = self.__has_valid_header(csv_reader)
+                has_header = self.__has_valid_header(next(csv_reader))
             except StopIteration as exc:  # raised if the file is empty
                 raise InvalidFileFormattingException() from exc
             if not has_header:
@@ -49,12 +49,11 @@ class CSVCrossSectionParser(CrossSectionParser):
             raise InvalidFileFormattingException()
         return valid_cross_sections, invalid_cross_sections
 
-    def __has_valid_header(self, reader: csv.reader) -> bool:
-        row: list = next(reader)
-        return typing.cast(bool, (row[0].casefold() == "name"
+    def __has_valid_header(self, row: list[str]) -> bool:
+        return (row[0].casefold() == "name"
                 and row[1].casefold() == "x-coordinate"
                 and row[2].casefold() == "y-coordinate"
-                and row[3].casefold() == "type"))
+                and row[3].casefold() == "type")
 
     def __parse_cross_section_syntax(self, row: list[str]) -> (
             tuple[Location, CrossSectionType] | None):
