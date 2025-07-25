@@ -3,6 +3,7 @@ from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
+import typing
 # from sbaid.model.database.project_database import ProjectDatabase
 
 
@@ -13,7 +14,7 @@ class CrossSection(GObject.GObject):
 
     @GObject.Property(type=str)
     def id(self) -> str:
-        return self.__cross_section.id
+        return typing.cast(str, self.__cross_section.id)
 
     @GObject.Property(type=str)
     def name(self) -> str:
@@ -22,19 +23,19 @@ class CrossSection(GObject.GObject):
 
     @GObject.Property(type=Location)
     def location(self) -> Location:
-        return self.__cross_section.position
+        return typing.cast(Location, self.__cross_section.position)
 
     @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
     def type(self) -> CrossSectionType:
-        return self.__cross_section.type
+        return typing.cast(CrossSectionType, self.__cross_section.type)
 
     @GObject.Property(type=int)
     def lanes(self) -> int:
-        return self.__cross_section.lanes
+        return typing.cast(int, self.__cross_section.lanes)
 
     @GObject.Property(type=bool, default=False)
     def b_display_active(self) -> bool:
-        return self.__cross_section.b_display_active
+        return typing.cast(bool, self.__cross_section.b_display_active)
 
     @b_display_active.setter
     def b_display_active(self, value: bool) -> None:
@@ -42,11 +43,11 @@ class CrossSection(GObject.GObject):
 
     @GObject.Property(type=bool, default=False)
     def hard_shoulder_available(self) -> bool:
-        return self.__cross_section.hard_shoulder_available
+        return typing.cast(bool, self.__cross_section.hard_shoulder_available)
 
     @GObject.Property(type=bool, default=False)
     def hard_shoulder_active(self) -> bool:
-        return self.__cross_section.hard_shoulder_available
+        return typing.cast(bool, self.__cross_section.hard_shoulder_available)
 
     @hard_shoulder_active.setter
     def hard_shoulder_active(self, value: bool) -> None:

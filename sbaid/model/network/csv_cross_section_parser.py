@@ -2,6 +2,7 @@
 which can be raised during file parsing and handling."""
 import csv
 import aiofiles
+import typing
 from gi.repository import Gio
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
@@ -22,7 +23,8 @@ class CSVCrossSectionParser(CrossSectionParser):
         """Loads the file contents asynchronously and reads the input CSV file row by row,
         attempting to add the cross section the row represents to the network.
         Returns the amount of added and skipped cross sections."""
-        async with aiofiles.open(file.get_path(), "r") as csvfile:
+        path = typing.cast(str, file.get_path())
+        async with aiofiles.open(path, "r+") as csvfile:
             valid_cross_sections = 0
             invalid_cross_sections = 0
             csv_reader = csv.reader(await csvfile.readlines())
