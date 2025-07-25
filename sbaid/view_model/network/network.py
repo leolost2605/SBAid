@@ -9,7 +9,7 @@ from sbaid.common.location import Location
 try:
     gi.require_version('Gtk', '4.0')
     from gi.repository import GObject, Gio, Gtk
-except ImportError or ValueError as exc:
+except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
