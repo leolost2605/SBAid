@@ -181,30 +181,17 @@ class GlobalSQLiteTest(unittest.TestCase):
     async def foreign_key_error(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            try:
+            with self.assertRaises(ForeignKeyError):
                 await db.add_snapshot("my_snapshot_id", "my_nonexistent_result_id",
                                       DateTime.new_now(TimeZone.new_utc()))
-            except ForeignKeyError:
-                self.assertTrue(True)
-            try:
+            with self.assertRaises(ForeignKeyError):
                 await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
                                                     "my_nonexistent_snapshot_id",
                                                     "my_cross_section_name", BDisplay.OFF)
-            except ForeignKeyError:
-                self.assertTrue(True)
-            try:
+            with self.assertRaises(ForeignKeyError):
                 await db.add_lane_snapshot("my_lane_snapshot_id",
                                            "my_nonexistent_snapshot_id", 0, 0.0, 0, ADisplay.OFF)
-            except ForeignKeyError:
-                self.assertTrue(True)
-            try:
+            with self.assertRaises(ForeignKeyError):
                 await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
                                               VehicleType.CAR, 100.0)
-            except ForeignKeyError:
-                self.assertTrue(True)
-
-                file.delete_async(0, None, self.on_delete_async, None)
-                return
-
-            self.assertTrue(False)
         file.delete_async(0, None, self.on_delete_async, None)
