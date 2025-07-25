@@ -14,18 +14,16 @@ class ProjectSQLite(ProjectDatabase):
     """This class implements the ProjectDatabase interface which allows for the
     project specific data to be stored."""
     _file: Gio.File
-    _db_path: str
     _connection: aiosqlite.Connection
 
     def __init__(self, file: Gio.File) -> None:
         self._file = file
-        self._db_path = str(file.get_path())
 
     async def __aenter__(self) -> ProjectDatabase:
         if not self._file.query_exists():
             await make_directory_with_parents_async(self._file.get_parent())
             self._file.create(Gio.FileCreateFlags.NONE)  # pylint: disable=no-member
-        self._connection = await aiosqlite.connect(self._db_path)
+        self._connection = await aiosqlite.connect(str(self._file.get_path()))
         await self._connection.executescript("""PRAGMA foreign_keys = ON;
 DROP TABLE IF EXISTS meta_information;
 DROP TABLE IF EXISTS algorithm_configuration;
