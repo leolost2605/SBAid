@@ -50,11 +50,11 @@ class CSVCrossSectionParser(CrossSectionParser):
         return valid_cross_sections, invalid_cross_sections
 
     def __has_valid_header(self, reader: csv.reader) -> bool:
-        row = next(reader)
-        return (row[0].casefold() == "name"
+        row: list = next(reader)
+        return typing.cast(bool, (row[0].casefold() == "name"
                 and row[1].casefold() == "x-coordinate"
                 and row[2].casefold() == "y-coordinate"
-                and row[3].casefold() == "type")
+                and row[3].casefold() == "type"))
 
     def __parse_cross_section_syntax(self, row: list[str]) -> (
             tuple[Location, CrossSectionType] | None):

@@ -14,3 +14,6 @@ class Route(GObject.GObject):
     def __init__(self, points: Gio.ListModel) -> None:
         self.points = points
         super().__init__()
+
+    #TODO: add "einige nützliche Methoden die auf dieser Route operieren" ??
+

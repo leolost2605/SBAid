@@ -12,7 +12,6 @@ CrossSectionParserForeachFunc = Callable[[str, Location, CrossSectionType],
 
 class CrossSectionParser(ABC):
     """This interface defines the methods cross section parsers must implement."""
-    CrossSectionParserForeachFunc = Callable[[str, Location, CrossSectionType], bool]
 
     @abstractmethod
     def can_handle_file(self, file_path: str) -> bool:

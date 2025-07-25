@@ -18,38 +18,42 @@ class CrossSection(GObject.GObject):
 
     @GObject.Property(type=str)
     def name(self) -> str:
-        # read from database or idk
+        # TODO: read from database or idk
         return "hi"
 
     @GObject.Property(type=Location)
     def location(self) -> Location:
-        return typing.cast(Location, self.__cross_section.position)
+        return self.__cross_section.position # type: ignore
 
     @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
     def type(self) -> CrossSectionType:
-        return typing.cast(CrossSectionType, self.__cross_section.type)
+        return self.__cross_section.type # type: ignore
 
     @GObject.Property(type=int)
     def lanes(self) -> int:
-        return typing.cast(int, self.__cross_section.lanes)
+        return self.__cross_section.lanes # type: ignore
 
-    @GObject.Property(type=bool, default=False)
+    b_display_active = GObject.Property(type=bool, default=False)
+
+    @b_display_active.getter #type: ignore
     def b_display_active(self) -> bool:
-        return typing.cast(bool, self.__cross_section.b_display_active)
+        return self.__cross_section.b_display_active
 
-    @b_display_active.setter
+    @b_display_active.setter #type: ignore
     def b_display_active(self, value: bool) -> None:
         self.__cross_section.b_display_active = value
 
     @GObject.Property(type=bool, default=False)
     def hard_shoulder_available(self) -> bool:
-        return typing.cast(bool, self.__cross_section.hard_shoulder_available)
+        return self.__cross_section.hard_shoulder_available # type: ignore 
 
-    @GObject.Property(type=bool, default=False)
+    hard_shoulder_active = GObject.Property(type=bool, default=False)
+
+    @hard_shoulder_active.getter #type: ignore
     def hard_shoulder_active(self) -> bool:
-        return typing.cast(bool, self.__cross_section.hard_shoulder_available)
+        return self.__cross_section.hard_shoulder_available
 
-    @hard_shoulder_active.setter
+    @hard_shoulder_active.setter #type: ignore
     def hard_shoulder_active(self, value: bool) -> None:
         if not self.hard_shoulder_available:
             raise FunctionalityNotAvailableException("Hard shoulder is not available")
@@ -57,14 +61,15 @@ class CrossSection(GObject.GObject):
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
-        self.__cross_section = simulator_cross_section  #TODO placement?
+        self.__cross_section = simulator_cross_section
         super().__init__(location=simulator_cross_section.position,
                          type=simulator_cross_section.type,
                          id=simulator_cross_section.id)
 
     def load_from_db(self) -> None:
         """Loads cross section details from the database."""
-        # self.name = get_cross_section_name(self.id) TODO: database instance
+        # TODO: have project database instance
+        # self.name = project_db.get_cross_section_name(self.id)
 
 class FunctionalityNotAvailableException(Exception):  #TODO: delete when exception is in common
     pass
