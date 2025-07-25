@@ -115,7 +115,7 @@ CREATE TABLE parameter_tag (
         """Return the name of the project."""
         async with self._connection.execute("""SELECT name FROM meta_information""") as cursor:
             result_list = await cursor.fetchone()
-            return str(result_list[0])
+            return str(result_list[0])  # type: ignore
 
     async def set_project_name(self, name: str) -> None:
         """Update the name of the project."""
@@ -141,7 +141,8 @@ CREATE TABLE parameter_tag (
         """Return the name of the algorithm_configuration with the given id."""
         async with self._connection.execute("""SELECT name FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
-            return str(list(await cursor.fetchone())[0])
+            result_list = await cursor.fetchone()
+            return str(result_list[0])  # type: ignore
 
     async def set_algorithm_configuration_name(self, algorithm_configuration_id: str,
                                                name: str) -> None:
@@ -155,7 +156,8 @@ CREATE TABLE parameter_tag (
         """Return the algorithm_configuration with the given id."""
         async with self._connection.execute("""SELECT * FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
-            return list(await cursor.fetchone())[0]
+            result_list = await cursor.fetchone()
+            return str(result_list[0])  # type: ignore
 
     async def get_all_algorithm_configuration_ids(self) -> list[str]:
         """Return all algorithm_configuration ids."""
@@ -183,7 +185,8 @@ CREATE TABLE parameter_tag (
         """Return the display interval of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT display_interval FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
-            return int(list(await cursor.fetchone())[0])
+            result_list = await cursor.fetchone()
+            return int(result_list[0])  # type: ignore
 
     async def set_display_interval(self, algorithm_configuration_id: str, interval: int) -> None:
         """Update the display interval of the given algorithm_configuration id."""
@@ -195,7 +198,8 @@ CREATE TABLE parameter_tag (
         """Return the evaluation interval of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT evaluation_interval
         FROM algorithm_configuration WHERE id = ?""", [algorithm_configuration_id]) as cursor:
-            return int(list(await cursor.fetchone())[0])
+            result_list = await cursor.fetchone()
+            return int(result_list[0])  # type: ignore
 
     async def set_evaluation_interval(self, algorithm_configuration_id: str,
                                       interval: int) -> None:
@@ -208,7 +212,8 @@ CREATE TABLE parameter_tag (
         """Return the scrip path of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT script FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
-            return str(list(await cursor.fetchone())[0])
+            result_list = await cursor.fetchone()
+            return str(result_list[0])  # type: ignore
 
     async def set_script_path(self, algorithm_configuration_id: str, path: str) -> None:
         """Update the script path of the given algorithm_configuration id."""
@@ -224,7 +229,7 @@ CREATE TABLE parameter_tag (
             result = await cursor.fetchall()
             if result is None:
                 return []
-            return list(result)
+            return list(result)  # type: ignore
 
     async def get_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
                                   cross_section_id: str | None) -> GLib.Variant | None:
