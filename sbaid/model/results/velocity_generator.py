@@ -2,7 +2,9 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+from io import BytesIO
 from pandas import DataFrame
+from matplotlib.figure import Figure
 from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
@@ -12,31 +14,43 @@ from sbaid.model.results.seaborn_image import SeabornImage
 
 
 class VelocityGenerator(CrossSectionDiagramGenerator):
-    """todo"""
+    """Contains methods for generating the 'Velocity Diagram'.
+    Velocity Diagrams map the speed of different vehicles measured at a given timepoint as a scatter plot.
+    Different types of vehicles are differentiated with orange (lorry) and blue (car).
+    A line-plot of the mean of the measured speeds is mapped in a dark blue. """
 
     diagram_name = "Velocity-Diagram"
 
     def get_diagram_type(self) -> DiagramType:  # pylint:disable=useless-parent-delegation
-        """todo"""
+        """Returns the type of diagram."""
         return super().get_diagram_type()
 
     def get_diagram(self, result: Result, cross_section_id: str,
                     export_format: ImageFormat) -> Image:
+        """Returns a SeabornImage class containing the bytes that make up the desired image."""
+        data, filename = self.__extract_data(result, cross_section_id)
 
-        self.__generate_diagram(self.__extract_data(result, cross_section_id))
-        plt.savefig("out.png")
-        image = SeabornImage()
+        fig = self.__generate_diagram(data)
+        buffer = BytesIO()
 
+        fig.savefig(buffer, format=export_format.value_name.lower(), bbox_inches='tight')
+        plt.close(fig)
 
-    def __extract_data(self, result: Result, cross_section_id: str) -> DataFrame:
-        """todo"""
+        return SeabornImage(buffer.getvalue())
+
+    def __extract_data(self, result: Result, cross_section_id: str) -> (DataFrame, str):
+        """Extracts the needed information from the Result class and puts
+        together a DataFrame with appropriate headers. """
+
         vehicle_speeds = []
         capture_timestamps = []
         vehicle_type = []
+        cross_section_name: str
 
         for snapshot in result.snapshots:
             for cs_snapshot in snapshot.cross_section_snapshots:
                 if cs_snapshot.cross_section_snapshot_id == cross_section_id:
+                    cross_section_name = cs_snapshot.cross_section_name
                     for lane_snapshot in cs_snapshot.lane_snapshots:
                         for vehicle_snapshot in lane_snapshot.vehicle_snapshots:
                             vehicle_speeds.append(vehicle_snapshot.speed)
@@ -49,10 +63,11 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
             "timestamps": capture_timestamps,
         }
 
-        return pd.DataFrame(data)
+        return pd.DataFrame(data), cross_section_name
 
-    def __generate_diagram(self, data: DataFrame):
-        """todo"""
+    def __generate_diagram(self, data: DataFrame) -> Figure:
+        """Maps the desired diagram with Matplotlib and Seaborn."""
+
         sns.set_theme(style="whitegrid")
         fig, ax = plt.subplots()
 
@@ -66,4 +81,4 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
         sns.lineplot(data=avg_data, x="timestamps", y="vehicle speeds", legend=False, errorbar=None, linewidth=1.5,
                      color="#00008B", ax=ax)
 
-        plt.show()
+        return fig

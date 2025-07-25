@@ -18,7 +18,12 @@ class VelocityGeneratorTest(unittest.TestCase):
 
     def test_generate_diagram(self):
         result = self.generate_random_result()
-        self.generator.get_diagram(result, "test_id", ImageFormat.PNG)
+
+        png_image = self.generator.get_diagram(result, "test_id", ImageFormat.PNG)
+        png_image.save_to_file(r"C:\Users\PC\Projects\SBAid\tests\model\results\generator_outputs\diagram.png")
+
+        svg_image = self.generator.get_diagram(result, "test_id", ImageFormat.SVG)
+        svg_image.save_to_file(r"C:\Users\PC\Projects\SBAid\tests\model\results\generator_outputs\diagram.svg")
 
     def generate_random_result(self) -> Result:
         now = GLib.DateTime.new_now_local()
@@ -55,5 +60,3 @@ class VelocityGeneratorTest(unittest.TestCase):
             result.add_snapshot(snapshot)
 
         return result
-
-

@@ -53,7 +53,6 @@ class Result(GObject.GObject):
     def __init__(self, result_id: str, project_name: str,
                  creation_date_time: GLib.DateTime) -> None:
         """Initialize for the Result class."""
-        # todo ask should the id not be generated internally?
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
