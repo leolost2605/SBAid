@@ -15,5 +15,4 @@ class Route(GObject.GObject):
         self.points = points
         super().__init__()
 
-    #TODO: add "einige nützliche Methoden die auf dieser Route operieren" ??
-
+    # TODO: add "einige nützliche Methoden die auf dieser Route operieren" ??

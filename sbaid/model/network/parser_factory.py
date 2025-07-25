@@ -9,7 +9,7 @@ from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
 
 class ParserFactoryMeta(type):
     """A Metaclass for the ParserFactory, for Singleton pattern implementation."""
-    _instances: dict[type, typing.Any]= {}
+    _instances: dict[type, typing.Any] = {}
 
     def __call__(cls) -> 'ParserFactory':
         if cls not in cls._instances:

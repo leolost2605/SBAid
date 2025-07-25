@@ -65,7 +65,7 @@ class Network(GObject.Object):
         if compatible_tuple[0] is not None:  # cross section can be added
             if compatible_tuple[1]:  # cross section can be added by combination
                 existing_cross_section = compatible_tuple[2]
-                assert(isinstance(existing_cross_section, CrossSection))
+                assert isinstance(existing_cross_section, CrossSection)
                 await self.delete_cross_section(existing_cross_section.id())
                 position = await self.simulator.create_cross_section(location,
                                                                      CrossSectionType.COMBINED)
@@ -74,8 +74,8 @@ class Network(GObject.Object):
             else:  # cross section can be added without combination
                 try:
                     position = await self.simulator.create_cross_section(location, cs_type)
-                except Exception as e:  # TODO: catch simulator exception for this
-                    raise FailedCrossSectionCreationException()
+                except Exception as exc:  # TODO: catch simulator exception for this
+                    raise FailedCrossSectionCreationException() from exc
                 network_cross_section = self.cross_sections.get_item(position)
                 network_cross_section.set_name(name)
         else:  # cross section cannot be added
@@ -97,7 +97,7 @@ class Network(GObject.Object):
         itself or if it must be combined with a preexisting one. Returns a tuple with 3 elements:
         - bool: the cross section can be added,
         - bool: the cross section is to be added through combination or if the location was valid,
-        - cross section|None: the cross section in a 25m radius of the incoming one, or None"""
+        - cross section | None: the cross section in a 25m radius of the incoming one, or None"""
         clashing_cross_section = self.__get_cross_section_in_radius(location)
         if clashing_cross_section is not None:
             if ((clashing_cross_section.type.value == 1 and incoming_cross_section_type.value == 2)
@@ -112,18 +112,15 @@ class Network(GObject.Object):
 
     def __get_cross_section_in_radius(self, location: Location) -> CrossSection | None:
         for cross_section in list_model_iterator(self.cross_sections()):
-            assert (isinstance(cross_section, CrossSection))
+            assert isinstance(cross_section, CrossSection)
             if cross_section.location.distance(location) <= 25:
                 return cross_section
         return None
 
-    def __map_func(self, sim_cross_section: SimulatorCrossSection) -> CrossSection | None:
-        """Maps simulator cross sections to network cross sections."""
-        for cross_section in list_model_iterator(self.cross_sections()):
-            assert (isinstance(cross_section, CrossSection))
-            if cross_section.id == sim_cross_section.id:
-                return cross_section
-        return None
+    def __map_func(self, sim_cross_section: SimulatorCrossSection) -> CrossSection:
+        """Creates a new network cross section from the given simulator cross section,
+        to be mapped to the given simulator cross section in the MapListModel."""
+        return CrossSection(sim_cross_section)
 
 
 class FailedCrossSectionCreationException(Exception):

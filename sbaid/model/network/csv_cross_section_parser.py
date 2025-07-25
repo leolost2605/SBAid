@@ -1,8 +1,8 @@
 """This module consists of the CSV cross section parser and InvalidFileFormattingException,
 which can be raised during file parsing and handling."""
+import typing
 import csv
 import aiofiles
-import typing
 from gi.repository import Gio
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
