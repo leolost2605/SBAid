@@ -1,49 +1,86 @@
-"""TODO"""
+"""This module contains the cross section class."""
 from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
+# from sbaid.model.database.project_database import ProjectDatabase
 
 
 class CrossSection(GObject.GObject):
-    """TODO"""
+    """This class defines a cross section in the network."""
 
-    id = GObject.Property(type=str,
-                          flags=GObject.ParamFlags.READABLE |
-                          GObject.ParamFlags.WRITABLE |
-                          GObject.ParamFlags.CONSTRUCT_ONLY)
-    name = GObject.Property(type=str,
-                            flags=GObject.ParamFlags.READABLE |
-                            GObject.ParamFlags.WRITABLE |
-                            GObject.ParamFlags.CONSTRUCT_ONLY)
-    position = GObject.Property(type=Location,
-                                flags=GObject.ParamFlags.READABLE |
-                                GObject.ParamFlags.WRITABLE |
-                                GObject.ParamFlags.CONSTRUCT_ONLY)
-    type = GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED,
-                            flags=GObject.ParamFlags.READABLE |
-                            GObject.ParamFlags.WRITABLE |
-                            GObject.ParamFlags.CONSTRUCT_ONLY)
-    lanes = GObject.Property(type=int,
-                             flags=GObject.ParamFlags.READABLE |
-                             GObject.ParamFlags.WRITABLE |
-                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_available = GObject.Property(type=bool, default=False,
-                                               flags=GObject.ParamFlags.READABLE |
-                                               GObject.ParamFlags.WRITABLE |
-                                               GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_active = GObject.Property(type=bool, default=False,
-                                            flags=GObject.ParamFlags.READABLE |
-                                            GObject.ParamFlags.WRITABLE |
-                                            GObject.ParamFlags.CONSTRUCT)
-    b_display_active = GObject.Property(type=bool, default=False,
-                                        flags=GObject.ParamFlags.READABLE |
-                                        GObject.ParamFlags.WRITABLE |
-                                        GObject.ParamFlags.CONSTRUCT)
+    __cross_section: SimulatorCrossSection
+
+    @GObject.Property(type=str)
+    def id(self) -> str:
+        """Returns the simulation cross sections's id."""
+        return self.__cross_section.id  # type: ignore
+
+    @GObject.Property(type=str)
+    def name(self) -> str:
+        """Returns this cross section's name"""
+        # TODO: read from database or idk
+        return "hi"
+
+    @GObject.Property(type=Location)
+    def location(self) -> Location:
+        """Returns the simulation cross section's location."""
+        return self.__cross_section.position  # type: ignore
+
+    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    def type(self) -> CrossSectionType:
+        """Returns the simulation cross section's type."""
+        return self.__cross_section.type  # type: ignore
+
+    @GObject.Property(type=int)
+    def lanes(self) -> int:
+        """Returns the simulation cross section's lane amount."""
+        return self.__cross_section.lanes  # type: ignore
+
+    b_display_active = GObject.Property(type=bool, default=False)
+
+    @b_display_active.getter  # type: ignore
+    def b_display_active(self) -> bool:
+        """Returns the simulator cross section's b display status."""
+        return self.__cross_section.b_display_active
+
+    @b_display_active.setter  # type: ignore
+    def b_display_active(self, value: bool) -> None:
+        """Sets the simulator cross section's b display status."""
+        self.__cross_section.b_display_active = value
+
+    @GObject.Property(type=bool, default=False)
+    def hard_shoulder_available(self) -> bool:
+        """Returns the simulator cross section's hard shoulder availability."""
+        return self.__cross_section.hard_shoulder_available  # type: ignore
+
+    hard_shoulder_active = GObject.Property(type=bool, default=False)
+
+    @hard_shoulder_active.getter  # type: ignore
+    def hard_shoulder_active(self) -> bool:
+        """Returns the simulator cross section's hard shoulder status."""
+        return self.__cross_section.hard_shoulder_available
+
+    @hard_shoulder_active.setter  # type: ignore
+    def hard_shoulder_active(self, value: bool) -> None:
+        """Sets the simulator cross section's hard shoulder status, if it is available."""
+        if not self.hard_shoulder_available:
+            raise FunctionalityNotAvailableException("Hard shoulder is not available")
+        self.__cross_section.hard_shoulder_available = value
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
-        """TODO"""
-        super().__init__()
+        """Constructs a new cross section with the given simulator cross section data."""
+        self.__cross_section = simulator_cross_section
+        super().__init__(location=simulator_cross_section.position,
+                         type=simulator_cross_section.type,
+                         id=simulator_cross_section.id)
 
     def load_from_db(self) -> None:
-        """TODO"""
+        """Loads cross section details from the database."""
+        # TODO: have project database instance
+        # self.name = project_db.get_cross_section_name(self.id)
+
+
+class FunctionalityNotAvailableException(Exception):
+    """To be deleted :)"""
+    # TODO: delete when exception is in common
