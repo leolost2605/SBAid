@@ -9,48 +9,61 @@ from sbaid.common.cross_section_type import CrossSectionType
 class CrossSection(GObject.GObject):
     """This class defines a cross section in the network."""
 
-    id = GObject.Property(type=str,
-                          flags=GObject.ParamFlags.READABLE |
-                          GObject.ParamFlags.WRITABLE |
-                          GObject.ParamFlags.CONSTRUCT_ONLY)
-    name = GObject.Property(type=str,
-                            flags=GObject.ParamFlags.READABLE |
-                            GObject.ParamFlags.WRITABLE |
-                            GObject.ParamFlags.CONSTRUCT_ONLY)
-    location = GObject.Property(type=Location,
-                                flags=GObject.ParamFlags.READABLE |
-                                GObject.ParamFlags.WRITABLE |
-                                GObject.ParamFlags.CONSTRUCT_ONLY)
-    type = GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED,
-                            flags=GObject.ParamFlags.READABLE |
-                            GObject.ParamFlags.WRITABLE |
-                            GObject.ParamFlags.CONSTRUCT_ONLY)
-    lanes = GObject.Property(type=int,
-                             flags=GObject.ParamFlags.READABLE |
-                             GObject.ParamFlags.WRITABLE |
-                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_available = GObject.Property(type=bool, default=False,
-                                               flags=GObject.ParamFlags.READABLE |
-                                               GObject.ParamFlags.WRITABLE |
-                                               GObject.ParamFlags.CONSTRUCT_ONLY)
-    hard_shoulder_active = GObject.Property(type=bool, default=False,
-                                            flags=GObject.ParamFlags.READABLE |
-                                            GObject.ParamFlags.WRITABLE |
-                                            GObject.ParamFlags.CONSTRUCT)
-    b_display_active = GObject.Property(type=bool, default=False,
-                                        flags=GObject.ParamFlags.READABLE |
-                                        GObject.ParamFlags.WRITABLE |
-                                        GObject.ParamFlags.CONSTRUCT)
+    __cross_section: SimulatorCrossSection
+
+    @GObject.Property(type=str)
+    def id(self) -> str:
+        return self.__cross_section.id
+
+    @GObject.Property(type=str)
+    def name(self) -> str:
+        # read from database or idk
+        return "hi"
+
+    @GObject.Property(type=Location)
+    def location(self) -> Location:
+        return self.__cross_section.position
+
+    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    def type(self) -> CrossSectionType:
+        return self.__cross_section.type
+
+    @GObject.Property(type=int)
+    def lanes(self) -> int:
+        return self.__cross_section.lanes
+
+    @GObject.Property(type=bool, default=False)
+    def b_display_active(self) -> bool:
+        return self.__cross_section.b_display_active
+
+    @b_display_active.setter
+    def b_display_active(self, value: bool) -> None:
+        self.__cross_section.b_display_active = value
+
+    @GObject.Property(type=bool, default=False)
+    def hard_shoulder_available(self) -> bool:
+        return self.__cross_section.hard_shoulder_available
+
+    @GObject.Property(type=bool, default=False)
+    def hard_shoulder_active(self) -> bool:
+        return self.__cross_section.hard_shoulder_available
+
+    @hard_shoulder_active.setter
+    def hard_shoulder_active(self, value: bool) -> None:
+        if not self.hard_shoulder_available:
+            raise FunctionalityNotAvailableException("Hard shoulder is not available")
+        self.__cross_section.hard_shoulder_available = value
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
+        self.__cross_section = simulator_cross_section  #TODO placement?
         super().__init__(location=simulator_cross_section.position,
-                         type=simulator_cross_section.type)
+                         type=simulator_cross_section.type,
+                         id=simulator_cross_section.id)
 
     def load_from_db(self) -> None:
         """Loads cross section details from the database."""
-        # self.set_name(get_cross_section_name(self.id)) TODO: database instance
+        # self.name = get_cross_section_name(self.id) TODO: database instance
 
-    def set_name(self, name: str) -> None:
-        """Sets the cross section's name."""
-        self.name = name
+class FunctionalityNotAvailableException(Exception):  #TODO: delete when exception is in common
+    pass

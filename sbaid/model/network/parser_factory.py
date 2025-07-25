@@ -7,18 +7,20 @@ from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
 
 
 class ParserFactoryMeta(type):
+    """A Metaclass for the ParserFactory, for Singleton pattern implementation."""
     _instances = {}
 
-    def __call__(cls):
+    def __call__(cls) -> None:
         if cls not in cls._instances:
             instance = super().__call__()
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+
 class ParserFactory(metaclass=ParserFactoryMeta):
     """This class handles the creation of implementations of the CrossSectionParser
     interface, as well as their assignment to user-given files."""
-    __parsers = []
+    __parsers: list[CrossSectionParser] = []
 
     def __init__(self) -> None:
         """ Constructs an instance of ParserFactory.
@@ -35,4 +37,3 @@ class ParserFactory(metaclass=ParserFactoryMeta):
             if parser.can_handle_file(path):
                 return parser
         return None
-

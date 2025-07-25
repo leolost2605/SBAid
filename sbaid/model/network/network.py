@@ -63,14 +63,15 @@ class Network(GObject.Object):
         and how it is to be added. Creates a combined cross section if the preexisting & incoming
         cross sections can be combined (of types DISPLAY-MEASURING or MEASURING-DISPLAY)."""
         compatible_tuple = self.__cross_sections_compatible(location, cs_type)
-        if compatible_tuple[0]:  # cross section can be added
+        if compatible_tuple[0] is not None:  # cross section can be added
             if compatible_tuple[1]:  # cross section can be added by combination
                 existing_cross_section = compatible_tuple[2]
-                await self.delete_cross_section(existing_cross_section.id)
+                assert(isinstance(existing_cross_section, CrossSection))
+                await self.delete_cross_section(existing_cross_section.id())
                 position = await self.simulator.create_cross_section(location,
                                                                      CrossSectionType.COMBINED)
                 network_cross_section = self.cross_sections.get_item(position)
-                network_cross_section.set_name(name + existing_cross_section.name)
+                network_cross_section.set_name(name + existing_cross_section.name())
             else:  # cross section can be added without combination
                 position = await self.simulator.create_cross_section(location, cs_type)
                 network_cross_section = self.cross_sections.get_item(position)
@@ -94,37 +95,40 @@ class Network(GObject.Object):
         itself or if it must be combined with a preexisting one. Returns a tuple with 3 elements:
         - A boolean value, depicting if the cross section can be added,
         - Another boolean value, representing if the cross section has to be added through
-            combination with a preexisting one or if the location was free and valid
-        - an optional cross section object. Returns a combined cross section if the incoming
-         cross section has to be combined with another one in order to be added."""
+            combination with a preexisting one or if the location was free and valid,
+        - An optional cross section object. Returns the cross section in a 25m radius
+         of the incoming one if it has to be combined with the incoming one to be added."""
         clashing_cross_section = self.__get_cross_section_in_location(location)
-        if clashing_cross_section:
+        if clashing_cross_section is not None:
             if ((clashing_cross_section.type.value == 1 and incoming_cross_section_type.value == 2)
                     or (clashing_cross_section.type.value == 2
                         and incoming_cross_section_type.value == 1)):
-                # location is taken, cross section can be added by combination
+                # another cross section in a 25m radius, cross section can be added by combination
                 return True, True, clashing_cross_section
-            # location is taken, cross sections cannot be combined
+            # another cross section in a 25m radius, cross sections cannot be combined
             return False, False, None
-        # location is not taken, cross section can be added without combination
+        # no other cross section in a 25m radius, cross section can be added without combination
         return True, False, None
 
     def __get_cross_section_in_location(self, location: Location) -> CrossSection | None:
         for cross_section in list_model_iterator(self.cross_sections()):
-            if cross_section.coordinate == location:
+            assert (isinstance(cross_section, CrossSection))
+            if cross_section.location.distance(location) <= 25:
                 return cross_section
         return None
 
     def __map_func(self, sim_cross_section: SimulatorCrossSection) -> CrossSection | None:
         # maps simulator cross sections to network cross sections
         for cross_section in list_model_iterator(self.cross_sections()):
+            assert (isinstance(cross_section, CrossSection))
             if cross_section.id == sim_cross_section.id:
                 return cross_section
         return None
 
+
 class FailedCrossSectionCreationException(Exception):
     """Exception raised when the creation of a cross section fails.
-    No error message needed as the exception doesn't show up to the user as an error. - TODO?"""
+    No error message needed as the exception doesn't show up to the user as an error."""
 
 
 class NoSuitableParserException(Exception):
