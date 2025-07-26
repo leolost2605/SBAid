@@ -1,20 +1,74 @@
-"""todo"""
-
+"""This module defines the DiagramExporter class"""
 from gi.repository import Gio, GObject
+
+from sbaid.common.image import Image
+from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
+from sbaid.model.results.display_generator import DisplayGenerator
+from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
+from sbaid.model.results.heatmap_generator import HeatmapGenerator
+from sbaid.model.results.qv_generator import QVGenerator
 from sbaid.model.results.result import Result
 from sbaid.common.image_format import ImageFormat
 from sbaid.common.diagram_type import DiagramType
+from sbaid.model.results.velocity_generator import VelocityGenerator
 
 
 class DiagramExporter(GObject.GObject):
-    """todo"""
+    """Handles logic for the configuration and exporting of results, """
+    __global_gens: list[GlobalDiagramGenerator]
+    __cross_section_gens: list[CrossSectionDiagramGenerator]
+
+    __heatmap_gen: HeatmapGenerator
+    __qv_gen: QVGenerator
+    __display_gen: DisplayGenerator
+    __velocity_gen: VelocityGenerator
+
+    __diagram_types: Gio.ListStore
 
     # GObject.Property definitions
-    available_diagram_types = GObject.Property(type=Gio.ListModel,
-                                               flags=GObject.ParamFlags.READABLE |
-                                               GObject.ParamFlags.WRITABLE |
-                                               GObject.ParamFlags.CONSTRUCT_ONLY)
+    @GObject.Property(type=DiagramType)
+    def available_diagram_types(self) -> Gio.ListModel:
+        """Returns ListModel of available diagram types"""
+        return self.__diagram_types
 
-    def create_diagram(self, result: Result, cross_section_ids: list[str],
-                       image_format: ImageFormat, diagram_type: DiagramType) -> None:
-        """todo"""
+    def __init__(self) -> None:
+        """Initialize the diagram exporter"""
+        super().__init__()
+        self.__diagram_types = Gio.ListStore.new(DiagramType)
+        self.__add_available_types()
+
+    def get_diagram(self, result: Result, cross_section_ids: list[str],
+                    image_format: ImageFormat, diagram_type: DiagramType) -> Image | None:
+        """Attempts to generate a diagram based on the provided diagram type."""
+
+        type_id = diagram_type.diagram_type_id
+
+        for global_gen in self.__global_gens:
+            gen_type_id = global_gen.get_diagram_type().diagram_type_id
+            if type_id == gen_type_id:
+                return global_gen.get_diagram(result, cross_section_ids, image_format)
+
+        for cs_gen in self.__cross_section_gens:
+            gen_type_id = cs_gen.get_diagram_type().diagram_type_id
+            if type_id == gen_type_id:
+                return cs_gen.get_diagram(result, cross_section_ids[0], image_format)
+
+        return None
+
+    def __add_available_types(self) -> None:
+        """Gets available diagram types and initialize references"""
+        self.__heatmap_gen = HeatmapGenerator()
+        self.available_diagram_types.append(
+            self.__heatmap_gen.get_diagram_type())
+        self.__qv_gen = QVGenerator()
+        self.available_diagram_types.append(
+            self.__qv_gen.get_diagram_type())
+        self.__display_gen = DisplayGenerator()
+        self.available_diagram_types.append(
+            self.__display_gen.get_diagram_type())
+        self.__velocity_gen = VelocityGenerator()
+        self.available_diagram_types.append(
+            self.__velocity_gen.get_diagram_type())
+
+        self.__cross_section_gens = [self.__qv_gen, self.__display_gen, self.__velocity_gen]
+        self.__global_gens = [self.__heatmap_gen]
