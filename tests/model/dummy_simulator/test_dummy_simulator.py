@@ -7,8 +7,8 @@ from typing import Callable
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
-from common import list_model_iterator
-from common.vehicle_type import VehicleType
+from sbaid.common import list_model_iterator
+from sbaid.common.vehicle_type import VehicleType
 from model.simulation.vehicle_info import VehicleInfo
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator, EndOfSimulationException
 
