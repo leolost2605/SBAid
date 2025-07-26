@@ -13,7 +13,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.display import Display
 
 
-class Simulator(GObject.GInterface):
+class Simulator(GObject.GObject):
     """TODO"""
 
     @GObject.Property(type=SimulatorType)

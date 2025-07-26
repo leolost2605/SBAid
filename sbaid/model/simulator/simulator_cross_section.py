@@ -9,7 +9,7 @@ from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
 
 
-class SimulatorCrossSection(GObject.GInterface):
+class SimulatorCrossSection(GObject.GObject):
     """
     This class is used as a wrapper for a cross section within the simulator
     that contains several properties about the cross section.
