@@ -9,7 +9,7 @@ from gi.repository import Gio
 
 from sbaid.common import list_model_iterator
 from sbaid.common.vehicle_type import VehicleType
-from model.simulation.vehicle_info import VehicleInfo
+from sbaid.model.simulation.vehicle_info import VehicleInfo
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator, EndOfSimulationException
 
 
