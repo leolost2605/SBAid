@@ -1,8 +1,6 @@
 """This module contains unittests for the Display class."""
 import asyncio
 import unittest
-from itertools import count
-from typing import Callable
 
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
