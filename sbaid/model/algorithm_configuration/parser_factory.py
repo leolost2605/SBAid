@@ -4,12 +4,13 @@ from sbaid.model.algorithm_configuration.parameter_parser import (
     ParameterParser)
 
 
+class ParserNotFoundException(Exception):
+    """An exception that will be raised if no parser for the given file was found."""
+
+
 class ParserFactory(GObject.GObject):
     """todo"""
 
-    def __init__(self) -> None:
-        """todo"""
-
     def get_parser(self, file: Gio.File) -> ParameterParser:
         """todo"""
-        return None
+        raise ParserNotFoundException()
