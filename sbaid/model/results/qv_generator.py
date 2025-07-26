@@ -6,6 +6,7 @@ import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
 from pandas import DataFrame
+from gi.repository import GLib
 from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
@@ -21,6 +22,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
     The types of A-Displays that were being displayed at this time are assigned different colours."""
 
     diagram_name = "QV-Diagram"
+    diagram_id = GLib.uuid_string_random()
 
     def get_diagram_type(self) -> DiagramType:  # pylint:disable=useless-parent-delegation
         """Returns the type of the diagram."""
@@ -49,12 +51,13 @@ class QVGenerator(CrossSectionDiagramGenerator):
         traffic_volume = []
         a_displays = []
 
-        cross_section_name: str
+        cross_section_name: str | None = None
 
         for snapshot in result.snapshots:
             for cs_snapshot in snapshot.cross_section_snapshots:
                 if cs_snapshot.cross_section_snapshot_id == cross_section_id:
-                    cross_section_name = cs_snapshot.cross_section_name
+                    if cross_section_name is None:
+                        cross_section_name = cs_snapshot.cross_section_name
                     for lane_snapshot in cs_snapshot.lane_snapshots:
                         average_speed.append(lane_snapshot.average_speed)
                         traffic_volume.append(lane_snapshot.traffic_volume)
@@ -81,6 +84,6 @@ class QVGenerator(CrossSectionDiagramGenerator):
         ax.set_ylabel("V[km/h]")
 
         sns.scatterplot(data=data, x="volume", y="speed", hue="display",
-                        palette=colorscheme, ax=ax)
+                        palette=colorscheme, legend=False, ax=ax)
 
         return fig

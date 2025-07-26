@@ -31,7 +31,7 @@ class VelocityGeneratorTest(unittest.TestCase):
         test_name = "my_project"
         result = Result(test_id, test_name, now)
 
-        for i in range(20):
+        for i in range(50):
             minute = (30 + i) % 60
             hour = 15 + ((30 + i) // 60)
             time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=7, day=24, hour=hour, minute = minute, seconds=0)
@@ -49,7 +49,7 @@ class VelocityGeneratorTest(unittest.TestCase):
                 for p in range(6):
                     lane_snapshot = lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),
                                      GLib.uuid_string_random(), p,
-                                       70.6 + (i / 4), random.randint(1, 9), random.choice(list(ADisplay)))
+                                       random.uniform(60, 140), random.randint(5, 30), random.choice(list(ADisplay)))
 
                     for q in range(random.randint(1, 9)):
                         vehicle_snapshot_1 = VehicleSnapshot(GLib.uuid_string_random(), random.choice(list(VehicleType)), random.uniform(60, 140))
