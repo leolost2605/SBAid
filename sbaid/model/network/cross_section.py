@@ -1,7 +1,9 @@
 """This module contains the cross section class."""
 
 from typing import cast
-from gi.repository import GObject
+import asyncio
+from gi.events import GLibEventLoopPolicy
+from gi.repository import GObject, GLib
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
@@ -54,36 +56,62 @@ class CrossSection(GObject.GObject):
     def lanes(self) -> int:
         return cast(int, self.__cross_section.lanes)
 
-    b_display_active: bool = GObject.Property(type=bool, default=False)
+    b_display_active: bool = GObject.Property(type=bool,  # type: ignore[assignment]
+                                                  flags=GObject.ParamFlags.READABLE |
+                                                        GObject.ParamFlags.WRITABLE |
+                                                        GObject.ParamFlags.CONSTRUCT_ONLY,
+                                                  default=False)
 
     @b_display_active.getter  # type: ignore
     def b_display_active(self) -> bool:
         """Returns the simulator cross section's b display status."""
-        return self.__cross_section.b_display_active
+        return self.b_display_active
 
     @b_display_active.setter  # type: ignore
     def b_display_active(self, value: bool) -> None:
         """Sets the simulator cross section's b display status."""
-        self.__cross_section.b_display_active = value
+        self.b_display_active = value
+        asyncio.set_event_loop_policy(GLib.EventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(self.__update_b_display_active())
+        loop.run_until_complete(task)
 
-    @GObject.Property(type=bool, default=False)
+    async def __update_b_display_active(self) -> None:
+        pass
+        #project_db.
+
+
+    hard_shoulder_available: bool = GObject.Property(type=bool, default=False)
+
+    @hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
         """Returns the simulator cross section's hard shoulder availability."""
         return self.__cross_section.hard_shoulder_available  # type: ignore
 
-    hard_shoulder_active: bool = GObject.Property(type=bool, default=False)
+    hard_shoulder_active: bool = GObject.Property(type=bool,  # type: ignore[assignment]
+                               flags=GObject.ParamFlags.READABLE |
+                                     GObject.ParamFlags.WRITABLE |
+                                     GObject.ParamFlags.CONSTRUCT,
+                                                  default=False)
 
     @hard_shoulder_active.getter  # type: ignore
     def hard_shoulder_active(self) -> bool:
         """Returns the simulator cross section's hard shoulder status."""
-        return self.__cross_section.hard_shoulder_available
+        return self.hard_shoulder_active
 
     @hard_shoulder_active.setter  # type: ignore
     def hard_shoulder_active(self, value: bool) -> None:
         """Sets the simulator cross section's hard shoulder status, if it is available."""
         if not self.hard_shoulder_available:
-            raise FunctionalityNotAvailableException("Hard shoulder is not available")
-        self.__cross_section.hard_shoulder_available = value
+            raise FunctionalityNotAvailableException("Hard shoulder is not available.")
+        self.hard_shoulder_active = value
+        asyncio.set_event_loop_policy(GLib.EventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(self.__update_hard_shoulder_active())
+        loop.run_until_complete(task)
+
+    async def __update_hard_shoulder_active(self) -> None:
+        pass
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
