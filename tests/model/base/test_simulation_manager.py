@@ -5,7 +5,6 @@ import uuid
 
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 from sbaid.model.network.network import Network
-from sbaid.model.project import Project
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.simulation_manager import SimulationManager
 from sbaid.model.simulation_observer import SimulationObserver
