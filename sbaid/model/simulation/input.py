@@ -65,7 +65,7 @@ class Input(GObject.GObject):
          .append(VehicleInfo(vehicle_type, speed)))
 
     def add_lane_info(self, cross_section_id: str, lane_number: int,
-                      avg_speed: float, volume: int):
+                      avg_speed: float, volume: int) -> None:
         """If the simulator only supports average values and not separate vehicles use this
         instead of add_vehicle_info."""
         if cross_section_id not in self._average_speeds:

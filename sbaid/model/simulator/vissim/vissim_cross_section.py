@@ -14,25 +14,27 @@ class VissimCrossSection(SimulatorCrossSection):
 
     @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
+        """Returns the id of the cross section."""
         return self.__id
 
     @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
-        """TODO"""
+        """Returns the type of this cross section."""
         return self.__type
 
     @SimulatorCrossSection.position.getter  # type: ignore
     def position(self) -> Location:
-        """TODO"""
+        """Returns the position of this cross section."""
         return self.__position
 
     @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
+        """Returns the number of lanes at this cross section."""
         return self.__lanes
 
-    @SimulatorCrossSection.hard_shoulder_available.getter
+    @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
-        """TODO"""
+        """Returns whether the lane with index 0 is a hard shoulder."""
         return True
 
     def __init__(self, state: VissimConnectorCrossSectionState):
@@ -40,6 +42,7 @@ class VissimCrossSection(SimulatorCrossSection):
         self.set_state(state)
 
     def set_state(self, state: VissimConnectorCrossSectionState) -> None:
+        """Sets a new state for this cross section."""
         self.__id = state.id
         self.__type = state.type
         self.__position = state.position

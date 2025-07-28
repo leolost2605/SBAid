@@ -1,3 +1,8 @@
+"""
+The module containing the VissimNetwork class which represents the network
+loaded from a file into vissim as a directed graph with links as vertices.
+"""
+
 from typing import Any
 from sortedcontainers import SortedDict
 
@@ -5,11 +10,11 @@ from sbaid.common.location import Location
 
 
 class InvalidPositionException(Exception):
-    pass
+    """Thrown if the given position wasn't found in the network"""
 
 
 class InvalidSuccessorsException(Exception):
-    pass
+    """Thrown if the left most lane has no successor even though the link itself has successors"""
 
 
 class _Link:
@@ -22,14 +27,17 @@ class _Link:
 
     @property
     def no(self) -> int:
+        """Returns the unique number of this link, set by the vissim link."""
         return self.__no
 
     @property
     def successors(self) -> list['_Link']:
+        """Returns a list of Links that follow this Link."""
         return list(map(lambda x: self.__links_by_no[x], self.__successor_nos))
 
     @property
     def left_most_successor(self) -> '_Link | None':
+        """Returns the left most link that connects to this link."""
         successors = self.successors
         if not successors:
             return None
@@ -49,14 +57,17 @@ class _Link:
 
     @property
     def points(self) -> list[Location]:
+        """Returns points that make this link."""
         return self.__points.copy()
 
     @property
     def cross_sections(self) -> list[str]:
+        """Returns the ids of the cross sections on this link."""
         return list(self.__cross_sections.values())
 
     @property
     def vissim_link(self) -> Any:
+        """Returns the COM vissim link represented by this."""
         return self.__vissim_link
 
     def __init__(self, links_by_no: dict[int, '_Link'], vissim_link: Any,
@@ -77,15 +88,21 @@ class _Link:
         for point in vissim_link.LinkPolyPts.GetAll():
             self.__points.append(Location(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
 
-    def add_cross_section(self, pos: float, cross_section_id: str):
+    def add_cross_section(self, pos: float, cross_section_id: str) -> None:
+        """Adds the cross section with the given position to this link."""
         assert pos not in self.__cross_sections
 
         self.__cross_sections[pos] = cross_section_id
 
-    def remove_cross_section(self, pos: float):
+    def remove_cross_section(self, pos: float) -> None:
+        """Removes the cross section with the given position from this link."""
         self.__cross_sections.pop(pos)
 
     def get_cross_section_successors(self, pos: float) -> list[str]:
+        """
+        Returns a list of the ids of cross sections that directly follow the cross section
+        with the given position on any path.
+        """
         assert pos in self.__cross_sections
         return self.__get_cs_successors(pos, set())
 
@@ -101,11 +118,15 @@ class _Link:
 
         result = []
         for successor in self.successors:
-            result += successor.__get_cs_successors(-1, walked)
+            result += successor.__get_cs_successors(-1, walked)  # pylint: disable=protected-access
 
         return result
 
     def get_cross_section_links(self, pos: float) -> list[int]:
+        """
+        Returns all links the cross section at the given positon affects. That are all links
+        that are following this link on any path where no other cross section is.
+        """
         assert pos in self.__cross_sections
         return self.__get_cross_section_links(pos, set())
 
@@ -118,17 +139,22 @@ class _Link:
         if pos == -1 and self.__cross_sections:
             return []
 
-        if pos != -1 and list(self.__cross_sections.keys())[-1] != pos:
+        if pos not in (-1, list(self.__cross_sections.keys())[-1]):
             return [self.vissim_link]
 
         if len(self.successors) != 1:
             return [self.vissim_link]
 
+        # pylint: disable=protected-access
         return [self.vissim_link] + self.successors[0].__get_cross_section_links(-1, walked)
 
     def contains_point(self, point: Location) -> tuple[bool, float]:
+        """
+        Returns true and the distance from the start point of this link if the given point
+        is on this link. Returns false and -1 otherwise.
+        """
         other_point = self.__points[0]
-        distance = 0
+        distance = 0.0
         for current_point in self.__points:
             if point.is_between(other_point, current_point):
                 return True, distance + other_point.distance(point)
@@ -140,14 +166,16 @@ class _Link:
 
 
 class VissimNetwork:
+    """
+    The vissim network as a directed graph of links. Links are the vertices.
+    Contains methods that allow to query network information for cross section or links.
+    """
     __links_by_no: dict[int, _Link]
-    __vissim_network: Any
 
     def __init__(self, vissim_network: Any):
         self.__links_by_no = {}
-        self.__vissim_network = vissim_network
 
-        connectors_by_from_link = {}
+        connectors_by_from_link: dict[int, list[int]] = {}
         for connector in vissim_network.Links.GetFilteredSet("[IsConn]=1"):
             connector_no = connector.AttValue("No")
             connector_from_link_no = connector.FromLink.AttValue("No")
@@ -162,12 +190,21 @@ class VissimNetwork:
             self.__links_by_no[link.no] = link
 
     def add_cross_section(self, link_no: int, pos: float, cross_section_id: str) -> None:
+        """
+        Adds the cross section with the given id at the given link and position
+        from the network.
+        """
         self.__links_by_no[link_no].add_cross_section(pos, cross_section_id)
 
     def remove_cross_section(self, link_no: int, pos: float) -> None:
+        """Removes the cross section at the given link and position from the network."""
         self.__links_by_no[link_no].remove_cross_section(pos)
 
     def get_cross_section_successors(self, link_no: int, pos: float) -> list[str]:
+        """
+        Returns the ids of the cross sections that are directly following the given cross
+        section on any possible path.
+        """
         return self.__links_by_no[link_no].get_cross_section_successors(pos)
 
     def get_cross_section_links(self, link_no: int, pos: float) -> list[Any]:
@@ -178,6 +215,10 @@ class VissimNetwork:
         return self.__links_by_no[link_no].get_cross_section_links(pos)
 
     def get_link_and_position(self, location: Location) -> tuple[Any, float]:
+        """
+        Returns the link and the position on the link of the given location.
+        Raises an InvalidPositionExcption if no valid link was found.
+        """
         for link in self.__links_by_no.values():
             result, distance = link.contains_point(location)
             if result:
@@ -185,7 +226,13 @@ class VissimNetwork:
 
         raise InvalidPositionException("No link with the given position found")
 
-    def get_main_route(self, starting_link_no: int | None = None) -> tuple[list[Location], list[str]]:
+    def get_main_route(self, starting_link_no:
+                       int | None = None) -> tuple[list[Location], list[str]]:
+        """
+        Returns the main route and the ids of the cross sections that are on it in the
+        correct order.
+        """
+        link = None
         if starting_link_no is not None:
             link = self.__links_by_no[starting_link_no]
         else:

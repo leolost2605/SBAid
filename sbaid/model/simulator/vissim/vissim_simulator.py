@@ -28,8 +28,8 @@ class VissimSimulator(Simulator):
         """
         return self.__type
 
-    @Simulator.route.getter
-    def route(self):
+    @Simulator.route.getter  # type: ignore
+    def route(self) -> Gio.ListModel:
         """TODO"""
         return self.__route
 
@@ -50,7 +50,12 @@ class VissimSimulator(Simulator):
         self.__connector = VissimConnector()
 
     async def load_file(self, file: Gio.File) -> None:
-        route, cross_sections = await self.__connector.load_file(file.get_path())
+        path = file.get_path()
+
+        if not path:
+            raise FileNotFoundError("Path not found")
+
+        route, cross_sections = await self.__connector.load_file(path)
 
         for coord in route:
             self.__route.append(coord)
