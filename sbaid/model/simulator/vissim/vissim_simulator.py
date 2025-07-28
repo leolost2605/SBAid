@@ -1,5 +1,5 @@
 """This module contains the VissimCrossSection class."""
-from gi.repository import GObject, Gio, GLib
+from gi.repository import Gio, GLib
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
