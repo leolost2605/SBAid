@@ -1,5 +1,5 @@
 """This module contains the DummySimulator class."""
-from gi.repository import GObject, Gio
+from gi.repository import Gio
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -12,12 +12,12 @@ from sbaid.common.cross_section_type import CrossSectionType
 class DummySimulator(Simulator):
     """TODO"""
 
-    @GObject.Property(type=SimulatorType)
+    @Simulator.type.getter  # type: ignore
     def type(self) -> SimulatorType:
         """TODO"""
         return None
 
-    @GObject.Property(type=Gio.ListModel)
+    @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """TODO"""
         return None
