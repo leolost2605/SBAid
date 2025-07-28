@@ -10,11 +10,14 @@ from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
 from sbaid.common.image_format import ImageFormat
 from sbaid.common.image import Image
 from sbaid.model.results.result import Result
+from sbaid.common.diagram_type import DiagramType
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
     """This class contains the logic for generating a heatmap diagram,
     given the simulation results."""
+
+    __diagram_type: DiagramType = DiagramType("heatmap_diagram", "Heatmap")
 
     def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
         data = self.__filter_result_data(result, cross_section_ids)
@@ -24,6 +27,9 @@ class HeatmapGenerator(GlobalDiagramGenerator):
                     square=False, xticklabels=data[1], yticklabels=data[2])
         #TODO: dont show all timestamps
         pass
+
+    def get_diagram_type(self) -> DiagramType:
+        return self.__diagram_type
 
     def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
         diagram_data = []
