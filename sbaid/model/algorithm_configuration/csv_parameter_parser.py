@@ -13,7 +13,7 @@ class CSVParameterParser(ParameterParser):
         """todo"""
         return None
 
-    def for_each_parameter(self, file: Gio.File,
-                           callback: ParameterParserForeachFunc) -> Tuple[int, int]:
+    async def for_each_parameter(self, file: Gio.File,
+                                 callback: ParameterParserForeachFunc) -> Tuple[int, int]:
         """TODO"""
         return 0, 0
