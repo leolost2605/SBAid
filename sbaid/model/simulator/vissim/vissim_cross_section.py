@@ -1,7 +1,5 @@
 """This module contains the VissimCrossSection class."""
-from gi.repository import GObject
-
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.model.simulator.vissim.vissim import VissimConnectorCrossSectionState
@@ -9,42 +7,33 @@ from sbaid.model.simulator.vissim.vissim import VissimConnectorCrossSectionState
 
 class VissimCrossSection(SimulatorCrossSection):
     """This class represents the PTV Vissim simulator cross section."""
-
     __id: str
     __type: CrossSectionType
-    __position: Coordinate
+    __position: Location
     __lanes: int
 
-    @GObject.Property(type=str)
+    @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
         return self.__id
 
-    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
+        """TODO"""
         return self.__type
 
-    @GObject.Property(type=Coordinate)
-    def position(self) -> Coordinate:
+    @SimulatorCrossSection.position.getter  # type: ignore
+    def position(self) -> Location:
+        """TODO"""
         return self.__position
 
-    @GObject.Property(type=int)
+    @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
         return self.__lanes
 
-    @GObject.Property(type=bool, default=True)
+    @SimulatorCrossSection.hard_shoulder_available.getter
     def hard_shoulder_available(self) -> bool:
         """TODO"""
         return True
-
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_active(self) -> bool:
-        """TODO"""
-        return False
-
-    @GObject.Property(type=bool, default=False)
-    def b_display_active(self) -> bool:
-        """TODO"""
-        return False
 
     def __init__(self, state: VissimConnectorCrossSectionState):
         super().__init__()
