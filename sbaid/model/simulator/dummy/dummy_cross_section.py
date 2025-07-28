@@ -8,12 +8,13 @@ from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 class DummyCrossSection(SimulatorCrossSection):
     """This class represents the dummy simulator cross section."""
-    id = GObject.Property(type=str)
-    name = GObject.Property(type=str)
-    type = GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
-    location = GObject.Property(type=Location)
-    lanes = GObject.Property(type=int)
-    hard_shoulder_available = GObject.Property(type=bool, default=False)
+    id: str = GObject.Property(type=str)  # type: ignore
+    name: str = GObject.Property(type=str)  # type: ignore
+    type: CrossSectionType = GObject.Property(type=CrossSectionType,  # type: ignore
+                            default=CrossSectionType.COMBINED)  # type: ignore
+    location: Location = GObject.Property(type=Location)  # type: ignore
+    lanes: int = GObject.Property(type=int)  # type: ignore
+    hard_shoulder_available: bool = GObject.Property(type=bool, default=False)  # type: ignore
 
     def __init__(self, cs_id: str, cs_name: str, cs_type: CrossSectionType, location: Location,
                  lanes: int, hard_shoulder_available: bool) -> None:
