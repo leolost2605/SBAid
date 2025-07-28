@@ -11,7 +11,7 @@ from threading import Thread
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
@@ -47,7 +47,7 @@ class VissimCommand:
 class VissimConnectorCrossSectionState(NamedTuple):
     id: str
     type: CrossSectionType
-    position: Coordinate
+    position: Location
     lanes: int
     successors: list[str]
 
@@ -99,7 +99,7 @@ class _CrossSection:
         return CrossSectionType.COMBINED
 
     @property
-    def position(self) -> Coordinate:
+    def position(self) -> Location:
         return None
 
     @property
@@ -265,10 +265,10 @@ class VissimConnector:
         self.__network = None
         pythoncom.CoUninitialize()
 
-    async def load_file(self, path: str) -> tuple[list[Coordinate], list[VissimConnectorCrossSectionState]]:
+    async def load_file(self, path: str) -> tuple[list[Location], list[VissimConnectorCrossSectionState]]:
         return await self.__push_command(self.__load_file, path)
 
-    def __load_file(self, path: str) -> tuple[list[Coordinate], list[VissimConnectorCrossSectionState]]:
+    def __load_file(self, path: str) -> tuple[list[Location], list[VissimConnectorCrossSectionState]]:
         assert threading.current_thread() == self.__thread
 
         self.__cross_sections_by_id = {}
@@ -349,11 +349,11 @@ class VissimConnector:
         distr = self.__vissim.Net.DesSpeedDistributions.AddDesSpeedDistribution(None, points)
         return distr.AttValue("No")
 
-    async def create_cross_section(self, position: Coordinate,
+    async def create_cross_section(self, position: Location,
                                    cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         return await self.__push_command(self.__create_cross_section, position, cs_type)
 
-    def __create_cross_section(self, position: Coordinate,
+    def __create_cross_section(self, position: Location,
                                cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
@@ -374,10 +374,10 @@ class VissimConnector:
         cross_section = self.__cross_sections_by_id.pop(cs_id)
         self.__remove_cs_from_vissim(cross_section)
 
-    async def move_cross_section(self, cs_id: str, new_position: Coordinate) -> VissimConnectorCrossSectionState:
+    async def move_cross_section(self, cs_id: str, new_position: Location) -> VissimConnectorCrossSectionState:
         return await self.__push_command(self.__move_cross_section, cs_id, new_position)
 
-    def __move_cross_section(self, cs_id: str, new_position: Coordinate) -> VissimConnectorCrossSectionState:
+    def __move_cross_section(self, cs_id: str, new_position: Location) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
         cross_section = self.__cross_sections_by_id[cs_id]
@@ -394,7 +394,7 @@ class VissimConnector:
 
         return cross_section.state
 
-    def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Coordinate,
+    def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Location,
                            cs_type: CrossSectionType, first_id: int | None = None) -> None:
         assert threading.current_thread() == self.__thread
 
@@ -504,7 +504,7 @@ class VissimConnector:
 #     print("Remove cross section")
 #     # await conn.remove_cross_section(css[-1].id)
 #     print("Move cross section")
-#     # await conn.move_cross_section(css[-2].id, Coordinate(0, 0))
+#     # await conn.move_cross_section(css[-2].id, Location(0, 0))
 #     print("Init simulation")
 #     # await conn.init_simulation(60)
 #     await conn.shutdown()

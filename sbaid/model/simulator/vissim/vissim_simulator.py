@@ -21,7 +21,7 @@ class VissimSimulator(Simulator):
 
     def __init__(self) -> None:
         self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
-        self.__route = Gio.ListStore.new(Coordinate)
+        self.__route = Gio.ListStore.new(Location)
         self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
         self.__connector = VissimConnector()
 
@@ -60,7 +60,7 @@ class VissimSimulator(Simulator):
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
         """TODO"""
-        new_cs_state = await self.__connector.create_cross_section(coordinate, cross_section_type)
+        new_cs_state = await self.__connector.create_cross_section(location, cross_section_type)
         self.__cross_sections.append(VissimCrossSection(new_cs_state))
         return self.__cross_sections.get_n_items() - 1
 

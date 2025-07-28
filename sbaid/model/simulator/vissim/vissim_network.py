@@ -1,7 +1,7 @@
 from typing import Any
 from sortedcontainers import SortedDict
 
-from sbaid.common.coordinate import Coordinate
+from sbaid.common.location import Location
 
 
 class InvalidPositionException(Exception):
@@ -17,7 +17,7 @@ class _Link:
     __no: int
     __successor_nos: list[int]
     __vissim_link: Any
-    __points: list[Coordinate]
+    __points: list[Location]
     __cross_sections: SortedDict[float, str]
 
     @property
@@ -48,7 +48,7 @@ class _Link:
         raise InvalidSuccessorsException("Leftmost lane has no successor")
 
     @property
-    def points(self) -> list[Coordinate]:
+    def points(self) -> list[Location]:
         return self.__points.copy()
 
     @property
@@ -75,7 +75,7 @@ class _Link:
                 self.__successor_nos.append(connector_no)
 
         for point in vissim_link.LinkPolyPts.GetAll():
-            self.__points.append(Coordinate(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
+            self.__points.append(Location(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
 
     def add_cross_section(self, pos: float, cross_section_id: str):
         assert pos not in self.__cross_sections
@@ -126,7 +126,7 @@ class _Link:
 
         return [self.vissim_link] + self.successors[0].__get_cross_section_links(-1, walked)
 
-    def contains_point(self, point: Coordinate) -> tuple[bool, float]:
+    def contains_point(self, point: Location) -> tuple[bool, float]:
         other_point = self.__points[0]
         distance = 0
         for current_point in self.__points:
@@ -177,7 +177,7 @@ class VissimNetwork:
         """
         return self.__links_by_no[link_no].get_cross_section_links(pos)
 
-    def get_link_and_position(self, location: Coordinate) -> tuple[Any, float]:
+    def get_link_and_position(self, location: Location) -> tuple[Any, float]:
         for link in self.__links_by_no.values():
             result, distance = link.contains_point(location)
             if result:
@@ -185,7 +185,7 @@ class VissimNetwork:
 
         raise InvalidPositionException("No link with the given position found")
 
-    def get_main_route(self, starting_link_no: int | None = None) -> tuple[list[Coordinate], list[str]]:
+    def get_main_route(self, starting_link_no: int | None = None) -> tuple[list[Location], list[str]]:
         if starting_link_no is not None:
             link = self.__links_by_no[starting_link_no]
         else:
