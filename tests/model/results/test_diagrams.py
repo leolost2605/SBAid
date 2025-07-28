@@ -27,5 +27,5 @@ class DiagramTest(unittest.TestCase):
                 timestamps.append("")
 
         date = GLib.DateTime.new_utc(2025, 7, 22, 13, 16, 45)
-        generator.get_diagram("result_name", "project_name",
+        generator.generate_diagram("result_name", "project_name",
                                    diagram_data, cross_sections, timestamps, date)
