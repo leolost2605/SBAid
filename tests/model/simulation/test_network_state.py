@@ -38,5 +38,5 @@ class NetworkStateTest(unittest.TestCase):
 
         self.assertEqual(network_state.route.get_n_items(), 0)
         self.assertEqual(network_state.cross_section_states.get_n_items(), 2)
-        self.assertEqual(network_state.cross_section_states.get_item(0).no, "my_cs_id")
-        self.assertEqual(network_state.cross_section_states.get_item(1).no, "my_cs_id2")
+        self.assertEqual(network_state.cross_section_states.get_item(0).id, "my_cs_id")
+        self.assertEqual(network_state.cross_section_states.get_item(1).id, "my_cs_id2")

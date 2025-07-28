@@ -1,5 +1,5 @@
 """This module contains the VissimCrossSection class."""
-from gi.repository import GObject, Gio
+from gi.repository import Gio
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -19,13 +19,7 @@ class VissimSimulator(Simulator):
     __cross_sections: Gio.ListStore
     __connector: VissimConnector
 
-    def __init__(self) -> None:
-        self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
-        self.__route = Gio.ListStore.new(Location)
-        self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
-        self.__connector = VissimConnector()
-
-    @GObject.Property(type=SimulatorType)
+    @Simulator.type.getter  # type: ignore
     def type(self) -> SimulatorType:
         """
         Returns the simulator type, in this case PTV Vissim.
@@ -33,12 +27,12 @@ class VissimSimulator(Simulator):
         """
         return self.__type
 
-    @GObject.Property(type=Gio.ListModel)
+    @Simulator.route.getter
     def route(self):
         """TODO"""
         return self.__route
 
-    @GObject.Property(type=Gio.ListModel)
+    @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """
         Returns a Gio.ListModel containing the cross sections in this simulator file.
@@ -47,6 +41,12 @@ class VissimSimulator(Simulator):
         :return: A Gio.ListModel containing the cross sections in this simulator file.
         """
         return self.__cross_sections
+
+    def __init__(self) -> None:
+        self.__type = SimulatorType("com.ptvgroup.vissim", "PTV Vissim")
+        self.__route = Gio.ListStore.new(Location)
+        self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
+        self.__connector = VissimConnector()
 
     async def load_file(self, file: Gio.File) -> None:
         route, cross_sections = await self.__connector.load_file(file.get_path())
