@@ -1,6 +1,10 @@
 """This module defines the Context Class"""
 from os import path
 from typing import List, Tuple
+
+import gi
+
+gi.require_version('Gtk', '3.0')
 from gi.repository import GObject, Gio, Gtk
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
