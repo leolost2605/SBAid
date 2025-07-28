@@ -32,13 +32,16 @@ class VissimCommand:
 
     def run(self) -> bool:
         if self.func:
-            results = self.func(*self.args)
-        else:
-            results = None
+            try:
+                results = self.func(*self.args)
+                self.future.get_loop().call_soon_threadsafe(self.future.set_result, results)
+            except Exception as e:
+                self.future.get_loop().call_soon_threadsafe(self.future.set_exception, e)
 
-        self.future.get_loop().call_soon_threadsafe(self.future.set_result, results)
+            return True
 
-        return self.func is not None
+        self.future.get_loop().call_soon_threadsafe(self.future.set_result, None)
+        return False
 
 
 class VissimConnectorCrossSectionState(NamedTuple):
@@ -169,6 +172,8 @@ class _CrossSection:
         if not display_changed:
             return
 
+        blocked_classes_by_lane = {}
+
         self.__current_b_display = b_display
 
         lorry_no_overtaking = b_display == BDisplay.LORRY_NO_OVERTAKING
@@ -196,7 +201,10 @@ class _CrossSection:
             else:
                 found_open_lane = True
 
-            self.__configure_lane_blocked(lane_index, blocked_vehicle_classes)
+            blocked_classes_by_lane[lane_index] = blocked_vehicle_classes
+
+        for link in self.__network.get_cross_section_links(self.link_no, self.link_pos):
+            self.__configure_blocked_lanes(link, blocked_classes_by_lane)
 
     def __get_lane_config(self, a_display: ADisplay) -> tuple[int, bool]:
         speed = 130
@@ -216,16 +224,14 @@ class _CrossSection:
 
         return speed, a_display == ADisplay.CLOSED_LANE
 
-    def __configure_lane_blocked(self, lane_index: int, blocked: str) -> None:
-        for i, decision in enumerate(self.__des_speed_decisions, 1):
-            lane = decision.Lane
-
-            if i == lane_index + 1:
-                lane.SetAttValue("NoLnChRVehClasses", blocked)
-            elif i == lane_index:
-                lane.SetAttValue("BlockedVehClasses", blocked)
-            elif i == lane_index - 1:
-                lane.SetAttValue("NoLnChLVehClasses", blocked)
+    def __configure_blocked_lanes(self, link: Any, blocked_classes_by_lane: dict[int, str]) -> None:
+        for i, lane in enumerate(link.Lanes.GetAll(), 1):
+            blocked_ch_r = blocked_classes_by_lane.get(i - 1) or ""
+            blocked = blocked_classes_by_lane.get(i) or ""
+            blocked_ch_l = blocked_classes_by_lane.get(i + 1) or ""
+            lane.SetAttValue("NoLnChRVehClasses", blocked_ch_r)
+            lane.SetAttValue("BlockedVehClasses", blocked)
+            lane.SetAttValue("NoLnChLVehClasses", blocked_ch_l)
 
 
 class VissimConnector:
@@ -299,7 +305,7 @@ class VissimConnector:
 
             if link_no not in cs_by_link_and_pos:
                 cs_by_link_and_pos[link_no] = {}
-            elif pos not in cs_by_link_and_pos:  # Maybe adjust pos to merge with a measuring cross section
+            elif pos not in cs_by_link_and_pos:  # Adjust pos to merge with a measuring cross section if close enough
                 existing_cs = cs_by_link_and_pos[link_no].values()
                 for cs in existing_cs:
                     if abs(pos - cs.link_pos) <= 5:

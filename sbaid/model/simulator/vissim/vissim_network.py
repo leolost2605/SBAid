@@ -86,6 +86,7 @@ class _Link:
         self.__cross_sections.pop(pos)
 
     def get_cross_section_successors(self, pos: float) -> list[str]:
+        assert pos in self.__cross_sections
         return self.__get_cs_successors(pos, set())
 
     def __get_cs_successors(self, pos: float, walked: set['_Link']) -> list[str]:
@@ -103,6 +104,27 @@ class _Link:
             result += successor.__get_cs_successors(-1, walked)
 
         return result
+
+    def get_cross_section_links(self, pos: float) -> list[int]:
+        assert pos in self.__cross_sections
+        return self.__get_cross_section_links(pos, set())
+
+    def __get_cross_section_links(self, pos: float, walked: set['_Link']) -> list[Any]:
+        if self in walked:
+            return []
+
+        walked.add(self)
+
+        if pos == -1 and self.__cross_sections:
+            return []
+
+        if pos != -1 and list(self.__cross_sections.keys())[-1] != pos:
+            return [self.vissim_link]
+
+        if len(self.successors) != 1:
+            return [self.vissim_link]
+
+        return [self.vissim_link] + self.successors[0].__get_cross_section_links(-1, walked)
 
     def contains_point(self, point: Coordinate) -> tuple[bool, float]:
         other_point = self.__points[0]
@@ -147,6 +169,13 @@ class VissimNetwork:
 
     def get_cross_section_successors(self, link_no: int, pos: float) -> list[str]:
         return self.__links_by_no[link_no].get_cross_section_successors(pos)
+
+    def get_cross_section_links(self, link_no: int, pos: float) -> list[Any]:
+        """
+        Returns the links that this cross section affects. Only useful for
+        display or combined cross sections.
+        """
+        return self.__links_by_no[link_no].get_cross_section_links(pos)
 
     def get_link_and_position(self, location: Coordinate) -> tuple[Any, float]:
         for link in self.__links_by_no.values():
