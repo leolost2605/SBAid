@@ -7,7 +7,7 @@ from gi.repository import GObject, GLib
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
-# from sbaid.model.database.project_database import ProjectDatabase
+from sbaid.model.database.project_database import ProjectDatabase
 
 
 class CrossSection(GObject.GObject):
@@ -113,17 +113,20 @@ class CrossSection(GObject.GObject):
     async def __update_hard_shoulder_active(self) -> None:
         pass
 
-    def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
+    def __init__(self, simulator_cross_section: SimulatorCrossSection, project_db: ProjectDatabase) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
         self.__cross_section = simulator_cross_section
+        self.__project_db = project_db
         super().__init__(location=simulator_cross_section.position,
                          type=simulator_cross_section.type,
                          id=simulator_cross_section.id)
 
     def load_from_db(self) -> None:
         """Loads cross section details from the database."""
-        # TODO: have project database instance
-        # self.name = project_db.get_cross_section_name(self.id)
+        self.name = self.__project_db.get_cross_section_name(self.id)
+        #self.hard_shoulder_active = self.__project_db.get_hard_shoulder_active
+        #self.b_display_active = self.__project_db.get_b_display_active
+        #TODO: methoden ainda nao existem
 
 
 class FunctionalityNotAvailableException(Exception):
