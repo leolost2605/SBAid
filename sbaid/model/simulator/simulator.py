@@ -16,13 +16,11 @@ from sbaid.model.simulation.display import Display
 class Simulator(GObject.GObject):
     """TODO"""
 
-    @GObject.Property(type=SimulatorType)
-    def type(self) -> SimulatorType:
-        """TODO"""
+    type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
+                                           flags=GObject.ParamFlags.READABLE)
 
-    @GObject.Property(type=Gio.ListModel)
-    def cross_sections(self) -> Gio.ListModel:
-        """TODO"""
+    cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
+                                                     flags=GObject.ParamFlags.READABLE)
 
     async def load_file(self, file: Gio.File) -> None:
         """Load the simulation file."""

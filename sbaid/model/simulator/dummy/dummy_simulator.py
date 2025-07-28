@@ -78,12 +78,12 @@ class DummySimulator(Simulator):
         "additionalProperties": False
     }
 
-    @GObject.Property(type=SimulatorType)
+    @Simulator.type.getter  # type: ignore
     def type(self) -> SimulatorType:
         """Property definition for the simulator type."""
         return self._type
 
-    @GObject.Property(type=Gio.ListModel)
+    @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
         return self._cross_sections

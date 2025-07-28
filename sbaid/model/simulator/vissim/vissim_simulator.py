@@ -12,12 +12,12 @@ from sbaid.common.cross_section_type import CrossSectionType
 class VissimSimulator(Simulator):
     """TODO"""
 
-    @GObject.Property(type=SimulatorType)
+    @Simulator.type.getter  # type: ignore
     def type(self) -> SimulatorType:
         """TODO"""
         return None
 
-    @GObject.Property(type=Gio.ListModel)
+    @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """TODO"""
         return None
