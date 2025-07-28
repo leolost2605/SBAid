@@ -32,6 +32,23 @@ class ProjectDatabase(ABC):
         """Update the name of the cross_section with the given id."""
 
     @abstractmethod
+    async def get_cross_section_hard_shoulder_active(self, cross_section_id: str) -> bool:
+        """Return whether the hard should is active for the given cross section."""
+
+    @abstractmethod
+    async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
+                                                     status: bool) -> None:
+        """Update whether the hard should is active for the given cross section."""
+
+    @abstractmethod
+    async def get_cross_section_b_display_active(self, cross_section_id: str) -> bool:
+        """Return whether the b is active for the given cross section."""
+
+    @abstractmethod
+    async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
+        """Update whether the b is active for the given cross section."""
+
+    @abstractmethod
     async def get_algorithm_configuration_name(self, algorithm_configuration_id: str) -> str:
         """Return the name of the algorithm_configuration with the given id."""
 
@@ -104,8 +121,10 @@ class ProjectDatabase(ABC):
         parameter name and cross section."""
 
     @abstractmethod
-    async def add_cross_section(self, cross_section_id: str, name: str) -> None:
-        """Add a new cross section with an id and a name."""
+    async def add_cross_section(self, cross_section_id: str, name: str,
+                                hard_shoulder_active: bool, b_display_active: bool) -> None:
+        """Add a new cross section with an id, a name and where the hard shoulder
+        or b display are active."""
 
     @abstractmethod
     async def remove_cross_section(self, cross_section_id: str) -> None:

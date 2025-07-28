@@ -1,6 +1,4 @@
 """This module contains the DummyCrossSection class."""
-from gi.repository import GObject
-
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
@@ -8,6 +6,7 @@ from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 class DummyCrossSection(SimulatorCrossSection):
     """This class represents the dummy simulator cross section."""
+<<<<<<< model-simulator-dummy
     id: str = GObject.Property(type=str)  # type: ignore
     name: str = GObject.Property(type=str)  # type: ignore
     type: CrossSectionType = GObject.Property(type=CrossSectionType,  # type: ignore
