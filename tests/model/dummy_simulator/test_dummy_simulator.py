@@ -5,10 +5,10 @@ import unittest
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
-from sbaid.common import list_model_iterator
+from sbaid.model.simulator.dummy.dummy_simulator import EndOfSimulationException
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.simulation.vehicle_info import VehicleInfo
-from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator, EndOfSimulationException
+from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
 
 class DisplayTestCase(unittest.TestCase):
@@ -36,7 +36,7 @@ class DisplayTestCase(unittest.TestCase):
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 131.9)
-        await sim.continue_simulation(1)
+        await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
@@ -51,7 +51,7 @@ class DisplayTestCase(unittest.TestCase):
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 131.9)
-        await sim.continue_simulation(1)
+        await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
@@ -62,7 +62,7 @@ class DisplayTestCase(unittest.TestCase):
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 131.9)
-        await sim.continue_simulation(1)
+        await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
@@ -72,16 +72,18 @@ class DisplayTestCase(unittest.TestCase):
         sim = DummySimulator()
 
         cur_file = Gio.File.new_for_path("test.json")
-        # self.assertRaises(FileNotFoundError, await sim.measure())
+        with self.assertRaises(FileNotFoundError):
+            await sim.measure()
 
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
-        await sim.continue_simulation(1)
+        await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         other_file = Gio.File.new_for_path("test2.json")
-        # self.assertRaises(RuntimeError, await sim.load_file(other_file))
+        with self.assertRaises(RuntimeError):
+            await sim.load_file(other_file)
 
     async def run_too_long(self) -> None:
         self.assertTrue(True)
@@ -90,10 +92,10 @@ class DisplayTestCase(unittest.TestCase):
         cur_file = Gio.File.new_for_path("test.json")
         await sim.init_simulation()
         await sim.load_file(cur_file)
-        # self.assertRaises(EndOfSimulationException, await sim.continue_simulation(2))
+        with self.assertRaises(EndOfSimulationException):
+            await sim.continue_simulation(11)
 
     async def vehicle_infos(self):
-        self.assertTrue(True)
         sim = DummySimulator()
 
         cur_file = Gio.File.new_for_path("test.json")

@@ -1,8 +1,10 @@
 """This module contains the DummySimulator class."""
 import json
+import aiofiles
+
 from jsonschema import validate, ValidationError
 
-from gi.repository import GObject, Gio
+from gi.repository import GLib, GObject, Gio
 
 from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
@@ -35,6 +37,8 @@ class DummySimulator(Simulator):
     _pointer: int
     _type: SimulatorType
     _cross_sections: Gio.ListModel
+    _simulation_start_time: int
+    _simulation_end_time: int
     _schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -91,20 +95,22 @@ class DummySimulator(Simulator):
         self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
         self._sequence = {}
         self._pointer = 0
+        self._simulation_start_time = 0
+        self._simulation_end_time = 0
 
     async def load_file(self, file: Gio.File) -> None:
         """Loads a new file that is used to create simulator cross sections and the deterministic
         sequence of input measurements."""
-        with open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
+        async with aiofiles.open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
             if self._pointer != 0:
                 raise RuntimeError("Cannot open new file during simulation")
-            data = json.load(json_file)
+            data = json.loads(await json_file.read())
             try:
                 validate(instance=data, schema=self._schema)
             except ValidationError as e:
                 raise JSONExeption(e.message) from e
 
-            for snapshot_id, snapshot in data["vehicle_infos"].items():
+            for snapshot_time, snapshot in data["vehicle_infos"].items():
                 current_input = Input()
                 for cross_section, lanes in snapshot.items():
                     max_lanes = 0
@@ -114,11 +120,14 @@ class DummySimulator(Simulator):
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
-                    self.cross_sections.append(DummyCrossSection(cross_section,
-                                                                 CrossSectionType.MEASURING,
+                    self.cross_sections.append(DummyCrossSection(cross_section, cross_section,
+                                                                 CrossSectionType.COMBINED,
                                                                  Location(0, 0), max_lanes,
-                                                                 False, False, False))
-                self._sequence[int(snapshot_id)] = current_input
+                                                                 False))
+                self._sequence[int(snapshot_time)] = current_input
+
+        self._simulation_start_time = min(self._sequence.keys())
+        self._simulation_end_time = max(self._sequence.keys())
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
@@ -131,24 +140,29 @@ class DummySimulator(Simulator):
     async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
         """Has no effect."""
 
-    async def init_simulation(self) -> tuple[int, int]:
+    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
         """Initialize the simulator. Always returns 0 as the starting point
         and the amount of input measurements as the simulation length."""
         self._pointer = 0
-        return 0, len(self._sequence)
+        return GLib.DateTime.new_now_local(), self._simulation_end_time
 
     async def continue_simulation(self, span: int) -> None:
-        """Set the measuring pointer to the next position in the measurements."""
-        if (self._pointer + span) < len(self._sequence):
+        """Set the measuring pointer to the given position in the measurements."""
+        if (self._pointer + span) <= self._simulation_end_time:
             self._pointer = self._pointer + span
         else:
             raise EndOfSimulationException(f"The simulation cannot be continued {span} steps.")
 
     async def measure(self) -> Input:
-        """Return the current input of the simulator."""
+        """Return the current input of the simulator.
+        If there is no measurement given at the current time,
+        the nearest neighbouring measurement is returned."""
         if not self._sequence:
             raise FileNotFoundError("No simulator file has been loaded.")
-        return self._sequence.get(self._pointer)
+        if not self._sequence.keys().__contains__(self._pointer):
+            nearest = min(self._sequence.keys(), key=lambda x: abs(x - self._pointer))
+            return self._sequence[nearest]
+        return self._sequence[self._pointer]
 
     async def set_display(self, display: Display) -> None:
         """Has no effect."""
