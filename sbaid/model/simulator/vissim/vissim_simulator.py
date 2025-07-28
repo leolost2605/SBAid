@@ -1,6 +1,7 @@
 """This module contains the VissimCrossSection class."""
 from gi.repository import Gio
 
+from sbaid import common
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
@@ -66,13 +67,25 @@ class VissimSimulator(Simulator):
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
-        #TODO: Remove from store
         await self.__connector.remove_cross_section(cross_section_id)
+
+        for i, cross_section in enumerate(common.list_model_iterator(self.__cross_sections)):
+            if cross_section.id == cross_section_id:
+                self.__cross_sections.remove(i)
+                return
+
+        assert False
 
     async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
         """TODO"""
         new_cs_state = await self.__connector.move_cross_section(cross_section_id, new_position)
-        # TODO: update state
+
+        for cross_section in common.list_model_iterator(self.__cross_sections):
+            if cross_section.id == cross_section_id:
+                cross_section.set_state(new_cs_state)
+                return
+
+        assert False
 
     async def init_simulation(self) -> tuple[int, int]:
         """TODO"""

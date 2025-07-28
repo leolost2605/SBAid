@@ -1,6 +1,8 @@
 import unittest
 import os
 
+from gi.repository import GLib
+
 from sbaid.common.a_display import ADisplay
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
@@ -38,6 +40,7 @@ class VissimTestCase(unittest.IsolatedAsyncioTestCase):
             interval = 60
 
             time, duration = await self.__connector.init_simulation(interval)
+            print(time.format_iso8601())
             for i in range(int(duration / interval)):
                 await self.__run_iteration(cross_section_states, interval)
 

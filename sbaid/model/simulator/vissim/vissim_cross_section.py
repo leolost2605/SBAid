@@ -39,7 +39,7 @@ class VissimCrossSection(SimulatorCrossSection):
         super().__init__()
         self.set_state(state)
 
-    def set_state(self, state: VissimConnectorCrossSectionState):
+    def set_state(self, state: VissimConnectorCrossSectionState) -> None:
         self.__id = state.id
         self.__type = state.type
         self.__position = state.position

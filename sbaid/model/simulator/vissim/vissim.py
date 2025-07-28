@@ -9,6 +9,8 @@ from queue import Queue
 from typing import Any, NamedTuple, Callable
 from threading import Thread
 
+from gi.repository import GLib
+
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.location import Location
@@ -22,7 +24,7 @@ class VissimNotFoundException(Exception):
     pass
 
 
-class VissimCommand:
+class _VissimCommand:
     future: asyncio.Future[Any]
 
     def __init__(self, func: Callable[..., ...] | None, *args: Any) -> None:
@@ -236,7 +238,7 @@ class _CrossSection:
 
 class VissimConnector:
     __thread: Thread
-    __queue: Queue[VissimCommand]
+    __queue: Queue[_VissimCommand]
     __vissim: Any  # For the COM interface we use dynamic typing
     __network: VissimNetwork | None
     __cross_sections_by_id: dict[str, _CrossSection]
@@ -248,11 +250,11 @@ class VissimConnector:
         self.__thread.start()
 
     async def __push_command(self, func: Callable[..., ...] | None, *args: Any) -> Any:
-        command = VissimCommand(func, *args)
+        command = _VissimCommand(func, *args)
         self.__queue.put(command)
         return await command.future
 
-    def __thread_func(self, queue: Queue[VissimCommand]) -> None:
+    def __thread_func(self, queue: Queue[_VissimCommand]) -> None:
         assert threading.current_thread() == self.__thread
 
         pythoncom.CoInitialize()
@@ -434,11 +436,16 @@ class VissimConnector:
             decision_container.RemoveDesSpeedDecision(decision)
             cross_section.remove_des_speed_decision(decision)
 
-    async def init_simulation(self, eval_interval: int) -> tuple[int, int]:
+    async def init_simulation(self, eval_interval: int) -> tuple[GLib.DateTime, int]:
         return await self.__push_command(self.__init_simulation, eval_interval)
 
-    def __init_simulation(self, eval_interval: int) -> tuple[int, int]:
+    def __init_simulation(self, eval_interval: int) -> tuple[GLib.DateTime, int]:
         assert threading.current_thread() == self.__thread
+
+        sim_start = self.__vissim.Simulation.AttValue('StartTm')
+
+        sim_start_time = GLib.DateTime.new_utc(1, 1, 1, 0, 0, 0)
+        sim_start_time = sim_start_time.add_seconds(sim_start)
 
         sim_duration = self.__vissim.Simulation.AttValue('SimPeriod')
 
@@ -449,7 +456,7 @@ class VissimConnector:
 
         self.__vissim.Simulation.SetAttValue('UseMaxSimSpeed', True)
         self.__vissim.Simulation.RunSingleStep()
-        return 0, sim_duration
+        return sim_start_time, sim_duration
 
     async def continue_simulation(self, span: int) -> None:
         await self.__push_command(self.__continue_simulation, span)
@@ -492,23 +499,3 @@ class VissimConnector:
 
     async def shutdown(self) -> None:
         await self.__push_command(None)
-
-
-# async def run_test():
-#     conn = VissimConnector()
-#     route, css = await conn.load_file(r"C:\Users\vx9186\Projekte\sbaid_old\A5_sarah.inpx")
-#     for coord in route:
-#         print(f"{coord.x}, {coord.y}")
-#     for cs in css:
-#         print(cs)
-#     print("Remove cross section")
-#     # await conn.remove_cross_section(css[-1].id)
-#     print("Move cross section")
-#     # await conn.move_cross_section(css[-2].id, Location(0, 0))
-#     print("Init simulation")
-#     # await conn.init_simulation(60)
-#     await conn.shutdown()
-
-# loop = asyncio.get_event_loop()
-# task = loop.create_task(run_test())
-# loop.run_forever()
