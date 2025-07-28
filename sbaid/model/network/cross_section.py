@@ -1,4 +1,6 @@
 """This module contains the cross section class."""
+
+from typing import cast
 from gi.repository import GObject
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
@@ -11,33 +13,48 @@ class CrossSection(GObject.GObject):
 
     __cross_section: SimulatorCrossSection
 
-    @GObject.Property(type=str)
+    id: str = GObject.Property(type=str,  # type: ignore[assignment]
+                          flags=GObject.ParamFlags.READABLE |
+                          GObject.ParamFlags.WRITABLE |
+                          GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    @id.getter  # type: ignore
     def id(self) -> str:
-        """Returns the simulation cross sections's id."""
-        return self.__cross_section.id  # type: ignore
+        return self.__cross_section.id
 
-    @GObject.Property(type=str)
+    name: str = GObject.Property(type=str,  # type: ignore[assignment]
+                                 flags=GObject.ParamFlags.READABLE |
+                                       GObject.ParamFlags.WRITABLE |
+                                       GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    @name.getter  # type: ignore
     def name(self) -> str:
-        """Returns this cross section's name"""
-        # TODO: read from database or idk
-        return "hi"
+        return self.__cross_section.name  # TODO: needs implementation in simulator cross section
 
-    @GObject.Property(type=Location)
-    def location(self) -> Location:
-        """Returns the simulation cross section's location."""
-        return self.__cross_section.position  # type: ignore
+    @name.setter  # type: ignore
+    def name(self, value: str) -> None:
+        self.__cross_section.name = value
 
-    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    location: Location = GObject.Property(type=Location)  # type: ignore
+
+    @location.getter  # type: ignore
+    def position(self) -> Location:
+        return cast(Location, self.__cross_section.position)
+
+    type: CrossSectionType = GObject.Property(type=CrossSectionType,
+                                              default=CrossSectionType.COMBINED)  # type: ignore
+
+    @type.getter  # type: ignore
     def type(self) -> CrossSectionType:
-        """Returns the simulation cross section's type."""
-        return self.__cross_section.type  # type: ignore
+        return cast(CrossSectionType, self.__cross_section.type)
 
-    @GObject.Property(type=int)
+    lanes: int = GObject.Property(type=int)  # type: ignore
+
+    @lanes.getter  # type: ignore
     def lanes(self) -> int:
-        """Returns the simulation cross section's lane amount."""
-        return self.__cross_section.lanes  # type: ignore
+        return cast(int, self.__cross_section.lanes)
 
-    b_display_active = GObject.Property(type=bool, default=False)
+    b_display_active: bool = GObject.Property(type=bool, default=False)
 
     @b_display_active.getter  # type: ignore
     def b_display_active(self) -> bool:
@@ -54,7 +71,7 @@ class CrossSection(GObject.GObject):
         """Returns the simulator cross section's hard shoulder availability."""
         return self.__cross_section.hard_shoulder_available  # type: ignore
 
-    hard_shoulder_active = GObject.Property(type=bool, default=False)
+    hard_shoulder_active: bool = GObject.Property(type=bool, default=False)
 
     @hard_shoulder_active.getter  # type: ignore
     def hard_shoulder_active(self) -> bool:
