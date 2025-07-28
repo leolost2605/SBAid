@@ -2,6 +2,7 @@
 
 from gi.repository import Gio, GObject
 from sbaid.common.b_display import BDisplay
+from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.lane_snapshot import LaneSnapshot
 
 
@@ -46,17 +47,25 @@ class CrossSectionSnapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    __global_db: GlobalDatabase
+
     def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
-                 b_display: BDisplay) -> None:
+                 b_display: BDisplay, global_db: GlobalDatabase) -> None:
         """todo"""
         super().__init__(snapshot_id=snapshot_id,
                          cross_section_snapshot_id=cross_section_snapshot_id,
                          cross_section_name=cross_section_name,
                          b_display=b_display,
                          lane_snapshots=Gio.ListStore.new(LaneSnapshot))
+        self.__global_db = global_db
 
-    def load_from_db(self) -> None:
-        """todo"""
+    async def load_from_db(self) -> None:
+        """Loads Lane Snapshots from the database and adds them to this class"""
+        lane_snapshot_data = await self.__global_db.get_all_lane_snapshots(self.cross_section_snapshot_id)
+        for lane_snapshot in lane_snapshot_data:
+            new_lane_snapshot = LaneSnapshot(self.cross_section_snapshot_id, lane_snapshot[0], lane_snapshot[1], lane_snapshot[2], lane_snapshot[3], lane_snapshot[4], self.__global_db)
+            await new_lane_snapshot.load_from_db()
+            self.lane_snapshots.append(new_lane_snapshot)
 
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """Add a LaneSnapshot to this CrossSectionSnapshot."""

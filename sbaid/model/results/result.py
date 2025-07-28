@@ -2,12 +2,11 @@
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
-# import GlobalDatabase
-
+from sbaid.model.database.global_database import GlobalDatabase
 
 class Result(GObject.GObject):
     """This class represents a result.
-    Attributes: TODO check if critical information is missing
+    Attributes:
         id (str): The unique identifier of the result.
         result_name (str): The name of the result.
         project_name (str): The name of the project the result belongs to.
@@ -49,24 +48,28 @@ class Result(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY
     )
+    __global_db: GlobalDatabase
 
     def __init__(self, result_id: str, project_name: str,
-                 creation_date_time: GLib.DateTime) -> None:
-        """Initialize for the Result class."""
+                 creation_date_time: GLib.DateTime, global_db: GlobalDatabase) -> None:
+        """Initializes the Result class."""
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
                          selected_tags=Gio.ListStore.new(Tag),
                          snapshots=Gio.ListStore.new(Snapshot))
 
-    def load(self) -> None:
-        """todo this method handles the logic for loading snapshots."""
-        # db_snapshots = [Snapshot]  # GlobalDatabase.get_all_snapshots(self.id)
+        self.__global_db = global_db
 
-        # for snapshot in db_snapshots:
-        # new_snapshot = Snapshot(snapshot)
-        # new_snapshot.load_from_db()
-        # self.add_snapshot(new_snapshot)
+
+    async def load(self) -> None:
+        """Handles the logic for loading snapshots."""
+        db_snapshots = await self.__global_db.get_all_snapshots(self.id)
+
+        for snapshot in db_snapshots:
+            new_snapshot = Snapshot(snapshot[0], snapshot[1], self.__global_db)
+            await new_snapshot.load_from_db()
+            self.add_snapshot(new_snapshot)
 
     def add_tag(self, tag: Tag) -> None:
         """Adds tag to the selected_tags list"""
@@ -79,7 +82,7 @@ class Result(GObject.GObject):
             self.selected_tags.remove(position)  # pylint:disable=no-member
 
     def load_from_db(self) -> None:
-        """todo"""
+        """todo ask if whats used in load context"""
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""

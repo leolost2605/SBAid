@@ -1,6 +1,5 @@
 """This module defines the DiagramExporter class"""
 from gi.repository import Gio, GObject
-
 from sbaid.common.image import Image
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
 from sbaid.model.results.display_generator import DisplayGenerator
