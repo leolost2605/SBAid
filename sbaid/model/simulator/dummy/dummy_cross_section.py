@@ -11,7 +11,7 @@ class DummyCrossSection(SimulatorCrossSection):
     id: str = GObject.Property(type=str)  # type: ignore
     name: str = GObject.Property(type=str)  # type: ignore
     type: CrossSectionType = GObject.Property(type=CrossSectionType,  # type: ignore
-                            default=CrossSectionType.COMBINED)
+                                              default=CrossSectionType.COMBINED)
     location: Location = GObject.Property(type=Location)  # type: ignore
     lanes: int = GObject.Property(type=int)  # type: ignore
     hard_shoulder_available: bool = GObject.Property(type=bool, default=False)  # type: ignore
