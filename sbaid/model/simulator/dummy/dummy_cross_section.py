@@ -1,6 +1,4 @@
 """This module contains the DummyCrossSection class."""
-from gi.repository import GObject
-
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
@@ -8,37 +6,27 @@ from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 
 class DummyCrossSection(SimulatorCrossSection):
     """This class represents the dummy simulator cross section."""
-    @GObject.Property(type=str)
+    @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
         """TODO"""
         return ""
 
-    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
         """TODO"""
         return CrossSectionType.COMBINED
 
-    @GObject.Property(type=Location)
+    @SimulatorCrossSection.position.getter  # type: ignore
     def position(self) -> Location:
         """TODO"""
         return Location(0, 0)
 
-    @GObject.Property(type=int)
+    @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
         """TODO"""
         return 0
 
-    @GObject.Property(type=bool, default=False)
+    @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
-        """TODO"""
-        return False
-
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_active(self) -> bool:
-        """TODO"""
-        return False
-
-    @GObject.Property(type=bool, default=False)
-    def b_display_active(self) -> bool:
         """TODO"""
         return False
