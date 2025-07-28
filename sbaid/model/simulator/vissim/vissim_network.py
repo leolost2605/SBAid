@@ -136,10 +136,14 @@ class _Link:
 
         walked.add(self)
 
+        # We aren't the first link and we have other cross sections so we aren't
+        # affected anymore
         if pos == -1 and self.__cross_sections:
             return []
 
-        if pos not in (-1, list(self.__cross_sections.keys())[-1]):
+        # We are the first link and we have another cross section that comes further down
+        # on the link so only affect us (this is suboptimal anyways if this happens)
+        if pos != -1 and list(self.__cross_sections.keys())[-1] != pos:
             return [self.vissim_link]
 
         if len(self.successors) != 1:
