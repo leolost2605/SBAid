@@ -99,7 +99,7 @@ class Network(GObject.Object):
         """Checks if the incoming cross section can be added, and if so if it can be added by
         itself or if it must be combined with a preexisting one. Returns a tuple with 3 elements:
         - bool: the cross section can be added,
-        - bool: the cross section is to be added through combination or if the location was valid,
+        - bool: the cross section is to be added through combination/ location was valid,
         - cross section | None: the cross section in a 25m radius of the incoming one, or None"""
         clashing_cross_section = self.__get_cross_section_in_radius(location)
         if clashing_cross_section is not None:
@@ -132,7 +132,7 @@ class Network(GObject.Object):
         return model_cross_section
 
     async def _load_cross_section_from_db(self, model_cross_section: CrossSection) -> None:
-        model_cross_section.load_from_db()
+        await model_cross_section.load_from_db()
 
 
 class FailedCrossSectionCreationException(Exception):

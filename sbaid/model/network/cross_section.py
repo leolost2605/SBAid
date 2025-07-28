@@ -31,7 +31,7 @@ class CrossSection(GObject.GObject):
     @CrossSection.name.getter  # type: ignore
     def name(self) -> str:
         """Returns this cross section's name."""
-        return self.__cross_section.name  # TODO: needs implementation in simulator cross section
+        return self.__cross_section.name
 
     @CrossSection.name.setter  # type: ignore
     def name(self, value: str) -> None:
