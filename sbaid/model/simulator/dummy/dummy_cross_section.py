@@ -15,32 +15,32 @@ class DummyCrossSection(SimulatorCrossSection):
 
     @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
-        """TODO"""
+        """Getter for the id."""
         return self._id
 
     @SimulatorCrossSection.name.getter  # type: ignore
     def name(self) -> str:
-        """TODO"""
+        """Getter for the name."""
         return self._name
 
     @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
-        """TODO"""
+        """Getter for the type."""
         return self._type
 
     @SimulatorCrossSection.position.getter  # type: ignore
     def location(self) -> Location:
-        """TODO"""
+        """Getter for the location."""
         return self._location
 
     @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
-        """TODO"""
+        """Getter for the lanes."""
         return self._lanes
 
     @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
-        """TODO"""
+        """Getter for the hard shoulder active boolean."""
         return self._hard_shoulder_active
 
     def __init__(self, cs_id: str, name: str, cs_type: CrossSectionType, location: Location,
