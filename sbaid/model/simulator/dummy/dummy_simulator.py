@@ -131,13 +131,13 @@ class DummySimulator(Simulator):
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
-        """Has no effect. Returns -1 as there is no  position of the new cross section."""
+        """Has no effect. Returns -1 as there is no  location of the new cross section."""
         return -1
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Has no effect."""
 
-    async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
+    async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
         """Has no effect."""
 
     async def init_simulation(self) -> tuple[GLib.DateTime, int]:
@@ -147,7 +147,7 @@ class DummySimulator(Simulator):
         return GLib.DateTime.new_now_local(), self._simulation_end_time
 
     async def continue_simulation(self, span: int) -> None:
-        """Set the measuring pointer to the given position in the measurements."""
+        """Set the measuring pointer to the given location in the measurements."""
         if (self._pointer + span) <= self._simulation_end_time:
             self._pointer = self._pointer + span
         else:
