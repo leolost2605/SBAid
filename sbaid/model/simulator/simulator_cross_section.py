@@ -18,7 +18,7 @@ class SimulatorCrossSection(GObject.GObject):
     type: CrossSectionType = GObject.Property(type=CrossSectionType,  # type: ignore
                                               flags=GObject.ParamFlags.READABLE,
                                               default=CrossSectionType.COMBINED)
-    position: Location = GObject.Property(type=Location,  # type: ignore
+    location: Location = GObject.Property(type=Location,  # type: ignore
                                           flags=GObject.ParamFlags.READABLE)
     lanes: int = GObject.Property(type=int, flags=GObject.ParamFlags.READABLE)  # type: ignore
     hard_shoulder_available: bool = GObject.Property(type=bool,  # type: ignore

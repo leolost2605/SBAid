@@ -29,14 +29,14 @@ class Simulator(GObject.GObject):
                                    cross_section_type: CrossSectionType) -> int:
         """
         Create a cross section object, add it to the cross section list
-        and return its position within the list
+        and return its location within the list
         """
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Remove the cross section object."""
 
     async def move_cross_section(self, cross_section_id: str,
-                                 new_position: Location) -> None:
+                                 new_location: Location) -> None:
         """Move the cross section object."""
 
     async def init_simulation(self) -> tuple[GLib.DateTime, int]:
