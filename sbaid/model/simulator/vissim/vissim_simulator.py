@@ -1,5 +1,5 @@
 """This module contains the VissimCrossSection class."""
-from gi.repository import Gio
+from gi.repository import GLib, Gio
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -38,11 +38,11 @@ class VissimSimulator(Simulator):
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
 
-    async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
+    async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
         """TODO"""
 
-    async def init_simulation(self) -> tuple[int, int]:
-        return 0, 0
+    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
+        return GLib.DateTime.new_now_local(), 0
 
     async def continue_simulation(self, span: int) -> None:
         """TODO"""
