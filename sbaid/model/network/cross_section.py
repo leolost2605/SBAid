@@ -74,7 +74,6 @@ class CrossSection(GObject.GObject):
         """Sets the simulator cross section's b display status."""
         self.b_display_active = value
         task = asyncio.create_task(self.__update_b_display_active(value))
-        print(type(task))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
 
