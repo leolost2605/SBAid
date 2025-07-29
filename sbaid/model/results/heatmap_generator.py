@@ -1,9 +1,11 @@
 """This module contains the HeatMapGenerator class."""
 
+from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.figure import Figure
 from gi.repository import GLib
 from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
@@ -11,6 +13,7 @@ from sbaid.common.image_format import ImageFormat
 from sbaid.common.image import Image
 from sbaid.model.results.result import Result
 from sbaid.common.diagram_type import DiagramType
+from sbaid.model.results.seaborn_image import SeabornImage
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
@@ -31,6 +34,17 @@ class HeatmapGenerator(GlobalDiagramGenerator):
     def get_diagram_type(self) -> DiagramType:
         return self.__diagram_type
 
+    def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
+        data: tuple[list, list, list] = self.__filter_result_data(result, cross_section_ids)
+        fig: Figure = self.__generate_diagram(result.result_name, result.project_name,
+                                                 data, result.creation_date_time)
+        buffer = BytesIO()
+
+        fig.savefig(buffer, format=image_format.value_name.lower(), bbox_inches='tight')
+        plt.close(fig)
+
+        return SeabornImage(buffer.getvalue())
+
     def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
         diagram_data = []
         cross_sections = []
@@ -49,24 +63,24 @@ class HeatmapGenerator(GlobalDiagramGenerator):
             diagram_data.append(average_speeds)
         return diagram_data, cross_sections, timestamps
 
-    def generate_diagram(self, result_name: str, project_name: str, diagram_data: list,
-                         cross_sections: list, timestamps: list, datetime: GLib.DateTime) -> Image:
-        #TODO: convert shown image to our Image
+    def __generate_diagram(self, result_name: str, project_name: str, data: tuple[list, list, list], datetime: GLib.DateTime) -> Figure:
         colorscheme = LinearSegmentedColormap.from_list('rg',
                                                         ["#910000", "#c10000", "r", "#ffa500", "y", "g"], N=256)
-        diagram_data = np.array(diagram_data)
-        ax = sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
-                         square=False, xticklabels=cross_sections, yticklabels=timestamps)
-        ax.set_title("[result name]" + " \n [date]")
-        ax.set_title(result_name + "from project " + project_name)
-        formatted_date = "%d/%d/%d"%(datetime.get_day_of_month(),datetime.get_month(),
-                                     datetime.get_year())
+        diagram_data = np.array(data[0])
+        cross_sections = data[1]
+        timestamps = data[2]
+        formatted_date = datetime.format("%F")
+        fig, ax = plt.subplots()
+        sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
+                         square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
+        ax.set_title(result_name + " from project " + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
-        plt.tick_params(left=False)
-        plt.annotate(formatted_date, (0, 0), (-60, -20), xycoords='axes fraction',
+        ax.tick_params(left=False)
+        ax.annotate(formatted_date, (0, 0), (-60, -20), xycoords='axes fraction',
                      textcoords='offset points', va='top')
-        plt.tight_layout()
-        plt.show()
+        # plt.tight_layout()
+        # plt.show()
+        return fig
 
     def get_diagram_type(self) -> DiagramType:
         """todo"""
