@@ -30,6 +30,11 @@ class EndOfSimulationException(Exception):
         super().__init__(message)
 
 
+class NotSupportedException(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
 class DummySimulator(Simulator):
     """This class implements the DummySimulator class using a JSON file for Input measurements."""
 
@@ -136,14 +141,16 @@ class DummySimulator(Simulator):
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
-        """Has no effect. Returns -1 as there is no  location of the new cross section."""
-        return -1
+        """Has no effect. Raises an exception."""
+        raise NotSupportedException("The dummy simulator does not support creating new cross sections.")
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
-        """Has no effect."""
+        """Has no effect. Raises an exception."""
+        raise NotSupportedException("The dummy simulator does not support removing cross sections.")
 
     async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
-        """Has no effect."""
+        """Has no effect. Raises an exception."""
+        raise NotSupportedException("The dummy simulator does not support moving cross sections.")
 
     async def init_simulation(self) -> tuple[GLib.DateTime, int]:
         """Initialize the simulator. Always returns 0 as the starting point
@@ -170,7 +177,8 @@ class DummySimulator(Simulator):
         return self._sequence[self._pointer]
 
     async def set_display(self, display: Display) -> None:
-        """Has no effect."""
+        """Has no effect. Raises an exception."""
+        raise NotSupportedException("The dummy simulator does not support removing cross sections.")
 
     async def stop_simulation(self) -> None:
         """Resets the simulator to its initial state."""
