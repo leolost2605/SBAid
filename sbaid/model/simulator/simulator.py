@@ -19,6 +19,9 @@ class Simulator(GObject.GObject):
     type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                            flags=GObject.ParamFlags.READABLE)
 
+    route: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
+                                            flags=GObject.ParamFlags.READABLE)
+
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE)
 

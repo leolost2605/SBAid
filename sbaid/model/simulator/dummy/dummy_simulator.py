@@ -83,6 +83,11 @@ class DummySimulator(Simulator):
         """Property definition for the simulator type."""
         return self._type
 
+    @Simulator.route.getter  # type: ignore
+    def route(self) -> Gio.ListModel:
+        """TODO"""
+        return None
+
     @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
