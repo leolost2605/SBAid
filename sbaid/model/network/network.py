@@ -29,6 +29,7 @@ class Network(GObject.Object):
                                     flags=GObject.ParamFlags.READABLE |
                                     GObject.ParamFlags.WRITABLE |
                                     GObject.ParamFlags.CONSTRUCT_ONLY)
+
     __background_tasks: set[asyncio.Task[None]]
     __cross_sections: Gtk.MapListModel
 
