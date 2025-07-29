@@ -19,8 +19,11 @@ class Location(GObject.GObject):
         super().__init__(x=x, y=y)
 
     def is_between(self, point_one: 'Location', point_two: 'Location') -> bool:
-        """TODO"""
-        return True
+        """Returns true if this is on a line between point_one and point_two."""
+        return math.isclose(
+            self.distance(point_one) + self.distance(point_two),
+            point_one.distance(point_two)
+        )
 
     def distance(self, location: 'Location') -> float:
         """Calculates the distance in meters between this location and another given location,
