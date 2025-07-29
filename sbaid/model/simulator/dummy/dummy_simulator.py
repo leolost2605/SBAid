@@ -180,8 +180,7 @@ class DummySimulator(Simulator):
         return self._sequence[self._pointer]
 
     async def set_display(self, display: Display) -> None:
-        """Has no effect. Raises an exception."""
-        raise NotSupportedException("The dummy simulator does not support removing cross sections.")
+        """Has no effect."""
 
     async def stop_simulation(self) -> None:
         """Resets the simulator to its initial state."""
