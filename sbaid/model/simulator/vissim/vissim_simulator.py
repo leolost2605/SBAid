@@ -30,13 +30,11 @@ class VissimSimulator(Simulator):
 
     @Simulator.route.getter  # type: ignore
     def route(self) -> Gio.ListModel:
-        """TODO"""
+        """
+        Returns the route of this simulation file as a list of locations.
+        :return: The route as a listmodel of locations
+        """
         return self.__route
-
-    @Simulator.route.getter  # type: ignore
-    def route(self) -> Gio.ListModel:
-        """TODO"""
-        return None
 
     @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
