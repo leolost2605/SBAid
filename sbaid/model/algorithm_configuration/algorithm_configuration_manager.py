@@ -46,7 +46,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
     def load(self) -> None:
         """todo"""
         for algorithm_configuration in self.algorithm_configurations:
-            algorithm_configuration.load_from_db()
+            algorithm_configuration.load()
 
     def create_algorithm_configuration(self) -> int:
         """todo"""
