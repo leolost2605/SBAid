@@ -143,6 +143,7 @@ class _Link:
 
         # We are the first link and we have another cross section that comes further down
         # on the link so only affect us (this is suboptimal anyways if this happens)
+        # pylint: disable=consider-using-in
         if pos != -1 and list(self.__cross_sections.keys())[-1] != pos:
             return [self.vissim_link]
 
