@@ -1,5 +1,6 @@
 import unittest
 import os
+import sys
 
 from gi.repository import GLib
 
@@ -10,6 +11,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulator.vissim.vissim import VissimConnector
 
 
+@unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
 class VissimTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         self.__connector = VissimConnector()
@@ -33,8 +35,8 @@ class VissimTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(mq_67.type, CrossSectionType.COMBINED)
         self.assertEqual(mq_67.lanes, 4)
 
-        # with self.subTest(msg="Test Remove Cross Section"):
-        #     await self.__connector.remove_cross_section("11")
+        with self.subTest(msg="Test Remove Cross Section"):
+            await self.__connector.remove_cross_section("11")
 
         with self.subTest(msg="Test Simulation"):
             interval = 60
