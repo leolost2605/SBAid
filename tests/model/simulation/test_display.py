@@ -13,8 +13,8 @@ class DisplayTestCase(unittest.TestCase):
     def test_empty_display(self):
         """Test an empty display, raising a KeyError when getter is called."""
         display = Display()
-        self.assertEqual(display.get_a_display("my_cross_section", 0), None)
-        self.assertEqual(display.get_b_display("my_cross_section", 0), None)
+        self.assertEqual(display.get_a_display("my_cross_section", 0), ADisplay.OFF)
+        self.assertEqual(display.get_b_display("my_cross_section"), BDisplay.OFF)
 
     def test_add_displays(self):
         """Test adding display."""
