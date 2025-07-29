@@ -47,7 +47,7 @@ class CrossSection(GObject.GObject):
     @location.getter  # type: ignore
     def position(self) -> Location:
         """Returns this cross section's position."""
-        return self.__cross_section.position
+        return self.__cross_section.location
 
     type: CrossSectionType = GObject.Property(type=CrossSectionType,
                                               default=CrossSectionType.COMBINED)  # type: ignore
