@@ -81,8 +81,10 @@ class Result(GObject.GObject):
         if exists:
             self.selected_tags.remove(position)  # pylint:disable=no-member
 
-    def load_from_db(self) -> None:
-        """todo ask if whats used in load context"""
+    async def load_from_db(self) -> None:
+        """Loads metainformation about the result name and tags, and saves them in the class."""
+        self.result_name = await self.__global_db.get_result_name(self.id)
+        self.selected_tags = await self.__global_db.get_result_tags(self.id)
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""
