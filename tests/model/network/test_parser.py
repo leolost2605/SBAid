@@ -15,7 +15,7 @@ class CsvParserTest(unittest.TestCase):
 
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
-        self.assertEqual(parser.can_handle_file("valid_input.csv"), True)
+        self.assertEqual(parser.can_handle_file("C:/Users/mleom/PycharmProjects/SBAid/tests/model/network/valid_input.csv"), True)
 
     def test_make_parsing_async(self):
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
@@ -25,7 +25,7 @@ class CsvParserTest(unittest.TestCase):
 
     async def _test_valid_csv(self):
         parser = CSVCrossSectionParser()
-        file = Gio.File.new_for_path("valid_input.csv")
+        file = Gio.File.new_for_path("C:/Users/mleom/PycharmProjects/SBAid/tests/model/network/valid_input.csv")
         self.assertEqual(await parser.foreach_cross_section(file, self.callbackthing), (20,0))
 
     async def callbackthing(self, name: str, location: Location, cs_type: CrossSectionType) -> bool:
