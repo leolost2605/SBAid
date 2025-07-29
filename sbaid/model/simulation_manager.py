@@ -1,5 +1,9 @@
 """This module defines the SimulationManager class"""
+from typing import cast
+
 from gi.repository import GObject
+
+from sbaid.model.results.result import Result
 from sbaid.common.location import Location
 from sbaid.model.results.result_builder import ResultBuilder
 from sbaid.model.simulation.cross_section_state import CrossSectionState
@@ -68,11 +72,15 @@ class SimulationManager(GObject.GObject):
 
                 for lane in cross_section_state.lanes:
                     result_builder.begin_lane(lane)
-                    result_builder.add_average_speed(measurements.get_average_speed(cross_section_state.id, lane))
-                    result_builder.add_traffic_volume(measurements.get_traffic_volume(cross_section_state.id, lane))
+                    result_builder.add_average_speed(
+                        measurements.get_average_speed(cross_section_state.id, lane))
+                    result_builder.add_traffic_volume(
+                        measurements.get_traffic_volume(cross_section_state.id, lane))
                     if display is not None:
-                        result_builder.add_a_display(display.get_a_display(cross_section_state.id, lane))
-                    for vehicle_info in measurements.get_all_vehicle_infos(cross_section_state.id, lane):
+                        result_builder.add_a_display(
+                            display.get_a_display(cross_section_state.id, lane))
+                    for vehicle_info in (measurements
+                            .get_all_vehicle_infos(cross_section_state.id, lane)):
                         result_builder.begin_vehicle()
                         result_builder.add_vehicle_type(vehicle_info.type)
                         result_builder.add_vehicle_speed(vehicle_info.speed)
@@ -87,6 +95,6 @@ class SimulationManager(GObject.GObject):
             elapsed_time += self.algorithm_configuration.evaluation_interval
 
         self.simulator.stop_simulation()
-        result = result_builder.end_result()
+        result = cast(Result, result_builder.end_result())
         self.result_manager.register_result(result)
         self.observer.finished(result.id)

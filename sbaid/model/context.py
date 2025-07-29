@@ -1,24 +1,14 @@
 """This module defines the Context Class"""
-import sys
-from os import path
-from typing import List, Tuple
 
-import gi
+from gi.repository import GObject, Gio
 
-import common
-from model.database import global_sqlite
-from model.database.global_sqlite import GlobalSQLite
-from model.database.project_sqlite import ProjectSQLite
+import sbaid.common
+from sbaid.model.database import global_sqlite
+from sbaid.model.database.global_sqlite import GlobalSQLite
+from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.project import Project
 from sbaid.model.results.result_manager import ResultManager
-
-try:
-    gi.require_version('Gtk', '4.0')
-    from gi.repository import GObject, Gio, Gtk
-except (ImportError, ValueError) as exc:
-    print('Error: Dependencies not met.', exc)
-    sys.exit(1)
 
 
 class Context(GObject.GObject):
@@ -71,6 +61,6 @@ class Context(GObject.GObject):
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
-        for project in common.list_model_iterator(self.projects):
+        for project in sbaid.common.list_model_iterator(self.projects):
             if project.id == project_id:
                 self.projects.remove(project)

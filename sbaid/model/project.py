@@ -1,11 +1,7 @@
 """This module defines the Project class."""
-from gi.repository import GObject, GLib, Gtk
+from gi.repository import GObject, GLib
 from sbaid.common.simulator_type import SimulatorType
-from sbaid.model.algorithm.algorithm import Algorithm
-from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
-from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.database.project_database import ProjectDatabase
-from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.simulation_observer import SimulationObserver
 from sbaid.model.simulation_manager import SimulationManager
@@ -84,7 +80,7 @@ class Project(GObject.GObject):
                  project_file_path: str, project_db: ProjectDatabase) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
-        self.__project_db = project_db
+        # self.__project_db = project_db
         super().__init__(id=project_id, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
@@ -111,4 +107,4 @@ class Project(GObject.GObject):
     def load_from_db(self) -> None:
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
-        """todo: check privacy"""
+        # todo: check privacy
