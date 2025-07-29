@@ -20,7 +20,3 @@ To avoid off-by-one errors a general rule of thumb is that we
 always work with 1 based indices internally and convert to 0 
 based indices just in time when using/providing public facing
 API
-
-## Todo
-
-Right now nichts afaik
