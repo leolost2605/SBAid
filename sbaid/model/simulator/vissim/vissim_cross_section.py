@@ -8,6 +8,7 @@ from sbaid.model.simulator.vissim.vissim import VissimConnectorCrossSectionState
 class VissimCrossSection(SimulatorCrossSection):
     """This class represents the PTV Vissim simulator cross section."""
     __id: str
+    __name: str
     __type: CrossSectionType
     __position: Location
     __lanes: int
@@ -16,6 +17,11 @@ class VissimCrossSection(SimulatorCrossSection):
     def id(self) -> str:
         """Returns the id of the cross section."""
         return self.__id
+
+    @SimulatorCrossSection.name.getter  # type: ignore
+    def name(self) -> str:
+        """Returns the name of the cross section."""
+        return self.__name
 
     @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
@@ -44,6 +50,7 @@ class VissimCrossSection(SimulatorCrossSection):
     def set_state(self, state: VissimConnectorCrossSectionState) -> None:
         """Sets a new state for this cross section."""
         self.__id = state.id
+        self.__name = state.name
         self.__type = state.type
         self.__position = state.position
         self.__lanes = state.lanes

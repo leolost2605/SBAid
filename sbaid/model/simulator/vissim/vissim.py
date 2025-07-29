@@ -62,6 +62,7 @@ class VissimConnectorCrossSectionState(NamedTuple):
     to transfer the information between threads.
     """
     id: str
+    name: str
     type: CrossSectionType
     position: Location
     lanes: int
@@ -117,6 +118,18 @@ class _CrossSection:
         return str(self.primary_point_id)
 
     @property
+    def name(self) -> str:
+        """Returns the name of the cross section. Made up of names of the individual points."""
+        name = ""
+        for point in self.__data_collection_points:
+            name += point.AttValue("Name")
+
+        for decision in self.__des_speed_decisions:
+            name += decision.AttValue("Name")
+
+        return name
+
+    @property
     def type(self) -> CrossSectionType:
         """Returns the type of the cross section."""
         if not self.__des_speed_decisions:
@@ -159,7 +172,7 @@ class _CrossSection:
     @property
     def state(self) -> VissimConnectorCrossSectionState:
         """Returns the current state of this cross section."""
-        return VissimConnectorCrossSectionState(self.id, self.type, self.position,
+        return VissimConnectorCrossSectionState(self.id, self.name, self.type, self.position,
                                                 self.lanes, self.successors)
 
     def __init__(self, network: VissimNetwork) -> None:
