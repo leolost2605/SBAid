@@ -11,7 +11,9 @@ import bisect
 from queue import Queue
 from typing import Any, NamedTuple, Callable, cast
 
+# type: ignore
 import pythoncom  # pylint: disable=import-error
+# type: ignore
 import win32com.client as com  # pylint: disable=import-error
 
 from gi.repository import GLib
@@ -352,7 +354,7 @@ class VissimConnector:
         self.__cross_sections_by_id = {}
 
         try:
-            self.__vissim = com.gencache.EnsureDispatch("Vissim.Vissim")  # type: ignore
+            self.__vissim = com.gencache.EnsureDispatch("Vissim.Vissim")
         except Exception as e:
             raise VissimNotFoundException(e) from e
 
