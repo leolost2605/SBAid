@@ -1,4 +1,5 @@
 """This module contains unit tests for the cross section csv parser."""
+import sys
 import asyncio
 import unittest
 
@@ -13,9 +14,10 @@ class CsvParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
     __added_cross_sections = []
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
-        # self.assertEqual(parser.can_handle_file("./tests/model/network/valid_input.csv"), True)
+        self.assertEqual(parser.can_handle_file("./tests/model/network/valid_input.csv"), True)
 
     def test_make_parsing_async(self):
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
