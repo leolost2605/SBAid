@@ -31,6 +31,8 @@ class EndOfSimulationException(Exception):
 
 
 class NotSupportedException(Exception):
+    """This exception is raised when a method is called
+    that is not supported by this simulator implementation."""
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
@@ -142,7 +144,8 @@ class DummySimulator(Simulator):
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
         """Has no effect. Raises an exception."""
-        raise NotSupportedException("The dummy simulator does not support creating new cross sections.")
+        raise NotSupportedException("The dummy simulator does not support creating"
+                                    "new cross sections.")
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Has no effect. Raises an exception."""
