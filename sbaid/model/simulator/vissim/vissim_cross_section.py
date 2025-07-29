@@ -28,9 +28,9 @@ class VissimCrossSection(SimulatorCrossSection):
         """Returns the type of this cross section."""
         return self.__type
 
-    @SimulatorCrossSection.position.getter  # type: ignore
-    def position(self) -> Location:
-        """Returns the position of this cross section."""
+    @SimulatorCrossSection.location.getter  # type: ignore
+    def location(self) -> Location:
+        """Returns the location of this cross section."""
         return self.__position
 
     @SimulatorCrossSection.lanes.getter  # type: ignore
