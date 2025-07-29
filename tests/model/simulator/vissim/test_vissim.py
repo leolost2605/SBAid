@@ -16,8 +16,7 @@ class VissimTestCase(unittest.IsolatedAsyncioTestCase):
         self.__connector = VissimConnector()
 
     async def asyncTearDown(self) -> None:
-        pass
-        # await self.__connector.shutdown()
+        await self.__connector.shutdown()
 
     async def test_load_file(self) -> None:
         path = os.path.abspath("./A5_sarah.inpx")
