@@ -17,6 +17,11 @@ class VissimSimulator(Simulator):
         """TODO"""
         return None
 
+    @Simulator.route.getter  # type: ignore
+    def route(self) -> Gio.ListModel:
+        """TODO"""
+        return None
+
     @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
         """TODO"""
