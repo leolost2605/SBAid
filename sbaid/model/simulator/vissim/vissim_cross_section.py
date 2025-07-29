@@ -16,8 +16,8 @@ class VissimCrossSection(SimulatorCrossSection):
         """TODO"""
         return CrossSectionType.COMBINED
 
-    @SimulatorCrossSection.location.getter  # type: ignore
-    def location(self) -> Location:
+    @SimulatorCrossSection.position.getter  # type: ignore
+    def position(self) -> Location:
         """TODO"""
         return Location(0, 0)
 
