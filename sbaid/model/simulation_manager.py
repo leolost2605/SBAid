@@ -3,6 +3,9 @@ from typing import cast
 
 from gi.repository import GObject
 
+from sbaid.model.simulation.parameter_state import ParameterState
+from sbaid import common
+from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.results.result import Result
 from sbaid.common.location import Location
 from sbaid.model.results.result_builder import ResultBuilder
@@ -98,3 +101,12 @@ class SimulationManager(GObject.GObject):
         result = cast(Result, result_builder.end_result())
         self.result_manager.register_result(result)
         self.observer.finished(result.id)
+
+        def __build_parameter_configuration_state(
+                _parameter_configuration: ParameterConfiguration)\
+            -> ParameterConfigurationState:
+            parameter_states = []
+            for parameter in common.list_model_iterator(_parameter_configuration.parameters):
+                parameter_states.append(ParameterState(parameter.name, parameter.value, parameter.cross_section))
+
+            return ParameterConfigurationState(_parameter_configuration)
