@@ -1,7 +1,8 @@
 import unittest
 import sys
 
-unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
+if not sys.platform.startswith("win"):
+    raise unittest.SkipTest("Requires Windows")
 
 from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
 

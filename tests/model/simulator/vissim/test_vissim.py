@@ -2,7 +2,8 @@ import unittest
 import os
 import sys
 
-unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
+if not sys.platform.startswith("win"):
+    raise unittest.SkipTest("Requires Windows")
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.cross_section_type import CrossSectionType
