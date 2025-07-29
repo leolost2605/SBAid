@@ -11,7 +11,7 @@ class DummyCrossSection(SimulatorCrossSection):
     _type: CrossSectionType
     _location: Location
     _lanes: int
-    _hard_shoulder_active: bool
+    _hard_shoulder_available: bool
 
     @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
@@ -40,8 +40,8 @@ class DummyCrossSection(SimulatorCrossSection):
 
     @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
-        """Getter for the hard shoulder active boolean."""
-        return self._hard_shoulder_active
+        """Getter for the hard shoulder available boolean."""
+        return self._hard_shoulder_available
 
     def __init__(self, cs_id: str, name: str, cs_type: CrossSectionType, location: Location,
                  lanes: int, hard_shoulder_available: bool):
@@ -51,4 +51,4 @@ class DummyCrossSection(SimulatorCrossSection):
         self._type = cs_type
         self._location = location
         self._lanes = lanes
-        self._hard_shoulder_active = hard_shoulder_available
+        self._hard_shoulder_available = hard_shoulder_available
