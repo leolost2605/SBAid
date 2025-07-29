@@ -8,11 +8,11 @@ from sbaid.common.cross_section_type import CrossSectionType
 class CrossSection(GObject.GObject):
     """TODO"""
 
-    id: str = GObject.Property(type=str,  # type: ignore[assignment]
+    id = GObject.Property(type=str,
                           flags=GObject.ParamFlags.READABLE |
                           GObject.ParamFlags.WRITABLE |
                           GObject.ParamFlags.CONSTRUCT_ONLY)
-    name: str = GObject.Property(type=str,  # type: ignore[assignment]
+    name = GObject.Property(type=str,
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -44,7 +44,6 @@ class CrossSection(GObject.GObject):
     def __init__(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """TODO"""
         super().__init__()
-        self.id = "test"
 
     def load_from_db(self) -> None:
         """TODO"""
