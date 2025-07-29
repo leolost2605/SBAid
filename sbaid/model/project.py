@@ -81,9 +81,10 @@ class Project(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
-                 project_file_path: str) -> None:
+                 project_file_path: str, project_db: ProjectDatabase) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
+        self.__project_db = project_db
         super().__init__(id=project_id, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
@@ -97,18 +98,18 @@ class Project(GObject.GObject):
             self.network.Gtk.MapListModel.map_func(sim_cross_section)
             cross_section = CrossSection(sim_cross_section)
             self.network.load()
-            cs_name = ProjectDatabase.get_cross_section_name(cross_section.id)
+            cs_name = self.__project_db.get_cross_section_name(cross_section.id)
 
         self.algorithm_configuration_manager.load()
-        list_algo_config_ids = ProjectDatabase.get_all_algorithm_configuration_ids()
-        selected_algo_config_id = ProjectDatabase.get_selected_algorithm_configuration_id()
+        list_algo_config_ids = self.__project_db.get_all_algorithm_configuration_ids()
+        selected_algo_config_id = self.__project_db.get_selected_algorithm_configuration_id()
         algorithm_configurations = Gtk.ListModel()
 
         for id in list_algo_config_ids:
             algo_config = AlgorithmConfiguration(id, self.network)
             param_config = ParameterConfiguration(self.network)
             parameters = Gtk.FlattenListModel()
-            name, evaluation_interval, display_interval, script_path = ProjectDatabase.get_algorithm_configuration(id)
+            name, evaluation_interval, display_interval, script_path = self.__project_db.get_algorithm_configuration(id)
             algo_config.load_algorithm(script_path)  # todo no load algorithm in algo class
             algo_config.algorithm = Algorithm()
             param_config.set_algorithm(algo_config.algorithm)
@@ -130,3 +131,4 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         """todo: check privacy"""
+
