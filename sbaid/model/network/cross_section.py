@@ -13,6 +13,9 @@ class CrossSection(GObject.GObject):
 
     __cross_section: SimulatorCrossSection
     __background_tasks: set[asyncio.Task[None]]
+    __name: str | None
+    __b_display_active: bool
+    __hard_shoulder_active: bool
 
     id: str = GObject.Property(type=str,  # type: ignore[assignment]
                                flags=GObject.ParamFlags.READABLE)
@@ -24,17 +27,20 @@ class CrossSection(GObject.GObject):
 
     name: str = GObject.Property(type=str,  # type: ignore[assignment]
                                  flags=GObject.ParamFlags.READABLE |
-                                 GObject.ParamFlags.WRITABLE |
-                                 GObject.ParamFlags.CONSTRUCT_ONLY)
+                                 GObject.ParamFlags.WRITABLE)
 
     @name.getter  # type: ignore
     def name(self) -> str:
         """Returns this cross section's name."""
+        if self.__name is not None:
+            return self.__name
         return self.__cross_section.name
 
     @name.setter  # type: ignore
     def name(self, value: str) -> None:  # pylint: disable=function-redefined
-        self.__cross_section.name = value
+        task = asyncio.create_task(self.__update_cross_section_name(value))
+        self.__background_tasks.add(task)
+        task.add_done_callback(self.__background_tasks.discard)
 
     location: Location = GObject.Property(type=Location)  # type: ignore
 
@@ -67,12 +73,12 @@ class CrossSection(GObject.GObject):
     @b_display_active.getter  # type: ignore
     def b_display_active(self) -> bool:
         """Returns the simulator cross section's b display status."""
-        return self.b_display_active
+        return self.__b_display_active
 
     @b_display_active.setter  # type: ignore
     def b_display_active(self, value: bool) -> None:  # pylint: disable=function-redefined
         """Sets the simulator cross section's b display status."""
-        self.b_display_active = value
+        self.__b_display_active = value
         task = asyncio.create_task(self.__update_b_display_active(value))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
@@ -93,14 +99,14 @@ class CrossSection(GObject.GObject):
     @hard_shoulder_active.getter  # type: ignore
     def hard_shoulder_active(self) -> bool:
         """Returns the simulator cross section's hard shoulder status."""
-        return self.hard_shoulder_active
+        return self.__hard_shoulder_active
 
     @hard_shoulder_active.setter  # type: ignore
     def hard_shoulder_active(self, value: bool) -> None:  # pylint: disable=function-redefined
         """Sets the simulator cross section's hard shoulder status, if it is available."""
         if not self.hard_shoulder_available:
             raise FunctionalityNotAvailableException("Hard shoulder is not available.")
-        self.hard_shoulder_active = value
+        self.__hard_shoulder_active = value
         task = asyncio.create_task(self.__update_hard_shoulder_active(value))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
@@ -111,22 +117,28 @@ class CrossSection(GObject.GObject):
         self.__cross_section = simulator_cross_section
         self.__project_db = project_db
         self.__background_tasks = set()
-        super().__init__(location=simulator_cross_section.position,
-                         type=simulator_cross_section.type,
-                         id=simulator_cross_section.id)
+        self.__b_display_active = False
+        self.__hard_shoulder_active = False
+        super().__init__()
 
     async def load_from_db(self) -> None:
         """Loads cross section details from the database."""
-        self.name = await self.__project_db.get_cross_section_name(self.id)
-        self.hard_shoulder_active = (await self.__project_db
+        self.__name = await self.__project_db.get_cross_section_name(self.id)
+        self.__hard_shoulder_active = (await self.__project_db
                                      .get_cross_section_hard_shoulder_active(self.id))
-        self.b_display_active = await self.__project_db.get_cross_section_b_display_active(self.id)
+        self.__b_display_active = await self.__project_db.get_cross_section_b_display_active(self.id)
 
     async def __update_b_display_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_b_display_active(self.id, value)
 
     async def __update_hard_shoulder_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_hard_shoulder_active(self.id, value)
+
+    async def __find_cross_section_name_in_database(self) -> str | None:
+        return await self.__project_db.get_cross_section_name(self.id)
+
+    async def __update_cross_section_name(self, name: str) -> None:
+        await self.__project_db.set_cross_section_name(self.id, name)
 
 
 class FunctionalityNotAvailableException(Exception):

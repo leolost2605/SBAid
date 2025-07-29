@@ -51,13 +51,11 @@ class Network(GObject.Object):
         parser_for_file = factory.get_parser(file)
         if not parser_for_file:
             raise NoSuitableParserException()
-        import_result = await (parser_for_file.
-                               foreach_cross_section(file,
-                                                     self.__successful_cross_section_creation))
-        return import_result
+        return await (parser_for_file.foreach_cross_section(file,
+                                                            self.__check_cross_section_creation_success))
 
-    async def __successful_cross_section_creation(self, name: str, location: Location,
-                                                  cross_section_type: CrossSectionType) -> bool:
+    async def __check_cross_section_creation_success(self, name: str, location: Location,
+                                                     cross_section_type: CrossSectionType) -> bool:
         try:
             await self.create_cross_section(name, location, cross_section_type)
             return True
@@ -65,14 +63,15 @@ class Network(GObject.Object):
             return False
 
     async def create_cross_section(self, name: str, location: Location,
-                                   cs_type: CrossSectionType) -> None:
+                                   cs_type: CrossSectionType) -> int:
         """Checks if the received cross section can be added to the Network
         and how it is to be added. Creates a combined cross section if the preexisting & incoming
         cross sections can be combined (of types DISPLAY-MEASURING or MEASURING-DISPLAY)."""
-        compatible_tuple = self.__cross_sections_compatible(location, cs_type)
-        if compatible_tuple[0] is not None:  # cross section can be added
-            if compatible_tuple[1]:  # cross section can be added by combination
-                existing_cross_section = compatible_tuple[2]
+        cross_section_addable, combination_needed, clashing_cross_section \
+            = self.__cross_sections_compatible(location, cs_type)
+        if cross_section_addable is not None:  # cross section can be added
+            if combination_needed:  # cross section can be added by combination
+                existing_cross_section = clashing_cross_section
                 assert isinstance(existing_cross_section, CrossSection)
                 await self.delete_cross_section(existing_cross_section.id)
                 position = await self.__simulator.create_cross_section(location,
@@ -81,6 +80,7 @@ class Network(GObject.Object):
                 model_cross_section = typing.cast(CrossSection, incoming_cross_section)
                 model_cross_section.name = (existing_cross_section.name + "_"
                                             + model_cross_section.name)
+                return position
             else:  # cross section can be added without combination
                 try:
                     position = await self.__simulator.create_cross_section(location, cs_type)
@@ -90,6 +90,7 @@ class Network(GObject.Object):
                 model_cross_section = typing.cast(CrossSection,
                                                   self.cross_sections.get_item(position))
                 model_cross_section.name = name
+                return position
         else:  # cross section cannot be added
             raise FailedCrossSectionCreationException()
 
