@@ -127,8 +127,10 @@ class Project(GObject.GObject):
         simulation_manager.start()
         return simulation_manager
 
-    def load_from_db(self) -> None:
+    async def load_from_db(self) -> None:
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         """todo: check privacy"""
-
+        self.name = await self.__project_db.get_project_name()
+        self.created_at = await self.__project_db.get_created_at()
+        self.last_modified = await self.__project_db.get_last_modified()
