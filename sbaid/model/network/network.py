@@ -139,7 +139,7 @@ class Network(GObject.Object):
         task.add_done_callback(self.__background_tasks.discard)
         return model_cross_section
 
-    async def _load_cross_section_from_db(self, model_cross_section: CrossSection) -> None:
+    async def __load_cross_section_from_db(self, model_cross_section: CrossSection) -> None:
         await model_cross_section.load_from_db()
 
 
