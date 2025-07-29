@@ -16,7 +16,7 @@ class CrossSection(GObject.GObject):
                             flags=GObject.ParamFlags.READABLE |
                             GObject.ParamFlags.WRITABLE |
                             GObject.ParamFlags.CONSTRUCT_ONLY)
-    position = GObject.Property(type=Location,
+    location = GObject.Property(type=Location,
                                 flags=GObject.ParamFlags.READABLE |
                                 GObject.ParamFlags.WRITABLE |
                                 GObject.ParamFlags.CONSTRUCT_ONLY)
