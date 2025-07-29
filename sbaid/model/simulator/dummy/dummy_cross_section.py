@@ -16,8 +16,8 @@ class DummyCrossSection(SimulatorCrossSection):
         """TODO"""
         return CrossSectionType.COMBINED
 
-    @SimulatorCrossSection.position.getter  # type: ignore
-    def position(self) -> Location:
+    @SimulatorCrossSection.location.getter  # type: ignore
+    def location(self) -> Location:
         """TODO"""
         return Location(0, 0)
 

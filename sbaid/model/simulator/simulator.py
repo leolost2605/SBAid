@@ -4,7 +4,7 @@ This module contains the abstract Simulator class
 which provides interfaces for loading files, cross section modification,
 and runtime simulation operations.
 """
-from gi.repository import GObject, Gio
+from gi.repository import GObject, Gio, GLib
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.cross_section_type import CrossSectionType
@@ -18,6 +18,9 @@ class Simulator(GObject.GInterface):
 
     type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                            flags=GObject.ParamFlags.READABLE)
+
+    route: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
+                                            flags=GObject.ParamFlags.READABLE)
 
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE)
@@ -36,10 +39,10 @@ class Simulator(GObject.GInterface):
         """Remove the cross section object."""
 
     async def move_cross_section(self, cross_section_id: str,
-                                 new_position: Location) -> None:
+                                 new_location: Location) -> None:
         """Move the cross section object."""
 
-    async def init_simulation(self) -> tuple[int, int]:
+    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
         """
         Initialize the simulation object. Return the internal simulation start time
         and runtime.

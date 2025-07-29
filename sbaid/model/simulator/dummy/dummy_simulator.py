@@ -1,5 +1,5 @@
 """This module contains the DummySimulator class."""
-from gi.repository import Gio
+from gi.repository import Gio, GLib
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -14,6 +14,11 @@ class DummySimulator(Simulator):
 
     @Simulator.type.getter  # type: ignore
     def type(self) -> SimulatorType:
+        """TODO"""
+        return None
+
+    @Simulator.route.getter  # type: ignore
+    def route(self) -> Gio.ListModel:
         """TODO"""
         return None
 
@@ -33,11 +38,11 @@ class DummySimulator(Simulator):
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
 
-    async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
+    async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
         """TODO"""
 
-    async def init_simulation(self) -> tuple[int, int]:
-        return 0, 0
+    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
+        return GLib.DateTime.new_now_local(), 0
 
     async def continue_simulation(self, span: int) -> None:
         """TODO"""
