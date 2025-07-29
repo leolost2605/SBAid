@@ -28,7 +28,7 @@ class DummyCrossSection(SimulatorCrossSection):
         """Getter for the type."""
         return self._type
 
-    @SimulatorCrossSection.position.getter  # type: ignore
+    @SimulatorCrossSection.location.getter  # type: ignore
     def location(self) -> Location:
         """Getter for the location."""
         return self._location
