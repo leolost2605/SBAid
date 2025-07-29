@@ -14,6 +14,7 @@ from sbaid.common.image import Image
 from sbaid.model.results.result import Result
 from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.seaborn_image import SeabornImage
+from sbaid.common import list_model_iterator
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
@@ -49,7 +50,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         diagram_data = []
         cross_sections = []
         timestamps = []
-        for snapshot in result.snapshots:
+        for snapshot in list_model_iterator(result.snapshots):
             timestamp = snapshot.get_timestamp()
             if timestamp.getMinute() == 0 and timestamp.getSecond() == 0:
                 timestamps.append(snapshot.capture_timestamp)
