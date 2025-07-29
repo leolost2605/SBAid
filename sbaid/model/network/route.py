@@ -12,5 +12,4 @@ class Route(GObject.GObject):
                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, points: Gio.ListModel) -> None:
-        super().__init__(points = points)
-
+        super().__init__(points=points)

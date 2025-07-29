@@ -51,8 +51,8 @@ class Network(GObject.Object):
         parser_for_file = factory.get_parser(file)
         if not parser_for_file:
             raise NoSuitableParserException()
-        return await (parser_for_file.foreach_cross_section(file,
-                                                            self.__check_cross_section_creation_success))
+        return await (parser_for_file.
+                      foreach_cross_section(file, self.__check_cross_section_creation_success))
 
     async def __check_cross_section_creation_success(self, name: str, location: Location,
                                                      cross_section_type: CrossSectionType) -> bool:
@@ -81,18 +81,16 @@ class Network(GObject.Object):
                 model_cross_section.name = (existing_cross_section.name + "_"
                                             + model_cross_section.name)
                 return position
-            else:  # cross section can be added without combination
-                try:
-                    position = await self.__simulator.create_cross_section(location, cs_type)
-                except Exception as exc:
-                    raise FailedCrossSectionCreationException(
-                        "Cross section creation in simulator failed.") from exc
-                model_cross_section = typing.cast(CrossSection,
-                                                  self.cross_sections.get_item(position))
-                model_cross_section.name = name
-                return position
-        else:  # cross section cannot be added
-            raise FailedCrossSectionCreationException()
+            try:
+                position = await self.__simulator.create_cross_section(location, cs_type)
+            except Exception as exc:
+                raise FailedCrossSectionCreationException(
+                    "Cross section creation in simulator failed.") from exc
+            model_cross_section = typing.cast(CrossSection,
+                                              self.cross_sections.get_item(position))
+            model_cross_section.name = name
+            return position
+        raise FailedCrossSectionCreationException()
 
     async def delete_cross_section(self, cs_id: str) -> None:
         """Deletes a cross section by calling the simulator's remove_cross_section method."""
@@ -135,7 +133,7 @@ class Network(GObject.Object):
         to be mapped to the given simulator cross section in the MapListModel.
         Starts the loading of cross section metadata form the database."""
         model_cross_section = CrossSection(sim_cross_section, self.__project_db)
-        task = asyncio.create_task(self._load_cross_section_from_db(model_cross_section))
+        task = asyncio.create_task(self.__load_cross_section_from_db(model_cross_section))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
         return model_cross_section

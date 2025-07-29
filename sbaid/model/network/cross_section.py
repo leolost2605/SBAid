@@ -125,17 +125,15 @@ class CrossSection(GObject.GObject):
         """Loads cross section details from the database."""
         self.__name = await self.__project_db.get_cross_section_name(self.id)
         self.__hard_shoulder_active = (await self.__project_db
-                                     .get_cross_section_hard_shoulder_active(self.id))
-        self.__b_display_active = await self.__project_db.get_cross_section_b_display_active(self.id)
+                                       .get_cross_section_hard_shoulder_active(self.id))
+        self.__b_display_active = await (self.__project_db.
+                                         get_cross_section_b_display_active(self.id))
 
     async def __update_b_display_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_b_display_active(self.id, value)
 
     async def __update_hard_shoulder_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_hard_shoulder_active(self.id, value)
-
-    async def __find_cross_section_name_in_database(self) -> str | None:
-        return await self.__project_db.get_cross_section_name(self.id)
 
     async def __update_cross_section_name(self, name: str) -> None:
         await self.__project_db.set_cross_section_name(self.id, name)
