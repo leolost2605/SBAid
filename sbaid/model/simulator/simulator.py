@@ -39,7 +39,7 @@ class Simulator(GObject.GInterface):
         """Remove the cross section object."""
 
     async def move_cross_section(self, cross_section_id: str,
-                                 new_position: Location) -> None:
+                                 new_location: Location) -> None:
         """Move the cross section object."""
 
     async def init_simulation(self) -> tuple[int, int]:

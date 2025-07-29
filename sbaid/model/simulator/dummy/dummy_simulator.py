@@ -38,7 +38,7 @@ class DummySimulator(Simulator):
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """TODO"""
 
-    async def move_cross_section(self, cross_section_id: str, new_position: Location) -> None:
+    async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
         """TODO"""
 
     async def init_simulation(self) -> tuple[int, int]:
