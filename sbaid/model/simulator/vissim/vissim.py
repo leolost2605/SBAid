@@ -16,7 +16,6 @@ import pythoncom  # type: ignore
 # pylint: disable=import-error
 import win32com.client as com  # type: ignore
 
-
 from gi.repository import GLib
 
 from sbaid.common.a_display import ADisplay
