@@ -11,8 +11,8 @@ import bisect
 from queue import Queue
 from typing import Any, NamedTuple, Callable, cast
 
-import pythoncom
-import win32com.client as com
+import pythoncom  # pylint: disable=import-error
+import win32com.client as com  # pylint: disable=import-error
 
 from gi.repository import GLib
 
