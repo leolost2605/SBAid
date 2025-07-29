@@ -10,10 +10,10 @@ from sbaid.common.location import Location
 
 class SimulatorCrossSection(GObject.GObject):
     """
-    This class is used as a wrapper for a cross section within the simulator
-    that contains several properties about the cross section.
-    """
+    This class is used as a wrapper for a cross section within the simulator.
 
+    It contains several properties about the cross section.
+    """
     id: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
     name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
     type: CrossSectionType = GObject.Property(type=CrossSectionType,  # type: ignore
