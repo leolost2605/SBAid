@@ -88,42 +88,23 @@ class Project(GObject.GObject):
         super().__init__(id=project_id, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
+        # TODO the constructor needs to be fixed
 
     def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
         self.network.load()
-        sim_cross_sections = self.network.observe_cross_sections()
-        self.network.set_list_model(sim_cross_sections)
-        for sim_cross_section in sim_cross_sections:
-            self.network.Gtk.MapListModel.map_func(sim_cross_section)
-            cross_section = CrossSection(sim_cross_section)
-            self.network.load()
-            cs_name = self.__project_db.get_cross_section_name(cross_section.id)
-
         self.algorithm_configuration_manager.load()
-        list_algo_config_ids = self.__project_db.get_all_algorithm_configuration_ids()
-        selected_algo_config_id = self.__project_db.get_selected_algorithm_configuration_id()
-        algorithm_configurations = Gtk.ListModel()
-
-        for id in list_algo_config_ids:
-            algo_config = AlgorithmConfiguration(id, self.network)
-            param_config = ParameterConfiguration(self.network)
-            parameters = Gtk.FlattenListModel()
-            name, evaluation_interval, display_interval, script_path = self.__project_db.get_algorithm_configuration(id)
-            algo_config.load_algorithm(script_path)  # todo no load algorithm in algo class
-            algo_config.algorithm = Algorithm()
-            param_config.set_algorithm(algo_config.algorithm)
-            algorithm_configurations.append(algo_config)
-
 
     def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
-        """Starts a simulation with the currently selected algorithm configuration. The transferred observer
-        is regularly informed about the progress of the simulation. The returned
-        SimulationManager manages the simulation and can be used to control it."""
-        algorithm_configuration = self.algorithm_configuration_manager.get_algorithm_configurations()
+        """Starts a simulation with the currently selected algorithm configuration.
+        The transferred observer is regularly informed about the progress of the simulation.
+        The returned SimulationManager manages the simulation and can be used to control it."""
+        algorithm_configuration = (self.algorithm_configuration_manager
+                                   .get_algorithm_configurations())
         result_manager = ResultManager()
         simulation_manager = SimulationManager(self.name, algorithm_configuration,
-                                               self.network, self.simulator, result_manager, observer)
+                                               self.network, self.simulator,
+                                               result_manager, observer)
         simulation_manager.start()
         return simulation_manager
 
@@ -131,4 +112,3 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         """todo: check privacy"""
-

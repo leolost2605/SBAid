@@ -1,20 +1,24 @@
 """This module defines the Context Class"""
+import sys
 from os import path
 from typing import List, Tuple
 
 import gi
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import GObject, Gio, Gtk
+import common
+from model.database import global_sqlite
+from model.database.global_sqlite import GlobalSQLite
+from model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
-from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
-from sbaid.model.database.global_database import GlobalDatabase
-from sbaid.model.database.project_database import ProjectDatabase
-from sbaid.model.network.network import Network
 from sbaid.model.project import Project
-from sbaid.model.results.result import Result
 from sbaid.model.results.result_manager import ResultManager
-from sbaid.model.simulator.simulator import Simulator
+
+try:
+    gi.require_version('Gtk', '4.0')
+    from gi.repository import GObject, Gio, Gtk
+except (ImportError, ValueError) as exc:
+    print('Error: Dependencies not met.', exc)
+    sys.exit(1)
 
 
 class Context(GObject.GObject):
@@ -33,50 +37,33 @@ class Context(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def load(self) -> None:
-        """Loads the projects and the results."""
-        self.projects = Gtk.ListModel()
-        GlobalDatabase.open()  # todo change database implementation
-        projects: List[Tuple[int, str, str, str]] = GlobalDatabase.get_all_projects()
-        for project_id, project_type, simulation_file_path, project_file_path in projects:
-            project = Project(project_id, project_type, simulation_file_path, project_file_path)
-            project.simulator = Simulator(simulation_file_path)
-            project.network = Network(project.simulator)
-            project.network.cross_sections = Gtk.MapListModel()
-            project.algorithm_configuration_manager = AlgorithmConfigurationManager(project.network)
-            project.algorithm_configuration_manager.algorithm_configurations = Gtk.ListModel()
-            self.projects.append(project)
-
-            project.load_from_db()
-
-            ProjectDatabase.open(Gio.file.new_build_file_name(path, 'db'))
-
-            project_name = ProjectDatabase.get_project_name()
-            last_modified_at = ProjectDatabase.get_last_modified()
-
+    def __init__(self) -> None:
         result_manager = ResultManager()
-        result_manager.results = Gtk.ListModel()
-        result_manager.load_from_db()
-        result_manager.available_tags = GlobalDatabase.get_all_tags()
-        results = GlobalDatabase.get_all_results()
+        projects = Gio.ListStore.new(Project)
+        super().__init__(result_manager=result_manager, projects=projects)
 
-        for id, date in results:
-            result = Result(id, date)
-            result.load_from_db()
-            result.name = GlobalDatabase.get_result_name()
-            result.selected_tags = GlobalDatabase.get_all_tags()
-            result_manager.results.append(result)
+    async def load(self) -> None:
+        """Loads the projects and the results."""
+        global_db = global_sqlite.get_instance(GlobalSQLite)
+        projects: list[tuple[str, SimulatorType, str, str]] = await global_db.get_all_projects()
+
+        for project_id, simulator_type, simulation_file_path, project_file_path in projects:
+            project_db = ProjectSQLite(Gio.File.new_for_path(project_file_path))
+            project = Project(project_id, simulator_type,
+                                         simulation_file_path, project_file_path, project_db)
+            self.projects.append(project)
+            project.load_from_db()
+        result_manager = ResultManager()
+        result_manager.load_from_db()
 
     def create_project(self, name: str, sim_type: SimulatorType, simulation_file_path: str,
                        project_file_path: str) -> str:
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
-        project = Project(name, sim_type, simulation_file_path, project_file_path)
-        project.simulator = Simulator()
-        project.network = Network(project.simulator)
-        project.network.cross_sections = Gtk.MapListModel()
-        project.algorithm_configuration_manager = AlgorithmConfigurationManager(project.network)
-        project.algorithm_configuration_manager.algorithm_configurations = Gio.ListModel()
+        project_file = Gio.File.new_for_path(project_file_path)
+        project_db_file = project_file.get_child(name + "_db")
+        project_db = ProjectSQLite(project_db_file)
+        project = Project(name, sim_type, simulation_file_path, project_file_path, project_db)
 
         self.projects.append(project)
 
@@ -84,6 +71,6 @@ class Context(GObject.GObject):
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
-        project_model = self.projects[project_id]
-        self.projects.remove(project_model)
-        project_model.delete()
+        for project in common.list_model_iterator(self.projects):
+            if project.id == project_id:
+                self.projects.remove(project)

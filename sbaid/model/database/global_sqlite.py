@@ -284,3 +284,13 @@ CREATE TABLE vehicle_snapshot (
             await self._connection.commit()
         except sqlite3.IntegrityError as e:
             raise ForeignKeyError("Foreign key does not exist!") from e
+
+__is_instantiated = False
+__instance: GlobalSQLite
+
+def get_instance(cls) -> GlobalSQLite:
+    if cls.__is_instantiated:
+        return cls.__instance
+    cls.__is_instantiated = True
+    cls.__instance = GlobalSQLite(Gio.File.new_for_path("global"))
+    return cls.__instance
