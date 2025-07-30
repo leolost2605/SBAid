@@ -1,8 +1,11 @@
 """This module defines the SimulationManager class"""
 from typing import cast
 
-from gi.repository import GObject
+from gi.repository import GObject, GLib
 
+from model.simulation import cross_section_state
+from sbaid.model.simulation.display import Display
+from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.parameter_state import ParameterState
 from sbaid import common
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
@@ -40,73 +43,83 @@ class SimulationManager(GObject.GObject):
     def cancel(self) -> None:
         """Cancel the running simulation"""
 
-    def start(self) -> None:
+    async def start(self) -> None:
         """Start the simulation"""
         result_builder = ResultBuilder(self.result_manager)
         result_builder.begin_result(self.project_name)
-
-        parameter_configuration = self.algorithm_configuration.parameter_configuration
-        parameter_configuration_state = ParameterConfigurationState(parameter_configuration)
-
-        route: list[Location] = self.network.route
-        cross_section_states: list[CrossSectionState] = self.network.cross_sections
-        network_state = NetworkState(route, cross_section_states)
+        param_config_state = self.__build_parameter_configuration_state(
+            self.algorithm_configuration.parameter_configuration)
+        network_state = self.__build_network_state(self.network)
 
         simulation_start_time, simulation_duration = self.simulator.init_simulation()
-        self.algorithm_configuration.algorithm.init(parameter_configuration_state, network_state)
+
+        self.algorithm_configuration.algorithm.init(simulation_start_time, simulation_duration)
 
         elapsed_time = 0
         while elapsed_time < simulation_duration:
-            self.simulator.continue_simulation(self.algorithm_configuration.evaluation_interval)
-            measurements = self.simulator.measure()
+            await self.simulator.continue_simulation(self.algorithm_configuration
+                                                     .evaluation_interval)
+            measurement = await self.simulator.measure()
             display_interval = self.algorithm_configuration.display_interval
-            display = self.algorithm_configuration.algorithm.calculate_display(measurements)
+            display = self.algorithm_configuration.algorithm.calculate_display(measurement)
 
             if elapsed_time % display_interval == 0:
                 self.simulator.set_display(display)
 
-            # add to result
-            result_builder.begin_snapshot(simulation_start_time + elapsed_time)
-            for cross_section_state in cross_section_states:
-                name = self.network.cross_sections.find(cross_section_state.id)
-                result_builder.begin_cross_section(name)
-                if display is not None:
-                    result_builder.add_b_display(display.get_b_display(cross_section_state.id))
-
-                for lane in cross_section_state.lanes:
-                    result_builder.begin_lane(lane)
-                    result_builder.add_average_speed(
-                        measurements.get_average_speed(cross_section_state.id, lane))
-                    result_builder.add_traffic_volume(
-                        measurements.get_traffic_volume(cross_section_state.id, lane))
-                    if display is not None:
-                        result_builder.add_a_display(
-                            display.get_a_display(cross_section_state.id, lane))
-                    for vehicle_info in (measurements
-                            .get_all_vehicle_infos(cross_section_state.id, lane)):
-                        result_builder.begin_vehicle()
-                        result_builder.add_vehicle_type(vehicle_info.type)
-                        result_builder.add_vehicle_speed(vehicle_info.speed)
-                        result_builder.end_vehicle()
-                        result_builder.end_vehicle()
-                    result_builder.end_lane()
-                result_builder.end_cross_section()
-            result_builder.end_snapshot()
+            self.__add_to_results(result_builder, measurement, display, network_state,
+                                  simulation_start_time, elapsed_time)
 
             self.observer.update_progress(elapsed_time / simulation_duration)
 
             elapsed_time += self.algorithm_configuration.evaluation_interval
 
-        self.simulator.stop_simulation()
+        await self.simulator.stop_simulation()
         result = cast(Result, result_builder.end_result())
-        self.result_manager.register_result(result)
         self.observer.finished(result.id)
 
-        def __build_parameter_configuration_state(
-                _parameter_configuration: ParameterConfiguration)\
-            -> ParameterConfigurationState:
-            parameter_states = []
-            for parameter in common.list_model_iterator(_parameter_configuration.parameters):
-                parameter_states.append(ParameterState(parameter.name, parameter.value, parameter.cross_section))
+    def __build_parameter_configuration_state(self,
+            _parameter_configuration: ParameterConfiguration)\
+        -> ParameterConfigurationState:
+        parameter_states = []
+        for parameter in common.list_model_iterator(_parameter_configuration.parameters):
+            parameter_states.append(ParameterState(parameter.name, parameter.value,
+                                                   parameter.cross_section))
 
-            return ParameterConfigurationState(_parameter_configuration)
+        return ParameterConfigurationState(parameter_states)
+
+    def __build_network_state(self, network: Network) -> NetworkState:
+        locations = cast(list[Location], common.list_model_iterator(network.route.points))
+        cs_states = []
+        for cs in common.list_model_iterator(network.cross_sections):
+            cs_states.append(CrossSectionState(cs.id, cs.type, cs.lanes,
+                                               cs.b_display_available, cs.hard_shoulder_available))
+        return NetworkState(locations, cs_states)
+
+    def __add_to_results(self, result_builder: ResultBuilder, measurement: Input,
+                         display: Display | None, network_state: NetworkState,
+                         start_time: GLib.DateTime, elapsed_time: int) -> None:
+        self.__add_to_results(result_builder, measurement, display)
+        result_builder.begin_snapshot(start_time.add_seconds(elapsed_time))  # TODO should this really be seconds?
+        for cs_state in network_state.cross_section_states:
+            result_builder.begin_cross_section(self.network.cross_sections.find(cs_state.id))
+            if display:
+                result_builder.add_b_display(display.get_b_display(cs_state.id))
+
+            for lane in cs_state.lanes:
+                result_builder.begin_lane(lane)
+                result_builder.add_average_speed(
+                    measurement.get_average_speed(cs_state.id, lane))
+                result_builder.add_traffic_volume(
+                    measurement.get_traffic_volume(cs_state.id, lane))
+                if display:
+                    result_builder.add_a_display(
+                        display.get_a_display(cs_state.id, lane))
+                for vehicle_info in (measurement
+                        .get_all_vehicle_infos(cs_state.id, lane)):
+                    result_builder.begin_vehicle()
+                    result_builder.add_vehicle_type(vehicle_info.type)
+                    result_builder.add_vehicle_speed(vehicle_info.speed)
+                    result_builder.end_vehicle()
+                result_builder.end_lane()
+            result_builder.end_cross_section()
+        result_builder.end_snapshot()
