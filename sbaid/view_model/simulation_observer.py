@@ -34,7 +34,7 @@ class SimulationObserver(ModelSimulationObserver):
         """
         self.emit("finished", result_id)
 
-    def failed (self, error: GObject.Error) -> None:
+    def failed(self, error: GObject.Error) -> None:
         """
         Emits the failed signal with the given error.
         :param error: the error that caused the simulation to fail
