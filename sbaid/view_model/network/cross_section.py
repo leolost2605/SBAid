@@ -2,8 +2,6 @@
 This module contains the cross section class which is mainly responsible for passing
 through properties from model cross sections.
 """
-from typing import cast
-
 from gi.repository import GObject
 
 from sbaid.common.cross_section_type import CrossSectionType
