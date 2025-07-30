@@ -132,7 +132,7 @@ class CrossSection(GObject.GObject):
         if db_hard_shoulder_active is not None:
             self.__hard_shoulder_active = db_hard_shoulder_active
         db_b_display_active = await (self.__project_db.
-                                         get_cross_section_b_display_active(self.id))
+                                     get_cross_section_b_display_active(self.id))
         if db_b_display_active is not None:
             self.__b_display_active = db_b_display_active
 
