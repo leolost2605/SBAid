@@ -13,7 +13,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.display import Display
 
 
-class Simulator(GObject.GInterface):
+class Simulator(GObject.GObject):
     """TODO"""
 
     type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
@@ -32,7 +32,7 @@ class Simulator(GObject.GInterface):
                                    cross_section_type: CrossSectionType) -> int:
         """
         Create a cross section object, add it to the cross section list
-        and return its position within the list
+        and return its location within the list
         """
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
