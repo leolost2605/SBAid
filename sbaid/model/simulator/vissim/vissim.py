@@ -313,7 +313,7 @@ class VissimConnector:
     """
     The main class for interacting with vissim. It starts a new thread and handles all interactions
     with vissim in that thread. This is to allow the main thread to continue running while
-    sometimes long taking operations are done with vissim. Since COM doesn't play nicely with
+   lengthy operations are occasionally performed with Vissim. Since COM doesn't play nicely with
     multiple thread we have to keep all COM communication and objects in that thread.
     """
     __thread: Thread
