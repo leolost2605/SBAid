@@ -10,7 +10,7 @@ class VissimCrossSection(SimulatorCrossSection):
     __id: str
     __name: str
     __type: CrossSectionType
-    __position: Location
+    __location: Location
     __lanes: int
 
     @SimulatorCrossSection.id.getter  # type: ignore
@@ -31,7 +31,7 @@ class VissimCrossSection(SimulatorCrossSection):
     @SimulatorCrossSection.location.getter  # type: ignore
     def location(self) -> Location:
         """Returns the location of this cross section."""
-        return self.__position
+        return self.__location
 
     @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
@@ -52,5 +52,5 @@ class VissimCrossSection(SimulatorCrossSection):
         self.__id = state.id
         self.__name = state.name
         self.__type = state.type
-        self.__position = state.position
+        self.__location = state.location
         self.__lanes = state.lanes
