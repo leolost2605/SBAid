@@ -53,7 +53,7 @@ class SimulationManager(GObject.GObject):
 
         simulation_start_time, simulation_duration = self.simulator.init_simulation()
 
-        self.algorithm_configuration.algorithm.init(simulation_start_time, simulation_duration)
+        self.algorithm_configuration.algorithm.init(param_config_state, network_state)
 
         elapsed_time = 0
         while elapsed_time < simulation_duration:
@@ -64,7 +64,7 @@ class SimulationManager(GObject.GObject):
             display = self.algorithm_configuration.algorithm.calculate_display(measurement)
 
             if elapsed_time % display_interval == 0:
-                self.simulator.set_display(display)
+                await self.simulator.set_display(display)
 
             self.__add_to_results(result_builder, measurement, display, network_state,
                                   simulation_start_time, elapsed_time)
