@@ -116,7 +116,7 @@ class SimulationManager(GObject.GObject):
                 for vehicle_info in (measurement
                         .get_all_vehicle_infos(cs_state.id, lane)):
                     result_builder.begin_vehicle()
-                    result_builder.add_vehicle_type(vehicle_info.type)
+                    result_builder.add_vehicle_type(vehicle_info.vehicle_type)
                     result_builder.add_vehicle_speed(vehicle_info.speed)
                     result_builder.end_vehicle()
                 result_builder.end_lane()
