@@ -67,7 +67,7 @@ class DiagramTest(unittest.TestCase):
                                                               cross_section_id,
                                                               random.choice(list(BDisplay)))
                 for p in range(6):
-                    lane_snapshot = lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),
+                    lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),
                                                                  GLib.uuid_string_random(), p,
                                                                  random.uniform(60, 140),
                                                                  random.randint(5, 30),
