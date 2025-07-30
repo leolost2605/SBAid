@@ -3,7 +3,7 @@ from typing import cast
 
 from gi.repository import GObject, GLib
 
-from model.simulation import cross_section_state
+from sbaid.model.simulation import cross_section_state
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.parameter_state import ParameterState
@@ -74,7 +74,7 @@ class SimulationManager(GObject.GObject):
             elapsed_time += self.algorithm_configuration.evaluation_interval
 
         await self.simulator.stop_simulation()
-        result = cast(Result, result_builder.end_result())
+        result = result_builder.end_result()
         self.observer.finished(result.id)
 
     def __build_parameter_configuration_state(self,
@@ -98,8 +98,7 @@ class SimulationManager(GObject.GObject):
     def __add_to_results(self, result_builder: ResultBuilder, measurement: Input,
                          display: Display | None, network_state: NetworkState,
                          start_time: GLib.DateTime, elapsed_time: int) -> None:
-        self.__add_to_results(result_builder, measurement, display)
-        result_builder.begin_snapshot(start_time.add_seconds(elapsed_time))  # TODO should this really be seconds?
+        result_builder.begin_snapshot(start_time.add_seconds(elapsed_time))
         for cs_state in network_state.cross_section_states:
             result_builder.begin_cross_section(self.network.cross_sections.find(cs_state.id))
             if display:

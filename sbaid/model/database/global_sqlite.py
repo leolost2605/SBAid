@@ -285,8 +285,10 @@ CREATE TABLE vehicle_snapshot (
         except sqlite3.IntegrityError as e:
             raise ForeignKeyError("Foreign key does not exist!") from e
 
-__is_instantiated = False
-__instance: GlobalSQLite
+
+_is_instantiated = False
+_instance: GlobalSQLite
+
 
 def get_instance(cls) -> GlobalSQLite:
     if cls.__is_instantiated:
