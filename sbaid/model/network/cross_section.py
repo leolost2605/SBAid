@@ -66,8 +66,7 @@ class CrossSection(GObject.GObject):
 
     b_display_active: bool = GObject.Property(type=bool,  # type: ignore[assignment]
                                               flags=GObject.ParamFlags.READABLE |
-                                              GObject.ParamFlags.WRITABLE |
-                                              GObject.ParamFlags.CONSTRUCT_ONLY,
+                                              GObject.ParamFlags.WRITABLE,
                                               default=False)
 
     @b_display_active.getter  # type: ignore
@@ -92,8 +91,7 @@ class CrossSection(GObject.GObject):
 
     hard_shoulder_active: bool = GObject.Property(type=bool,  # type: ignore[assignment]
                                                   flags=GObject.ParamFlags.READABLE |
-                                                  GObject.ParamFlags.WRITABLE |
-                                                  GObject.ParamFlags.CONSTRUCT,
+                                                  GObject.ParamFlags.WRITABLE,
                                                   default=False)
 
     @hard_shoulder_active.getter  # type: ignore

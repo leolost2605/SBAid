@@ -1,8 +1,9 @@
 """This module contains the Network class and exceptions related to cross section importing."""
 
+import sys
 import asyncio
 import typing
-from gi.repository import Gio, GObject, Gtk
+import gi
 from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
@@ -12,6 +13,13 @@ from sbaid.model.network.route import Route
 from sbaid.model.network.parser_factory import ParserFactory
 from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.database.project_database import ProjectDatabase
+
+try:
+    gi.require_version('Gtk', '4.0')
+    from gi.repository import Gio, GObject, Gtk
+except (ImportError, ValueError) as exc:
+    print('Error: Dependencies not met.', exc)
+    sys.exit(1)
 
 
 class Network(GObject.Object):
@@ -133,13 +141,10 @@ class Network(GObject.Object):
         to be mapped to the given simulator cross section in the MapListModel.
         Starts the loading of cross section metadata form the database."""
         model_cross_section = CrossSection(sim_cross_section, self.__project_db)
-        task = asyncio.create_task(self.__load_cross_section_from_db(model_cross_section))
+        task = asyncio.create_task(model_cross_section.load_from_db())
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
         return model_cross_section
-
-    async def __load_cross_section_from_db(self, model_cross_section: CrossSection) -> None:
-        await model_cross_section.load_from_db()
 
 
 class FailedCrossSectionCreationException(Exception):
