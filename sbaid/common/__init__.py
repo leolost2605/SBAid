@@ -10,7 +10,7 @@ from gi.repository import Gio, GLib
 
 def list_model_iterator(model: Gio.ListModel) -> Generator[Any, Any, None]:
     """Iterates over a Gio.ListModel"""
-    for i in range(model.get_n_items() - 1):
+    for i in range(model.get_n_items()):
         yield model.get_item(i)
 
 

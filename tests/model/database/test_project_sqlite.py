@@ -107,11 +107,20 @@ class ProjectSQLiteTest(unittest.TestCase):
         file = Gio.File.new_for_path("test.db")
         async with ProjectSQLite(file) as db:
             self.assertEqual(await db.get_cross_section_name("my_nonexistent_cross_section_id"), "")
-            await db.add_cross_section("my_cross_section_id", "my_cross_section_name")
+            await db.add_cross_section("my_cross_section_id", "my_cross_section_name", False, True)
 
             self.assertEqual(await db.get_cross_section_name("my_cross_section_id"), "my_cross_section_name")
 
-            await db.add_cross_section("my_cross_section_id_2", "my_cross_section_name_2")
+            await db.add_cross_section("my_cross_section_id_2", "my_cross_section_name_2", False, True)
+
+            self.assertFalse(await db.get_cross_section_hard_shoulder_active("my_cross_section_id_2"))
+            self.assertTrue(await db.get_cross_section_b_display_active("my_cross_section_id_2"))
+
+            await db.set_cross_section_hard_shoulder_active("my_cross_section_id_2", True)
+            await db.set_cross_section_b_display_active("my_cross_section_id_2", False)
+
+            self.assertTrue(await db.get_cross_section_hard_shoulder_active("my_cross_section_id_2"))
+            self.assertFalse(await db.get_cross_section_b_display_active("my_cross_section_id_2"))
 
             self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), "my_cross_section_name_2")
 

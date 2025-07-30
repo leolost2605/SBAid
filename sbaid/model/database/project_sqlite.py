@@ -49,7 +49,9 @@ CREATE TABLE algorithm_configuration (
 );
 CREATE TABLE cross_section (
     id TEXT PRIMARY KEY,
-    name TEXT
+    name TEXT,
+    HARD_SHOULDER_ACTIVE BOOLEAN,
+    B_DISPLAY_ACTIVE BOOLEAN
 );
 CREATE TABLE parameter (
     algorithm_configuration_id TEXT,
@@ -135,6 +137,39 @@ CREATE TABLE parameter_tag (
         """Update the name of the cross_section with the given id."""
         await self._connection.execute("""UPDATE cross_section SET cross_section_name= ?,
         WHERE id = ?""", (name, cross_section_id))
+        await self._connection.commit()
+
+    async def get_cross_section_hard_shoulder_active(self, cross_section_id: str) -> bool:
+        """Return whether the hard should is active for the given cross section."""
+        async with self._connection.execute(
+                """SELECT hard_shoulder_active FROM cross_section WHERE id = ?""",
+                [cross_section_id]) as cursor:
+            result = await cursor.fetchone()
+            if result is None:
+                raise KeyError("Invalid cross section id")
+            return bool(list(result)[0])
+
+    async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
+                                                     status: bool) -> None:
+        """Update the hard_shoulder_active value of the cross_section with the given id."""
+        await self._connection.execute("""UPDATE cross_section SET hard_shoulder_active = ?
+        WHERE id = ?""", (status, cross_section_id))
+        await self._connection.commit()
+
+    async def get_cross_section_b_display_active(self, cross_section_id: str) -> bool:
+        """Return whether the hard should is active for the given cross section."""
+        async with self._connection.execute(
+                """SELECT b_display_active FROM cross_section WHERE id = ?""",
+                [cross_section_id]) as cursor:
+            result = await cursor.fetchone()
+            if result is None:
+                raise KeyError("Invalid cross section id")
+            return bool(list(result)[0])
+
+    async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
+        """Update the b_display_active value of the cross_section with the given id."""
+        await self._connection.execute("""UPDATE cross_section SET b_display_active = ?
+        WHERE id = ?""", (value, cross_section_id))
         await self._connection.commit()
 
     async def get_algorithm_configuration_name(self, algorithm_configuration_id: str) -> str:
@@ -272,10 +307,13 @@ CREATE TABLE parameter_tag (
                                                       parameter_name, cross_section_id))
         await self._connection.commit()
 
-    async def add_cross_section(self, cross_section_id: str, name: str) -> None:
-        """Add a new cross section with an id and a name."""
-        await self._connection.execute("""INSERT INTO cross_section (id, name)
-        VALUES (?, ?)""", (cross_section_id, name))
+    async def add_cross_section(self, cross_section_id: str, name: str,
+                                hard_shoulder_active: bool, b_display_active: bool) -> None:
+        """Add a new cross section with an id, a name and whether the hard shoulder
+        or b display are active."""
+        await self._connection.execute("""
+        INSERT INTO cross_section (id, name, hard_shoulder_active, b_display_active)
+        VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active, b_display_active))
         await self._connection.commit()
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
