@@ -119,6 +119,7 @@ class CrossSection(GObject.GObject):
         self.__background_tasks = set()
         self.__b_display_active = False
         self.__hard_shoulder_active = False
+        self.__name = self.__cross_section.name
         super().__init__()
 
     async def load_from_db(self) -> None:
@@ -128,6 +129,7 @@ class CrossSection(GObject.GObject):
                                        .get_cross_section_hard_shoulder_active(self.id))
         self.__b_display_active = await (self.__project_db.
                                          get_cross_section_b_display_active(self.id))
+
 
     async def __update_b_display_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_b_display_active(self.id, value)

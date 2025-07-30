@@ -42,7 +42,7 @@ class Network(GObject.Object):
         super().__init__(route=simulator.route)
 
     async def load(self) -> None:
-        """Loads the network from the database."""
+        """Loads the network data."""
         self.__cross_sections.set_model(self.__simulator.cross_sections)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
