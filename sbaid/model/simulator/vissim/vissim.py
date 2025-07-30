@@ -66,7 +66,7 @@ class VissimConnectorCrossSectionState(NamedTuple):
     id: str
     name: str
     type: CrossSectionType
-    position: Location
+    location: Location
     lanes: int
     successors: list[str]
 
@@ -143,8 +143,8 @@ class _CrossSection:
         return CrossSectionType.COMBINED
 
     @property
-    def position(self) -> Location:
-        """Returns the position of the cross section."""
+    def location(self) -> Location:
+        """Returns the location of the cross section."""
         if self.__data_collection_points:
             middle = int(len(self.__data_collection_points) / 2)
             x = self.__data_collection_points[middle].AttValue("LongWGS84")
@@ -183,7 +183,7 @@ class _CrossSection:
     @property
     def state(self) -> VissimConnectorCrossSectionState:
         """Returns the current state of this cross section."""
-        return VissimConnectorCrossSectionState(self.id, self.name, self.type, self.position,
+        return VissimConnectorCrossSectionState(self.id, self.name, self.type, self.location,
                                                 self.lanes, self.successors)
 
     def __init__(self, network: VissimNetwork) -> None:
@@ -264,6 +264,7 @@ class _CrossSection:
             speed, closed = self.__get_lane_config(a_display)
 
             distr = distr_by_speed[speed]
+            # Set the speed for all vehicle types
             decision.SetAttValue("DesSpeedDistr(10)", distr)
             decision.SetAttValue("DesSpeedDistr(11)", distr)
             decision.SetAttValue("DesSpeedDistr(20)", distr)
@@ -443,24 +444,24 @@ class VissimConnector:
 
         return cs_by_link_and_pos
 
-    async def create_cross_section(self, position: Location,
+    async def create_cross_section(self, location: Location,
                                    cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         """
         Creates a new cross section in vissim.
-        :param position: the position at which to add the new cross section
+        :param location: the location at which to add the new cross section
         :param cs_type: the type of the new cross section
         :return: the state of the newly created cross section
         """
-        result = await self.__push_command(self.__create_cross_section, position, cs_type)
+        result = await self.__push_command(self.__create_cross_section, location, cs_type)
         return cast(VissimConnectorCrossSectionState, result)
 
-    def __create_cross_section(self, position: Location,
+    def __create_cross_section(self, location: Location,
                                cs_type: CrossSectionType) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
         cross_section = _CrossSection(self.__network)
 
-        self.__add_cs_to_vissim(cross_section, position, cs_type)
+        self.__add_cs_to_vissim(cross_section, location, cs_type)
 
         self.__cross_sections_by_id[cross_section.id] = cross_section
 
@@ -480,18 +481,18 @@ class VissimConnector:
         self.__remove_cs_from_vissim(cross_section)
 
     async def move_cross_section(self, cs_id: str,
-                                 new_position: Location) -> VissimConnectorCrossSectionState:
+                                 new_location: Location) -> VissimConnectorCrossSectionState:
         """
-        Moves a cross section to a new position in vissim.
+        Moves a cross section to a new location in vissim.
         :param cs_id: the id of the cross section to move
-        :param new_position: the new position to which the cross section should be moved
+        :param new_location: the new location to which the cross section should be moved
         :return: the new state of the cross section
         """
-        result = await self.__push_command(self.__move_cross_section, cs_id, new_position)
+        result = await self.__push_command(self.__move_cross_section, cs_id, new_location)
         return cast(VissimConnectorCrossSectionState, result)
 
     def __move_cross_section(self, cs_id: str,
-                             new_position: Location) -> VissimConnectorCrossSectionState:
+                             new_location: Location) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
         cross_section = self.__cross_sections_by_id[cs_id]
@@ -502,18 +503,18 @@ class VissimConnector:
         primary_point_id = cross_section.primary_point_id
 
         self.__remove_cs_from_vissim(cross_section)
-        self.__add_cs_to_vissim(cross_section, new_position, cs_type, primary_point_id)
+        self.__add_cs_to_vissim(cross_section, new_location, cs_type, primary_point_id)
 
         # If this doesn't hold we get a bunch of problems so better assert it
         assert cross_section.id == cs_id
 
         return cross_section.state
 
-    def __add_cs_to_vissim(self, cross_section: _CrossSection, position: Location,
+    def __add_cs_to_vissim(self, cross_section: _CrossSection, location: Location,
                            cs_type: CrossSectionType, first_id: int | None = None) -> None:
         assert threading.current_thread() == self.__thread
 
-        link, pos = self.__network.get_link_and_position(position)
+        link, pos = self.__network.get_link_and_position(location)
 
         data_collection_points = self.__vissim.Net.DataCollectionPoints
         des_speed_decisions = self.__vissim.Net.DesSpeedDecisions
@@ -580,7 +581,7 @@ class VissimConnector:
         self.__vissim.Net.Evaluation.SetAttValue("DataCollToTime", sim_duration)
 
         self.__vissim.Simulation.SetAttValue('UseMaxSimSpeed', True)
-        self.__vissim.Simulation.RunSingleStep()
+        self.__vissim.Simulation.RunSingleStep()  # Actually starts the simulation
         return sim_start_time, sim_duration
 
     async def continue_simulation(self, span: int) -> None:

@@ -9,7 +9,7 @@ from sortedcontainers import SortedDict
 from sbaid.common.location import Location
 
 
-class InvalidPositionException(Exception):
+class InvalidLocationException(Exception):
     """Thrown if the given position wasn't found in the network"""
 
 
@@ -229,7 +229,7 @@ class VissimNetwork:
             if result:
                 return link.vissim_link, distance
 
-        raise InvalidPositionException("No link with the given position found")
+        raise InvalidLocationException("No link with the given location found")
 
     def get_main_route(self, starting_link_no:
                        int | None = None) -> tuple[list[Location], list[str]]:
