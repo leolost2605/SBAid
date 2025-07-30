@@ -1,19 +1,15 @@
-"""TODO"""
-from typing import List
+"""This module contains the route class."""
 
 from gi.repository import GObject
 from gi.repository import Gio
 
-from sbaid.common.location import Location
-
 
 class Route(GObject.GObject):
-    """TODO"""
+    """This class represents a route on a motorway, consisting of a series of coordinates."""
     points = GObject.Property(type=Gio.ListModel,
                               flags=GObject.ParamFlags.READABLE |
                               GObject.ParamFlags.WRITABLE |
                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, locations: List[Location]) -> None:
-        super().__init__()
-        # TODO: turn list into listmodel
+    def __init__(self, points: Gio.ListModel) -> None:
+        super().__init__(points=points)
