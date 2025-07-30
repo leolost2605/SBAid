@@ -40,6 +40,7 @@ class Context(GObject.Object):
 
     @simulator_types.getter  # type: ignore
     def simulator_types(self) -> Gio.ListModel:
+        """Returns a list of all available simulator types."""
         # TODO: Get them from the simulator factory singleton
         return Gio.ListStore()
 

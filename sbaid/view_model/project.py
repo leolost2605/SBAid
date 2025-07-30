@@ -22,19 +22,27 @@ class Project(GObject.Object):
 
     @id.getter  # type: ignore
     def id(self) -> str:
+        """Returns the id of this project"""
         return self.__project.id
 
     name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
 
     @name.getter  # type: ignore
     def name(self) -> str:
+        """Returns the name of this project"""
         return self.__project.name
+
+    @name.setter  # type: ignore
+    def name(self, name: str) -> None:
+        """Sets the name of this project"""
+        self.__project.name = name
 
     simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE)
 
     @simulator_type.getter  # type: ignore
     def simulator_type(self) -> SimulatorType:
+        """Returns the simulator type of this project"""
         return self.__project.simulator_type
 
     last_modified: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
@@ -42,6 +50,7 @@ class Project(GObject.Object):
 
     @last_modified.getter  # type: ignore
     def last_modified(self) -> GLib.DateTime:
+        """Returns the last modified date of this project"""
         return self.__project.last_modified
 
     created_at: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
@@ -49,6 +58,7 @@ class Project(GObject.Object):
 
     @created_at.getter  # type: ignore
     def created_at(self) -> GLib.DateTime:
+        """Returns the created at date of this project"""
         return self.__project.created_at
 
     network: Network = GObject.Property(type=Network,  # type: ignore
