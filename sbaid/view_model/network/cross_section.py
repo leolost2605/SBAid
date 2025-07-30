@@ -45,7 +45,7 @@ class CrossSection(GObject.GObject):
     @location.getter  # type: ignore
     def location(self) -> Location:
         """Returns the location of this cross section."""
-        return cast(Location, self.__cross_section.location)
+        return self.__cross_section.location
 
     type: CrossSectionType = GObject.Property(type=CrossSectionType,
                                               default=CrossSectionType.COMBINED)  # type: ignore
@@ -53,21 +53,21 @@ class CrossSection(GObject.GObject):
     @type.getter  # type: ignore
     def type(self) -> CrossSectionType:
         """Returns the type of the cross section."""
-        return cast(CrossSectionType, self.__cross_section.type)
+        return self.__cross_section.type
 
     lanes: int = GObject.Property(type=int)  # type: ignore
 
     @lanes.getter  # type: ignore
     def lanes(self) -> int:
         """Returns the number of lanes of the cross section."""
-        return cast(int, self.__cross_section.lanes)
+        return self.__cross_section.lanes
 
     b_display_usable: bool = GObject.Property(type=bool, default=False)  # type: ignore
 
     @b_display_usable.getter  # type: ignore[no-redef]
     def b_display_usable(self) -> bool:
         """Returns whether the algorithm should calculate b displays for this cross section."""
-        return cast(bool, self.__cross_section.b_display_active)
+        return self.__cross_section.b_display_active
 
     @b_display_usable.setter  # type: ignore[no-redef]
     def b_display_usable(self, value: bool) -> None:
@@ -79,7 +79,7 @@ class CrossSection(GObject.GObject):
     @hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
         """Returns whether the lane with index 0 is a hard shoulder."""
-        return cast(bool, self.__cross_section.hard_shoulder_available)
+        return self.__cross_section.hard_shoulder_available
 
     hard_shoulder_usable: bool = GObject.Property(type=bool, default=False)  # type: ignore
 
@@ -89,7 +89,7 @@ class CrossSection(GObject.GObject):
         Returns whether the algorithm can allow opening the hard shoulder so the lane with
         index 0. Always false if no hard shoulder available.
         """
-        return cast(bool, self.__cross_section.hard_shoulder_available)
+        return self.__cross_section.hard_shoulder_active
 
     @hard_shoulder_usable.setter  # type: ignore
     def hard_shoulder_usable(self, value: bool) -> None:
@@ -100,7 +100,7 @@ class CrossSection(GObject.GObject):
         if not self.hard_shoulder_available:
             raise FunctionalityNotAvailableException("Hard shoulder is not available")
 
-        self.__cross_section.hard_shoulder_available = value
+        self.__cross_section.hard_shoulder_active = value
 
     def __init__(self, cross_section: ModelCrossSection) -> None:
         super().__init__()
