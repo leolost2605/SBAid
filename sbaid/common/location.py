@@ -22,7 +22,8 @@ class Location(GObject.GObject):
         """Returns true if this is on a line between point_one and point_two."""
         return math.isclose(
             self.distance(point_one) + self.distance(point_two),
-            point_one.distance(point_two)
+            point_one.distance(point_two),
+            abs_tol=10
         )
 
     def distance(self, location: 'Location') -> float:

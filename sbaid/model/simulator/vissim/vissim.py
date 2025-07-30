@@ -147,13 +147,13 @@ class _CrossSection:
         """Returns the location of the cross section."""
         if self.__data_collection_points:
             middle = int(len(self.__data_collection_points) / 2)
-            x = self.__data_collection_points[middle].AttValue("LongWGS84")
-            y = self.__data_collection_points[middle].AttValue("LatWGS84")
+            x = self.__data_collection_points[middle].AttValue("LatWGS84")
+            y = self.__data_collection_points[middle].AttValue("LongWGS84")
             return Location(x, y)
 
         middle = int(len(self.__des_speed_decisions) / 2)
-        x = self.__des_speed_decisions[middle].AttValue("LongWGS84")
-        y = self.__des_speed_decisions[middle].AttValue("LatWGS84")
+        x = self.__des_speed_decisions[middle].AttValue("LatWGS84")
+        y = self.__des_speed_decisions[middle].AttValue("LongWGS84")
         return Location(x, y)
 
     @property

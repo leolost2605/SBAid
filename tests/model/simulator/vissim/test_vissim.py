@@ -2,11 +2,14 @@ import unittest
 import os
 import sys
 
+from sbaid.model.simulator.vissim.vissim_network import InvalidLocationException
+
 if not sys.platform.startswith("win"):
     raise unittest.SkipTest("Requires Windows")
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.common.location import Location
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulator.vissim.vissim import VissimConnector
 
@@ -25,8 +28,13 @@ class VissimTestCase(unittest.IsolatedAsyncioTestCase):
 
         aq_1 = cross_section_states[0]
 
+        self.assertEqual(aq_1.id, "1")
         self.assertEqual(aq_1.type, CrossSectionType.DISPLAY)
         self.assertEqual(aq_1.lanes, 3)
+
+        q_2 = cross_section_states[1]
+
+        self.assertEqual(q_2.id, "261")
 
         mq_67 = cross_section_states[-1]
 
@@ -34,13 +42,22 @@ class VissimTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(mq_67.lanes, 4)
 
         with self.subTest(msg="Test Remove Cross Section"):
-            await self.__connector.remove_cross_section("11")
+            await self.__connector.remove_cross_section("1")
+            await self.__connector.remove_cross_section("261")
+
+            with self.assertRaises(KeyError):
+                await self.__connector.remove_cross_section("5")
+
+        with self.subTest(msg="Test Create Cross Section"):
+            await self.__connector.create_cross_section(aq_1.location, CrossSectionType.COMBINED)
+
+            with self.assertRaises(InvalidLocationException):
+                await self.__connector.create_cross_section(Location(0, 0,), CrossSectionType.COMBINED)
 
         with self.subTest(msg="Test Simulation"):
             interval = 60
 
             time, duration = await self.__connector.init_simulation(interval)
-            print(time.format_iso8601())
             for i in range(int(duration / interval)):
                 await self.__run_iteration(cross_section_states, interval)
 
