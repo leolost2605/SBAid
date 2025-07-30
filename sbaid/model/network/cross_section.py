@@ -130,7 +130,6 @@ class CrossSection(GObject.GObject):
         self.__b_display_active = await (self.__project_db.
                                          get_cross_section_b_display_active(self.id))
 
-
     async def __update_b_display_active(self, value: bool) -> None:
         await self.__project_db.set_cross_section_b_display_active(self.id, value)
 
