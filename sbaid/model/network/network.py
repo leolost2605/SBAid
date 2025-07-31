@@ -84,6 +84,7 @@ class Network(GObject.Object):
             try:
                 position = await self.__simulator.create_cross_section(location, cs_type)
             except Exception as exc:
+                print("creation failed")
                 raise FailedCrossSectionCreationException(
                     "Cross section creation in simulator failed.") from exc
             model_cross_section = typing.cast(CrossSection,
@@ -143,8 +144,7 @@ class Network(GObject.Object):
 
 
 class FailedCrossSectionCreationException(Exception):
-    """Exception raised when the creation of a cross section fails.
-    No error message needed as the exception doesn't show up to the user as an error."""
+    """Exception raised when the creation of a cross section fails."""
 
 
 class NoSuitableParserException(Exception):
