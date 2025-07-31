@@ -56,7 +56,7 @@ class Context(GObject.GObject):
 
         self.projects.append(project)
 
-        return self.projects.index(project)
+        return self.projects.get_n_items() - 1  # TODO like this?
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
