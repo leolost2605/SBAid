@@ -1,5 +1,8 @@
 """This module defines the Project class."""
 from gi.repository import GObject, GLib
+
+import sbaid.common
+from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.results.result_manager import ResultManager
@@ -95,10 +98,15 @@ class Project(GObject.GObject):
         """Starts a simulation with the currently selected algorithm configuration.
         The transferred observer is regularly informed about the progress of the simulation.
         The returned SimulationManager manages the simulation and can be used to control it."""
-        algorithm_configuration = (self.algorithm_configuration_manager
-                                   .get_algorithm_configurations())
+        algorithm_configuration_id = (self.algorithm_configuration_manager
+                                      .selected_algorithm_configuration_id)
+        algo_config: AlgorithmConfiguration = None
+        for config in sbaid.common.list_model_iterator(self.algorithm_configuration_manager
+                                                               .algorithm_configurations):
+            if config.id == algorithm_configuration_id:
+                algo_config = config
         result_manager = ResultManager()
-        simulation_manager = SimulationManager(self.name, algorithm_configuration,
+        simulation_manager = SimulationManager(self.name, algo_config,
                                                self.network, self.simulator,
                                                result_manager, observer)
         simulation_manager.start()
