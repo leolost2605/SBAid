@@ -20,17 +20,17 @@ class ContextTestCase(unittest.TestCase):
         await self.projects()
     async def projects(self):
         context = Context()
+        await context.load()
+        proj_id = context.create_project("test_project", SimulatorType("dummy_json", "JSON Dummy Simulator"),
+                               "simulation_file_path", "tests/base/test_project")
+        self.assertEqual(context.projects.get_item(0).id, proj_id)
+        self.assertEqual(context.projects.get_item(0).name, "test_project")
         context.create_project("test_project", SimulatorType("dummy_json", "JSON Dummy Simulator"),
                                "simulation_file_path", "tests/base/test_project")
-        new_context = Context()
-        await new_context.load()
-        contains_project = any(project.name == "tes_project" for project in filter(
-            lambda project: project.name, common.list_model_iterator(new_context.projects)))
-        print(any(project.name == "tes_project" for project in filter(
-            lambda project: project.name, common.list_model_iterator(new_context.projects))))
+        self.assertEqual(context.projects.get_n_items(), 2)
+        self.assertEqual(context.projects.get_item(0).name, context.projects.get_item(1).name)
+        self.assertNotEqual(context.projects.get_item(0).id, context.projects.get_item(1).id)
 
-        self.assertTrue(contains_project)
-        # context.projects
 
 
 if __name__ == '__main__':
