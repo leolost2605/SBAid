@@ -1,6 +1,8 @@
 """This module defines the Context Class"""
+import asyncio
 
-from gi.repository import GObject, Gio
+from gi.events import GLibEventLoopPolicy
+from gi.repository import GObject, Gio, GLib
 
 import sbaid.common
 from sbaid.model.database import global_sqlite
@@ -53,6 +55,15 @@ class Context(GObject.GObject):
         project_db_file = project_file.get_child(name + "_db")
         project_db = ProjectSQLite(project_db_file)
         project = Project(name, sim_type, simulation_file_path, project_file_path, project_db)
+        # TODO we have to map uuid to name somewhere?
+
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+
+        async with global_sqlite.get_instance(GlobalSQLite) as db:
+            task = loop.create_task(db.add_project(GLib.uuid_string_random(), sim_type,
+                                 simulation_file_path, project_file_path))
+            loop.run_until_complete(task)
 
         self.projects.append(project)
 
@@ -63,3 +74,10 @@ class Context(GObject.GObject):
         for project in sbaid.common.list_model_iterator(self.projects):
             if project.id == project_id:
                 self.projects.remove(project)
+
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+
+        async with global_sqlite.get_instance(GlobalSQLite) as db:
+            task = loop.create_task(db.remove_project(project_id))
+            loop.run_until_complete(task)
