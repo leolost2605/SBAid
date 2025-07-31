@@ -24,8 +24,8 @@ class ProjectSQLite(ProjectDatabase):
         file_existed = self._file.query_exists()
         if not file_existed:
             await make_directory_with_parents_async(self._file.get_parent())
-            self._file.create_async(Gio.FileCreateFlags.NONE,  # pylint: disable=no-member
-                                    GLib.PRIORITY_DEFAULT)
+            await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
+                                          GLib.PRIORITY_DEFAULT)
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
         if not file_existed:
             await self._connection.executescript("""PRAGMA foreign_keys = ON;
