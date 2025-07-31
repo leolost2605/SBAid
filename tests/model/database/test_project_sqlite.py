@@ -49,7 +49,7 @@ class ProjectSQLiteTest(unittest.TestCase):
             new_last_modified = await db.get_last_modified()
             self.assertTrue(GLib.DateTime.compare(new_last_modified, created_at) == 1)
 
-            file.delete_async(0, None, self.on_delete_async, None)
+        file.delete_async(0, None, self.on_delete_async, None)
 
     async def algorithm_configuration(self):
         file = Gio.File.new_for_path("test.db")
@@ -100,7 +100,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
             self.assertEqual(new_value, await db.get_parameter_value("my_algorithm_configuration_id", "my_parameter_name", None))
 
-            file.delete_async(0, None, self.on_delete_async, None)
+        file.delete_async(0, None, self.on_delete_async, None)
 
 
     async def cross_section(self):
