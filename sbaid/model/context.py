@@ -21,6 +21,8 @@ class Context(GObject.GObject):
     __result_manager: ResultManager
     __projects: Gio.ListModel
 
+    __background_tasks: set[asyncio.Task[None]]
+
 
     @GObject.Property(type=ResultManager, flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -49,8 +51,8 @@ class Context(GObject.GObject):
     def __init__(self) -> None:
         self.__result_manager = ResultManager()
         self.__projects = Gio.ListStore.new(Project)
+        self.__background_tasks = set()
         super().__init__()
-        # super().__init__(result_manager=ResultManager(), projects=Gio.ListStore.new(Project))
 
     async def load(self) -> None:
         """Loads the projects and the results."""
@@ -71,15 +73,14 @@ class Context(GObject.GObject):
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
 
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
         project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
-
-        task = loop.create_task(self.__project_creation_db_action(project_id, sim_type,
+        task = asyncio.create_task(self.__project_creation_db_action(project_id, sim_type,
                                 simulation_file_path, project_file_path))
-        loop.run_until_complete(task)
+        self.__background_tasks.add(task)
+        task.add_done_callback(self.__background_tasks.discard)
 
-        self.projects.append(Project(name, sim_type, simulation_file_path, project_file_path))
+        self.projects.append(Project(project_id, name, sim_type, simulation_file_path,
+                                     project_file_path))
 
         return project_id
 
