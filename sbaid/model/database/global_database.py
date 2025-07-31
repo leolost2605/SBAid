@@ -14,6 +14,14 @@ class GlobalDatabase(ABC):
     the global database functionality."""
 
     @abstractmethod
+    async def __aenter__(self) -> GlobalDatabase:
+        """TODO"""
+
+    @abstractmethod
+    async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
+        """TODO"""
+
+    @abstractmethod
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""
