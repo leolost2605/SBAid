@@ -1,9 +1,10 @@
 """This module defines the SimulationManager class"""
+import asyncio
 from typing import cast
 
+from gi.events import GLibEventLoopPolicy
 from gi.repository import GObject, GLib
 
-from sbaid.model.simulation import cross_section_state
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.parameter_state import ParameterState
@@ -43,7 +44,7 @@ class SimulationManager(GObject.GObject):
     def cancel(self) -> None:
         """Cancel the running simulation"""
 
-    async def start(self) -> None:
+    def start(self) -> None:
         """Start the simulation"""
         result_builder = ResultBuilder(self.result_manager)
         result_builder.begin_result(self.project_name)
@@ -55,15 +56,27 @@ class SimulationManager(GObject.GObject):
 
         self.algorithm_configuration.algorithm.init(param_config_state, network_state)
 
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+
+        task = loop.create_task(self.__run_simulation(simulation_start_time, simulation_duration,
+                                                      result_builder, network_state))
+        loop.run_until_complete(task)
+
+        result = cast(Result, result_builder.end_result())
+        self.observer.finished(result.id)
+
+    async def __run_simulation(self, simulation_start_time: GLib.DateTime,
+                               simulation_duration: int, result_builder: ResultBuilder,
+                               network_state: NetworkState) -> None:
         elapsed_time = 0
         while elapsed_time < simulation_duration:
             await self.simulator.continue_simulation(self.algorithm_configuration
                                                      .evaluation_interval)
             measurement = await self.simulator.measure()
-            display_interval = self.algorithm_configuration.display_interval
             display = self.algorithm_configuration.algorithm.calculate_display(measurement)
 
-            if elapsed_time % display_interval == 0:
+            if elapsed_time % self.algorithm_configuration.display_interval == 0:
                 await self.simulator.set_display(display)
 
             self.__add_to_results(result_builder, measurement, display, network_state,
@@ -74,13 +87,12 @@ class SimulationManager(GObject.GObject):
             elapsed_time += self.algorithm_configuration.evaluation_interval
 
         await self.simulator.stop_simulation()
-        result = result_builder.end_result()
-        self.observer.finished(result.id)
 
     def __build_parameter_configuration_state(self,
             _parameter_configuration: ParameterConfiguration)\
         -> ParameterConfigurationState:
         parameter_states = []
+        # type: ignore
         for parameter in common.list_model_iterator(_parameter_configuration.parameters):
             parameter_states.append(ParameterState(parameter.name, parameter.value,
                                                    parameter.cross_section))
