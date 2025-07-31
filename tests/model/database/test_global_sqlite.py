@@ -209,3 +209,5 @@ class GlobalSQLiteTest(unittest.TestCase):
 
         async with GlobalSQLite(file) as db3:
             self.assertEqual(len(await db3.get_all_projects()), 2)
+
+        file.delete_async(0, None, self.on_delete_async, None)
