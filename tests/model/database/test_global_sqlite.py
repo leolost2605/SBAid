@@ -31,6 +31,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.times()
         await self.tags()
         await self.foreign_key_error()
+        await self.multiple_context_managers()
 
     def on_delete_async(feld, file, result, user_data):
         file.delete_finish(result)
@@ -194,4 +195,19 @@ class GlobalSQLiteTest(unittest.TestCase):
             with self.assertRaises(ForeignKeyError):
                 await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
                                               VehicleType.CAR, 100.0)
+        file.delete_async(0, None, self.on_delete_async, None)
+
+    async def multiple_context_managers(self):
+        file = Gio.File.new_for_path("test.db")
+        async with GlobalSQLite(file) as db:
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+                                 "my_simulator_file_path", "my_project_file_path")
+
+        async with GlobalSQLite(file) as db2:
+            await db2.add_project("my_project_id_2", SimulatorType("0", "Vissim"),
+                                  "my_simulator_file_path", "my_project_file_path")
+
+        async with GlobalSQLite(file) as db3:
+            self.assertEqual(len(await db3.get_all_projects()), 2)
+
         file.delete_async(0, None, self.on_delete_async, None)
