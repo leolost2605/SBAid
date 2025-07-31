@@ -43,8 +43,7 @@ class Context(GObject.GObject):
                                          simulation_file_path, project_file_path, project_db)
             self.projects.append(project)
             await project.load_from_db()
-        result_manager = ResultManager()
-        await result_manager.load_from_db()
+        await self.result_manager.load_from_db()
 
     def create_project(self, name: str, sim_type: SimulatorType, simulation_file_path: str,
                        project_file_path: str) -> str:
