@@ -1,5 +1,4 @@
 """This module defines the CrossSectionSnapshot class."""
-
 from gi.repository import Gio, GObject
 from sbaid.common.b_display import BDisplay
 from sbaid.model.database.global_database import GlobalDatabase
@@ -11,11 +10,11 @@ class CrossSectionSnapshot(GObject.GObject):
     Attributes:
         snapshot_id (str): The unique identifier of the snapshot this
             cross section snapshot belongs to.
-        cross_section_snapshot_id (str): The unique identifier of the
+        cs_snapshot_id (str): The unique identifier of the
             cross section the snapshot represents.
         cross_section_name (str): The name of the cross section the snapshot represents.
         b_display (BDisplay): The B display of the cross section this snapshot represents.
-        lane_snapshots (ListModel<LaneSnapshot>): The lane snapshots this
+        __lane_snapshots (ListModel<LaneSnapshot>): The lane snapshots this
             cross section snapshot consists of.
     """
 
@@ -25,7 +24,7 @@ class CrossSectionSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    cross_section_snapshot_id = GObject.Property(
+    cs_snapshot_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -41,40 +40,47 @@ class CrossSectionSnapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY,
         default=BDisplay.OFF)
-    lane_snapshots = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    __lane_snapshots: Gio.ListStore
     __global_db: GlobalDatabase
+
+    @GObject.Property(type=LaneSnapshot)
+    def lane_snapshots(self) -> Gio.ListModel:
+        """Returns ListModel of available diagram types"""
+        return self.__lane_snapshots
 
     def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
                  b_display: BDisplay, global_db: GlobalDatabase) -> None:
-        """todo"""
-        super().__init__(snapshot_id=snapshot_id,
-                         cross_section_snapshot_id=cross_section_snapshot_id,
-                         cross_section_name=cross_section_name,
-                         b_display=b_display,
-                         lane_snapshots=Gio.ListStore.new(LaneSnapshot))
+        """Initialize the cross-section snapshot class."""
+        self.__lane_snapshots = Gio.ListStore.new(LaneSnapshot)
         self.__global_db = global_db
+        super().__init__(snapshot_id=snapshot_id,
+                         cs_snapshot_id=cross_section_snapshot_id,
+                         cross_section_name=cross_section_name,
+                         b_display=b_display)
 
     async def load_from_db(self) -> None:
         """Loads Lane Snapshots from the database and adds them to this class"""
-        lane_snapshot_data = await self.__global_db.get_all_lane_snapshots(self.cross_section_snapshot_id)
+        lane_snapshot_data = await self.__global_db.get_all_lane_snapshots(
+            self.cs_snapshot_id)
         for lane_snapshot in lane_snapshot_data:
-            new_lane_snapshot = LaneSnapshot(self.cross_section_snapshot_id, lane_snapshot[0], lane_snapshot[1], lane_snapshot[2], lane_snapshot[3], lane_snapshot[4], self.__global_db)
+            new_lane_snapshot = LaneSnapshot(self.cs_snapshot_id,
+                                             lane_snapshot[0], lane_snapshot[1],
+                                             lane_snapshot[2], lane_snapshot[3],
+                                             lane_snapshot[4], self.__global_db)
+
             await new_lane_snapshot.load_from_db()
-            self.lane_snapshots.append(new_lane_snapshot)
+            self.__lane_snapshots.append(new_lane_snapshot)
 
     def add_lane_snapshot(self, snapshot: LaneSnapshot) -> None:
         """Add a LaneSnapshot to this CrossSectionSnapshot."""
-        self.lane_snapshots.append(snapshot)  # pylint:disable=no-member
+        self.__lane_snapshots.append(snapshot)
 
     def calculate_cs_average_speed(self) -> float:
         """Calculate the average of the average speed value from
         all lanes in this cross-section snapshot. """
-        counter = 0
-        for i in range(len(self.lane_snapshots)):
-            counter += self.lane_snapshots.get_item(i).average_speed  # pylint:disable=no-member
-        return counter / len(self.lane_snapshots)
+        speed_sum = 0
+        for snapshot in self.__lane_snapshots:
+            assert isinstance(snapshot, LaneSnapshot)  # todo delete this and figure it out
+            speed_sum += snapshot.average_speed
+        return speed_sum / len(self.lane_snapshots)

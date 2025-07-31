@@ -13,4 +13,4 @@ class CrossSectionDiagramGenerator(DiagramHandler, ABC):
     @abstractmethod
     def get_diagram(self, result: Result, cross_section_id: str,
                     export_format: ImageFormat) -> Image:
-        pass
+        """Returns image of generated diagram."""

@@ -37,7 +37,8 @@ class Snapshot(GObject.GObject):
 
     __global_db: GlobalDatabase
 
-    def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime, global_db: GlobalDatabase) -> None:
+    def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime,
+                 global_db: GlobalDatabase) -> None:
         """Initialize the Snapshot class."""
         super().__init__(id=snapshot_id,
                          capture_timestamp=capture_timestamp,
@@ -48,7 +49,9 @@ class Snapshot(GObject.GObject):
         """Loads the snapshot with the cross-section snapshots."""
         cross_section_ids = await self.__global_database.get_all_cross_section_snapshots(self.id)
         for cross_section in cross_section_ids:
-            cross_section_snapshot = CrossSectionSnapshot(self.id, cross_section[0], cross_section[1], cross_section[2], self.__global_db)
+            cross_section_snapshot = CrossSectionSnapshot(self.id,
+                                                          cross_section[0], cross_section[1],
+                                                          cross_section[2], self.__global_db)
             await cross_section_snapshot.load_from_db()
             self.add_cross_section_snapshot(cross_section_snapshot)
 

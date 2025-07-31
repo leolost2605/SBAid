@@ -1,6 +1,7 @@
 """This module defines the seaborn image"""
 from sbaid.common.image import Image
 
+
 class SeabornImage(Image):
     """todo"""
 

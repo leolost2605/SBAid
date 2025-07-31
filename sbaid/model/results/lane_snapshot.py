@@ -65,7 +65,8 @@ class LaneSnapshot(GObject.GObject):
     __global_db: GlobalDatabase
 
     def __init__(self, cross_section_snapshot_id: str, lane_snapshot_id: str, lane: int,
-                 average_speed: float, traffic_volume: int, a_display: ADisplay, global_db: GlobalDatabase) -> None:
+                 average_speed: float, traffic_volume: int, a_display: ADisplay,
+                 global_db: GlobalDatabase) -> None:
         """ Initialize the lane snapshot object."""
         super().__init__(cross_section_snapshot_id=cross_section_snapshot_id,
                          id=lane_snapshot_id,
@@ -80,7 +81,8 @@ class LaneSnapshot(GObject.GObject):
         """todo"""
         vehicle_snapshot_info = await self.__global_db.get_all_vehicle_snapshots(self.id)
         for vehicle_snapshot in vehicle_snapshot_info:
-            self.vehicle_snapshots.append(VehicleSnapshot(self.id, vehicle_snapshot[0], vehicle_snapshot[1]))
+            self.vehicle_snapshots.append(
+                VehicleSnapshot(self.id, vehicle_snapshot[0], vehicle_snapshot[1]))
 
     def add_vehicle_snapshot(self, snapshot: VehicleSnapshot) -> None:
         """Adds a vehicle snapshot to the list in this lane snapshot."""

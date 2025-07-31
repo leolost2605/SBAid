@@ -1,7 +1,7 @@
 """This module defines the ResultBuilder class and its helper classes"""
+import uuid
 from typing import Self
 from gi.repository import GLib, GObject
-from numpy.f2py.auxfuncs import throw_error
 from sbaid.common.a_display import ADisplay
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.global_database import GlobalDatabase
@@ -13,9 +13,10 @@ from sbaid.model.results.result import Result
 from sbaid.model.results.snapshot import Snapshot
 from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 
+
 class _CrossSectionBuilder:
-    """todo"""
-    # required
+    """This auxiliary class contains the cross-section snapshot builder methods"""
+    # required for construction
     __cross_section_name: str
     __snapshot_id: str
     __global_db: GlobalDatabase
@@ -23,24 +24,28 @@ class _CrossSectionBuilder:
     # added later
     __cross_section_b_display: BDisplay
 
-    def __init__(self, cross_section_name: str, snapshot_id: str, global_db: GlobalDatabase) -> None:
-        self.__cross_section_name = cross_section_name
+    def __init__(self, cs_name: str, snapshot_id: str, global_db: GlobalDatabase) -> None:
+        self.__cross_section_name = cs_name
         self.__snapshot_id = snapshot_id
         self.__global_db = global_db
 
-
     def set_b_display(self, b_display: BDisplay) -> Self:
+        """Setter for b_display"""
         self.__cross_section_b_display = b_display
+        return Self
 
     def try_build(self) -> CrossSectionSnapshot | None:
+        """Builds and returns cross-section snapshot if attributes complete, None otherwise"""
         if self.__cross_section_b_display is not None:
-            return CrossSectionSnapshot(self.__snapshot_id, GLib.uuid_string_random(),
-                                    self.__cross_section_name,
-                                    self.__cross_section_b_display, self.__global_db)
+            return CrossSectionSnapshot(self.__snapshot_id, str(uuid.uuid4()),
+                                        self.__cross_section_name,
+                                        self.__cross_section_b_display, self.__global_db)
         return None
 
+
 class _LaneBuilder:
-    # required
+    """This auxiliary class contains the lane snapshot builder methods"""
+    # required for construction
     __lane_number: int
     __cross_section_id: str
     __global_db: GlobalDatabase
@@ -55,23 +60,26 @@ class _LaneBuilder:
         self.__global_db = global_db
 
     def set_average_speed(self, average_speed: float) -> Self:
+        """Setter for average_speed"""
         self.__average_speed = average_speed
         return self
 
     def set_traffic_volume(self, traffic_volume: int) -> Self:
+        """Setter for traffic_volume"""
         self.__traffic_volume = traffic_volume
         return self
 
     def set_a_display(self, a_display: ADisplay) -> Self:
+        """Setter for a_display"""
         self.__a_display = a_display
         return self
 
     def try_build(self) -> LaneSnapshot | None:
-        """todo"""
+        """Builds and returns lane snapshot if attributes complete, None otherwise"""
         if (self.__average_speed is not None) and (self.__average_speed is not None) and (
                 self.__traffic_volume is not None) and (self.__a_display is not None):
             return LaneSnapshot(self.__cross_section_id,
-                                GLib.uuid_string_random(),
+                                str(uuid.uuid4()),
                                 self.__lane_number,
                                 self.__average_speed,
                                 self.__traffic_volume,
@@ -80,27 +88,45 @@ class _LaneBuilder:
         return None
 
 
-class VehicleBuilder:
-    __current_vehicle_type: VehicleType | None
-    __current_vehicle_speed: float | None
+class _VehicleBuilder:
+    """This auxiliary class contains the vehicle snapshot builder methods"""
+    # required for construction
+    __lane_id: str
+    # added later
+    __vehicle_type: VehicleType
+    __vehicle_speed: float
 
-class ResultBuilder(GObject.GObject):
-    """Contains methods to build the results"""
+    def __init__(self, lane_id: str) -> None:
+        self.__lane_id = lane_id
+
+    def set_vehicle_type(self, vehicle_type: VehicleType) -> Self:
+        """Setter for vehicle_type"""
+        self.__vehicle_type = vehicle_type
+        return self
+
+    def set_vehicle_speed(self, vehicle_speed: float) -> Self:
+        """Setter for vehicle_speed"""
+        self.__vehicle_speed = vehicle_speed
+        return self
+
+    def try_build(self) -> VehicleSnapshot | None:
+        """Builds and returns vehicle snapshot if attributes complete, None otherwise"""
+        if self.__vehicle_type is not None and self.__vehicle_speed is not None:
+            return VehicleSnapshot(self.__lane_id, self.__vehicle_type, self.__vehicle_speed)
+        return None
+
+
+class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attributes
+    """Contains methods to build the results."""
     __result_manager: ResultManager
     __global_db: GlobalDatabase
-    __began_result_at: GLib.DateTime | None = None
 
-    __result_scope: bool
-    __snapshot_scope: bool
-    __cross_section_scope: bool
-    __lane_scope: bool
-    __vehicle_scope: bool
+    # the following optionals are also used for controlling the logic
+    # that regulates the correct building order.
 
-    __current_result: Result
-    # self, snapshot_id: str, capture_timestamp: GLib.DateTime, global_db: GlobalDatabase
+    __current_result: Result | None
     __current_snapshot: Snapshot | None
 
-    # snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,  b_display: BDisplay, global_db: GlobalDatabase
     __current_cross_section: CrossSectionSnapshot | None
     __current_cs_builder: _CrossSectionBuilder | None
 
@@ -108,126 +134,167 @@ class ResultBuilder(GObject.GObject):
     __current_lane_builder: _LaneBuilder | None
 
     __current_vehicle: VehicleSnapshot | None
-
+    __current_vehicle_builder: _VehicleBuilder | None
 
     def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
-        """todo"""
+        """Initializes the ResultBuilder class."""
         self.result_manager = result_manager
         self.__global_db = global_db
-        __result_scope = False
-        __snapshot_scope = False
-        __cross_section_scope = False
-        __lane_scope = False
-        __vehicle_scope = False
 
     def begin_result(self, project_name: str) -> None:
-        """todo"""
+        """Sets current_result to a new result instance using
+        the given project name and the current local time."""
         now = GLib.DateTime.new_now_local()
-        self.__began_result_at = now
-        self.__current_result = Result(GLib.uuid_string_random(), project_name, now, self.__global_db)
-        self.__result_scope = True
+
+        if now is None:
+            raise LocalErrorException("Could not get current time from local system")
+
+        self.__current_result = Result(str(uuid.uuid4()),
+                                       project_name, now, self.__global_db)
 
     def begin_snapshot(self, simulation_timestamp: GLib.DateTime) -> None:
-        """todo"""
-        self.__current_snapshot = Snapshot(GLib.uuid_string_random(), simulation_timestamp, self.__global_db)
-        self.__snapshot_scope = True
+        """Sets current_snapshot to a new snapshot with the given timestamp."""
+        if self.__current_result is None:
+            raise WrongOrderException("Result has not been set")
+
+        self.__current_snapshot = Snapshot(str(uuid.uuid4()),
+                                           simulation_timestamp, self.__global_db)
 
     def begin_cross_section(self, cross_section_name: str) -> None:
-        """todo"""
-        if not self.__snapshot_scope:
-            throw_error(f"Scope is False")
-        self.__current_cs_builder = _CrossSectionBuilder(cross_section_name, self.__current_snapshot.id, self.__global_db)
-        self.__cross_section_scope = True
+        """Sets the current cs builder to a new instance, constructed with
+        the given cross-section name and current snapshot id."""
+        if self.__current_snapshot is None:
+            raise WrongOrderException("Current snapshot has not been set")
+        self.__current_cs_builder = _CrossSectionBuilder(cross_section_name,
+                                                         self.__current_snapshot.id,
+                                                         self.__global_db)
 
     def add_b_display(self, b_display: BDisplay) -> None:
-        """todo"""
+        """Sets b-display in the current cross-section builder to desired value."""
+        if self.__current_cs_builder is None:
+            raise WrongOrderException("Cross section creation has not begun")
+
+        # chained methods that first add the new value
+        # and then tries to build the cross-section snapshot
         self.__current_cross_section = self.__current_cs_builder.set_b_display(
             b_display).try_build()
 
     def begin_lane(self, lane_number: int) -> None:
-        """todo"""
-        self.__current_lane_builder = _LaneBuilder(lane_number, self.__current_cross_section.cross_section_snapshot_id, self.__global_db)
-        self.__lane_scope = True
+        """Sets the current lane builder to a new instance, constructed with
+        the given lane number and current snapshot id."""
+        if self.__current_cross_section is None:
+            raise WrongOrderException("Current cross section snapshot has not been set")
+        self.__current_lane_builder = _LaneBuilder(lane_number,
+                                                   self.__current_cross_section.cs_snapshot_id,
+                                                   self.__global_db)
 
     def add_average_speed(self, speed: float) -> None:
-        """todo"""
+        """Sets average speed in the current lane builder to given value."""
+        if self.__current_lane_builder is None:
+            raise WrongOrderException("Lane snapshot creation has not begun")
         self.__current_lane = self.__current_lane_builder.set_average_speed(speed).try_build()
 
     def add_traffic_volume(self, volume: int) -> None:
-        """todo"""
-        self.__lane_traffic_volume = volume
-        self.__try_create_lane()
+        """Sets traffic volume in the current lane builder to given value."""
+        if self.__current_lane_builder is None:
+            raise WrongOrderException("Lane snapshot creation has not begun")
+        self.__current_lane = self.__current_lane_builder.set_traffic_volume(volume).try_build()
 
     def add_a_display(self, a_display: ADisplay) -> None:
-        """todo"""
-        self.__lane_a_display = a_display
-        self.__try_create_lane()
+        """Sets the a-display in the current lane builder to given value."""
+        if self.__current_lane_builder is None:
+            raise WrongOrderException("Lane snapshot creation has not begun")
+        self.__current_lane = self.__current_lane_builder.set_a_display(a_display).try_build()
 
     def begin_vehicle(self) -> None:
-        """todo"""
-        self.__vehicle_scope = True
+        """Sets the current vehicle builder to a new instance."""
+        if self.__current_lane is None:
+            raise WrongOrderException("Current lane snapshot has not been set")
+        self.__current_vehicle_builder = _VehicleBuilder(self.__current_lane.id)
 
     def add_vehicle_type(self, vehicle_type: VehicleType) -> None:
-        """todo"""
-        self.__current_vehicle_type = vehicle_type
-        self.__try_create_vehicle()
+        """Sets the vehicle type in the current vehicle builder to given value."""
+        if self.__current_vehicle_builder is None:
+            raise WrongOrderException("Vehicle snapshot creation has not begun")
+        self.__current_vehicle = self.__current_vehicle_builder.set_vehicle_type(
+            vehicle_type).try_build()
 
     def add_vehicle_speed(self, speed: float) -> None:
-        """todo"""
-        self.__current_vehicle_speed = speed
-        self.__try_create_vehicle()
+        """Sets the vehicle speed in the current vehicle builder to given value."""
+        if self.__current_vehicle_builder is None:
+            raise WrongOrderException("Vehicle snapshot creation has not begun")
+        self.__current_vehicle = self.__current_vehicle_builder.set_vehicle_speed(speed).try_build()
 
     def end_vehicle(self) -> None:
-        """todo"""
+        """Adds the current vehicle snapshot to current lane snapshot.
+        Resets current vehicle and its builder to None.
+        Raises WrongOrderException if vehicle snapshot has not been created."""
+
+        if self.__current_vehicle is None or self.__current_lane is None:
+            raise WrongOrderException("Vehicle snapshot has not been created")
+
         self.__current_lane.add_vehicle_snapshot(self.__current_vehicle)
-        self.__reset_vehicle_values()
+        self.__current_vehicle_builder = None
+        self.__current_vehicle = None
 
     def end_lane(self) -> None:
-        """todo"""
+        """Adds the current lane snapshot to current cross-section snapshot.
+        Resets current lane snapshot and its builder to None.
+        Raises WrongOrderException if lane snapshot has not been created
+         or a vehicle snapshot is in the process of being created ."""
+
+        if (self.__current_lane is None or self.__current_vehicle_builder is not None
+                or self.__current_cross_section is None):
+            raise WrongOrderException("Lane snapshot creation cannot successfully finish")
+
         self.__current_cross_section.add_lane_snapshot(self.__current_lane)
-        self.__reset_lane_values()
+        self.__current_lane_builder = None
 
     def end_cross_section(self) -> None:
-        """todo"""
+        """Adds the current cross-section snapshot to current snapshot.
+        Resets current cross-section snapshot and its builder to None.
+        Raises WrongOrderException if cross-section snapshot has not been created
+         or a lane snapshot is in the process of being created ."""
+
+        if (self.__current_cross_section is None or self.__current_lane_builder is not None
+                or self.__current_snapshot is None):
+            raise WrongOrderException("Cross section snapshot creation cannot successfully finish")
+
         self.__current_snapshot.add_cross_section_snapshot(self.__current_cross_section)
         self.__current_cs_builder = None
+        self.__current_cross_section = None
 
     def end_snapshot(self) -> None:
-        """todo"""
+        """Adds the current snapshot to current result. Resets current snapshot to None.
+        Raises WrongOrderException if snapshot has not been created
+         or a cross-section snapshot is in the process of being created ."""
+
+        if (self.__current_snapshot is None or self.__current_cs_builder is not None
+                or self.__current_result is None):
+            raise WrongOrderException("Snapshot creation cannot successfully finish")
+
         self.__current_result.add_snapshot(self.__current_snapshot)
+        self.__current_snapshot = None
 
     def end_result(self) -> Result:
-        """todo"""
-        return self.__current_result
+        """Returns current result and resets to None.
+         Raises WrongOrderException if result has not been
+         created or a snapshot is in the process of being created"""
+        if self.__current_result is None or self.__current_snapshot is not None:
+            raise WrongOrderException("Result cannot be created")
+
+        result_to_return = self.__current_result
+        self.__current_result = None
+        return result_to_return
 
 
-    # helper methods
-    def __create_cs_if_available(self) -> None:
-        """todo"""
-        if (self.__cross_section_b_display is not None) and (self.__cross_section_name is not None):
-            self.__current_cross_section = CrossSectionSnapshot(self.__current_snapshot.id,
-                                                                GLib.uuid_string_random(),
-                                                                self.__cross_section_name,
-                                                                self.__cross_section_b_display,
-                                                                self.__global_db)
-
-    def __try_create_lane(self) -> None:
-        """todo"""
-        if self.__lane_information_complete():
-            self.__current_lane = LaneSnapshot(self.__current_cross_section.cross_section_snapshot_id,
-                                               GLib.uuid_string_random(),
-                                               self.__lane_number,
-                                               self.__lane_average_speed,
-                                               self.__lane_traffic_volume,
-                                               self.__lane_a_display,
-                                               self.__global_db)
-
-    def __lane_information_complete(self) -> bool:
-        return (self.__lane_number is not None) and (self.__lane_average_speed is not None) and (self.__lane_traffic_volume is not None) and (self.__lane_a_display is not None)
-
-    def __try_create_vehicle(self):
-        """todo"""
-        if self.__current_vehicle_type is not None and self.__current_vehicle_speed is not None:
-            self.__current_vehicle = VehicleSnapshot(self.__current_lane.id, self.__current_vehicle_type, self.__current_vehicle_speed)
+class WrongOrderException(Exception):
+    """todo"""
+    def __init__(self, message: str) -> None:
+        self.message = message
 
 
+class LocalErrorException(Exception):
+    """todo"""
+    def __init__(self, message: str) -> None:
+        self.message = message

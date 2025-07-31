@@ -4,6 +4,7 @@ from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
 from sbaid.model.database.global_database import GlobalDatabase
 
+
 class Result(GObject.GObject):
     """This class represents a result.
     Attributes:
@@ -60,7 +61,6 @@ class Result(GObject.GObject):
                          snapshots=Gio.ListStore.new(Snapshot))
 
         self.__global_db = global_db
-
 
     async def load(self) -> None:
         """Handles the logic for loading snapshots."""
