@@ -1,5 +1,6 @@
 """This module contains the GlobalDatabase interface."""
 from abc import ABC, abstractmethod
+from typing import TypeVar
 
 from gi.repository import GLib
 
@@ -9,12 +10,15 @@ from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.vehicle_type import VehicleType
 
 
+T = TypeVar('T', bound="GlobalDatabase")
+
+
 class GlobalDatabase(ABC):
     """This interface provides methods that ecapsule
     the global database functionality."""
 
     @abstractmethod
-    async def __aenter__(self) -> GlobalDatabase:
+    async def __aenter__(self: T) -> T:
         """TODO"""
 
     @abstractmethod

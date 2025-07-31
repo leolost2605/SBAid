@@ -105,18 +105,22 @@ class SimulationManager(GObject.GObject):
     def __add_to_results(self, result_builder: ResultBuilder, measurement: Input,
                          display: Display | None, network_state: NetworkState,
                          start_time: GLib.DateTime, elapsed_time: int) -> None:
-        result_builder.begin_snapshot(start_time.add_seconds(elapsed_time))
+        new_time = start_time.add_seconds(elapsed_time)
+        assert new_time
+        result_builder.begin_snapshot(new_time)
         for cs_state in network_state.cross_section_states:
-            result_builder.begin_cross_section(self.network.cross_sections.find(cs_state.id))
+            result_builder.begin_cross_section(cs_state.id)
             if display:
                 result_builder.add_b_display(display.get_b_display(cs_state.id))
 
             for lane in cs_state.lanes:
                 result_builder.begin_lane(lane)
-                result_builder.add_average_speed(
-                    measurement.get_average_speed(cs_state.id, lane))
-                result_builder.add_traffic_volume(
-                    measurement.get_traffic_volume(cs_state.id, lane))
+                avg_speed = measurement.get_average_speed(cs_state.id, lane)
+                if avg_speed:
+                    result_builder.add_average_speed(avg_speed)
+                volume = measurement.get_traffic_volume(cs_state.id, lane)
+                if volume:
+                    result_builder.add_traffic_volume(volume)
                 if display:
                     result_builder.add_a_display(
                         display.get_a_display(cs_state.id, lane))

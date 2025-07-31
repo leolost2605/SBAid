@@ -1,5 +1,6 @@
 """This module contains the GLobalSQLite class."""
 import sqlite3
+from typing import TypeVar
 
 import aiosqlite
 
@@ -24,6 +25,9 @@ def get_date_time(formatted_string: str) -> GLib.DateTime:
     return date_time
 
 
+T = TypeVar('T', bound="GlobalDatabase")
+
+
 class GlobalSQLite(GlobalDatabase):
     """This class implements the GlobalDatabase interface which allows for the all results
     and project metadata to be stored."""
@@ -33,7 +37,7 @@ class GlobalSQLite(GlobalDatabase):
     def __init__(self, file: Gio.File) -> None:
         self._file = file
 
-    async def __aenter__(self) -> GlobalDatabase:
+    async def __aenter__(self) -> T:
         if not self._file.query_exists():
             await make_directory_with_parents_async(self._file.get_parent())
             await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore

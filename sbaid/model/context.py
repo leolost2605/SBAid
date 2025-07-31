@@ -66,9 +66,10 @@ class Context(GObject.GObject):
         return project_id
 
     async def __project_creation_db_action(self, project_id: str, sim_type: SimulatorType,
-                                            simulation_file_path: str, project_file_path: str):
+                                           simulation_file_path: str,
+                                           project_file_path: str) -> None:
         async with self.__global_db as db:
-            db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
+            await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
@@ -82,6 +83,6 @@ class Context(GObject.GObject):
         task = loop.create_task(self.__project_deletion_db_action(project_id))
         loop.run_until_complete(task)
 
-    async def __project_deletion_db_action(self, project_id: str):
+    async def __project_deletion_db_action(self, project_id: str) -> None:
         async with self.__global_db as db:
-            db.remove_project(project_id)
+            await db.remove_project(project_id)
