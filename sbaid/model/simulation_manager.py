@@ -48,27 +48,24 @@ class SimulationManager(GObject.GObject):
         """Start the simulation"""
         result_builder = ResultBuilder(self.result_manager)
         result_builder.begin_result(self.project_name)
-        param_config_state = self.__build_parameter_configuration_state(
-            self.algorithm_configuration.parameter_configuration)
         network_state = self.__build_network_state(self.network)
-
-        simulation_start_time, simulation_duration = self.simulator.init_simulation()
-
-        self.algorithm_configuration.algorithm.init(param_config_state, network_state)
 
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
 
-        task = loop.create_task(self.__run_simulation(simulation_start_time, simulation_duration,
-                                                      result_builder, network_state))
+        task = loop.create_task(self.__run_simulation(result_builder, network_state))
         loop.run_until_complete(task)
 
-        result = cast(Result, result_builder.end_result())
+        result = cast(Result, result_builder.end_result())  # type: ignore
         self.observer.finished(result.id)
 
-    async def __run_simulation(self, simulation_start_time: GLib.DateTime,
-                               simulation_duration: int, result_builder: ResultBuilder,
+    async def __run_simulation(self, result_builder: ResultBuilder,
                                network_state: NetworkState) -> None:
+        param_config_state = self.__build_parameter_configuration_state(
+            self.algorithm_configuration.parameter_configuration)
+        simulation_start_time, simulation_duration = await self.simulator.init_simulation()
+
+        self.algorithm_configuration.algorithm.init(param_config_state, network_state)
         elapsed_time = 0
         while elapsed_time < simulation_duration:
             await self.simulator.continue_simulation(self.algorithm_configuration
@@ -88,11 +85,9 @@ class SimulationManager(GObject.GObject):
 
         await self.simulator.stop_simulation()
 
-    def __build_parameter_configuration_state(self,
-            _parameter_configuration: ParameterConfiguration)\
-        -> ParameterConfigurationState:
+    def __build_parameter_configuration_state(
+            self, _parameter_configuration: ParameterConfiguration) -> ParameterConfigurationState:
         parameter_states = []
-        # type: ignore
         for parameter in common.list_model_iterator(_parameter_configuration.parameters):
             parameter_states.append(ParameterState(parameter.name, parameter.value,
                                                    parameter.cross_section))
@@ -126,7 +121,7 @@ class SimulationManager(GObject.GObject):
                     result_builder.add_a_display(
                         display.get_a_display(cs_state.id, lane))
                 for vehicle_info in (measurement
-                        .get_all_vehicle_infos(cs_state.id, lane)):
+                                     .get_all_vehicle_infos(cs_state.id, lane)):
                     result_builder.begin_vehicle()
                     result_builder.add_vehicle_type(vehicle_info.vehicle_type)
                     result_builder.add_vehicle_speed(vehicle_info.speed)

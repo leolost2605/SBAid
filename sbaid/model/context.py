@@ -5,9 +5,8 @@ from gi.events import GLibEventLoopPolicy
 from gi.repository import GObject, Gio, GLib
 
 import sbaid.common
-from sbaid.model.database import global_sqlite
+from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.database.global_sqlite import GlobalSQLite
-from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.project import Project
 from sbaid.model.results.result_manager import ResultManager
@@ -16,6 +15,8 @@ from sbaid.model.results.result_manager import ResultManager
 class Context(GObject.GObject):
     """This class defines the Context class. The root class that is created at startup.
     Manages the projects and holds a reference to the ResultManager."""
+
+    __global_db: GlobalDatabase
 
     result_manager = GObject.Property(
         type=ResultManager,
@@ -36,13 +37,13 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        global_db = global_sqlite.get_instance(GlobalSQLite)
-        projects: list[tuple[str, SimulatorType, str, str]] = await global_db.get_all_projects()
+        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global"))
+        projects: list[tuple[str, SimulatorType, str, str]] = \
+            await self.__global_db.get_all_projects()
 
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
-            project_db = ProjectSQLite(Gio.File.new_for_path(project_file_path))
             project = Project(project_id, simulator_type,
-                                         simulation_file_path, project_file_path, project_db)
+                              simulation_file_path, project_file_path)
             self.projects.append(project)
             await project.load_from_db()
         await self.result_manager.load_from_db()
@@ -51,23 +52,18 @@ class Context(GObject.GObject):
                        project_file_path: str) -> str:
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
-        project_file = Gio.File.new_for_path(project_file_path)
-        project_db_file = project_file.get_child(name + "_db")
-        project_db = ProjectSQLite(project_db_file)
-        project = Project(name, sim_type, simulation_file_path, project_file_path, project_db)
-        # TODO we have to map uuid to name somewhere?
 
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
-
-        async with global_sqlite.get_instance(GlobalSQLite) as db:
-            task = loop.create_task(db.add_project(GLib.uuid_string_random(), sim_type,
-                                 simulation_file_path, project_file_path))
+        project_id = GLib.uuid_string_random()
+        async with self.__global_db as db:
+            task = loop.create_task(db.add_project(project_id, sim_type,
+                                    simulation_file_path, project_file_path))
             loop.run_until_complete(task)
 
-        self.projects.append(project)
+        self.projects.append(Project(name, sim_type, simulation_file_path, project_file_path))
 
-        return self.projects.get_n_items() - 1  # TODO like this?
+        return project_id
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
@@ -78,6 +74,6 @@ class Context(GObject.GObject):
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
 
-        async with global_sqlite.get_instance(GlobalSQLite) as db:
+        async with self.__global_db as db:
             task = loop.create_task(db.remove_project(project_id))
             loop.run_until_complete(task)

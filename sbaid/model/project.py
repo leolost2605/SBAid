@@ -1,10 +1,10 @@
 """This module defines the Project class."""
-from gi.repository import GObject, GLib
+from gi.repository import GObject, GLib, Gio
 
 import sbaid.common
-from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
-from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.database.project_database import ProjectDatabase
+from sbaid.model.database.project_sqlite import ProjectSQLite
+from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.simulation_observer import SimulationObserver
 from sbaid.model.simulation_manager import SimulationManager
@@ -14,10 +14,18 @@ from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.network.network import Network
 
 
+class AlgorithmConfigurationException(Exception):
+    """Exception raised when an algorithm configuration is invalid."""
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
 class Project(GObject.GObject):
     """This class defines the Project class. It holds all metadata related to the project,
     as well as references to the individual parts that make up the project. In addition, this
     class is the entry point for a simulation."""
+
+    __project_db: ProjectDatabase
 
     id = GObject.Property(
         type=str,
@@ -80,14 +88,15 @@ class Project(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
-                 project_file_path: str, project_db: ProjectDatabase) -> None:
+                 project_file_path: str) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
-        # self.__project_db = project_db
+        project_file = Gio.File.new_for_path(project_file_path)
+        self.__project_db = ProjectSQLite(project_file.get_child("project_database"))
+
         super().__init__(id=project_id, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
-        # TODO the constructor needs to be fixed
 
     def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
@@ -100,11 +109,14 @@ class Project(GObject.GObject):
         The returned SimulationManager manages the simulation and can be used to control it."""
         algorithm_configuration_id = (self.algorithm_configuration_manager
                                       .selected_algorithm_configuration_id)
-        algo_config: AlgorithmConfiguration = None
+        algo_config = None
         for config in sbaid.common.list_model_iterator(self.algorithm_configuration_manager
-                                                               .algorithm_configurations):
+                                                       .algorithm_configurations):
             if config.id == algorithm_configuration_id:
                 algo_config = config
+        if not algo_config:
+            raise AlgorithmConfigurationException("No selected algorithm configuration found!")
+
         result_manager = ResultManager()
         simulation_manager = SimulationManager(self.name, algo_config,
                                                self.network, self.simulator,
@@ -115,4 +127,6 @@ class Project(GObject.GObject):
     async def load_from_db(self) -> None:
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
-        # todo: check privacy
+        self.name = await self.__project_db.get_project_name()
+        self.created_at = await self.__project_db.get_created_at()
+        self.last_modified = await self.__project_db.get_last_modified()
