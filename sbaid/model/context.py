@@ -18,28 +18,46 @@ class Context(GObject.GObject):
 
     __global_db: GlobalDatabase
 
-    result_manager = GObject.Property(
-        type=ResultManager,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+    __result_manager: ResultManager
+    __projects: Gio.ListModel
 
-    projects = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
+
+    @GObject.Property(type=ResultManager, flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+    def result_manager(self):
+        return self.__result_manager
+
+    @GObject.Property(type=Gio.ListModel, flags=GObject.ParamFlags.READABLE |
+                                                GObject.ParamFlags.WRITABLE |
+                                                GObject.ParamFlags.CONSTRUCT_ONLY)
+    def projects(self):
+        return self.__projects
+
+    # result_manager = GObject.Property(
+    #     type=ResultManager,
+    #     flags=GObject.ParamFlags.READABLE |
+    #     GObject.ParamFlags.WRITABLE |
+    #     GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    # projects = GObject.Property(
+    #     type=Gio.ListModel,
+    #     flags=GObject.ParamFlags.READABLE |
+    #     GObject.ParamFlags.WRITABLE |
+    #     GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self) -> None:
-        result_manager = ResultManager()
-        projects = Gio.ListStore.new(Project)
-        super().__init__(result_manager=result_manager, projects=projects)
+        self.__result_manager = ResultManager()
+        self.__projects = Gio.ListStore.new(Project)
+        super().__init__()
+        # super().__init__(result_manager=ResultManager(), projects=Gio.ListStore.new(Project))
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global"))
-        projects: list[tuple[str, SimulatorType, str, str]] = \
-            await self.__global_db.get_all_projects()
+        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
+        async with self.__global_db as db:
+            projects: list[tuple[str, SimulatorType, str, str]] = \
+                await db.get_all_projects()
 
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
