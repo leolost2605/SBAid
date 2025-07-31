@@ -8,7 +8,7 @@ from gi.repository import Gio
 from gi.events import GLibEventLoopPolicy
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.network.network import Network
-from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser
+from sbaid.model.network.csv_cross_section_parser import CSVCrossSectionParser, InvalidFileFormattingException
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 from sbaid.common.location import Location
 from sbaid.model.network.network import FailedCrossSectionCreationException
@@ -22,39 +22,40 @@ class CsvParserTest(unittest.TestCase):
         parser = CSVCrossSectionParser()
         self.assertEqual(parser.can_handle_file("valid_input.csv"), True)
 
-    def test_valid_parsing(self):
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(self._test_valid_parsing())
-        loop.run_until_complete(task)
-
-    async def _test_valid_parsing(self):
-        self.assertRaises(FailedCrossSectionCreationException, self.__valid_csv_callback_func)
-
-    async def __valid_csv_callback_func(self):
+    async def _testing_callback_func(self, path: str):
         parser = CSVCrossSectionParser()
-        file = Gio.File.new_for_path("valid_input.csv")
-        await parser.foreach_cross_section(file, self.foreach_func_callback_func)
-
-    def test_empty_csv(self):
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(self._test_empty_csv())
-        loop.run_until_complete(task)
-
-    async def _test_empty_csv(self):
-        self.assertRaises(FailedCrossSectionCreationException, self.__empty_csv_callback_func)
-
-    async def __empty_csv_callback_func(self):
-        parser = CSVCrossSectionParser()
-        file = Gio.File.new_for_path("empty_input.csv")
+        file = Gio.File.new_for_path(path)
         await parser.foreach_cross_section(file, self.foreach_func_callback_func)
 
     async def foreach_func_callback_func(self, name: str, location: Location, cross_section_type: CrossSectionType) -> bool:
         network = Network(DummySimulator(), unittest.mock.Mock())
         await network.create_cross_section(name, location, cross_section_type)
 
-    def test_invalid_coordinate(self):
+
+    def test_valid_parsing(self):
+        asyncio.run(self._test_valid_parsing())
+
+    async def _test_valid_parsing(self):
+        with self.assertRaises(FailedCrossSectionCreationException):
+            await self._testing_callback_func("valid_input.csv")
+
+
+    def test_empty_csv(self):
+        asyncio.run(self._test_empty_csv())
+
+    async def _test_empty_csv(self):
+        with self.assertRaises(InvalidFileFormattingException):
+            await self._testing_callback_func("empty_sheet.csv")
+
+
+    def test_invalid_coordinates(self):
+        asyncio.run(self._test_invalid_coordinates())
         pass
+
+    async def _test_invalid_coordinates(self):
+        with self.assertRaises(InvalidFileFormattingException):
+            await self._testing_callback_func("invalid_coordinates.csv")
+
 
     def test_invalid_type(self):
         pass
