@@ -23,18 +23,12 @@ class ContextTestCase(unittest.TestCase):
 
         pr_id = context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
                                "my_simulation_file_path", "my_project_file_path")
-        # print("lol")
-        # context.delete_project(pr_id)
-        # context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
-        #                                "my_simulation_file_path", "my_project_file_path")
-        # context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
-        #                        "my_simulation_file_path", "my_project_file_path")
 
-        # self.assertEqual(context.projects.get_n_items(), 2)
+        self.assertEqual(2, context.projects.get_n_items())
 
 
-        for project in sbaid.common.list_model_iterator(context.projects):
-            print(project.name)
-            if project.name == "my_project_name":
-                self.assertTrue(True)
+        # for project in sbaid.common.list_model_iterator(context.projects):
+        #     print(project.name)
+        #     if project.name == "my_project_name":
+        #         self.assertTrue(True)
 
