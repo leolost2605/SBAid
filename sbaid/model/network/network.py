@@ -92,7 +92,7 @@ class Network(GObject.Object):
             try:
                 position = await self.__simulator.create_cross_section(location, cs_type)
             except Exception as exc:
-                print("creation failed")
+                print(location)
                 raise FailedCrossSectionCreationException(
                     "Cross section creation in simulator failed.") from exc
             model_cross_section = typing.cast(CrossSection,
