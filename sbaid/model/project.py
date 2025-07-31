@@ -27,76 +27,112 @@ class Project(GObject.GObject):
 
     __project_db: ProjectDatabase
 
-    id = GObject.Property(
+    __id: str
+    __name: str
+    __simulator_type: SimulatorType
+    __project_file_path: str
+    __simulation_file_path: str
+    __created_at: GLib.DateTime
+    __last_modified: GLib.DateTime
+    __simulator: Simulator
+    __network: Network
+    __algorithm_configuration_manager: AlgorithmConfigurationManager
+
+    @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+    def id(self):
+        return self.__id
 
-    name = GObject.Property(
+    @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT)
+    def name(self):
+        return self.__name
 
-    simulator_type = GObject.Property(
-        type=SimulatorType,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
-
-    project_file_path = GObject.Property(
+    @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulator_type(self):
+        return self.__simulator_type
 
-    simulation_file_path = GObject.Property(
+    @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def project_file_path(self):
+        return self.__project_file_path
 
-    created_at = GObject.Property(
-        type=GLib.DateTime,
+    @GObject.Property(
+        type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulation_file_path(self):
+        return self.__simulation_file_path
 
-    last_modified = GObject.Property(
-        type=GLib.DateTime,
+    @GObject.Property(
+        type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def created_at(self):
+        return self.__created_at
 
-    simulator = GObject.Property(
-        type=Simulator,
+    @GObject.Property(
+        type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT)
+    def last_modified(self):
+        return self.__last_modified
 
-    network = GObject.Property(
-        type=Network,
+    @GObject.Property(
+        type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulator(self):
+        return self.__simulator
 
-    algorithm_configuration_manager = GObject.Property(
-        type=AlgorithmConfigurationManager,
+    @GObject.Property(
+        type=str,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def network(self):
+        return self.__network
 
-    def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
+    @GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
+    def algorithm_configuration_manager(self):
+        return self.__algorithm_configuration_manager
+
+    def __init__(self, project_id: str, name: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
+        self.__id = project_id
+        self.__name = name
+        self.__simulator_type = sim_type
+        self.__simulation_file_path = simulation_file_path
+        self.__created_at = GLib.DateTime.new_now_local()
+        self.__last_modified = GLib.DateTime.new_now_local()
+        self.__project_file_path = project_file_path
         project_file = Gio.File.new_for_path(project_file_path)
         self.__project_db = ProjectSQLite(project_file.get_child("project_database"))
 
-        super().__init__(id=project_id, simulator_type=sim_type,
-                         simulation_file_path=simulation_file_path,
-                         project_file_path=project_file_path)
+        super().__init__()
 
     def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
