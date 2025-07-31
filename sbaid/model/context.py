@@ -56,14 +56,19 @@ class Context(GObject.GObject):
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
         project_id = GLib.uuid_string_random()
-        async with self.__global_db as db:
-            task = loop.create_task(db.add_project(project_id, sim_type,
-                                    simulation_file_path, project_file_path))
-            loop.run_until_complete(task)
+
+        task = loop.create_task(self.__project_creation_db_action(project_id, sim_type,
+                                simulation_file_path, project_file_path))
+        loop.run_until_complete(task)
 
         self.projects.append(Project(name, sim_type, simulation_file_path, project_file_path))
 
         return project_id
+
+    async def __project_creation_db_action(self, project_id: str, sim_type: SimulatorType,
+                                            simulation_file_path: str, project_file_path: str):
+        async with self.__global_db as db:
+            db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
@@ -74,6 +79,9 @@ class Context(GObject.GObject):
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
 
+        task = loop.create_task(self.__project_deletion_db_action(project_id))
+        loop.run_until_complete(task)
+
+    async def __project_deletion_db_action(self, project_id: str):
         async with self.__global_db as db:
-            task = loop.create_task(db.remove_project(project_id))
-            loop.run_until_complete(task)
+            db.remove_project(project_id)
