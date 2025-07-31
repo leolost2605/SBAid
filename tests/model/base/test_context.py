@@ -1,8 +1,10 @@
 """This module contains unittests for the Context class."""
-
+import asyncio
 import unittest
-import uuid
 
+from gi.events import GLibEventLoopPolicy
+
+import sbaid.common
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
 
@@ -12,7 +14,27 @@ class ContextTestCase(unittest.TestCase):
 
     def test_create_project(self):
         context = Context()
-        name = str(uuid.uuid4())
-        sim_type = SimulatorType(str(uuid.uuid4()), str(uuid.uuid4()))
-        project_file_path = "file_path.txt"
-        context.create(name, sim_type, project_file_path)
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+
+        loop = asyncio.get_event_loop()
+
+        task = loop.create_task(context.load())
+        loop.run_until_complete(task)
+
+        pr_id = context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
+                               "my_simulation_file_path", "my_project_file_path")
+        # print("lol")
+        # context.delete_project(pr_id)
+        # context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
+        #                                "my_simulation_file_path", "my_project_file_path")
+        # context.create_project("my_other_name", SimulatorType("dummy simulator", "Dummy Simulator"),
+        #                        "my_simulation_file_path", "my_project_file_path")
+
+        # self.assertEqual(context.projects.get_n_items(), 2)
+
+
+        for project in sbaid.common.list_model_iterator(context.projects):
+            print(project.name)
+            if project.name == "my_project_name":
+                self.assertTrue(True)
+
