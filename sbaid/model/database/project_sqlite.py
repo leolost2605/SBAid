@@ -61,7 +61,8 @@ class ProjectSQLite(ProjectDatabase):
                     cross_section_id TEXT,
                     value TEXT,
                     PRIMARY KEY (algorithm_configuration_id, name, cross_section_id),
-                    FOREIGN KEY (algorithm_configuration_id) REFERENCES algorithm_configuration(id) ON DELETE CASCADE,
+                    FOREIGN KEY (algorithm_configuration_id) REFERENCES algorithm_configuration(id)
+                        ON DELETE CASCADE,
                     FOREIGN KEY (cross_section_id) REFERENCES cross_section(id) ON DELETE CASCADE
                 );
                 CREATE TABLE tag (
@@ -74,7 +75,9 @@ class ProjectSQLite(ProjectDatabase):
                     algorithm_configuration_id TEXT,
                     cross_section_id TEXT,
                     tag_id TEXT,
-                    FOREIGN KEY (algorithm_configuration_id, parameter_name, cross_section_id) REFERENCES parameter(algorithm_configuration_id, name, cross_section_id) ON DELETE CASCADE,
+                    FOREIGN KEY (algorithm_configuration_id, parameter_name, cross_section_id)
+                        REFERENCES parameter(algorithm_configuration_id, name, cross_section_id)
+                            ON DELETE CASCADE,
                     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
                 );""")
             await self._connection.execute("""

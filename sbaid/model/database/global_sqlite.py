@@ -50,7 +50,7 @@ class GlobalSQLite(GlobalDatabase):
     DROP TABLE IF EXISTS cross_section_snapshot;
     DROP TABLE IF EXISTS lane_snapshot;
     DROP TABLE IF EXISTS vehicle_snapshot;
-    
+
     CREATE TABLE project (
         id TEXT PRIMARY KEY,
         simulator_type_id TEXT,
@@ -95,7 +95,8 @@ class GlobalSQLite(GlobalDatabase):
         average_speed REAL,
         traffic_volume INT,
         a_display INT,
-        FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id) ON DELETE CASCADE
+        FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id)
+            ON DELETE CASCADE
     );
     CREATE TABLE vehicle_snapshot (
         lane_snapshot_id TEXT,
