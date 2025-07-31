@@ -55,7 +55,7 @@ class Context(GObject.GObject):
 
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
-        project_id = GLib.uuid_string_random()
+        project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
 
         task = loop.create_task(self.__project_creation_db_action(project_id, sim_type,
                                 simulation_file_path, project_file_path))
