@@ -28,7 +28,7 @@ class CsvParserTest(unittest.TestCase):
         await parser.foreach_cross_section(file, self.foreach_func_callback_func)
 
     async def foreach_func_callback_func(self, name: str, location: Location, cross_section_type: CrossSectionType) -> bool:
-        network = Network(DummySimulator(), unittest.mock.Mock())
+        network = Network(, unittest.mock.Mock())
         await network.create_cross_section(name, location, cross_section_type)
 
 
