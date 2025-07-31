@@ -1,6 +1,5 @@
 """This module contains unittests for the CrossSection"""
 import unittest
-
 from gi.repository import GLib, Gio
 from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
@@ -28,24 +27,24 @@ class CrossSectionSnapshotTest(unittest.TestCase):
 
     def test_add_lane_snapshot(self):
         """Tests adding lane snapshots."""
-        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots()), 0) # assert length
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 0) # assert length
 
         # add lane_snapshots then assert new state of the list
         self.cross_section_snapshot.add_lane_snapshot(self.lane_snapshot_1)
 
-        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots())
-        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots()), 1)
+        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots)
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 1)
 
         self.cross_section_snapshot.add_lane_snapshot(self.lane_snapshot_2)
 
-        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots())
-        self.assertIn(self.lane_snapshot_2, self.cross_section_snapshot.lane_snapshots())
-        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots()), 2)
-
+        self.assertIn(self.lane_snapshot_1, self.cross_section_snapshot.lane_snapshots)
+        self.assertIn(self.lane_snapshot_2, self.cross_section_snapshot.lane_snapshots)
+        self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 2)
 
 
     def test_calculate_average_speed(self):
         """Tests calculating the average speed. todo this ASSUMES previous method has run, maybe not best practice."""
-
-        print(len(self.cross_section_snapshot.lane_snapshots()))
-        print(self.cross_section_snapshot.calculate_cs_average_speed())
+        self.assertIsNotNone(self.cross_section_snapshot.lane_snapshots)
+        self.assertGreater(len(self.cross_section_snapshot.lane_snapshots), 0)
+        calculated_speed = self.cross_section_snapshot.calculate_cs_average_speed()
+        self.assertEqual(((70.6 + 99.3) / 2), calculated_speed)
