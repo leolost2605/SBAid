@@ -61,6 +61,10 @@ class Context(GObject.GObject):
         async with self.__global_db as db:
             projects: list[tuple[str, SimulatorType, str, str]] = \
                 await db.get_all_projects()
+        async with self.__global_db as db:
+            print("debug1")
+            pass
+        print("debug2")
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path)
@@ -75,6 +79,9 @@ class Context(GObject.GObject):
 
         project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
         print("creation started")
+
+        # await self.__project_creation_db_action(project_id, sim_type, simulation_file_path,
+        #                                         project_file_path)
         task = asyncio.create_task(self.__project_creation_db_action(project_id, sim_type,
                                 simulation_file_path, project_file_path))
         self.__background_tasks.add(task)

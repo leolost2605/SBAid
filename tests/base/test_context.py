@@ -27,7 +27,8 @@ class ContextTestCase(unittest.TestCase):
     async def load(self):
         context1 = Context()
         await context1.load()
-        proj_id = context1.create_project(SimulatorType(
+
+        context1.create_project(SimulatorType(
             "dummy_json","JSON Dummy Simulator"),
             "simulation_file_path", "tests/base/test_project")
         # await context1.load()
