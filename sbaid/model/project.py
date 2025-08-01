@@ -4,9 +4,8 @@ from typing import cast
 
 from gi.repository import GObject, GLib, Gio
 
-import sbaid.common
-from model.algorithm_configuration import algorithm_configuration_manager
-from model.simulator_factory import SimulatorFactory
+
+from sbaid.model.simulator_factory import SimulatorFactory
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
@@ -17,6 +16,7 @@ from sbaid.model.algorithm_configuration.algorithm_configuration_manager import 
     AlgorithmConfigurationManager)
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.network.network import Network
+import sbaid.common
 
 
 class AlgorithmConfigurationException(Exception):
@@ -107,10 +107,9 @@ class Project(GObject.GObject):
         await self.network.load()
         if not self.algorithm_configuration_manager:
             return  # TODO
-        else:
-            self.algorithm_configuration_manager.load()
+        self.algorithm_configuration_manager.load()
 
-    def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
+    async def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """Starts a simulation with the currently selected algorithm configuration.
         The transferred observer is regularly informed about the progress of the simulation.
         The returned SimulationManager manages the simulation and can be used to control it."""
@@ -128,12 +127,12 @@ class Project(GObject.GObject):
         simulation_manager = SimulationManager(self.name, algo_config,
                                                self.network, self.simulator,
                                                result_manager, observer)
-        simulation_manager.start()
+        await simulation_manager.start()
         return simulation_manager
 
     async def load_from_db(self) -> None:
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         async with self.__project_db as db:
-            self.__name = await db.get_project_name()
-            self.__last_modified = await db.get_last_modified()
+            self.name = await db.get_project_name()
+            self.last_modified = await db.get_last_modified()
