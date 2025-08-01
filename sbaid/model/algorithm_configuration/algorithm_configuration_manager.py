@@ -26,7 +26,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
     def __init__(self, network: Network) -> None:
         """todo"""
-        super().__init__()
+        super().__init__(selected_algorithm_configuration_id="", available_tags=Gio.ListStore(),
+                         algorithm_configurations=Gio.ListStore())
 
     def load(self) -> None:
         """todo"""

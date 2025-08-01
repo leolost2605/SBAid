@@ -5,6 +5,7 @@ from typing import cast
 from gi.repository import GObject, GLib, Gio
 
 import sbaid.common
+from model.algorithm_configuration import algorithm_configuration_manager
 from model.simulator_factory import SimulatorFactory
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.database.project_sqlite import ProjectSQLite
@@ -147,7 +148,10 @@ class Project(GObject.GObject):
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
         await self.network.load()
-        await self.algorithm_configuration_manager.load()
+        if not self.algorithm_configuration_manager:
+            return  # TODO
+        else:
+            self.algorithm_configuration_manager.load()
 
     def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """Starts a simulation with the currently selected algorithm configuration.
@@ -164,8 +168,8 @@ class Project(GObject.GObject):
             raise AlgorithmConfigurationException("No selected algorithm configuration found!")
 
         result_manager = ResultManager()
-        simulation_manager = SimulationManager(self.name, algo_config,
-                                               self.network, self.simulator,
+        simulation_manager = SimulationManager(self.__name, algo_config,
+                                               self.__network, self.__simulator,
                                                result_manager, observer)
         simulation_manager.start()
         return simulation_manager

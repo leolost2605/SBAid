@@ -6,6 +6,7 @@ from jsonschema import validate, ValidationError
 
 from gi.repository import GLib, Gio
 
+from model.network.route import Route
 from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -43,6 +44,7 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
+    _route: Route
     _cross_sections: Gio.ListModel
     _simulation_start_time: int
     _simulation_end_time: int
@@ -91,9 +93,9 @@ class DummySimulator(Simulator):
         return self._type
 
     @Simulator.route.getter  # type: ignore
-    def route(self) -> Gio.ListModel:
+    def route(self) -> Route:
         """TODO"""
-        return None
+        return self._route
 
     @Simulator.cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
@@ -105,6 +107,7 @@ class DummySimulator(Simulator):
         super().__init__()
         self._cross_sections = Gio.ListStore.new(DummyCrossSection)
         self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
+        self._route = Route(Gio.ListStore())
         self._sequence = {}
         self._pointer = 0
         self._simulation_start_time = 0
