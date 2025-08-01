@@ -109,7 +109,9 @@ class SimulationManager(GObject.GObject):
         assert new_time
         result_builder.begin_snapshot(new_time)
         for cs_state in network_state.cross_section_states:
-            result_builder.begin_cross_section(cs_state.id)
+            cs_name = next(cs.name for cs in common.list_model_iterator(cs_state.cross_sections)
+                           if cs.id == cs_state.id)
+            result_builder.begin_cross_section(cs_state.id, cs_name)
             if display:
                 result_builder.add_b_display(display.get_b_display(cs_state.id))
 
