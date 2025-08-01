@@ -13,6 +13,7 @@ class MakeDirTestCase(unittest.TestCase):
         loop = asyncio.get_event_loop()
         task = loop.create_task(self._test_make_dir_with_parents_async())
         loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
 
     async def _test_make_dir_with_parents_async(self):
         path = "./FirstDirectory/SecondDirectory/ThirdDirectory"
