@@ -5,6 +5,7 @@ from typing import cast
 from gi.repository import GObject, GLib, Gio
 
 import sbaid.common
+from model.simulator_factory import SimulatorFactory
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
@@ -132,16 +133,21 @@ class Project(GObject.GObject):
         self.__simulation_file_path = simulation_file_path
         self.__created_at = cast(GLib.DateTime, GLib.DateTime.new_now_local())  # TODO
         self.__last_modified = cast(GLib.DateTime, GLib.DateTime.new_now_local())
-        self.__project_file_path = project_file_path
+
         project_file = Gio.File.new_for_path(project_file_path)
         self.__project_db = ProjectSQLite(project_file.get_child(self.id))
 
+        self.__simulator = SimulatorFactory().get_simulator(sim_type)
+        self.__network = Network(self.__simulator, self.__project_db)
+        self.__algorithm_configuration_manager = AlgorithmConfigurationManager(self.__network)
+        self.__project_file_path = project_file_path
+
         super().__init__()
 
-    def load(self) -> None:
+    async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
-        self.network.load()
-        self.algorithm_configuration_manager.load()
+        await self.network.load()
+        await self.algorithm_configuration_manager.load()
 
     def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """Starts a simulation with the currently selected algorithm configuration.
