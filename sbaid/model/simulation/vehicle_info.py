@@ -1,4 +1,6 @@
 """This module contains the VehicleInfo class."""
+from typing import Any
+
 from gi.repository import GObject
 from sbaid.common.vehicle_type import VehicleType
 
@@ -18,3 +20,12 @@ class VehicleInfo(GObject.GObject):
     def __init__(self, vehicle_type: VehicleType, speed: float) -> None:
         """Construct a new VehicleInfo."""
         super().__init__(vehicle_type=vehicle_type, speed=speed)
+
+    def __eq__(self, other: Any) -> bool:
+        """Override."""
+        return (isinstance(other, VehicleInfo) and other.speed == self.speed
+                and other.speed == self.speed)
+
+    def __hash__(self) -> int:
+        """Override."""
+        return hash((self.vehicle_type, self.speed))

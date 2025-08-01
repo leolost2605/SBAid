@@ -19,18 +19,19 @@ class Display(GObject.GObject):
 
     def get_a_display(self, cross_section_id: str, lane_number: int) -> ADisplay:
         """Get the A Display for the given cross section id and lane number.
-        Raise a KeyError if not found."""
-        try:
+        Returns OFF if not found."""
+        if (cross_section_id in self._a_display
+                and lane_number in self._a_display[cross_section_id]):
             return self._a_display[cross_section_id][lane_number]
-        except KeyError as e:
-            raise KeyError(f"Missing key: {e}") from None
+
+        return ADisplay.OFF
 
     def get_b_display(self, cross_section_id: str) -> BDisplay:
-        """Get the B Display for the given cross section id. Raise a Key Error if not found."""
-        try:
+        """Get the B Display for the given cross section id. Returns OFF if not found."""
+        if cross_section_id in self._b_display:
             return self._b_display[cross_section_id]
-        except KeyError as e:
-            raise KeyError(f"Missing key: {e}") from None
+
+        return BDisplay.OFF
 
     def set_a_display(self, cross_section_id: str, lane_number: int, display: ADisplay) -> None:
         """Set the A Display for the given cross section id and lane number."""
