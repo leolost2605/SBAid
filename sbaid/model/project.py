@@ -130,7 +130,7 @@ class Project(GObject.GObject):
         self.__last_modified = GLib.DateTime.new_now_local()
         self.__project_file_path = project_file_path
         project_file = Gio.File.new_for_path(project_file_path)
-        self.__project_db = ProjectSQLite(project_file.get_child("project_database"))
+        self.__project_db = ProjectSQLite(project_file.get_child(self.id))
 
         super().__init__()
 

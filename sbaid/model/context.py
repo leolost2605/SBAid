@@ -38,6 +38,7 @@ class Context(GObject.GObject):
     def __init__(self) -> None:
         self.__result_manager = ResultManager()
         self.__projects = Gio.ListStore.new(Project)
+        self.__result_id_pos_map = {}
         super().__init__()
 
     async def load(self) -> None:
@@ -50,7 +51,7 @@ class Context(GObject.GObject):
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path)
             self.projects.append(project)
-            self.__result_id_pos_map[project_id] =
+            self.__result_id_pos_map[project_id] = self.projects.find(project)
             await project.load_from_db()
         await self.result_manager.load_from_db()
 
@@ -64,8 +65,10 @@ class Context(GObject.GObject):
         await self.__project_creation_db_action(project_id, sim_type, simulation_file_path,
                                                 project_file_path)
 
-        self.projects.append(Project(project_id, sim_type, simulation_file_path,
-                                     project_file_path))
+        new_project = Project(project_id, sim_type, simulation_file_path,
+                                     project_file_path)
+        self.projects.append(new_project)
+        self.__result_id_pos_map[project_id] = self.projects.find(new_project)[1]
 
         return project_id
 
@@ -77,10 +80,7 @@ class Context(GObject.GObject):
 
     async def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
-        for project in sbaid.common.list_model_iterator(self.projects):
-            if project.id == project_id:
-                self.projects.remove(self.projects.find(project)[1])
-
+        self.projects.remove(self.__result_id_pos_map[project_id])
         await self.__project_deletion_db_action(project_id)
 
     async def __project_deletion_db_action(self, project_id: str) -> None:

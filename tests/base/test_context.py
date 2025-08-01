@@ -14,14 +14,13 @@ class ContextTestCase(unittest.TestCase):
     def on_delete_async(feld, file, result, user_data):
         file.delete_finish(result)
 
-    def setUp(self) -> None:
+
+    def test(self):
+        self.assertTrue(True)
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
         task = loop.create_task(ContextTestCase().start())
         loop.run_until_complete(task)
-
-    def test(self):
-        pass
 
     async def start(self) -> None:
         await self.load()
@@ -52,6 +51,7 @@ class ContextTestCase(unittest.TestCase):
     async def projects(self):
         file = Gio.File.new_for_path("global_db")
 
+
         context = Context()
         await context.load()
         proj_id_1 = await context.create_project(SimulatorType("dummy_json", "JSON Dummy Simulator"),
@@ -62,8 +62,10 @@ class ContextTestCase(unittest.TestCase):
         self.assertEqual(context.projects.get_n_items(), 2)
         self.assertNotEqual(context.projects.get_item(0).id, context.projects.get_item(1).id)
 
-        print(context.projects.get_n_items())
+
         await context.delete_project(proj_id_1)
         self.assertEqual(context.projects.get_item(0).id, proj_id_2)
 
         file.delete_async(0, None, self.on_delete_async, None)
+
+        self.assertEqual(context.projects.get_item(0).id, proj_id_2)

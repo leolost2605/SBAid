@@ -25,10 +25,3 @@ class ContextTestCase(unittest.TestCase):
                                "my_simulation_file_path", "my_project_file_path")
 
         self.assertEqual(2, context.projects.get_n_items())
-
-
-        # for project in sbaid.common.list_model_iterator(context.projects):
-        #     print(project.name)
-        #     if project.name == "my_project_name":
-        #         self.assertTrue(True)
-
