@@ -7,9 +7,9 @@ from sbaid.common import list_model_iterator
 from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 if sys.platform.startswith("win"):
-    from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
+    from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 
