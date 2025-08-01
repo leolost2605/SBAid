@@ -1,9 +1,7 @@
 """This module defines the Context Class"""
 
-from gi.events import GLibEventLoopPolicy
 from gi.repository import GObject, Gio, GLib
 
-import sbaid.common
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.common.simulator_type import SimulatorType
@@ -22,17 +20,16 @@ class Context(GObject.GObject):
 
     __result_id_pos_map: dict[str, int]
 
-
     @GObject.Property(type=ResultManager, flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
-    def result_manager(self):
+                      GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def result_manager(self) -> ResultManager:
+        """TODO"""
         return self.__result_manager
 
     @GObject.Property(type=Gio.ListModel, flags=GObject.ParamFlags.READABLE |
-                                                GObject.ParamFlags.WRITABLE |
-                                                GObject.ParamFlags.CONSTRUCT_ONLY)
-    def projects(self):
+                      GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def projects(self) -> Gio.ListModel:
+        """TODO"""
         return self.__projects
 
     def __init__(self) -> None:
@@ -44,9 +41,10 @@ class Context(GObject.GObject):
     async def load(self) -> None:
         """Loads the projects and the results."""
         self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
+        db: GlobalDatabase
         async with self.__global_db as db:
             projects: list[tuple[str, SimulatorType, str, str]] = \
-                await db.get_all_projects()
+                await db.get_all_projects()  # type: ignore
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path)
@@ -56,7 +54,7 @@ class Context(GObject.GObject):
         await self.result_manager.load_from_db()
 
     async def create_project(self, sim_type: SimulatorType, simulation_file_path: str,
-                       project_file_path: str) -> str:
+                             project_file_path: str) -> str:
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
 
@@ -66,7 +64,7 @@ class Context(GObject.GObject):
                                                 project_file_path)
 
         new_project = Project(project_id, sim_type, simulation_file_path,
-                                     project_file_path)
+                              project_file_path)
         self.projects.append(new_project)
         self.__result_id_pos_map[project_id] = self.projects.find(new_project)[1]
 

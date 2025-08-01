@@ -1,4 +1,7 @@
+# pylint: disable=too-many-instance-attributes
 """This module defines the Project class."""
+from typing import cast
+
 from gi.repository import GObject, GLib, Gio
 
 import sbaid.common
@@ -43,79 +46,80 @@ class Project(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    def id(self):
+    def id(self) -> str:
+        """TODO"""
         return self.__id
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
-    def name(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT)
+    def name(self) -> str:
+        """TODO"""
         return self.__name
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulator_type(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulator_type(self) -> SimulatorType:
+        """TODO"""
         return self.__simulator_type
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def project_file_path(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def project_file_path(self) -> str:
+        """TODO"""
         return self.__project_file_path
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulation_file_path(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulation_file_path(self) -> str:
+        """TODO"""
         return self.__simulation_file_path
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def created_at(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def created_at(self) -> GLib.DateTime:
+        """TODO"""
         return self.__created_at
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT)
-    def last_modified(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT)
+    def last_modified(self) -> GLib.DateTime:
+        """TODO"""
         return self.__last_modified
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulator(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def simulator(self) -> Simulator:
+        """TODO"""
         return self.__simulator
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def network(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def network(self) -> Network:
+        """TODO"""
         return self.__network
 
     @GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
-    def algorithm_configuration_manager(self):
+        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    def algorithm_configuration_manager(self) -> AlgorithmConfigurationManager:
+        """TODO"""
         return self.__algorithm_configuration_manager
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
@@ -126,8 +130,8 @@ class Project(GObject.GObject):
         self.__name = self.__id + "name"
         self.__simulator_type = sim_type
         self.__simulation_file_path = simulation_file_path
-        self.__created_at = GLib.DateTime.new_now_local()
-        self.__last_modified = GLib.DateTime.new_now_local()
+        self.__created_at = cast(GLib.DateTime, GLib.DateTime.new_now_local())  # TODO
+        self.__last_modified = cast(GLib.DateTime, GLib.DateTime.new_now_local())
         self.__project_file_path = project_file_path
         project_file = Gio.File.new_for_path(project_file_path)
         self.__project_db = ProjectSQLite(project_file.get_child(self.id))
@@ -164,5 +168,5 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         async with self.__project_db as db:
-            self.name = await db.get_project_name()
-            self.last_modified = await db.get_last_modified()
+            self.__name = await db.get_project_name()
+            self.__last_modified = await db.get_last_modified()
