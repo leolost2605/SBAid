@@ -1,6 +1,7 @@
 """This module contains unittests for the LaneSnapshot class."""
 import unittest
-from gi.repository import GLib
+from gi.repository import GLib, Gio
+from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.results.lane_snapshot import LaneSnapshot
 from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 from sbaid.common.a_display import ADisplay
@@ -9,6 +10,8 @@ from sbaid.common.vehicle_type import VehicleType
 
 class LaneSnapshotTest(unittest.TestCase):
     """This class tests the LaneSnapshot class."""
+    __gio_file = Gio.File.new_for_path("placeholder_path.db")
+    __global_placeholder_db = GlobalSQLite(__gio_file)
 
     def test_add_vehicle_snapshot(self):
         """Test adding a vehicle snapshot."""
@@ -17,7 +20,8 @@ class LaneSnapshotTest(unittest.TestCase):
         now = GLib.DateTime.new_now_local()
         lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),
                                      GLib.uuid_string_random(), 4,
-                                       70.6, 9, ADisplay.SPEED_LIMIT_100)
+                                       70.6, 9, ADisplay.SPEED_LIMIT_100,
+                                     self.__global_placeholder_db)
 
         vehicle_snapshot_1 = VehicleSnapshot(GLib.uuid_string_random(), VehicleType.CAR, 80.324)
 

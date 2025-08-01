@@ -10,8 +10,8 @@ from sbaid.common.a_display import ADisplay
 class CrossSectionSnapshotTest(unittest.TestCase):
     """This class tests the CrossSectionSnapshot class."""
 
-    gio_file = Gio.File.new_for_path("my_local.db")
-    global_db: GlobalSQLite(gio_file)
+    gio_file = Gio.File.new_for_path("placeholder_path.db")
+    global_db = GlobalSQLite(gio_file)
 
     cross_section_snapshot = CrossSectionSnapshot(GLib.uuid_string_random(),
                                                   GLib.uuid_string_random(),
@@ -43,7 +43,7 @@ class CrossSectionSnapshotTest(unittest.TestCase):
 
 
     def test_calculate_average_speed(self):
-        """Tests calculating the average speed. todo this ASSUMES previous method has run, maybe not best practice."""
+        """Tests calculating the average speed."""
         self.assertIsNotNone(self.cross_section_snapshot.lane_snapshots)
         self.assertGreater(len(self.cross_section_snapshot.lane_snapshots), 0)
         calculated_speed = self.cross_section_snapshot.calculate_cs_average_speed()

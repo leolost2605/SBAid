@@ -1,4 +1,6 @@
 """This module defines the seaborn image"""
+from typing_extensions import override
+
 from sbaid.common.image import Image
 
 
@@ -15,3 +17,7 @@ class SeabornImage(Image):
 
         with open(path, 'wb') as f:
             f.write(self._image_bytes)
+
+
+
+

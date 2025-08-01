@@ -18,27 +18,31 @@ class _CrossSectionBuilder:
     """This auxiliary class contains the cross-section snapshot builder methods"""
     # required for construction
     __cross_section_name: str
+    __cross_section_id: str
     __snapshot_id: str
     __global_db: GlobalDatabase
 
     # added later
-    __cross_section_b_display: BDisplay
+    __cross_section_b_display: BDisplay | None
 
-    def __init__(self, cs_name: str, snapshot_id: str, global_db: GlobalDatabase) -> None:
+    def __init__(self, cs_name: str, snapshot_id: str, cross_section_id: str, global_db: GlobalDatabase) -> None:
         self.__cross_section_name = cs_name
         self.__snapshot_id = snapshot_id
+        self.__cross_section_id = cross_section_id
         self.__global_db = global_db
+        self.__cross_section_b_display = None
 
     def set_b_display(self, b_display: BDisplay) -> Self:
         """Setter for b_display"""
         self.__cross_section_b_display = b_display
-        return Self
+        return self
 
     def try_build(self) -> CrossSectionSnapshot | None:
         """Builds and returns cross-section snapshot if attributes complete, None otherwise"""
         if self.__cross_section_b_display is not None:
             return CrossSectionSnapshot(self.__snapshot_id, str(uuid.uuid4()),
                                         self.__cross_section_name,
+                                        self.__cross_section_id,
                                         self.__cross_section_b_display, self.__global_db)
         return None
 
@@ -50,14 +54,17 @@ class _LaneBuilder:
     __cross_section_id: str
     __global_db: GlobalDatabase
     # added later
-    __average_speed: float
-    __traffic_volume: int
-    __a_display: ADisplay
+    __average_speed: float | None
+    __traffic_volume: int | None
+    __a_display: ADisplay | None
 
     def __init__(self, lane_number: int, cross_section_id: str, global_db: GlobalDatabase) -> None:
         self.__lane_number = lane_number
         self.__cross_section_id = cross_section_id
         self.__global_db = global_db
+        self.__average_speed = None
+        self.__traffic_volume = None
+        self.__a_display = None
 
     def set_average_speed(self, average_speed: float) -> Self:
         """Setter for average_speed"""
@@ -93,11 +100,13 @@ class _VehicleBuilder:
     # required for construction
     __lane_id: str
     # added later
-    __vehicle_type: VehicleType
-    __vehicle_speed: float
+    __vehicle_type: VehicleType | None
+    __vehicle_speed: float | None
 
     def __init__(self, lane_id: str) -> None:
         self.__lane_id = lane_id
+        self.__vehicle_type = None
+        self.__vehicle_speed = None
 
     def set_vehicle_type(self, vehicle_type: VehicleType) -> Self:
         """Setter for vehicle_type"""
@@ -137,8 +146,9 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     __current_vehicle_builder: _VehicleBuilder | None
 
     def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
+        super().__init__()
         """Initializes the ResultBuilder class."""
-        self.result_manager = result_manager
+        self.__result_manager = result_manager
         self.__global_db = global_db
 
     def begin_result(self, project_name: str) -> None:
@@ -160,13 +170,14 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         self.__current_snapshot = Snapshot(str(uuid.uuid4()),
                                            simulation_timestamp, self.__global_db)
 
-    def begin_cross_section(self, cross_section_name: str) -> None:
+    def begin_cross_section(self, cross_section_name: str, cross_section_id: str) -> None:
         """Sets the current cs builder to a new instance, constructed with
         the given cross-section name and current snapshot id."""
         if self.__current_snapshot is None:
             raise WrongOrderException("Current snapshot has not been set")
         self.__current_cs_builder = _CrossSectionBuilder(cross_section_name,
                                                          self.__current_snapshot.id,
+                                                         cross_section_id,
                                                          self.__global_db)
 
     def add_b_display(self, b_display: BDisplay) -> None:
@@ -176,8 +187,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         # chained methods that first add the new value
         # and then tries to build the cross-section snapshot
-        self.__current_cross_section = self.__current_cs_builder.set_b_display(
-            b_display).try_build()
+
+        self.__current_cross_section = self.__current_cs_builder.set_b_display(b_display).try_build()
 
     def begin_lane(self, lane_number: int) -> None:
         """Sets the current lane builder to a new instance, constructed with
@@ -249,6 +260,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         self.__current_cross_section.add_lane_snapshot(self.__current_lane)
         self.__current_lane_builder = None
+        self.__current_lane = None
 
     def end_cross_section(self) -> None:
         """Adds the current cross-section snapshot to current snapshot.
@@ -276,16 +288,23 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         self.__current_result.add_snapshot(self.__current_snapshot)
         self.__current_snapshot = None
 
-    def end_result(self) -> Result:
+    async def end_result(self) -> Result:
         """Returns current result and resets to None.
          Raises WrongOrderException if result has not been
          created or a snapshot is in the process of being created"""
         if self.__current_result is None or self.__current_snapshot is not None:
             raise WrongOrderException("Result cannot be created")
 
-        result_to_return = self.__current_result
+        result = self.__current_result
+        self.__result_manager.register_result(result)
+
+        await self.__global_db.add_result(result.id,
+                                    result.result_name,
+                                    result.project_name,
+                                    result.creation_date_time)
+
         self.__current_result = None
-        return result_to_return
+        return result
 
 
 class WrongOrderException(Exception):

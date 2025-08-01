@@ -49,7 +49,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
 
         for snapshot in result.snapshots:
             for cs_snapshot in snapshot.cross_section_snapshots:
-                if cs_snapshot.cs_snapshot_id == cross_section_id:
+                if cs_snapshot.cross_section_id == cross_section_id:
                     if cross_section_name is None:
                         cross_section_name = cs_snapshot.cross_section_name
                     for lane_snapshot in cs_snapshot.lane_snapshots:

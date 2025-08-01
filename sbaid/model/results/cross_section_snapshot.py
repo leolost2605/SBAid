@@ -34,6 +34,11 @@ class CrossSectionSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
+    cross_section_id = GObject.Property(
+        type=str,
+        flags=GObject.ParamFlags.READABLE |
+              GObject.ParamFlags.WRITABLE |
+              GObject.ParamFlags.CONSTRUCT_ONLY)
     b_display = GObject.Property(
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |
@@ -50,13 +55,14 @@ class CrossSectionSnapshot(GObject.GObject):
         return self.__lane_snapshots
 
     def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
-                 b_display: BDisplay, global_db: GlobalDatabase) -> None:
+                 cross_section_id: str, b_display: BDisplay, global_db: GlobalDatabase) -> None:
         """Initialize the cross-section snapshot class."""
         self.__lane_snapshots = Gio.ListStore.new(LaneSnapshot)
         self.__global_db = global_db
         super().__init__(snapshot_id=snapshot_id,
                          cs_snapshot_id=cross_section_snapshot_id,
                          cross_section_name=cross_section_name,
+                         cross_section_id=cross_section_id,
                          b_display=b_display)
 
     async def load_from_db(self) -> None:
