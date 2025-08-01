@@ -20,7 +20,7 @@ class CsvParserTest(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
-        self.assertEqual(parser.can_handle_file("valid_input.csv"), True)
+        self.assertEqual(parser.can_handle_file("./tests/model/network/valid_input.csv"), True)
 
     async def _testing_callback_func(self, path: str):
         parser = CSVCrossSectionParser()
@@ -42,7 +42,7 @@ class CsvParserTest(unittest.TestCase):
         creation of the second one, raising a FailedCrossSectionCreationException
         Expected behavior with vissim simulator: 20 added cross sections and 0 skipped ones"""
         with self.assertRaises(FailedCrossSectionCreationException):
-            await self._testing_callback_func("valid_input.csv")
+            await self._testing_callback_func("./tests/model/network/valid_input.csv")
 
 
     def test_empty_csv(self):
@@ -50,7 +50,7 @@ class CsvParserTest(unittest.TestCase):
 
     async def _test_empty_csv(self):
         with self.assertRaises(InvalidFileFormattingException):
-            await self._testing_callback_func("empty_sheet.csv")
+            await self._testing_callback_func("./tests/model/network/empty_sheet.csv")
 
 
     def test_invalid_coordinates(self):
@@ -61,7 +61,7 @@ class CsvParserTest(unittest.TestCase):
         creation of the second one, raising a FailedCrossSectionCreationException
         Expected behavior with vissim simulator: 14 added cross sections and 5 skipped ones"""
         with self.assertRaises(FailedCrossSectionCreationException):
-            await self._testing_callback_func("invalid_coordinates.csv")
+            await self._testing_callback_func("./tests/model/network/invalid_coordinates.csv")
 
 
     def test_invalid_types(self):
@@ -72,7 +72,7 @@ class CsvParserTest(unittest.TestCase):
         creation of the second one, raising a FailedCrossSectionCreationException
         Expected behavior with vissim simulator: 15 added cross sections and 4 skipped ones"""
         with self.assertRaises(FailedCrossSectionCreationException):
-            await self._testing_callback_func("invalid_types.csv")
+            await self._testing_callback_func("./tests/model/network/invalid_types.csv")
 
     def test_invalid_columns(self):
         asyncio.run(self._test_invalid_columns())
@@ -83,5 +83,5 @@ class CsvParserTest(unittest.TestCase):
         creation of the second one, raising a FailedCrossSectionCreationException
         Expected behavior with vissim simulator: 11 added cross sections and 8 skipped ones"""
         with self.assertRaises(FailedCrossSectionCreationException):
-            await self._testing_callback_func("invalid_columns.csv")
+            await self._testing_callback_func("./tests/model/network/invalid_columns.csv")
 
