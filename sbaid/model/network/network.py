@@ -4,8 +4,6 @@ import sys
 import asyncio
 import typing
 import gi
-from gi.overrides.Gio import ListModel
-
 from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
@@ -29,33 +27,27 @@ class Network(GObject.Object):
 
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
 
-    __cross_sections: ListModel
-    __route: Route
-    @GObject.Property(type=Gio.ListModel,
-                      flags=GObject.ParamFlags.READABLE |
-                      GObject.ParamFlags.WRITABLE |
-                      GObject.ParamFlags.CONSTRUCT_ONLY)
+    @cross_sections.getter  # type: ignore
     def cross_sections(self) -> Gio.ListModel:
+        """Returns the MapListModel containing the model cross sections
+        and the simulator cross sections."""
         return self.__cross_sections
 
-    @GObject.Property(type=Route,
-                      flags=GObject.ParamFlags.READABLE |
-                            GObject.ParamFlags.WRITABLE |
-                            GObject.ParamFlags.CONSTRUCT_ONLY)
-    def route(self) -> Route:
-        return self.__route
+    route: Route = GObject.Property(type=Route,  # type: ignore
+                                    flags=GObject.ParamFlags.READABLE |
+                                    GObject.ParamFlags.WRITABLE |
+                                    GObject.ParamFlags.CONSTRUCT_ONLY)
 
     __background_tasks: set[asyncio.Task[None]]
     __cross_sections: Gtk.MapListModel
 
     def __init__(self, simulator: Simulator, project_db: ProjectDatabase) -> None:
         """Constructs a Network."""
-        self.__route = Route([])
         self.__simulator = simulator
         self.__project_db = project_db
         self.__background_tasks = set()
         self.__cross_sections = Gtk.MapListModel.new(None, self.__map_func)
-        super().__init__(route=self.__route, cross_sections=self.__cross_sections)
+        super().__init__(route=simulator.route)
 
     async def load(self) -> None:
         """Loads the network data."""

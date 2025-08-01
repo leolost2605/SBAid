@@ -3,8 +3,8 @@ import sys
 
 from gi.repository import Gio, GObject
 
-from model.simulator.dummy.dummy_simulator import DummySimulator
-from model.simulator.simulator import Simulator
+from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+from sbaid.model.simulator.simulator import Simulator
 
 from sbaid.common.simulator_type import SimulatorType
 
@@ -15,6 +15,7 @@ simulator_types = GObject.Property(type=Gio.ListModel,
 
 
 class SimulatorException(Exception):
+    """TODO"""
     def __init__(self, message: str):
         super().__init__(message)
 
@@ -27,17 +28,18 @@ class InvalidPlatformException(Exception):
 
 class SimulatorFactory(GObject.GObject):
     """This class defines the simulator factory."""
-    def __init__(self) -> None:
-        # super().__init__(simulator_types=Gio.ListStore(SimulatorType))
+    def __init__(self) -> None:  # pylint: disable=useless-parent-delegation
         super().__init__()
 
     def get_simulator(self, sim_type: SimulatorType) -> Simulator:
+        """TODO"""
         match sim_type.id:
             case "dummy_json":
                 return DummySimulator()
             case "com.ptvgroup.vissim":
                 if sys.platform.startswith("win"):
-                    from model.simulator.vissim.vissim_simulator import VissimSimulator
+                    # pylint: disable=import-outside-toplevel
+                    from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
                     return VissimSimulator()
                 raise InvalidPlatformException("The Vissim simulator requires Windows.")
-        raise SimulatorException(f"Simulator type {SimulatorType.name} is not supported")
+        raise SimulatorException(f"Simulator type {sim_type.name} is not supported")

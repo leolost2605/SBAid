@@ -6,7 +6,7 @@ from jsonschema import validate, ValidationError
 
 from gi.repository import GLib, Gio
 
-from model.network.route import Route
+from sbaid.model.network.route import Route
 from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator

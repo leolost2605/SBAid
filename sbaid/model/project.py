@@ -32,57 +32,55 @@ class Project(GObject.GObject):
 
     __project_db: ProjectDatabase
 
-
     id = GObject.Property(type=str,
                           flags=GObject.ParamFlags.READABLE |
-                                GObject.ParamFlags.WRITABLE |
-                                GObject.ParamFlags.CONSTRUCT_ONLY)
+                          GObject.ParamFlags.WRITABLE |
+                          GObject.ParamFlags.CONSTRUCT_ONLY)
 
     name = GObject.Property(type=str,
                             flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT)
+                            GObject.ParamFlags.WRITABLE |
+                            GObject.ParamFlags.CONSTRUCT)
 
     simulator_type = GObject.Property(type=SimulatorType,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+                                      flags=GObject.ParamFlags.READABLE |
+                                      GObject.ParamFlags.WRITABLE |
+                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
     project_file_path = GObject.Property(type=str,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+                                         flags=GObject.ParamFlags.READABLE |
+                                         GObject.ParamFlags.WRITABLE |
+                                         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     simulation_file_path = GObject.Property(type=str,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+                                            flags=GObject.ParamFlags.READABLE |
+                                            GObject.ParamFlags.WRITABLE |
+                                            GObject.ParamFlags.CONSTRUCT_ONLY)
 
     created_at = GObject.Property(type=GLib.DateTime,
-                            flags=GObject.ParamFlags.READABLE |
+                                  flags=GObject.ParamFlags.READABLE |
                                   GObject.ParamFlags.WRITABLE |
                                   GObject.ParamFlags.CONSTRUCT_ONLY)
 
     last_modified = GObject.Property(type=GLib.DateTime,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT)
+                                     flags=GObject.ParamFlags.READABLE |
+                                     GObject.ParamFlags.WRITABLE |
+                                     GObject.ParamFlags.CONSTRUCT)
 
     simulator = GObject.Property(type=Simulator,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+                                 flags=GObject.ParamFlags.READABLE |
+                                 GObject.ParamFlags.WRITABLE |
+                                 GObject.ParamFlags.CONSTRUCT_ONLY)
 
     network = GObject.Property(type=Network,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+                               flags=GObject.ParamFlags.READABLE |
+                               GObject.ParamFlags.WRITABLE |
+                               GObject.ParamFlags.CONSTRUCT_ONLY)
 
     algorithm_configuration_manager = GObject.Property(type=AlgorithmConfigurationManager,
-                            flags=GObject.ParamFlags.READABLE |
-                                  GObject.ParamFlags.WRITABLE |
-                                  GObject.ParamFlags.CONSTRUCT_ONLY)
-
+                                                       flags=GObject.ParamFlags.READABLE |
+                                                       GObject.ParamFlags.WRITABLE |
+                                                       GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str) -> None:
@@ -114,7 +112,7 @@ class Project(GObject.GObject):
         The transferred observer is regularly informed about the progress of the simulation.
         The returned SimulationManager manages the simulation and can be used to control it."""
         selected_algorithm_configuration_id = (self.algorithm_configuration_manager
-                                      .selected_algorithm_configuration_id)
+                                               .selected_algorithm_configuration_id)
         algo_config = None
         for config in sbaid.common.list_model_iterator(self.algorithm_configuration_manager
                                                        .algorithm_configurations):

@@ -1,8 +1,6 @@
 """This module defines the SimulationManager class"""
-import asyncio
 from typing import cast
 
-from gi.events import GLibEventLoopPolicy
 from gi.repository import GObject, GLib
 
 from sbaid.model.simulation.display import Display
@@ -57,7 +55,8 @@ class SimulationManager(GObject.GObject):
         """Initialize the SimulationManager class.  This is valid at the exact moment of
         its construction and should be used immediately, i.e. started."""
         super().__init__()
-        # super().__init__(project_name=project_name, algorithm_configuration=algorithm_configuration,
+        # super().__init__(project_name=project_name,
+        # algorithm_configuration=algorithm_configuration,
         #                  network=network, simulator=simulator, result_manager=result_manager,
         #                  observer=observer)
         self.observer = observer
