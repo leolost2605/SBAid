@@ -60,7 +60,6 @@ class Context(GObject.GObject):
         async with self.__global_db as db:
             projects: list[tuple[str, SimulatorType, str, str]] = \
                 await db.get_all_projects()
-
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path)
@@ -68,18 +67,19 @@ class Context(GObject.GObject):
             await project.load_from_db()
         await self.result_manager.load_from_db()
 
-    def create_project(self, name: str, sim_type: SimulatorType, simulation_file_path: str,
+    def create_project(self, sim_type: SimulatorType, simulation_file_path: str,
                        project_file_path: str) -> str:
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
 
         project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
+        print("creation started")
         task = asyncio.create_task(self.__project_creation_db_action(project_id, sim_type,
                                 simulation_file_path, project_file_path))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
 
-        self.projects.append(Project(project_id, name, sim_type, simulation_file_path,
+        self.projects.append(Project(project_id, sim_type, simulation_file_path,
                                      project_file_path))
 
         return project_id
@@ -88,7 +88,9 @@ class Context(GObject.GObject):
                                            simulation_file_path: str,
                                            project_file_path: str) -> None:
         async with self.__global_db as db:
-            await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
+            pass
+            # await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
+        print("ended")
 
     def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""

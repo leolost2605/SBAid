@@ -118,12 +118,12 @@ class Project(GObject.GObject):
     def algorithm_configuration_manager(self):
         return self.__algorithm_configuration_manager
 
-    def __init__(self, project_id: str, name: str, sim_type: SimulatorType, simulation_file_path: str,
+    def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         self.__id = project_id
-        self.__name = name
+        self.__name = self.__id + "name"
         self.__simulator_type = sim_type
         self.__simulation_file_path = simulation_file_path
         self.__created_at = GLib.DateTime.new_now_local()
