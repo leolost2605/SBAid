@@ -27,15 +27,20 @@ class CsvParserTest(unittest.TestCase):
         file = Gio.File.new_for_path(path)
         await parser.foreach_cross_section(file, self.foreach_func_callback_func)
 
-    async def foreach_func_callback_func(self, name: str, location: Location, cross_section_type: CrossSectionType) -> bool:
-        network = Network(, unittest.mock.Mock())
+    async def foreach_func_callback_func(self, name: str, location: Location,
+                                         cross_section_type: CrossSectionType) -> bool:
+        """Unit testing with dummy simulator as to not having to upload the vissim simulation
+        files to github this way"""
+        network = Network(DummySimulator(), unittest.mock.Mock())
         await network.create_cross_section(name, location, cross_section_type)
-
 
     def test_valid_parsing(self):
         asyncio.run(self._test_valid_parsing())
 
     async def _test_valid_parsing(self):
+        """Expected behavior with dummy simulator: skipping the first row of file and attempting
+        creation of the second one, raising a FailedCrossSectionCreationException
+        Expected behavior with vissim simulator: 20 added cross sections and 0 skipped ones"""
         with self.assertRaises(FailedCrossSectionCreationException):
             await self._testing_callback_func("valid_input.csv")
 
@@ -50,16 +55,33 @@ class CsvParserTest(unittest.TestCase):
 
     def test_invalid_coordinates(self):
         asyncio.run(self._test_invalid_coordinates())
-        pass
 
     async def _test_invalid_coordinates(self):
-        with self.assertRaises(InvalidFileFormattingException):
+        """Expected behavior with dummy simulator: skipping the first row of file and attempting
+        creation of the second one, raising a FailedCrossSectionCreationException
+        Expected behavior with vissim simulator: 14 added cross sections and 5 skipped ones"""
+        with self.assertRaises(FailedCrossSectionCreationException):
             await self._testing_callback_func("invalid_coordinates.csv")
 
 
-    def test_invalid_type(self):
-        pass
+    def test_invalid_types(self):
+        asyncio.run(self._test_invalid_types())
+
+    async def _test_invalid_types(self):
+        """Expected behavior with dummy simulator: skipping the first row of file and attempting
+        creation of the second one, raising a FailedCrossSectionCreationException
+        Expected behavior with vissim simulator: 15 added cross sections and 4 skipped ones"""
+        with self.assertRaises(FailedCrossSectionCreationException):
+            await self._testing_callback_func("invalid_types.csv")
 
     def test_invalid_columns(self):
+        asyncio.run(self._test_invalid_columns())
         pass
+
+    async def _test_invalid_columns(self):
+        """Expected behavior with dummy simulator: skipping the first row of file and attempting
+        creation of the second one, raising a FailedCrossSectionCreationException
+        Expected behavior with vissim simulator: 11 added cross sections and 8 skipped ones"""
+        with self.assertRaises(FailedCrossSectionCreationException):
+            await self._testing_callback_func("invalid_columns.csv")
 

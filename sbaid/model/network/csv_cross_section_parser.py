@@ -63,7 +63,6 @@ class CSVCrossSectionParser(CrossSectionParser):
         try:
             coordinates = Location(float(row[1]),
                                    float(row[2]))
-            print(coordinates)
         except ValueError:
             return None
         cs_type = self.__get_enum_from_type_str(row[3])
