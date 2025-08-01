@@ -41,7 +41,7 @@ class Network(GObject.GObject):
         super().__init__()
         self.__network = network
         self.__cross_sections = Gtk.MapListModel.new(network.cross_sections,
-                                                     self.__map_func, self)
+                                                     self.__map_func)
 
     def __map_func(self, model_cross_section: ModelCrossSection) -> GObject.GObject:
         return CrossSection(model_cross_section)
