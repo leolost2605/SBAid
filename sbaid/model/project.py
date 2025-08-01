@@ -32,119 +32,75 @@ class Project(GObject.GObject):
 
     __project_db: ProjectDatabase
 
-    __id: str
-    __name: str
-    __simulator_type: SimulatorType
-    __project_file_path: str
-    __simulation_file_path: str
-    __created_at: GLib.DateTime
-    __last_modified: GLib.DateTime
-    __simulator: Simulator
-    __network: Network
-    __algorithm_configuration_manager: AlgorithmConfigurationManager
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
-    def id(self) -> str:
-        """TODO"""
-        return self.__id
+    id = GObject.Property(type=str,
+                          flags=GObject.ParamFlags.READABLE |
+                                GObject.ParamFlags.WRITABLE |
+                                GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT)
-    def name(self) -> str:
-        """TODO"""
-        return self.__name
+    name = GObject.Property(type=str,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulator_type(self) -> SimulatorType:
-        """TODO"""
-        return self.__simulator_type
+    simulator_type = GObject.Property(type=SimulatorType,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def project_file_path(self) -> str:
-        """TODO"""
-        return self.__project_file_path
+    project_file_path = GObject.Property(type=str,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulation_file_path(self) -> str:
-        """TODO"""
-        return self.__simulation_file_path
+    simulation_file_path = GObject.Property(type=str,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def created_at(self) -> GLib.DateTime:
-        """TODO"""
-        return self.__created_at
+    created_at = GObject.Property(type=GLib.DateTime,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT)
-    def last_modified(self) -> GLib.DateTime:
-        """TODO"""
-        return self.__last_modified
+    last_modified = GObject.Property(type=GLib.DateTime,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def simulator(self) -> Simulator:
-        """TODO"""
-        return self.__simulator
+    simulator = GObject.Property(type=Simulator,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def network(self) -> Network:
-        """TODO"""
-        return self.__network
+    network = GObject.Property(type=Network,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def algorithm_configuration_manager(self) -> AlgorithmConfigurationManager:
-        """TODO"""
-        return self.__algorithm_configuration_manager
+    algorithm_configuration_manager = GObject.Property(type=AlgorithmConfigurationManager,
+                            flags=GObject.ParamFlags.READABLE |
+                                  GObject.ParamFlags.WRITABLE |
+                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
-                 project_file_path: str,
-                 algorithm_configuration_manager: AlgorithmConfigurationManager) -> None:
+                 project_file_path: str) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
-        self.__id = project_id
-        self.__name = self.__id + "name"
-        self.__simulator_type = sim_type
-        self.__simulation_file_path = simulation_file_path
-        self.__created_at = cast(GLib.DateTime, GLib.DateTime.new_now_local())  # TODO
-        self.__last_modified = cast(GLib.DateTime, GLib.DateTime.new_now_local())
-
+        simulator = SimulatorFactory().get_simulator(sim_type)
         project_file = Gio.File.new_for_path(project_file_path)
         self.__project_db = ProjectSQLite(project_file.get_child(self.id))
-
-        self.__simulator = SimulatorFactory().get_simulator(sim_type)
-        self.__network = Network(self.__simulator, self.__project_db)
-        self.__algorithm_configuration_manager = algorithm_configuration_manager
-        self.__project_file_path = project_file_path
-
-        super().__init__()
+        network = Network(simulator, self.__project_db)
+        algo_manager = AlgorithmConfigurationManager(network)
+        super().__init__(id=project_id, name=project_id+"name",
+                         simulator_type=sim_type, project_file_path=project_file_path,
+                         simulation_file_path=simulation_file_path,
+                         created_at=cast(GLib.DateTime, GLib.DateTime.new_now_local()),
+                         last_modified=cast(GLib.DateTime, GLib.DateTime.new_now_local()),
+                         simulator=simulator,
+                         network=network,
+                         algorithm_configuration_manager=algo_manager)
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
@@ -158,19 +114,19 @@ class Project(GObject.GObject):
         """Starts a simulation with the currently selected algorithm configuration.
         The transferred observer is regularly informed about the progress of the simulation.
         The returned SimulationManager manages the simulation and can be used to control it."""
-        algorithm_configuration_id = (self.algorithm_configuration_manager
+        selected_algorithm_configuration_id = (self.algorithm_configuration_manager
                                       .selected_algorithm_configuration_id)
         algo_config = None
         for config in sbaid.common.list_model_iterator(self.algorithm_configuration_manager
                                                        .algorithm_configurations):
-            if config.id == algorithm_configuration_id:
+            if config.id == selected_algorithm_configuration_id:
                 algo_config = config
         if not algo_config:
             raise AlgorithmConfigurationException("No selected algorithm configuration found!")
 
         result_manager = ResultManager()
-        simulation_manager = SimulationManager(self.__name, algo_config,
-                                               self.__network, self.__simulator,
+        simulation_manager = SimulationManager(self.name, algo_config,
+                                               self.network, self.simulator,
                                                result_manager, observer)
         simulation_manager.start()
         return simulation_manager
