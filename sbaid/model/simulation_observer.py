@@ -2,7 +2,7 @@
 from gi.repository import GLib, GObject
 
 
-class SimulationObserver(GObject.GObject):
+class SimulationObserver(GObject.GInterface):
     """todo"""
 
     def update_progress(self, percentage: float) -> None:
