@@ -189,4 +189,3 @@ class ProjectSQLiteTest(unittest.TestCase):
 
             self.assertTrue(False)
         file.delete_async(0, None, self.on_delete_async, None)
-

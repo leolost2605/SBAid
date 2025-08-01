@@ -1,5 +1,6 @@
 """This module contains the ProjectSQLite class."""
 import sqlite3
+from typing import TypeVar
 
 import aiosqlite
 from gi.repository import GLib, Gio
@@ -7,6 +8,9 @@ from gi.repository import GLib, Gio
 from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.model.database.project_database import ProjectDatabase
+
+
+T = TypeVar('T', bound="ProjectDatabase")
 
 
 class ProjectSQLite(ProjectDatabase):
@@ -20,7 +24,7 @@ class ProjectSQLite(ProjectDatabase):
         self._file = file
         self._creation_time = GLib.DateTime.new_now_local()  # type: ignore
 
-    async def __aenter__(self) -> ProjectDatabase:
+    async def __aenter__(self) -> T:
         file_existed = self._file.query_exists()
         if not file_existed:
             await make_directory_with_parents_async(self._file.get_parent())
