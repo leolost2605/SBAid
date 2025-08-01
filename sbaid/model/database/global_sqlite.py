@@ -124,6 +124,7 @@ class GlobalSQLite(GlobalDatabase):
 
     async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
         await self._connection.close()
+        print("exited")
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:

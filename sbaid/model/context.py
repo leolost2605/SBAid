@@ -56,6 +56,7 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
+        print("loading projects...")
         self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
         async with self.__global_db as db:
             projects: list[tuple[str, SimulatorType, str, str]] = \
@@ -87,8 +88,9 @@ class Context(GObject.GObject):
     async def __project_creation_db_action(self, project_id: str, sim_type: SimulatorType,
                                            simulation_file_path: str,
                                            project_file_path: str) -> None:
+        print("AAAAA – project creation started")
         async with self.__global_db as db:
-            pass
+            print("db connected")
             # await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
         print("ended")
 
