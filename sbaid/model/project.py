@@ -125,7 +125,8 @@ class Project(GObject.GObject):
         return self.__algorithm_configuration_manager
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
-                 project_file_path: str) -> None:
+                 project_file_path: str,
+                 algorithm_configuration_manager: AlgorithmConfigurationManager) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         self.__id = project_id
@@ -140,7 +141,7 @@ class Project(GObject.GObject):
 
         self.__simulator = SimulatorFactory().get_simulator(sim_type)
         self.__network = Network(self.__simulator, self.__project_db)
-        self.__algorithm_configuration_manager = AlgorithmConfigurationManager(self.__network)
+        self.__algorithm_configuration_manager = algorithm_configuration_manager
         self.__project_file_path = project_file_path
 
         super().__init__()

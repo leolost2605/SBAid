@@ -23,6 +23,6 @@ class SimulationManagerTestCase(unittest.TestCase):
         observer = SimulationObserver()
         algo_config = AlgorithmConfigurationManager(config_id, network)
 
-        sim_manager = SimulationManager(project_name,algo_config, network,
+        sim_manager = SimulationManager(project_name, algo_config, network,
                                         simulator, result_manager, observer)
         sim_manager.start()

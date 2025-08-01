@@ -38,19 +38,24 @@ class ProjectTestCase(unittest.TestCase):
         context.load()
         observer = mock.Mock()
         file = Gio.File.new_for_path("global_db")
-        project = Project(GLib.uuid_string_random(),
-                          SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                          "simulation_file_path", "tests/base/test_project")
+
         sim = DummySimulator()
         db = mock.Mock()
-        await project.load()
         network = Network(sim, db)
-        # network.route = mock.Mock()
-        # should raise exception as no algorithm configuration is selected
+        algo_config_manager = AlgorithmConfigurationManager(network)
+        algo_config = mock.Mock()
+        algo_config.parameter_configuration = mock.Mock()
+        # algo_config = algo_config_manager.create_algorithm_configuration()
+        project = Project(GLib.uuid_string_random(),
+                          SimulatorType("dummy_json", "JSON Dummy Simulator"),
+                          "simulation_file_path", "tests/base/test_project",
+                          algo_config_manager)
+        await project.load()
         self.assertRaises(AlgorithmConfigurationException, project.start_simulation, observer)
-        (project.algorithm_configuration_manager.algorithm_configurations
-         .append(AlgorithmConfiguration("my_config_id", network)))
+        # algo_config.parameter_configuration = mock.Mock()
+        project.algorithm_configuration_manager.algorithm_configurations.append(algo_config)
         project.algorithm_configuration_manager\
             .selected_algorithm_configuration_id = "my_config_id"
-        project.start_simulation(observer)
+        simulation_manager = project.start_simulation(observer)
+        await simulation_manager.start()
 

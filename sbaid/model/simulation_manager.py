@@ -70,17 +70,13 @@ class SimulationManager(GObject.GObject):
     def cancel(self) -> None:
         """Cancel the running simulation"""
 
-    def start(self) -> None:
+    async def start(self) -> None:
         """Start the simulation"""
         result_builder = ResultBuilder(self.result_manager)
         result_builder.begin_result(self.project_name)
         network_state = self.__build_network_state(self.network)
 
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
-
-        task = loop.create_task(self.__run_simulation(result_builder, network_state))
-        loop.run_until_complete(task)
+        await self.__run_simulation(result_builder, network_state)
 
         result = cast(Result, result_builder.end_result())  # type: ignore
         self.observer.finished(result.id)
