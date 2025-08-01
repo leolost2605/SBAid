@@ -29,10 +29,11 @@ class CsvParserTest(unittest.TestCase):
 
     async def foreach_func_callback_func(self, name: str, location: Location,
                                          cross_section_type: CrossSectionType) -> bool:
-        """Unit testing with dummy simulator as to not having to upload the vissim simulation
-        files to github this way"""
+        """Unit testing with dummy simulator no upload of the vissim simulation
+        files to github is needed"""
         network = Network(DummySimulator(), unittest.mock.Mock())
-        await network.create_cross_section(name, location, cross_section_type)
+        return await network.create_cross_section(name, location, cross_section_type) is not None  #???? como check se raised um error ou returned algo?
+
 
     def test_valid_parsing(self):
         asyncio.run(self._test_valid_parsing())

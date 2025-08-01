@@ -38,6 +38,8 @@ class Network(GObject.Object):
                                     GObject.ParamFlags.WRITABLE |
                                     GObject.ParamFlags.CONSTRUCT_ONLY)
 
+
+
     __background_tasks: set[asyncio.Task[None]]
     __cross_sections: Gtk.MapListModel
 
@@ -145,6 +147,7 @@ class Network(GObject.Object):
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
         return model_cross_section
+
 
 
 class FailedCrossSectionCreationException(Exception):
