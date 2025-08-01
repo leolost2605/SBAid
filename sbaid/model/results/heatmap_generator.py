@@ -58,7 +58,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
                 timestamps.append("")
             average_speeds = []
             for cs_snapshot in snapshot.cross_section_snapshots:
-                if cs_snapshot.cross_section.id in cross_section_ids:
+                if cs_snapshot.cross_section_id in cross_section_ids:
                     cross_sections.append(cs_snapshot.cross_section.id)
                     average_speeds.append(cs_snapshot.calculate_cs_average_speed())
             diagram_data.append(average_speeds)
