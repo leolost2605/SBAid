@@ -1,3 +1,4 @@
+import sys
 import unittest
 from unittest import mock
 import asyncio
@@ -19,6 +20,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
     __network = Network(__vissim_simulator, unittest.mock.Mock())
     __cross_section: CrossSection = None
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_create_valid_cross_section(self):
         """Expected behavior:
             for dummy: operation not supported raised
@@ -34,6 +36,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         self.__cross_section = self.__network.cross_sections.get_item(position)
 
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_create_invalid_coordinates_cross_section(self):
         """invalid in a not-on-the-route sense
          Expected behavior:
@@ -47,7 +50,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
             await self.__network.create_cross_section("test_name", Location(0, 0),
                                                       CrossSectionType.COMBINED)
 
-
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_delete_cross_section(self):
         """Expected behavior:
         for dummy: operation not supported error
@@ -63,7 +66,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
                 deleted = False
         self.assertEqual(True, deleted)
 
-
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_move_cross_section_valid(self):
         """Expected behavior:
         for dummy: operation not supported error
@@ -76,7 +79,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         await self.__network.move_cross_section(self.__cross_section.id, Location(50.268010,8.663893))
         self.assertEqual(self.__cross_section.location, Location(50.268010,8.663893))
 
-
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_move_cross_section_invalid(self):
         """Expected behavior:
             for dummy: operation not supported error
@@ -89,7 +92,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         await self.__network.move_cross_section(self.__cross_section.id, Location(0,0))  # 0,0 illegal bcs ocean
         self.assertEqual(self.__cross_section.location, Location(50.268010,8.663893))  #shouldn't change
 
-
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_rename_cross_section(self):
         """Expected behavior:
         for dummy: operation not supported error (?)
@@ -101,6 +104,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         self.__cross_section.name = "changed name"
         self.assertEqual(self.__cross_section.name, "changed name")
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_set_b_display(self):
         """Set to true and then to false to test both cases idk
         Expected behavior:
@@ -109,7 +113,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         self.__cross_section.b_display_active = True
         self.assertEqual(self.__cross_section.b_display_active, True)
 
-
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_set_hard_shoulder_status(self):
         """Set to true and then to false to test both cases idk
         Expected behavior:
