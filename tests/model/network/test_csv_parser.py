@@ -29,7 +29,7 @@ class CsvParserTest(unittest.TestCase):
 
     async def foreach_func_callback_func(self, name: str, location: Location,
                                          cross_section_type: CrossSectionType) -> bool:
-        """Unit testing with dummy simulator no upload of the vissim simulation
+        """Unit testing with dummy simulator so no upload of the vissim simulation
         files to github is needed"""
         network = Network(DummySimulator(), unittest.mock.Mock())
         return await network.create_cross_section(name, location, cross_section_type) is not None  #???? como check se raised um error ou returned algo?

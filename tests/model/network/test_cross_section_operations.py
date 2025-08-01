@@ -1,14 +1,23 @@
 import unittest
 from unittest import mock
+import asyncio
 
+from sbaid.common import list_model_iterator
+from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
+from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
+from sbaid.common.location import Location
+from sbaid.common.cross_section_type import CrossSectionType
 
 
 class CrossSectionOperationsTest(unittest.TestCase):
-    __simulator = DummySimulator()
+    __dummy_simulator = DummySimulator()
+    __vissim_simulator = VissimSimulator()
     __sim_cross_section = SimulatorCrossSection()
+    __network = Network(__vissim_simulator, unittest.mock.Mock())
+    __cross_section: CrossSection = None
 
     def test_create_valid_cross_section(self):
         """Expected behavior:
@@ -16,9 +25,14 @@ class CrossSectionOperationsTest(unittest.TestCase):
             for vissim: an int, representing the position of the successfully added cross section
                         in the network's cross sections ListModel
         """
-        network = Network(DummySimulator(), unittest.mock.Mock())
-        print(network.route)
-        pass
+        asyncio.run(self._test_create_valid_cross_section())
+
+    async def _test_create_valid_cross_section(self):
+        position = await self.__network.create_cross_section("test_name",
+                         Location(0,0), CrossSectionType.COMBINED)  #TODO: 0,0 is middle of the ocean; no cross sections
+        self.assertEqual(self.__network.cross_sections.get_item(position), "test_name")
+        self.__cross_section = self.__network.cross_sections.get_item(position)
+
 
     def test_create_invalid_coordinates_cross_section(self):
         """invalid in a not-on-the-route sense
@@ -26,54 +40,86 @@ class CrossSectionOperationsTest(unittest.TestCase):
             for dummy: raised operation not supported error
             for vissim: raised error in simulator
          """
-        pass
+        asyncio.run(self._test_create_invalid_coordinates_cross_section())
+
+    async def _test_create_invalid_coordinates_cross_section(self):
+        with self.assertRaises(Exception):
+            await self.__network.create_cross_section("test_name", Location(0, 0),
+                                                      CrossSectionType.COMBINED)
+
 
     def test_delete_cross_section(self):
         """Expected behavior:
         for dummy: operation not supported error
         for vissim: cross section no longer in cross sections listmodel (check separately from move operation)
         """
-        pass
+        asyncio.run(self._test_delete_cross_section())
+
+    async def _test_delete_cross_section(self):
+        await self.__network.delete_cross_section(self.__cross_section.id)
+        deleted: bool = True
+        for cs in list_model_iterator(self.__network.cross_sections):
+            if cs.id == self.__cross_section.id:
+                deleted = False
+        self.assertEqual(True, deleted)
+
 
     def test_move_cross_section_valid(self):
         """Expected behavior:
         for dummy: operation not supported error
         for vissim: cross section has new location (check separately from move operation)
         """
+        asyncio.run(self._test_move_cross_section_valid())
         pass
 
+    async def _test_move_cross_section_valid(self):
+        await self.__network.move_cross_section(self.__cross_section.id, Location(50.268010,8.663893))
+        self.assertEqual(self.__cross_section.location, Location(50.268010,8.663893))
+
+
     def test_move_cross_section_invalid(self):
-        """TODO: combine maybe
-        Expected behavior:
+        """Expected behavior:
             for dummy: operation not supported error
             for vissim: error in simulator (check for compatibility before moving? - qualitätssicherung)
         """
+        asyncio.run(self._test_move_cross_section_invalid())
         pass
+
+    async def _test_move_cross_section_invalid(self):
+        await self.__network.move_cross_section(self.__cross_section.id, Location(0,0))  # 0,0 illegal bcs ocean
+        self.assertEqual(self.__cross_section.location, Location(50.268010,8.663893))  #shouldn't change
+
 
     def test_rename_cross_section(self):
         """Expected behavior:
         for dummy: operation not supported error (?)
         for vissim: check name from id, see if == new name"""
+        asyncio.run(self._test_rename_cross_section())
         pass
+
+    async def _test_rename_cross_section(self):
+        self.__cross_section.name = "changed name"
+        self.assertEqual(self.__cross_section.name, "changed name")
 
     def test_set_b_display(self):
-        """set to true and then to false to test both cases idk
+        """Set to true and then to false to test both cases idk
         Expected behavior:
             for dummy: operation not supported error
             for vissim: new value is given value"""
-        #self.__simulator.
-        pass
+        self.__cross_section.b_display_active = True
+        self.assertEqual(self.__cross_section.b_display_active, True)
+
 
     def test_set_hard_shoulder_status(self):
-        """set to true and then to false to test both cases idk
+        """Set to true and then to false to test both cases idk
         Expected behavior:
             for dummy: operation not supported error
             for vissim: new value is given value"""
-        pass
+        self.__cross_section.hard_shoulder_active = True
+        self.assertEqual(self.__cross_section.hard_shoulder_active, True)
 
     def test_load_from_db(self):
         """Expected behavior:
         cross section has value for hard shoulder active, b display active
         (simulator, name and id all come from simulator cross section)"""
-
         pass
