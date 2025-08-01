@@ -1,44 +1,56 @@
 """This module contains the VissimCrossSection class."""
-from gi.repository import GObject
-
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
+from sbaid.model.simulator.vissim.vissim import VissimConnectorCrossSectionState
 
 
 class VissimCrossSection(SimulatorCrossSection):
     """This class represents the PTV Vissim simulator cross section."""
-    @GObject.Property(type=str)
+    __id: str
+    __name: str
+    __type: CrossSectionType
+    __location: Location
+    __lanes: int
+
+    @SimulatorCrossSection.id.getter  # type: ignore
     def id(self) -> str:
-        """TODO"""
-        return ""
+        """Returns the id of the cross section."""
+        return self.__id
 
-    @GObject.Property(type=CrossSectionType, default=CrossSectionType.COMBINED)
+    @SimulatorCrossSection.name.getter  # type: ignore
+    def name(self) -> str:
+        """Returns the name of the cross section."""
+        return self.__name
+
+    @SimulatorCrossSection.type.getter  # type: ignore
     def type(self) -> CrossSectionType:
-        """TODO"""
-        return CrossSectionType.COMBINED
+        """Returns the type of this cross section."""
+        return self.__type
 
-    @GObject.Property(type=Location)
-    def position(self) -> Location:
-        """TODO"""
-        return Location(0, 0)
+    @SimulatorCrossSection.location.getter  # type: ignore
+    def location(self) -> Location:
+        """Returns the location of this cross section."""
+        return self.__location
 
-    @GObject.Property(type=int)
+    @SimulatorCrossSection.lanes.getter  # type: ignore
     def lanes(self) -> int:
-        """TODO"""
-        return 0
+        """Returns the number of lanes at this cross section."""
+        return self.__lanes
 
-    @GObject.Property(type=bool, default=False)
+    @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
     def hard_shoulder_available(self) -> bool:
-        """TODO"""
-        return False
+        """Returns whether the lane with index 0 is a hard shoulder."""
+        return True
 
-    @GObject.Property(type=bool, default=False)
-    def hard_shoulder_active(self) -> bool:
-        """TODO"""
-        return False
+    def __init__(self, state: VissimConnectorCrossSectionState):
+        super().__init__()
+        self.set_state(state)
 
-    @GObject.Property(type=bool, default=False)
-    def b_display_active(self) -> bool:
-        """TODO"""
-        return False
+    def set_state(self, state: VissimConnectorCrossSectionState) -> None:
+        """Sets a new state for this cross section."""
+        self.__id = state.id
+        self.__name = state.name
+        self.__type = state.type
+        self.__location = state.location
+        self.__lanes = state.lanes

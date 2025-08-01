@@ -7,4 +7,7 @@ disable=
     too-many-positional-arguments,
     unused-argument,
     fixme,
-    too-many-public-methods
+    too-many-public-methods,
+    ;no-member is already tested via mypy which is more intelligent as it
+    ;detects __get__ and __set__ in gobject properties
+    no-member
