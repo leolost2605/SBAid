@@ -16,6 +16,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         loop = asyncio.get_event_loop()
         task = loop.create_task(ProjectSQLiteTest().test())
         loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
 
     async def test(self) -> None:
         await self.meta_data()
