@@ -1,5 +1,4 @@
 """This module defines the Context Class"""
-import asyncio
 
 from gi.events import GLibEventLoopPolicy
 from gi.repository import GObject, Gio, GLib
@@ -21,7 +20,7 @@ class Context(GObject.GObject):
     __result_manager: ResultManager
     __projects: Gio.ListModel
 
-    __background_tasks: set[asyncio.Task[None]]
+    __result_id_pos_map: dict[str, int]
 
 
     @GObject.Property(type=ResultManager, flags=GObject.ParamFlags.READABLE |
@@ -36,56 +35,34 @@ class Context(GObject.GObject):
     def projects(self):
         return self.__projects
 
-    # result_manager = GObject.Property(
-    #     type=ResultManager,
-    #     flags=GObject.ParamFlags.READABLE |
-    #     GObject.ParamFlags.WRITABLE |
-    #     GObject.ParamFlags.CONSTRUCT_ONLY)
-
-    # projects = GObject.Property(
-    #     type=Gio.ListModel,
-    #     flags=GObject.ParamFlags.READABLE |
-    #     GObject.ParamFlags.WRITABLE |
-    #     GObject.ParamFlags.CONSTRUCT_ONLY)
-
     def __init__(self) -> None:
         self.__result_manager = ResultManager()
         self.__projects = Gio.ListStore.new(Project)
-        self.__background_tasks = set()
         super().__init__()
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        print("loading projects...")
         self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
         async with self.__global_db as db:
             projects: list[tuple[str, SimulatorType, str, str]] = \
                 await db.get_all_projects()
-        async with self.__global_db as db:
-            print("debug1")
-            pass
-        print("debug2")
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path)
             self.projects.append(project)
+            self.__result_id_pos_map[project_id] =
             await project.load_from_db()
         await self.result_manager.load_from_db()
 
-    def create_project(self, sim_type: SimulatorType, simulation_file_path: str,
+    async def create_project(self, sim_type: SimulatorType, simulation_file_path: str,
                        project_file_path: str) -> str:
         """Creates a new project with the given data and returns the unique ID of the new
         project."""
 
         project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
-        print("creation started")
 
-        # await self.__project_creation_db_action(project_id, sim_type, simulation_file_path,
-        #                                         project_file_path)
-        task = asyncio.create_task(self.__project_creation_db_action(project_id, sim_type,
-                                simulation_file_path, project_file_path))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        await self.__project_creation_db_action(project_id, sim_type, simulation_file_path,
+                                                project_file_path)
 
         self.projects.append(Project(project_id, sim_type, simulation_file_path,
                                      project_file_path))
@@ -95,23 +72,16 @@ class Context(GObject.GObject):
     async def __project_creation_db_action(self, project_id: str, sim_type: SimulatorType,
                                            simulation_file_path: str,
                                            project_file_path: str) -> None:
-        print("AAAAA – project creation started")
         async with self.__global_db as db:
-            print("db connected")
-            # await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
-        print("ended")
+            await db.add_project(project_id, sim_type, simulation_file_path, project_file_path)
 
-    def delete_project(self, project_id: str) -> None:
+    async def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
         for project in sbaid.common.list_model_iterator(self.projects):
             if project.id == project_id:
-                self.projects.remove(project)
+                self.projects.remove(self.projects.find(project)[1])
 
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
-
-        task = loop.create_task(self.__project_deletion_db_action(project_id))
-        loop.run_until_complete(task)
+        await self.__project_deletion_db_action(project_id)
 
     async def __project_deletion_db_action(self, project_id: str) -> None:
         async with self.__global_db as db:
