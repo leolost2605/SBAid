@@ -32,13 +32,8 @@ class ProjectSQLite(ProjectDatabase):
                                           GLib.PRIORITY_DEFAULT)
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
         if not file_existed:
-            await self._connection.executescript("""PRAGMA foreign_keys = ON;
-                DROP TABLE IF EXISTS meta_information;
-                DROP TABLE IF EXISTS algorithm_configuration;
-                DROP TABLE IF EXISTS cross_section;
-                DROP TABLE IF EXISTS parameter;
-                DROP TABLE IF EXISTS tag;
-                DROP TABLE IF EXISTS parameter_tag;
+            await self._connection.executescript("""
+            PRAGMA foreign_keys = ON;
 
                 CREATE TABLE meta_information(
                     name TEXT,
