@@ -15,8 +15,6 @@ from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.global_database import GlobalDatabase
 
-import tracemalloc
-tracemalloc.start()
 
 def get_date_time(formatted_string: str) -> GLib.DateTime:
     """Return a GLib.DateTime from the iso8601 formatted string.
@@ -38,21 +36,14 @@ class GlobalSQLite(GlobalDatabase):
 
     def __init__(self, file: Gio.File) -> None:
         self._file = file
-        print("file created")
 
     async def __aenter__(self) -> T:
         already_existed = self._file.query_exists()
-        print(already_existed)
-        print("file entering started")
         if not already_existed:
-            print("file doesn't exist")
             await make_directory_with_parents_async(self._file.get_parent())
             await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
                                           GLib.PRIORITY_DEFAULT)
-        print("connection creation started")
-        print("file path: " + str(self._file.get_path()))
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
-        print("connection created")
         if not already_existed:
             await self._connection.executescript("""PRAGMA foreign_keys = ON;
     DROP TABLE IF EXISTS project;
@@ -117,14 +108,11 @@ class GlobalSQLite(GlobalDatabase):
         speed REAL,
         FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id) ON DELETE CASCADE
     );""")
-            await self._connection.execute("""PRAGMA integrity_check;""")
             await self._connection.commit()
-        print("db entering completed")
         return self
 
     async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
         await self._connection.close()
-        print("exited")
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
