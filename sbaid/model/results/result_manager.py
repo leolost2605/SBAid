@@ -21,7 +21,6 @@ class ResultManager(GObject.GObject):
 
     def __init__(self) -> None:
         super().__init__()
-        """todo"""
 
     async def load_from_db(self) -> None:
         """todo"""
