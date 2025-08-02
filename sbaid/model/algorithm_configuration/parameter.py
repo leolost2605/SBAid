@@ -1,7 +1,10 @@
 """This module defines the Parameter class."""
+import asyncio
+
 from gi.repository import GLib, GObject, Gio
 
 from sbaid import common
+from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.network.cross_section import CrossSection
 from sbaid.common.tag import Tag
 
@@ -22,6 +25,9 @@ class Parameter(GObject.GObject):
     applies to.
     """
 
+    __background_tasks: set[asyncio.Task[None]]
+    __db: ProjectDatabase
+    __algo_config_id: str
     __value: GLib.Variant | None = None
     __selected_tags: Gio.ListStore
 
@@ -37,7 +43,7 @@ class Parameter(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    value: GLib.Variant = GObject.Property(  # type: ignore
+    value: GLib.Variant | None = GObject.Property(  # type: ignore
         type=GObject.TYPE_VARIANT,  # type: ignore[arg-type]
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE)
@@ -58,7 +64,11 @@ class Parameter(GObject.GObject):
                              f"Is: {value.get_type_string()}, "
                              f"Expected: {self.value_type.dup_string()}")
         self.__value = value
-        # TODO: Write to db
+
+        task = asyncio.create_task(self.__db.set_parameter_value(self.__algo_config_id, self.name,
+                                                                 self.__get_cs_id(), value))
+        self.__background_tasks.add(task)
+        task.add_done_callback(self.__background_tasks.discard)
 
     cross_section: CrossSection = GObject.Property(  # type: ignore
         type=CrossSection,
@@ -75,10 +85,18 @@ class Parameter(GObject.GObject):
 
     def __init__(self, name: str, value_type: GLib.VariantType,
                  value: GLib.Variant | None,
-                 cross_section: CrossSection | None) -> None:
+                 cross_section: CrossSection | None, db: ProjectDatabase,
+                 algo_config_id: str) -> None:
         super().__init__(name=name, value_type=value_type, cross_section=cross_section)
+        self.__db = db
+        self.__algo_config_id = algo_config_id
         self.value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
+
+    def __get_cs_id(self) -> str | None:
+        if self.cross_section is not None:
+            return self.cross_section.id
+        return None
 
     def add_tag(self, tag: Tag) -> None:
         """Adds the given tag to the list. Raises an exception if the tag was already added."""
@@ -88,6 +106,14 @@ class Parameter(GObject.GObject):
 
         self.__selected_tags.append(tag)
 
+        # TODO, Parameter Tag fixen in db
+        task = asyncio.create_task(self.__db.add_parameter_tag(
+            "this field should be removed", self.name,
+            self.__algo_config_id, self.__get_cs_id(), tag.tag_id))
+
+        self.__background_tasks.add(task)
+        task.add_done_callback(self.__background_tasks.discard)
+
     def remove_tag(self, tag: Tag) -> None:
         """
         Removes the given tag from the list. Raises an exception if the tag isn't currently added.
@@ -95,10 +121,27 @@ class Parameter(GObject.GObject):
         for i, t in enumerate(common.list_model_iterator(self.__selected_tags)):
             if t == tag:
                 self.__selected_tags.remove(i)
+
+                # TODO, Parameter Tag fixen in db
+                task = asyncio.create_task(self.__db.remove_parameter_tag(
+                    "we need algo config, name, cs id and tag id"))
+                self.__background_tasks.add(task)
+                task.add_done_callback(self.__background_tasks.discard)
+
                 return
 
         raise TagNotFoundException("Tried to remove tag, that wasn't set.")
 
-    def load_from_db(self) -> None:
-        """todo"""
-        # TODO: Datbase load value
+    async def load_from_db(self) -> None:
+        """Loads information about this parameter from the db"""
+        cs_id = self.__get_cs_id()
+
+        db_value = await self.__db.get_parameter_value(self.__algo_config_id, self.name, cs_id)
+        if db_value is not None:
+            self.__value = db_value
+
+        tags = await self.__db.get_all_tag_ids_for_parameter(self.__algo_config_id,
+                                                             self.name, cs_id)
+        for tag in tags:
+            # TODO: get tag name lol
+            self.__selected_tags.append(Tag(tag, "Name to do"))
