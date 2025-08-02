@@ -29,8 +29,8 @@ class AlgorithmConfiguration(GObject.GObject):
 
     __name: str = "New Algorithm Configuration"
     __script_path: str | None = None
-    __evaluation_interval: int
-    __display_interval: int
+    __evaluation_interval: int = 60
+    __display_interval: int = 60
 
     id: str = GObject.Property(  # type: ignore
         type=str,
