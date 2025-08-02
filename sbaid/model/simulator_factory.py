@@ -2,4 +2,4 @@
 
 
 class SimulatorFactory:
-    """todo"""
+    """This class defines the simulator factory."""
