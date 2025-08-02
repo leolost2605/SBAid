@@ -39,17 +39,19 @@ class CrossSectionSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    b_display = GObject.Property(
+    b_display: BDisplay = GObject.Property(  # type
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY,
         default=BDisplay.OFF)
 
+
+
     __lane_snapshots: Gio.ListStore
     __global_db: GlobalDatabase
 
-    @GObject.Property(type=LaneSnapshot)
+    @GObject.Property
     def lane_snapshots(self) -> Gio.ListModel:
         """Returns ListModel of available diagram types"""
         return self.__lane_snapshots
