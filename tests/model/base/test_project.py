@@ -34,12 +34,16 @@ class ProjectTestCase(unittest.TestCase):
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
         context = Context()
         await context.load()
-        await context.create_project(sim_type, "sim_file_path", "proj_file_path")
+        my_project_id = await context.create_project(sim_type, "sim_file_path", "proj_file_path")
         project = context.projects.get_item(0)
         project.name = "my_cool_name"
         created_at = project.created_at
 
         self.assertEqual(project.name, "my_cool_name")
+        self.assertEqual(project.id, my_project_id)
+        self.assertEqual(project.simulator_type, sim_type)
+        self.assertEqual(project.simulation_file_path, "sim_file_path")
+        self.assertEqual(project.project_file_path, "proj_file_path")
 
         context2 = Context()
         await context2.load()
