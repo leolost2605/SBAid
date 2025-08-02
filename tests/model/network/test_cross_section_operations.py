@@ -128,4 +128,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
         """Expected behavior:
         cross section has value for hard shoulder active, b display active
         (simulator, name and id all come from simulator cross section)"""
+        # use mock thing to mock values incoming from actual database
+        project_db = unittest.mock.Mock()
+        #project_db.
         pass

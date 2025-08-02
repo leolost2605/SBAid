@@ -15,7 +15,6 @@ from sbaid.model.network.network import FailedCrossSectionCreationException
 
 class CsvParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
-    __background_tasks = set()
 
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
