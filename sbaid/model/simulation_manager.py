@@ -59,7 +59,7 @@ class SimulationManager(GObject.GObject):
                          network=network, simulator=simulator, result_manager=result_manager,
                          observer=observer)
 
-    def cancel(self) -> None:
+    async def cancel(self) -> None:
         """Cancel the running simulation"""
 
     async def start(self) -> None:
