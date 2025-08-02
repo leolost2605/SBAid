@@ -1,6 +1,6 @@
+import asyncio
 import random
 import unittest
-
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.diagram_exporter import DiagramExporter
 from tests.model.results.test_result_builder import ResultBuilderTest
@@ -16,7 +16,10 @@ class DiagramExporterTest(unittest.TestCase):
         self.assertEqual(self.exporter.available_diagram_types[2].name, "Display-Diagram")
         self.assertEqual(self.exporter.available_diagram_types[3].name, "Velocity-Diagram")
 
-    async def test_create_diagram(self):
+    def test_create_diagram(self):
+        asyncio.run(self.__test_create_diagram())
+
+    async def __test_create_diagram(self):
         test = ResultBuilderTest()
         result = await test.generate_result(100, 20, 4)
         test_id= random.choice(list(random.choice(list(result.snapshots)).cross_section_snapshots)).cross_section_id

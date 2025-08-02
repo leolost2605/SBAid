@@ -44,7 +44,6 @@ class CrossSectionSnapshotTest(unittest.TestCase):
         self.assertIn(self.lane_snapshot_2, self.cross_section_snapshot.lane_snapshots)
         self.assertEqual(len(self.cross_section_snapshot.lane_snapshots), 2)
 
-
     def test_calculate_average_speed(self):
         """Tests calculating the average speed."""
         self.assertIsNotNone(self.cross_section_snapshot.lane_snapshots)

@@ -17,7 +17,6 @@ class LaneSnapshotTest(unittest.TestCase):
         """Test adding a vehicle snapshot."""
 
         # Initialize valid instance of LaneSnapshot and VehicleSnapshot
-        now = GLib.DateTime.new_now_local()
         lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),
                                      GLib.uuid_string_random(), 4,
                                        70.6, 9, ADisplay.SPEED_LIMIT_100,

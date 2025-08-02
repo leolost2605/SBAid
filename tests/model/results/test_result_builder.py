@@ -1,3 +1,4 @@
+import asyncio
 import unittest
 import random
 import uuid
@@ -12,23 +13,25 @@ from sbaid.model.results.result_manager import ResultManager
 
 
 class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.__gio_file = Gio.File.new_for_path("placeholder_path.db")
-        cls.__global_placeholder_db = GlobalSQLite(cls.__gio_file)
 
-    async def test_build_with_random_values(self):
+    __gio_file = Gio.File.new_for_path("placeholder_path.db")
+    __global_placeholder_db = GlobalSQLite(__gio_file)
+
+    def test_build_with_random_values(self):
+        asyncio.run(self.__test_build_with_random_values())
+
+    async def __test_build_with_random_values(self):
         """Tests the result builder by calling the methods in the right order with random values."""
         result = await self.generate_result(100, 40, 5)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Result)
 
-
     def test_build_in_wrong_order(self):
-        """Tests if the internal logic is robust enough to catch"""
+        """Tests if the internal logic is robust enough to catch errors in the false building order."""
+
 
     def test_build_with_incomplete_values(self):
-        """todo"""
+        """Tests if the internal logic is """
 
     async def generate_result(self, snapshot_amount: int, cs_amount: int, lane_amount: int) -> Result:
         """Generates a result with random values. The only thing not realistic is that
