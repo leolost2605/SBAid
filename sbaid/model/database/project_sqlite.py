@@ -1,5 +1,6 @@
 """This module contains the ProjectSQLite class."""
 import sqlite3
+from typing import TypeVar
 
 import aiosqlite
 from gi.repository import GLib, Gio
@@ -7,6 +8,9 @@ from gi.repository import GLib, Gio
 from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.model.database.project_database import ProjectDatabase
+
+
+T = TypeVar('T', bound="ProjectDatabase")
 
 
 class ProjectSQLite(ProjectDatabase):
@@ -20,69 +24,67 @@ class ProjectSQLite(ProjectDatabase):
         self._file = file
         self._creation_time = GLib.DateTime.new_now_local()  # type: ignore
 
-    async def __aenter__(self) -> ProjectDatabase:
-        if not self._file.query_exists():
+    async def __aenter__(self) -> T:
+        file_existed = self._file.query_exists()
+        if not file_existed:
             await make_directory_with_parents_async(self._file.get_parent())
-            self._file.create_async(Gio.FileCreateFlags.NONE,  # pylint: disable=no-member
-                                    GLib.PRIORITY_DEFAULT)
+            await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
+                                          GLib.PRIORITY_DEFAULT)
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
-        await self._connection.executescript("""PRAGMA foreign_keys = ON;
-DROP TABLE IF EXISTS meta_information;
-DROP TABLE IF EXISTS algorithm_configuration;
-DROP TABLE IF EXISTS cross_section;
-DROP TABLE IF EXISTS parameter;
-DROP TABLE IF EXISTS tag;
-DROP TABLE IF EXISTS parameter_tag;
+        if not file_existed:
+            await self._connection.executescript("""
+            PRAGMA foreign_keys = ON;
 
-CREATE TABLE meta_information(
-    name TEXT,
-    created_at TEXT,
-    last_modified TEXT
-);
-CREATE TABLE algorithm_configuration (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    evaluation_interval INTEGER,
-    display_interval INTEGER,
-    script_path TEXT,
-    is_selected BOOLEAN
-);
-CREATE TABLE cross_section (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    HARD_SHOULDER_ACTIVE BOOLEAN,
-    B_DISPLAY_ACTIVE BOOLEAN
-);
-CREATE TABLE parameter (
-    algorithm_configuration_id TEXT,
-    name TEXT,
-    cross_section_id TEXT,
-    value TEXT,
-    PRIMARY KEY (algorithm_configuration_id, name, cross_section_id),
-    FOREIGN KEY (algorithm_configuration_id) REFERENCES algorithm_configuration(id)
-        ON DELETE CASCADE,
-    FOREIGN KEY (cross_section_id) REFERENCES cross_section(id) ON DELETE CASCADE
-);
-CREATE TABLE tag (
-    id TEXT PRIMARY KEY,
-    name TEXT
-);
-CREATE TABLE parameter_tag (
-    id TEXT PRIMARY KEY,
-    parameter_name TEXT,
-    algorithm_configuration_id TEXT,
-    cross_section_id TEXT,
-    tag_id TEXT,
-    FOREIGN KEY (algorithm_configuration_id, parameter_name, cross_section_id)
-        REFERENCES parameter(algorithm_configuration_id, name, cross_section_id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
-);""")
-        await self._connection.execute("""
-        INSERT INTO meta_information (name, created_at, last_modified) VALUES
-        (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
-                       GLib.DateTime.format_iso8601(  # pylint: disable=no-member
-                           GLib.DateTime.new_now_local())))  # type: ignore
-        await self._connection.commit()
+                CREATE TABLE meta_information(
+                    name TEXT,
+                    created_at TEXT,
+                    last_modified TEXT
+                );
+                CREATE TABLE algorithm_configuration (
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    evaluation_interval INTEGER,
+                    display_interval INTEGER,
+                    script_path TEXT,
+                    is_selected BOOLEAN
+                );
+                CREATE TABLE cross_section (
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    HARD_SHOULDER_ACTIVE BOOLEAN,
+                    B_DISPLAY_ACTIVE BOOLEAN
+                );
+                CREATE TABLE parameter (
+                    algorithm_configuration_id TEXT,
+                    name TEXT,
+                    cross_section_id TEXT,
+                    value TEXT,
+                    PRIMARY KEY (algorithm_configuration_id, name, cross_section_id),
+                    FOREIGN KEY (algorithm_configuration_id) REFERENCES algorithm_configuration(id)
+                        ON DELETE CASCADE,
+                    FOREIGN KEY (cross_section_id) REFERENCES cross_section(id) ON DELETE CASCADE
+                );
+                CREATE TABLE tag (
+                    id TEXT PRIMARY KEY,
+                    name TEXT
+                );
+                CREATE TABLE parameter_tag (
+                    id TEXT PRIMARY KEY,
+                    parameter_name TEXT,
+                    algorithm_configuration_id TEXT,
+                    cross_section_id TEXT,
+                    tag_id TEXT,
+                    FOREIGN KEY (algorithm_configuration_id, parameter_name, cross_section_id)
+                        REFERENCES parameter(algorithm_configuration_id, name, cross_section_id)
+                            ON DELETE CASCADE,
+                    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
+                );""")
+            await self._connection.execute("""
+                        INSERT INTO meta_information (name, created_at, last_modified) VALUES
+                        (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
+                                       GLib.DateTime.format_iso8601(  # pylint: disable=no-member
+                                           GLib.DateTime.new_now_local())))  # type: ignore
+            await self._connection.commit()
         return self
 
     async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
