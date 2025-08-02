@@ -1,6 +1,7 @@
 import sys
 import unittest
 from unittest import mock
+from unittest.mock import MagicMock
 import asyncio
 
 from sbaid.common import list_model_iterator
@@ -19,6 +20,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
     if sys.platform.startswith("win"):
         __vissim_simulator = VissimSimulator()
         __network = Network(__vissim_simulator, unittest.mock.Mock())
+    #__network = Network(__dummy_simulator, unittest.mock.Mock())
     __sim_cross_section = SimulatorCrossSection()
     __cross_section: CrossSection = None
 
@@ -130,5 +132,8 @@ class CrossSectionOperationsTest(unittest.TestCase):
         (simulator, name and id all come from simulator cross section)"""
         # use mock thing to mock values incoming from actual database
         project_db = unittest.mock.Mock()
-        #project_db.
-        pass
+        project_db.get_cross_section_name = MagicMock(return_value="test_name")
+        project_db.get_cross_section_hard_shoulder_active = MagicMock(return_value=True)
+        project_db.get_cross_section_b_display_active = MagicMock(return_value=True)
+        cross_section = CrossSection(SimulatorCrossSection(), project_db)
+        cross_section.load_from_db()
