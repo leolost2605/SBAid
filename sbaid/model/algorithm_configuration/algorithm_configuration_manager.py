@@ -1,5 +1,6 @@
 """This module represents the class AlgorithmConfigurationManager"""
 import asyncio
+from typing import cast
 from uuid import uuid4
 
 from gi.repository import GObject, Gio
@@ -42,7 +43,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
         return self.__selected_algo_config
 
     @selected_algorithm_configuration_id.setter  # type: ignore
-    def selected_algorithm_configuration_id(self, new_id: str) -> None:
+    def selected_algorithm_configuration_id(self, new_id: str | None) -> None:
         """Sets the id of the selected algorithm configuration"""
         self.__selected_algo_config = new_id
 
@@ -85,6 +86,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
         self.__selected_algo_config = await self.__db.get_selected_algorithm_configuration_id()
 
+        # TODO: Get tags
+
     async def create_algorithm_configuration(self) -> int:
         """
         Creates a new algorithm configuration.
@@ -109,6 +112,16 @@ class AlgorithmConfigurationManager(GObject.GObject):
         for pos, config in enumerate(common.list_model_iterator(self.__algorithm_configurations)):
             if config.id == algo_config_id:
                 self.__algorithm_configurations.remove(pos)
+
+                if algo_config_id == self.selected_algorithm_configuration_id:
+                    if pos > self.algorithm_configurations.get_n_items() - 1:
+                        pos -= 1
+                    if pos >= 0:
+                        config = cast(AlgorithmConfiguration,
+                                      self.__algorithm_configurations.get_item(pos))
+                        self.selected_algorithm_configuration_id = config.id
+                    else:
+                        self.selected_algorithm_configuration_id = None
 
                 task = asyncio.create_task(self.__db.remove_algorithm_configuration(algo_config_id))
                 self.__background_tasks.add(task)

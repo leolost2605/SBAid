@@ -145,18 +145,19 @@ class AlgorithmConfiguration(GObject.GObject):
 
         spec = importlib.util.spec_from_file_location(module_name, self.__script_path)
 
+        # TODO: Qualitätssicherung: Add error state
         if spec is None:
-            raise AlgorithmNotFoundException("Failed to get spec from path and module name")
+            return
 
         module = importlib.util.module_from_spec(spec)
 
         if module is None:
-            raise AlgorithmNotFoundException("Failed to get module from spec")
+            return
 
         sys.modules[module_name] = module
 
         if spec.loader is None:
-            raise AlgorithmNotFoundException("Spec has no loader")
+            return
 
         spec.loader.exec_module(module)
 

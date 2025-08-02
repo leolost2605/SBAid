@@ -30,8 +30,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(algo_config.evaluation_interval, 60)
         self.assertEqual(algo_config.script_path, None)
 
-        with self.assertRaises(AlgorithmNotFoundException):
-            await algo_config.load_from_db()
+        await algo_config.load_from_db()
 
         self.assertEqual(algo_config.id, config_id)
         self.assertEqual(algo_config.name, "test_algorithm_configuration")
