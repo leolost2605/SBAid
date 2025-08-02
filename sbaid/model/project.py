@@ -1,6 +1,5 @@
 # pylint: disable=too-many-instance-attributes
 """This module defines the Project class."""
-from typing import cast
 
 from gi.repository import GObject, GLib, Gio
 
@@ -99,8 +98,8 @@ class Project(GObject.GObject):
         super().__init__(id=project_id, name=project_id+"name",
                          simulator_type=sim_type, project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
-                         created_at=cast(GLib.DateTime, GLib.DateTime.new_now_local()),
-                         last_modified=cast(GLib.DateTime, GLib.DateTime.new_now_local()),
+                         created_at=GLib.DateTime.new_now_local(),
+                         last_modified=GLib.DateTime.new_now_local(),
                          simulator=simulator,
                          network=network,
                          algorithm_configuration_manager=algo_manager,
