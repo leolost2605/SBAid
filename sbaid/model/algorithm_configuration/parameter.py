@@ -25,20 +25,19 @@ class Parameter(GObject.GObject):
     __value: GLib.Variant | None = None
     __selected_tags: Gio.ListStore
 
-    # GObject Property Definitions
-    name = GObject.Property(
+    name: str = GObject.Property(  # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    value_type = GObject.Property(
+    value_type: GLib.VariantType = GObject.Property(  # type: ignore
         type=GLib.VariantType,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    value = GObject.Property(
+    value: GLib.Variant = GObject.Property(  # type: ignore
         type=GObject.TYPE_VARIANT,  # type: ignore[arg-type]
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE)
@@ -61,13 +60,15 @@ class Parameter(GObject.GObject):
         self.__value = value
         # TODO: Write to db
 
-    cross_section = GObject.Property(
+    cross_section: CrossSection = GObject.Property(  # type: ignore
         type=CrossSection,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    @GObject.Property(type=Gio.ListModel)
+    selected_tags: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
+
+    @selected_tags.getter  # type: ignore
     def selected_tags(self) -> Gio.ListModel:
         """A list of the tags set for this parameter."""
         return self.__selected_tags
