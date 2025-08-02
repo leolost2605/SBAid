@@ -2,9 +2,8 @@
 import sys
 import unittest
 
-from gi.repository import GLib
-from model.simulator.dummy.dummy_simulator import DummySimulator
-from model.simulator_factory import SimulatorFactory
+from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+from sbaid.model.simulator_factory import SimulatorFactory
 from sbaid.common.simulator_type import SimulatorType
 
 
