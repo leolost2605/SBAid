@@ -2,7 +2,7 @@
 from gi.repository import GLib, GObject
 
 
-class SimulationObserver(GObject.GInterface):
+class SimulationObserver(GObject.GObject):
     """This class defines the SimulationObserver interface for observing
     the status of a simulation"""
 
