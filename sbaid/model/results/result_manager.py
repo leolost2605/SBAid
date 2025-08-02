@@ -20,6 +20,7 @@ class ResultManager(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self) -> None:
+        # pylint: ignore=useless-parent-delegation
         super().__init__()
 
     async def load_from_db(self) -> None:
