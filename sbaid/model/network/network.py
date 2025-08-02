@@ -38,6 +38,8 @@ class Network(GObject.Object):
                                     GObject.ParamFlags.WRITABLE |
                                     GObject.ParamFlags.CONSTRUCT_ONLY)
 
+
+
     __background_tasks: set[asyncio.Task[None]]
     __cross_sections: Gtk.MapListModel
 
@@ -147,9 +149,9 @@ class Network(GObject.Object):
         return model_cross_section
 
 
+
 class FailedCrossSectionCreationException(Exception):
-    """Exception raised when the creation of a cross section fails.
-    No error message needed as the exception doesn't show up to the user as an error."""
+    """Exception raised when the creation of a cross section fails."""
 
 
 class NoSuitableParserException(Exception):
