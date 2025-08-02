@@ -8,10 +8,18 @@ from sbaid.model.algorithm_configuration.parameter import Parameter, TagAlreadyS
     TagNotFoundException
 
 
-class ParameterTestCase(unittest.TestCase):
-    def test_properties(self):
+class ParameterTestCase(unittest.IsolatedAsyncioTestCase):
+    def setUp(self) -> None:
+        self.__db_mock = mock.Mock()
+        self.__db_mock.add_parameter_tag = mock.AsyncMock()
+        self.__db_mock.remove_parameter_tag = mock.AsyncMock()
+        self.__db_mock.set_parameter_value = mock.AsyncMock()
+        self.__ac_id = "acid"
+
+    async def test_properties(self):
         parameter = Parameter("My Param", GLib.VariantType.new("s"),
-                              GLib.Variant.new_string("my value"), None)
+                              GLib.Variant.new_string("my value"), None,
+                              self.__db_mock, self.__ac_id)
         self.assertEqual(parameter.value.get_string(), "my value")
         self.assertEqual(parameter.name, "My Param")
         self.assertEqual(parameter.cross_section, None)
@@ -24,20 +32,23 @@ class ParameterTestCase(unittest.TestCase):
 
         self.assertEqual(parameter.value.get_string(), "a new value")
 
-    def test_initialize(self):
+    async def test_initialize(self):
         parameter_no_default = Parameter("My param", GLib.VariantType.new("b"),
-                              None, None)
+                              None, None, self.__db_mock, self.__ac_id)
 
         self.assertEqual(parameter_no_default.value, None)
 
-        param_wrong_default = Parameter("My param", GLib.VariantType.new("b"),
-                              GLib.Variant.new_string("my value of the wrong type"), None)
+        param_wrong_default = Parameter(
+            "My param", GLib.VariantType.new("b"),
+            GLib.Variant.new_string("my value of the wrong type"), None,
+            self.__db_mock, self.__ac_id)
 
         self.assertEqual(param_wrong_default.value, None)
 
-    def test_tags(self):
+    async def test_tags(self):
         parameter = Parameter("My Param", GLib.VariantType.new("s"),
-                              GLib.Variant.new_string("my value"), None)
+                              GLib.Variant.new_string("my value"), None,
+                              self.__db_mock, self.__ac_id)
 
         self.assertEqual(parameter.selected_tags.get_n_items(), 0)
 

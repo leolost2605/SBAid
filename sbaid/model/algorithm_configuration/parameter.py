@@ -88,6 +88,7 @@ class Parameter(GObject.GObject):
                  cross_section: CrossSection | None, db: ProjectDatabase,
                  algo_config_id: str) -> None:
         super().__init__(name=name, value_type=value_type, cross_section=cross_section)
+        self.__background_tasks = set()
         self.__db = db
         self.__algo_config_id = algo_config_id
         self.value = value

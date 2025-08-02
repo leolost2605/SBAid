@@ -122,6 +122,8 @@ class AlgorithmConfiguration(GObject.GObject):
     def __init__(self, configuration_id: str, network: Network, db: ProjectDatabase) -> None:
         super().__init__(id=configuration_id, parameter_configuration=ParameterConfiguration(
                          network, db, configuration_id))
+
+        self.__background_tasks = set()
         self.__db = db
 
     async def load_from_db(self) -> None:
@@ -130,9 +132,9 @@ class AlgorithmConfiguration(GObject.GObject):
         """
         self.__name = await self.__db.get_algorithm_configuration_name(self.id)
         self.__script_path = await self.__db.get_script_path(self.id)
-        await self.__load_algorithm()
         self.__evaluation_interval = await self.__db.get_evaluation_interval(self.id)
-        self.__display_interval = await self.__db.get_evaluation_interval(self.id)
+        self.__display_interval = await self.__db.get_display_interval(self.id)
+        await self.__load_algorithm()
 
     async def __load_algorithm(self) -> None:
         if self.__script_path is None:

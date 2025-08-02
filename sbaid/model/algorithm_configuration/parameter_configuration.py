@@ -44,9 +44,9 @@ class ParameterConfiguration(GObject.GObject):
         self.__db = db
         self.__algo_config_id = algo_config_id
 
-        self.__cs_params_map_model = Gtk.MapListModel.new(None, self.__map_cs_params, self)
+        self.__cs_params_map_model = Gtk.MapListModel.new(None, self.__map_cs_params)
         cs_params_flatten_model = Gtk.FlattenListModel.new(self.__cs_params_map_model)
-        self.__global_params_map_model = Gtk.MapListModel.new(None, self.__map_global_params, self)
+        self.__global_params_map_model = Gtk.MapListModel.new(None, self.__map_global_params)
         global_and_cs_list_store = Gio.ListStore.new(Gio.ListModel)
         global_and_cs_list_store.append(self.__global_params_map_model)
         global_and_cs_list_store.append(cs_params_flatten_model)
@@ -73,10 +73,10 @@ class ParameterConfiguration(GObject.GObject):
 
         return False
 
-    def load(self) -> None:
+    async def load(self) -> None:
         """Loads the parameter values from the database."""
         for param in common.list_model_iterator(self.__parameters):
-            param.load_from_db()
+            await param.load_from_db()
 
     def set_algorithm(self, algorithm: Algorithm) -> None:
         """

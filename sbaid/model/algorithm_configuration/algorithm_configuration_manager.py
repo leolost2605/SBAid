@@ -67,6 +67,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
     def __init__(self, network: Network, db: ProjectDatabase) -> None:
         super().__init__()
 
+        self.__background_tasks = set()
         self.__db = db
         self.__network = network
         self.__available_tags = Gio.ListStore.new(Tag)
