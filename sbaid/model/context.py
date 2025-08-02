@@ -15,28 +15,21 @@ class Context(GObject.GObject):
 
     __global_db: GlobalDatabase
 
-    __result_manager: ResultManager
-    __projects: Gio.ListModel
-
     __result_id_pos_map: dict[str, int]
 
-    @GObject.Property(type=ResultManager, flags=GObject.ParamFlags.READABLE |
-                      GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def result_manager(self) -> ResultManager:
-        """TODO"""
-        return self.__result_manager
-
-    @GObject.Property(type=Gio.ListModel, flags=GObject.ParamFlags.READABLE |
-                      GObject.ParamFlags.WRITABLE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    def projects(self) -> Gio.ListModel:
-        """TODO"""
-        return self.__projects
+    result_manager = GObject.Property(type=ResultManager,
+                                      flags=GObject.ParamFlags.READABLE |
+                                      GObject.ParamFlags.WRITABLE |
+                                      GObject.ParamFlags.CONSTRUCT_ONLY)
+    projects = GObject.Property(type=Gio.ListModel,
+                                flags=GObject.ParamFlags.READABLE |
+                                GObject.ParamFlags.WRITABLE |
+                                GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self) -> None:
-        self.__result_manager = ResultManager()
-        self.__projects = Gio.ListStore.new(Project)
         self.__result_id_pos_map = {}
-        super().__init__()
+        super().__init__(result_manager=ResultManager(),
+                         projects=Gio.ListStore())
 
     async def load(self) -> None:
         """Loads the projects and the results."""
