@@ -21,6 +21,7 @@ class ContextTestCase(unittest.TestCase):
         loop = asyncio.get_event_loop()
         task = loop.create_task(ContextTestCase().start())
         loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
         await self.load()
@@ -28,23 +29,23 @@ class ContextTestCase(unittest.TestCase):
 
 
     async def load(self):
-        file = Gio.File.new_for_path("global_db")
+        global_file = Gio.File.new_for_path("global_db")
+        project_file = Gio.File.new_for_path("test_project")
 
         context1 = Context()
         await context1.load()
 
-        await context1.load()
         proj_id = await context1.create_project(SimulatorType("dummy_json",
                                                               "JSON Dummy Simulator"),
                                                 "simulation_file_path",
-                                                "tests/base/test_project")
+                                                "test_project")
         # result manager is loaded from the db directly
         context2 = Context()
         await context2.load()
         self.assertIsNotNone(context2.projects.get_item(0))
         self.assertEqual(context2.projects.get_item(0).id, proj_id)
-
-        file.delete_async(0, None, self.on_delete_async, None)
+        global_file.delete_async(0, None, self.on_delete_async, None)
+        project_file.delete_async(0, None, self.on_delete_async, None)
 
 
 
@@ -55,10 +56,10 @@ class ContextTestCase(unittest.TestCase):
         context = Context()
         await context.load()
         proj_id_1 = await context.create_project(SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                               "simulation_file_path", "tests/base/test_project")
+                               "simulation_file_path", "test_project")
         self.assertEqual(context.projects.get_item(0).id, proj_id_1)
         proj_id_2 = await context.create_project(SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                               "simulation_file_path", "tests/base/test_project")
+                               "simulation_file_path", "test_project")
         self.assertEqual(context.projects.get_n_items(), 2)
         self.assertNotEqual(context.projects.get_item(0).id, context.projects.get_item(1).id)
 
