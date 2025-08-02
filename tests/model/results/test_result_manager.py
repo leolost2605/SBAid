@@ -1,12 +1,15 @@
 """This module contains unittests for the ResultManager class."""
 import unittest
-from gi.repository import GLib
+from gi.repository import GLib, Gio
+from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.results.result import Result
 
 class ResultManagerTest(unittest.TestCase):
     """This class tests the ResultManager class. """
     result_manager = ResultManager()
+    __gio_file = Gio.File.new_for_path("placeholder_path.db")
+    __global_db = GlobalSQLite(__gio_file)
 
     def test_add_and_remove_tag(self):
         """Test creating and removing tags to the list of available tags."""
@@ -41,7 +44,7 @@ class ResultManagerTest(unittest.TestCase):
         now = GLib.DateTime.new_now_local()
         test_id = GLib.uuid_string_random()
         test_name = "my_project"
-        result = Result(test_id, test_name, now)
+        result = Result(test_id, test_name, now, self.__global_db)
 
         # register result
         self.result_manager.register_result(result)
@@ -52,8 +55,8 @@ class ResultManagerTest(unittest.TestCase):
         self.assertEqual(test_id, self.result_manager.results[0].id)
         self.assertEqual(result.id, self.result_manager.results[0].id)
 
-        self.result_manager.register_result(Result(GLib.uuid_string_random(), "test", now))
-        self.result_manager.register_result(Result(GLib.uuid_string_random(), "test", now))
+        self.result_manager.register_result(Result(GLib.uuid_string_random(), "test", now, self.__global_db))
+        self.result_manager.register_result(Result(GLib.uuid_string_random(), "test", now, self.__global_db))
 
         self.assertEqual(len(self.result_manager.results), 3)
 

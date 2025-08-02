@@ -37,8 +37,8 @@ class CrossSectionSnapshot(GObject.GObject):
     cross_section_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
-              GObject.ParamFlags.WRITABLE |
-              GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE |
+        GObject.ParamFlags.CONSTRUCT_ONLY)
     b_display = GObject.Property(
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |

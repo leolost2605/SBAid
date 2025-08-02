@@ -25,7 +25,8 @@ class _CrossSectionBuilder:
     # added later
     __cross_section_b_display: BDisplay | None
 
-    def __init__(self, cs_name: str, snapshot_id: str, cross_section_id: str, global_db: GlobalDatabase) -> None:
+    def __init__(self, cs_name: str, snapshot_id: str, cross_section_id: str,
+                 global_db: GlobalDatabase) -> None:
         self.__cross_section_name = cs_name
         self.__snapshot_id = snapshot_id
         self.__cross_section_id = cross_section_id
@@ -188,7 +189,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         # chained methods that first add the new value
         # and then tries to build the cross-section snapshot
 
-        self.__current_cross_section = self.__current_cs_builder.set_b_display(b_display).try_build()
+        self.__current_cross_section = (self.__current_cs_builder
+                                        .set_b_display(b_display).try_build())
 
     def begin_lane(self, lane_number: int) -> None:
         """Sets the current lane builder to a new instance, constructed with
@@ -296,14 +298,14 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
             raise WrongOrderException("Result cannot be created")
 
         result = self.__current_result
+
         self.__result_manager.register_result(result)
+        #await self.__global_db.add_result(result.id,
+        #                        result.result_name,
+        #                        result.project_name,
+        #                        result.creation_date_time)
 
-        await self.__global_db.add_result(result.id,
-                                    result.result_name,
-                                    result.project_name,
-                                    result.creation_date_time)
-
-        self.__current_result = None
+        # self.__current_result = None
         return result
 
 

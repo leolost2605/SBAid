@@ -1,5 +1,7 @@
 import unittest
 import random
+import uuid
+
 from gi.repository import GLib, Gio
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -47,8 +49,8 @@ class VelocityGeneratorTest(unittest.TestCase):
                     crosssectionid = GLib.uuid_string_random()
 
                 cross_section_snapshot = CrossSectionSnapshot(GLib.uuid_string_random(),
-                                                              crosssectionid,
-                                                              "Julia",
+                                                              str(uuid.uuid4()),
+                                                              "Julia", crosssectionid,
                                                       random.choice(list(BDisplay)), global_placeholder_db)
                 for p in range(6):
                     lane_snapshot = lane_snapshot = LaneSnapshot(GLib.uuid_string_random(),

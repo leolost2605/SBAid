@@ -1,5 +1,7 @@
 """This module contains unittests for the CrossSection"""
 import unittest
+import uuid
+
 from gi.repository import GLib, Gio
 from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
@@ -10,20 +12,21 @@ from sbaid.common.a_display import ADisplay
 class CrossSectionSnapshotTest(unittest.TestCase):
     """This class tests the CrossSectionSnapshot class."""
 
-    gio_file = Gio.File.new_for_path("placeholder_path.db")
-    global_db = GlobalSQLite(gio_file)
+    __gio_file = Gio.File.new_for_path("placeholder_path.db")
+    __global_db = GlobalSQLite(__gio_file)
 
     cross_section_snapshot = CrossSectionSnapshot(GLib.uuid_string_random(),
                                                   GLib.uuid_string_random(),
                                                   "Julia",
-                                                  BDisplay.SNOW, GlobalSQLite(gio_file))
+                                                  str(uuid.uuid4()),
+                                                  BDisplay.SNOW, __global_db)
 
     lane_snapshot_1 = LaneSnapshot(GLib.uuid_string_random(),
                                    GLib.uuid_string_random(), 0,
-                                   70.6, 9, ADisplay.SPEED_LIMIT_100, GlobalSQLite(gio_file))
+                                   70.6, 9, ADisplay.SPEED_LIMIT_100, GlobalSQLite(__gio_file))
     lane_snapshot_2 = LaneSnapshot(GLib.uuid_string_random(),
                                    GLib.uuid_string_random(), 1,
-                                   99.3, 5, ADisplay.SPEED_LIMIT_100, GlobalSQLite(gio_file))
+                                   99.3, 5, ADisplay.SPEED_LIMIT_100, GlobalSQLite(__gio_file))
 
     def test_add_lane_snapshot(self):
         """Tests adding lane snapshots."""

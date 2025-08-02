@@ -62,7 +62,9 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
                     result_builder.end_lane()
                 result_builder.end_cross_section()
             result_builder.end_snapshot()
-        return await result_builder.end_result()
+
+            result = await result_builder.end_result()
+        return result
 
     def __generate_random_ids(self, n: int):
         random_ids = []
