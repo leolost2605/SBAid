@@ -15,15 +15,11 @@ simulator_types = GObject.Property(type=Gio.ListModel,
 
 
 class SimulatorException(Exception):
-    """TODO"""
-    def __init__(self, message: str):
-        super().__init__(message)
+    """Exception raised if the given simulator is not supported."""
 
 
 class InvalidPlatformException(Exception):
-    """TODO"""
-    def __init__(self, message: str):
-        super().__init__(message)
+    """Exception raised if the given simulator is not supported on the users platform."""
 
 
 class SimulatorFactory(GObject.GObject):
