@@ -5,6 +5,7 @@ import unittest
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
+from sbaid.common.location import Location
 from sbaid.model.simulator.dummy.dummy_simulator import EndOfSimulationException
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.simulation.vehicle_info import VehicleInfo
@@ -14,14 +15,15 @@ from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 class DisplayTestCase(unittest.TestCase):
     """This class tests the display using pythons unittest."""
 
-    def setUp(self) -> None:
+    def test(self) -> None:
+        self.assertTrue(True)
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         loop = asyncio.get_event_loop()
-        task = loop.create_task(DisplayTestCase().test())
+        task = loop.create_task(DisplayTestCase().start())
         loop.run_until_complete(task)
         asyncio.set_event_loop_policy(None)
 
-    async def test(self) -> None:
+    async def start(self) -> None:
         await self.simple()
         await self.reset()
         await self.load_different_file()
@@ -31,7 +33,9 @@ class DisplayTestCase(unittest.TestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        # cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
+
         await sim.init_simulation()
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
@@ -42,11 +46,16 @@ class DisplayTestCase(unittest.TestCase):
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
 
+        self.assertEqual(sim.route.get_item(0), Location(123.4, 567.8))
+        self.assertEqual(sim.route.get_item(1), Location(234.5, 678.9))
+
     async def reset(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        # cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
+
         await sim.init_simulation()
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
@@ -72,7 +81,10 @@ class DisplayTestCase(unittest.TestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        # cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
+
+
         with self.assertRaises(FileNotFoundError):
             await sim.measure()
 
@@ -82,7 +94,9 @@ class DisplayTestCase(unittest.TestCase):
         await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
-        other_file = Gio.File.new_for_path("tests/model/dummy_simulator/test2.json")
+        # other_file = Gio.File.new_for_path("tests/model/dummy_simulator/test2.json")
+        other_file = Gio.File.new_for_path("test2.json")
+
         with self.assertRaises(RuntimeError):
             await sim.load_file(other_file)
 
@@ -90,7 +104,9 @@ class DisplayTestCase(unittest.TestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        # cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
+
         await sim.init_simulation()
         await sim.load_file(cur_file)
         with self.assertRaises(EndOfSimulationException):
@@ -99,7 +115,9 @@ class DisplayTestCase(unittest.TestCase):
     async def vehicle_infos(self):
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        # cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
+
         await sim.init_simulation()
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
