@@ -22,7 +22,7 @@ class ResultManager(GObject.GObject):
     def __init__(self) -> None:
         """todo"""
 
-    def load_from_db(self) -> None:
+    async def load_from_db(self) -> None:
         """todo"""
 
     def create_tag(self, name: str) -> int:
