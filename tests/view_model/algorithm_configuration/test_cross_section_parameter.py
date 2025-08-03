@@ -20,6 +20,8 @@ from sbaid.model.network.cross_section import CrossSection as ModelCrossSection
 class CrossSectionParameterTestCase(unittest.TestCase):
     def test_cross_section_parameter(self):
         db_mock = mock.Mock()
+        tags = Gio.ListStore.new(Tag)
+        acid = "acid"
 
         sim_cs_one = DummyCrossSection("id1", "name", CrossSectionType.COMBINED,
                                    Location(0,0), 5, True)
@@ -31,10 +33,12 @@ class CrossSectionParameterTestCase(unittest.TestCase):
         model_cross_section_two = ModelCrossSection(sim_cs_two, db_mock)
 
         model_param = ModelParameter("My Name", GLib.VariantType.new("s"),
-                                     GLib.Variant.new_string("My Value"), model_cross_section_one)
+                                     GLib.Variant.new_string("My Value"), model_cross_section_one,
+                                     db_mock, acid, tags)
 
         other_param = ModelParameter("My Name", GLib.VariantType.new("s"),
-                                     GLib.Variant.new_string("My Other Value"), model_cross_section_two)
+                                     GLib.Variant.new_string("My Other Value"), model_cross_section_two,
+                                     db_mock, acid, tags)
 
         params = Gio.ListStore.new(ModelParameter)
         params.append(model_param)
