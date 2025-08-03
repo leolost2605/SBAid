@@ -25,7 +25,10 @@ class DiagramExporter(GObject.GObject):
     __diagram_types: Gio.ListStore
 
     # GObject.Property definitions
-    @GObject.Property(type=DiagramType)
+    available_diagram_types: Gio.ListModel = (
+        GObject.Property(type=Gio.ListModel))  # type: ignore[assignment]
+
+    @available_diagram_types.getter  # type: ignore
     def available_diagram_types(self) -> Gio.ListModel:
         """Returns ListModel of available diagram types"""
         return self.__diagram_types
@@ -57,16 +60,16 @@ class DiagramExporter(GObject.GObject):
     def __add_available_types(self) -> None:
         """Gets available diagram types and initialize references"""
         self.__heatmap_gen = HeatmapGenerator()
-        self.available_diagram_types.append(
+        self.__diagram_types.append(
             self.__heatmap_gen.get_diagram_type())
         self.__qv_gen = QVGenerator()
-        self.available_diagram_types.append(
+        self.__diagram_types.append(
             self.__qv_gen.get_diagram_type())
         self.__display_gen = DisplayGenerator()
-        self.available_diagram_types.append(
+        self.__diagram_types.append(
             self.__display_gen.get_diagram_type())
         self.__velocity_gen = VelocityGenerator()
-        self.available_diagram_types.append(
+        self.__diagram_types.append(
             self.__velocity_gen.get_diagram_type())
 
         self.__cross_section_gens = [self.__qv_gen, self.__display_gen, self.__velocity_gen]

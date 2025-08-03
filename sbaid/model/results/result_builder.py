@@ -147,8 +147,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     __current_vehicle_builder: _VehicleBuilder | None
 
     def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
-        super().__init__()
         """Initializes the ResultBuilder class."""
+        super().__init__()
         self.__result_manager = result_manager
         self.__global_db = global_db
 
@@ -158,7 +158,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         now = GLib.DateTime.new_now_local()
 
         if now is None:
-            raise LocalErrorException("Could not get current time from local system")
+            raise GLibErrorException("Could not get current time from local system")
 
         self.__current_result = Result(str(uuid.uuid4()),
                                        project_name, now, self.__global_db)
@@ -300,7 +300,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         result = self.__current_result
 
         self.__result_manager.register_result(result)
-        #await self.__global_db.add_result(result.id,
+
+        # await self.__global_db.add_result(result.id,
         #                        result.result_name,
         #                        result.project_name,
         #                        result.creation_date_time)
@@ -310,12 +311,12 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
 
 class WrongOrderException(Exception):
-    """todo"""
+    """Raised when the result builder methods are called in the wrong order"""
     def __init__(self, message: str) -> None:
         self.message = message
 
 
-class LocalErrorException(Exception):
-    """todo"""
+class GLibErrorException(Exception):
+    """Raised if GLib malfunctions."""
     def __init__(self, message: str) -> None:
         self.message = message

@@ -5,7 +5,6 @@ from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.diagram_exporter import DiagramExporter
 from tests.model.results.test_result_builder import ResultBuilderTest
 
-
 class DiagramExporterTest(unittest.TestCase):
     exporter = DiagramExporter()
 

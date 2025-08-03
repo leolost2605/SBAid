@@ -7,9 +7,11 @@ from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.global_sqlite import GlobalSQLite
+from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.result import Result
 from sbaid.model.results.result_builder import ResultBuilder
 from sbaid.model.results.result_manager import ResultManager
+from sbaid.model.results.snapshot import Snapshot
 
 
 class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
@@ -22,12 +24,31 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
 
     async def __test_build_with_random_values(self):
         """Tests the result builder by calling the methods in the right order with random values."""
-        result = await self.generate_result(100, 40, 5)
+        snapshot_amount = 50
+        cs_amount = 30
+        lane_amount = 5
+        result = await self.generate_result(snapshot_amount, cs_amount, lane_amount)
+
+        # todo i dont know what else I can assert
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Result)
+        self.assertEqual(len(result.snapshots), snapshot_amount)
+
+        random_snapshot = random.choice(list(result.snapshots))
+        self.assertIsInstance(random_snapshot, Snapshot)
+        self.assertEqual(len(random_snapshot.cross_section_snapshots), 30)
+
+        random_cs_snapshot = random.choice(list(random_snapshot.cross_section_snapshots))
+        self.assertIsInstance(random_cs_snapshot, CrossSectionSnapshot)
+        self.assertEqual(len(random_cs_snapshot.lane_snapshots), lane_amount)
+
+
 
     def test_build_in_wrong_order(self):
         """Tests if the internal logic is robust enough to catch errors in the false building order."""
+
+    async def __call_in_wrong_order(self):
+        """Tests the result builder by calling the methods in the wrong order with random values."""
 
 
     def test_build_with_incomplete_values(self):
@@ -36,7 +57,7 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
     async def generate_result(self, snapshot_amount: int, cs_amount: int, lane_amount: int) -> Result:
         """Generates a result with random values. The only thing not realistic is that
         the average speed calculated from the vehicles will not match the lane average."""
-        result_builder = ResultBuilder(ResultManager(), self.__global_placeholder_db)
+        result_builder = ResultBuilder(ResultManager(self.__global_placeholder_db), self.__global_placeholder_db)
         result_builder.begin_result("randomized_result")
         random_ids = self.__generate_random_ids(cs_amount)
         for i in range(snapshot_amount):  # amount of snapshots

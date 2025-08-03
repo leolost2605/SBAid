@@ -7,9 +7,9 @@ from sbaid.model.results.result import Result
 
 class ResultManagerTest(unittest.TestCase):
     """This class tests the ResultManager class. """
-    result_manager = ResultManager()
     __gio_file = Gio.File.new_for_path("placeholder_path.db")
     __global_db = GlobalSQLite(__gio_file)
+    result_manager = ResultManager(__global_db)
 
     def test_add_and_remove_tag(self):
         """Test creating and removing tags to the list of available tags."""

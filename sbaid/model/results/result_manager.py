@@ -1,6 +1,7 @@
 """This module defines the ResultManager class."""
-
-from gi.repository import Gio, GObject, GLib
+import uuid
+from gi.repository import Gio, GObject
+from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
 
@@ -9,60 +10,93 @@ class ResultManager(GObject.GObject):
     """This class handles a list of results and tags."""
 
     # GObject.Property definitions
-    available_tags = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
-    results = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+    results: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
 
-    def __init__(self) -> None:
+    @results.getter  # type: ignore
+    def results(self) -> Gio.ListModel:
+        """Getter for the results."""
+        return self.__results
+
+    available_tags: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
+
+    @available_tags.getter  # type: ignore
+    def available_tags(self) -> Gio.ListModel:
+        """Getter for the available tags."""
+        return self.__available_tags
+
+    __available_tags: Gio.ListStore
+    __results: Gio.ListStore
+    __global_db: GlobalDatabase
+
+    def __init__(self, global_db: GlobalDatabase) -> None:
         """Initialize the ResultManager class."""
-        super().__init__(available_tags=Gio.ListStore.new(Tag),
-                         results=Gio.ListStore.new(Result))
+        super().__init__()
+        self.__available_tags = Gio.ListStore.new(Tag)
+        self.__results = Gio.ListStore.new(Result)
+        self.__global_db = global_db
 
-    def load_from_db(self) -> None:
+    async def load_from_db(self) -> None:
         """todo"""
+        result_information = await self.__global_db.get_all_results()
+        for results in result_information:
+            project_name = "placeholder"  # todo  await .__global_db.get_project_name(results[0])
+            result = Result(results[0], "placeholder", results[1], self.__global_db)
+            # todo change this i think
+
+            tag_information = await self.__global_db.get_all_tags()
+
+            for tag in tag_information:
+                new_tag = Tag(tag[0], tag[1])
+                result.add_tag(new_tag)
+                if not self.__is_tag_already_loaded(tag[0]):
+                    self.__available_tags.append(new_tag)
+
+    def __is_tag_already_loaded(self, tag_id: str) -> bool:
+        """Checks if a tag is already loaded."""
+        for tag in self.__available_tags:
+            assert isinstance(tag, Tag)
+            if tag_id == tag.tag_id:
+                return True
+        return False
 
     def create_tag(self, name: str) -> int:
         """Creates a new tag with the given name and adds it to the list of available tags."""
-        new_tag = Tag(GLib.uuid_string_random(), name)  # pylint:disable=no-value-for-parameter
-        self.available_tags.append(new_tag)  # pylint:disable=no-member
-        return len(self.available_tags) - 1  # pylint:disable=no-member
+        new_tag = Tag(str(uuid.uuid4()), name)
+        self.__available_tags.append(new_tag)
+        return len(self.__available_tags) - 1
 
     def delete_tag(self, tags_id: str) -> None:
         """Removes a tag with the given id from the list of available tags,
          and removes all its uses in results"""
 
-        n = self.available_tags.get_n_items()   # pylint:disable=no-member
+        n = self.__available_tags.get_n_items()
 
         for i in range(n):
-            tag = self.available_tags.get_item(i)   # pylint:disable=no-member
+            tag = self.__available_tags.get_item(i)
 
-            if tags_id == tag.props.tag_id:
-                self.available_tags.remove(i)   # pylint:disable=no-member
+            assert isinstance(tag, Tag)
+            if tags_id == tag.tag_id:
+                self.__available_tags.remove(i)
 
-                m = self.results.get_n_items()  # pylint:disable=no-member
+                m = self.__results.get_n_items()
                 for a in range(m):
-                    result = self.results.get_item(a)   # pylint:disable=no-member
-                    result.remove_tag(tag)  # pylint:disable=no-member
+                    result = self.__results.get_item(a)
+                    assert isinstance(result, Result)
+                    result.remove_tag(tag)
 
                 break
 
     def delete_result(self, result_id: str) -> None:
         """Removes a result with the given id from the list of available tags."""
-        n = self.results.get_n_items()  # pylint:disable=no-member
+        n = self.__results.get_n_items()
 
         for i in range(n):
-            if self.results.get_item(i).id == result_id:   # pylint:disable=no-member
-                self.results.remove(i)  # pylint:disable=no-member
+            result = self.__results.get_item(i)
+            assert isinstance(result, Result)
+            if result.id == result_id:
+                self.__results.remove(i)
                 break
 
     def register_result(self, result: Result) -> None:
         """Appends a result to the existing list of results in the result manager."""
-        self.results.append(result)  # pylint:disable=no-member
-        # todo register to the database
+        self.__results.append(result)

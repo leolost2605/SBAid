@@ -4,7 +4,7 @@ from sbaid.common.image import Image
 
 
 class SeabornImage(Image):
-    """todo"""
+    """Implements methods for handling images made out of seaborn diagrams."""
 
     __image_bytes: bytes
 
@@ -13,10 +13,6 @@ class SeabornImage(Image):
         self._image_bytes = image_bytes
 
     def save_to_file(self, path: str) -> None:
-
+        """Saves image to desired file path"""
         with open(path, 'wb') as f:
             f.write(self._image_bytes)
-
-
-
-

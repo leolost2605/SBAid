@@ -1,4 +1,6 @@
 """ This module represents the Result class."""
+import uuid
+
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
@@ -38,17 +40,23 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    selected_tags = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
-    snapshots = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY
-    )
+
+    selected_tags: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
+
+    @selected_tags.getter  # type: ignore
+    def selected_tags(self) -> Gio.ListModel:
+        """Getter for the selected tags."""
+        return self.__selected_tags
+
+    snapshots: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
+
+    @snapshots.getter  # type: ignore
+    def snapshots(self) -> Gio.ListModel:
+        """Getter for the snapshots."""
+        return self.__snapshots
+
+    __snapshots: Gio.ListStore
+    __selected_tags: Gio.ListStore
     __global_db: GlobalDatabase
 
     def __init__(self, result_id: str, project_name: str,
@@ -57,9 +65,10 @@ class Result(GObject.GObject):
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
-                         selected_tags=Gio.ListStore.new(Tag),
-                         snapshots=Gio.ListStore.new(Snapshot))
+                         result_name=project_name + "_" + str(creation_date_time.format("%F")))
 
+        self.__snapshots = Gio.ListStore.new(Snapshot)
+        self.__selected_tags = Gio.ListStore.new(Tag)
         self.__global_db = global_db
 
     async def load(self) -> None:
@@ -73,19 +82,22 @@ class Result(GObject.GObject):
 
     def add_tag(self, tag: Tag) -> None:
         """Adds tag to the selected_tags list"""
-        self.selected_tags.append(tag)  # pylint:disable=no-member
+        self.__selected_tags.append(tag)
 
     def remove_tag(self, tag: Tag) -> None:
         """Removes tag from the selected_tags list."""
-        exists, position = self.selected_tags.find(tag)  # pylint:disable=no-member
+        exists, position = self.__selected_tags.find(tag)
         if exists:
-            self.selected_tags.remove(position)  # pylint:disable=no-member
+            self.__selected_tags.remove(position)
 
     async def load_from_db(self) -> None:
         """Loads metainformation about the result name and tags, and saves them in the class."""
         self.result_name = await self.__global_db.get_result_name(self.id)
-        self.selected_tags = await self.__global_db.get_result_tags(self.id)
+        tag_information = await self.__global_db.get_result_tags(self.id)
+
+        for tag in tag_information:
+            self.add_tag(Tag(str(uuid.uuid4()), tag[0]))
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""
-        self.snapshots.append(snapshot)  # pylint:disable=no-member
+        self.__snapshots.append(snapshot)
