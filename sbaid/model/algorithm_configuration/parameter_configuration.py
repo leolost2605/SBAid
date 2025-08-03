@@ -29,6 +29,7 @@ class ParameterConfiguration(GObject.GObject):
     __network: Network
     __db: ProjectDatabase
     __algo_config_id: str
+    __available_tags: Gio.ListModel
     __cs_params_map_model: Gtk.MapListModel
     __global_params_map_model: Gtk.MapListModel
     __parameters: Gtk.FlattenListModel
@@ -38,11 +39,13 @@ class ParameterConfiguration(GObject.GObject):
         """The list of global and per cross section parameters for each cross section."""
         return self.__parameters
 
-    def __init__(self, network: Network, db: ProjectDatabase, algo_config_id: str) -> None:
+    def __init__(self, network: Network, db: ProjectDatabase, algo_config_id: str,
+                 available_tags: Gio.ListModel) -> None:
         super().__init__()
         self.__network = network
         self.__db = db
         self.__algo_config_id = algo_config_id
+        self.__available_tags = available_tags
 
         self.__cs_params_map_model = Gtk.MapListModel.new(None, self.__map_cs_params)
         cs_params_flatten_model = Gtk.FlattenListModel.new(self.__cs_params_map_model)
@@ -91,10 +94,11 @@ class ParameterConfiguration(GObject.GObject):
 
         for cs in common.list_model_iterator(self.__network.cross_sections):
             list_store.append(Parameter(template.name, template.value_type, template.default_value,
-                                        cs, self.__db, self.__algo_config_id))
+                                        cs, self.__db, self.__algo_config_id,
+                                        self.__available_tags))
 
         return list_store
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         return Parameter(template.name, template.value_type, template.default_value,
-                         None, self.__db, self.__algo_config_id)
+                         None, self.__db, self.__algo_config_id, self.__available_tags)

@@ -3,7 +3,7 @@ import importlib.util
 import sys
 import os
 
-from gi.repository import GObject
+from gi.repository import GObject, Gio
 
 from sbaid import common
 from sbaid.model.database.project_database import ProjectDatabase
@@ -107,9 +107,10 @@ class AlgorithmConfiguration(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, configuration_id: str, network: Network, db: ProjectDatabase) -> None:
+    def __init__(self, configuration_id: str, network: Network, db: ProjectDatabase,
+                 available_tags: Gio.ListModel) -> None:
         super().__init__(id=configuration_id, parameter_configuration=ParameterConfiguration(
-                         network, db, configuration_id))
+                         network, db, configuration_id, available_tags))
 
         self.__db = db
 

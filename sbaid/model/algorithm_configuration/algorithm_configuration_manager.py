@@ -74,7 +74,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
         algo_config_ids = await self.__db.get_all_algorithm_configuration_ids()
 
         for algo_config_id in algo_config_ids:
-            algo_config = AlgorithmConfiguration(algo_config_id, self.__network, self.__db)
+            algo_config = AlgorithmConfiguration(algo_config_id, self.__network, self.__db,
+                                                 self.__available_tags)
             self.__algorithm_configurations.append(algo_config)
             await algo_config.load_from_db()
 
@@ -88,7 +89,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
         set as the selected one.
         :return: the position of the new algo config in the list of algo configs
         """
-        algo_config = AlgorithmConfiguration(str(uuid4()), self.__network, self.__db)
+        algo_config = AlgorithmConfiguration(str(uuid4()), self.__network, self.__db,
+                                             self.__available_tags)
 
         await self.__db.add_algorithm_configuration(
             algo_config.id, algo_config.name, algo_config.evaluation_interval,

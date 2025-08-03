@@ -3,6 +3,7 @@ from unittest.mock import Mock, AsyncMock
 
 from gi.repository import Gio, GLib
 
+from sbaid.common.tag import Tag
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.network.network import Network
@@ -28,7 +29,8 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_parameter_configuration(self):
         simulator = DummySimulator()
         network = Network(simulator, self.__db_mock)
-        parameter_config = ParameterConfiguration(network, self.__db_mock, self.__ac_id)
+        parameter_config = ParameterConfiguration(network, self.__db_mock, self.__ac_id,
+                                                  Gio.ListStore.new(Tag))
         parameter_config.set_algorithm(self.__algo_mock)
         await parameter_config.load()
 

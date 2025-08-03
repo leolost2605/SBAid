@@ -25,6 +25,7 @@ class Parameter(GObject.GObject):
 
     __db: ProjectDatabase
     __algo_config_id: str
+    __available_tags: Gio.ListModel
     __value: GLib.Variant | None = None
     __selected_tags: Gio.ListStore
 
@@ -81,12 +82,34 @@ class Parameter(GObject.GObject):
     def __init__(self, name: str, value_type: GLib.VariantType,
                  value: GLib.Variant | None,
                  cross_section: CrossSection | None, db: ProjectDatabase,
-                 algo_config_id: str) -> None:
+                 algo_config_id: str,
+                 available_tags: Gio.ListModel) -> None:
         super().__init__(name=name, value_type=value_type, cross_section=cross_section)
         self.__db = db
         self.__algo_config_id = algo_config_id
+        self.__available_tags = available_tags
         self.value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
+
+        available_tags.connect("items-changed", self.__on_available_tags_changed)
+
+    def __on_available_tags_changed(self, model: Gio.ListModel, changed_pos: int,
+                                    removed: int, added: int) -> None:
+        assert removed <= 1
+
+        if removed == 1:
+            for pos, tag in enumerate(common.list_model_iterator(self.__selected_tags)):
+                found = False
+                for available_tag in common.list_model_iterator(self.__available_tags):
+                    if tag == available_tag:
+                        found = True
+                        break
+
+                if not found:
+                    # We don't call remove_tag because deletion from database is
+                    # handled by cascading deletion
+                    self.__selected_tags.remove(pos)
+                    break
 
     def __get_cs_id(self) -> str | None:
         if self.cross_section is not None:

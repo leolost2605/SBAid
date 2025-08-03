@@ -1,8 +1,10 @@
 import unittest
 from unittest.mock import Mock, AsyncMock
 
-from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration, \
-    AlgorithmNotFoundException
+from gi.repository import Gio
+
+from sbaid.common.tag import Tag
+from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
@@ -22,7 +24,8 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         sim = DummySimulator()
         network = Network(sim, self.__db_mock)
 
-        algo_config = AlgorithmConfiguration(config_id, network, self.__db_mock)
+        algo_config = AlgorithmConfiguration(config_id, network, self.__db_mock,
+                                             Gio.ListStore.new(Tag))
 
         self.assertEqual(algo_config.id, config_id)
         self.assertEqual(algo_config.name, "New Algorithm Configuration")
