@@ -1,3 +1,7 @@
+"""
+This module contains the class that represents the parameter configuration of an algorithm.
+"""
+
 import sys
 from typing import Any, cast
 from weakref import WeakValueDictionary
@@ -23,7 +27,10 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class ParameterConfiguration:
+class ParameterConfiguration(GObject.Object):
+    """
+    This class represents the parameter configuration of an algorithm.
+    """
     __configuration: ModelParameterConfiguration
     __available_tags: Gio.ListModel
     __sort_model: Gtk.SortListModel
@@ -46,11 +53,11 @@ class ParameterConfiguration:
         self.__slice_models_by_parameters = WeakValueDictionary()
 
         self.__sort_model = Gtk.SortListModel.new(configuration.parameters)
-        self.__sort_model.set_section_sorter(Gtk.CustomSorter.new(self.__sort_func, self))
+        self.__sort_model.set_section_sorter(Gtk.CustomSorter.new(self.__sort_func))
         self.__sort_model.connect("items-changed", self.__on_items_changed)
 
         filter_model = Gtk.FilterListModel.new(self.__sort_model,
-                                               Gtk.CustomFilter.new(self.__filter_func, None))
+                                               Gtk.CustomFilter.new(self.__filter_func))
 
         map_model = Gtk.MapListModel.new(filter_model, self.__map_func)
 
@@ -58,12 +65,20 @@ class ParameterConfiguration:
                          parameters=map_model)
 
     async def load(self) -> None:
+        """
+        Loads the parameter configuration from the db.
+        """
         await self.__configuration.load()
 
     async def import_parameter_values(self, file: Gio.File) -> tuple[int, int]:
+        """
+        Imports values for parameters from the given file.
+        :param file: the file to import values from
+        :return: the number of successful imports and the number of failed imports
+        """
         return await self.__configuration.import_from_file(file)
 
-    def __sort_func(self, data: Any, first: ModelParameter, second: ModelParameter) -> int:
+    def __sort_func(self, first: ModelParameter, second: ModelParameter, data: Any) -> int:
         if first.cross_section is None and second.cross_section is not None:
             return -1
 

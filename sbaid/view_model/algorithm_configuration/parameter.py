@@ -1,3 +1,7 @@
+"""
+This class contains the interface definition of a parameter.
+"""
+
 import sys
 import gi
 try:
@@ -9,6 +13,10 @@ except (ImportError, ValueError) as exc:
 
 
 class Parameter(GObject.GObject):
+    """
+    This interface represents a algorithm parameter. It can either be global
+    or per cross section.
+    """
     name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
     value_type: GLib.VariantType = GObject.Property(type=GLib.VariantType,  # type: ignore
                                                     flags=GObject.ParamFlags.READABLE)

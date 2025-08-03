@@ -1,3 +1,7 @@
+"""
+This module contains the parameter implementation that is cross section specific.
+"""
+
 import sys
 from typing import cast
 import gi
@@ -16,20 +20,31 @@ except (ImportError, ValueError) as exc:
 
 
 class CrossSectionParameter(Parameter):
+    """
+    This class represents a cross section specific parameter. The same parameter
+    exists for every cross section and may have different values per cross section.
+    The same parameter but for all cross sections is bundled in this class. Which cross
+    section to change the value for is determined via the selected cross section model.
+    """
+
     __parameters: Gio.ListModel
     __selected_cross_sections: Gtk.MultiSelection
     __tags: Gtk.MultiSelection
 
     @Parameter.name.getter  # type: ignore
     def name(self) -> str:
+        """Returns the name of the parameter."""
         return cast(ModelParameter, self.__parameters.get_item(0)).name
 
     @Parameter.value_type.getter  # type: ignore
     def value_type(self) -> GLib.VariantType:
+        """Returns the value type of the parameter."""
         return cast(ModelParameter, self.__parameters.get_item(0)).value_type
 
     @Parameter.value.getter  # type: ignore
     def value(self) -> GLib.Variant | None:
+        """Returns the value of the parameter for the selected cross sections if
+        it's the same otherwise returns None."""
         if self.inconsistent:
             return None
 
@@ -41,6 +56,7 @@ class CrossSectionParameter(Parameter):
 
     @Parameter.value.setter  # type: ignore
     def value(self, value: GLib.Variant) -> None:
+        """Sets the value for the selected cross sections."""
         if not value.is_of_type(self.value_type):
             raise ValueError("Value must be of the correct type for the parameter. Got "
                              f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
@@ -49,8 +65,9 @@ class CrossSectionParameter(Parameter):
             if self.__is_cross_section_selected(param.cross_section.id):
                 param.value = value
 
-    @Parameter.inconsistent.getter
+    @Parameter.inconsistent.getter  # type: ignore
     def inconsistent(self) -> bool:
+        """Returns whether the selected cross sections have different values."""
         common_value = None
         for param in common.list_model_iterator(self.__parameters):
             if self.__is_cross_section_selected(param.cross_section.id):
@@ -61,8 +78,9 @@ class CrossSectionParameter(Parameter):
 
         return False
 
-    @Parameter.selected_tags.getter
+    @Parameter.selected_tags.getter  # type: ignore
     def selected_tags(self) -> Gtk.MultiSelection:
+        """Returns a selection model of the tags."""
         return self.__tags
 
     def __init__(self, parameters: Gio.ListModel, selected_cross_sections: Gtk.MultiSelection,

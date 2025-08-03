@@ -1,3 +1,7 @@
+"""
+This module contains the algorithm configuration manager class.
+"""
+
 import sys
 import gi
 
@@ -18,6 +22,10 @@ except (ImportError, ValueError) as exc:
 
 
 class AlgorithmConfigurationManager(GObject.Object):
+    """
+    This class manages the algorithm configuration and allows to create new ones
+    as well as delete old ones.
+    """
     __manager: ModelAlgorithmConfigurationManager
     __network: Network
     __algorithm_configurations: Gio.ListStore
@@ -47,13 +55,30 @@ class AlgorithmConfigurationManager(GObject.Object):
         return AlgorithmConfiguration(algorithm_configuration, self.__network, self.available_tags)
 
     async def create_algorithm_configuration(self) -> int:
+        """
+        Creates a new algorithm configuration.
+        :return: the position in the list of algo configs where the new configuration is
+        """
         return await self.__manager.create_algorithm_configuration()
 
     async def delete_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
+        """
+        Deletes the algorithm configuration with the given id.
+        :param algorithm_configuration_id: the id of the algorithm configuration to delete.
+        """
         await self.__manager.delete_algorithm_configuration(algorithm_configuration_id)
 
     async def create_tag(self, name: str) -> int:
+        """
+        Creates a tag with the given name.
+        :param name: the name of the tag to create.
+        :return: the position in the list of tags where the new tag is
+        """
         return await self.__manager.create_tag(name)
 
     async def delete_tag(self, tag_id: str) -> None:
+        """
+        Deletes the tag with the given id.
+        :param tag_id: the id of the tag to delete
+        """
         await self.__manager.delete_tag(tag_id)

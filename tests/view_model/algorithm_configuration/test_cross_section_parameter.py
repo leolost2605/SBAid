@@ -2,6 +2,11 @@ import unittest
 import unittest.mock as mock
 
 import gi
+
+from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.common.location import Location
+from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
+
 gi.require_version('Gtk', '4.0')
 from gi.repository import GLib, Gio, Gtk
 
@@ -14,11 +19,16 @@ from sbaid.model.network.cross_section import CrossSection as ModelCrossSection
 
 class CrossSectionParameterTestCase(unittest.TestCase):
     def test_cross_section_parameter(self):
-        # TODO: No clue how to unit test this, I can't mock anything due to the gobject
-        #  requirement
+        db_mock = mock.Mock()
 
-        model_cross_section_one = ModelCrossSection()
-        model_cross_section_two = ModelCrossSection()
+        sim_cs_one = DummyCrossSection("id1", "name", CrossSectionType.COMBINED,
+                                   Location(0,0), 5, True)
+
+        sim_cs_two = DummyCrossSection("id2", "name", CrossSectionType.COMBINED,
+                                   Location(0,0), 5, True)
+
+        model_cross_section_one = ModelCrossSection(sim_cs_one, db_mock)
+        model_cross_section_two = ModelCrossSection(sim_cs_two, db_mock)
 
         model_param = ModelParameter("My Name", GLib.VariantType.new("s"),
                                      GLib.Variant.new_string("My Value"), model_cross_section_one)
