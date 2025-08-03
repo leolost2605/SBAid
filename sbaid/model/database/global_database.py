@@ -64,7 +64,7 @@ class GlobalDatabase(ABC):
         """Return all tags in the database."""
 
     @abstractmethod
-    async def get_result_tags(self, result_id: str) -> list[str]:
+    async def get_result_tag_ids(self, result_id: str) -> list[str]:
         """Return all tags that belong to the given result."""
 
     @abstractmethod

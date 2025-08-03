@@ -174,9 +174,10 @@ class GlobalSQLiteTest(unittest.TestCase):
             await db.add_tag("my_tag_id", "my_tag_name")
 
             await db.add_result_tag("my_result_tag_id", "my_result_id", "my_tag_id")
-            my_project_tags = await db.get_result_tags("my_result_id")
+            my_project_tags = await db.get_result_tag_ids("my_result_id")
             self.assertEqual(len(my_project_tags), 1)
             self.assertEqual(my_project_tags[0][0], "my_tag_id")
+            self.assertEqual("my_tag_name", await db.get_tag_name("my_tag_id"))
 
         file.delete_async(0, None, self.on_delete_async, None)
 
