@@ -38,7 +38,7 @@ class GlobalParameter(Parameter):
         """Returns the value of the parameter."""
         return self.__parameter.value
 
-    def set_value(self, value: GLib.Variant) -> None:
+    def set_value(self, value: GLib.Variant) -> None:  # pylint: disable=invalid-overridden-method
         """Sets the value of the parameter."""
         if not value.is_of_type(self.value_type):
             raise ValueError("Value must be of the correct type for the parameter. Got "

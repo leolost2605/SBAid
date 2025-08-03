@@ -29,17 +29,17 @@ class Parameter(GObject.GObject):
     @name.getter  # type: ignore
     def get_name(self) -> str:
         """Returns the name of the parameter."""
-        return self.get_name()
+        return self.get_name()  # type: ignore
 
     @value_type.getter  # type: ignore
     def get_value_type(self) -> GLib.VariantType:
         """Returns the value type of the parameter."""
-        return self.get_value_type()
+        return self.get_value_type()  # type: ignore
 
     @value.getter  # type: ignore
     def get_value(self) -> GLib.Variant:
         """Returns the value of the parameter."""
-        return self.get_value()
+        return self.get_value()  # type: ignore
 
     @value.setter  # type: ignore
     def set_value(self, value: GLib.Variant) -> None:
@@ -49,9 +49,9 @@ class Parameter(GObject.GObject):
     @inconsistent.getter  # type: ignore
     def get_inconsistent(self) -> bool:
         """Returns whether the selected cross sections have different values."""
-        return self.get_inconsistent()
+        return self.get_inconsistent()  # type: ignore
 
     @selected_tags.getter  # type: ignore
     def get_selected_tags(self) -> Gtk.MultiSelection:
         """Returns the list of selected tags of the parameter."""
-        return self.get_selected_tags()
+        return self.get_selected_tags()  # type: ignore

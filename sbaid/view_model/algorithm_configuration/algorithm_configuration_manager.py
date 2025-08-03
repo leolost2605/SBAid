@@ -30,12 +30,12 @@ class AlgorithmConfigurationManager(GObject.Object):
     __network: Network
     __algorithm_configurations: Gio.ListStore
 
-    available_tags: Gio.ListModel = GObject.Property(
+    available_tags: Gio.ListModel = GObject.Property(  # type: ignore
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    algorithm_configurations: Gtk.SingleSelection = GObject.Property(
+    algorithm_configurations: Gtk.SingleSelection = GObject.Property(  # type: ignore
         type=Gtk.SingleSelection,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -66,7 +66,7 @@ class AlgorithmConfigurationManager(GObject.Object):
         Deletes the algorithm configuration with the given id.
         :param algorithm_configuration_id: the id of the algorithm configuration to delete.
         """
-        await self.__manager.delete_algorithm_configuration(algorithm_configuration_id)
+        self.__manager.delete_algorithm_configuration(algorithm_configuration_id)
 
     async def create_tag(self, name: str) -> int:
         """
@@ -81,4 +81,4 @@ class AlgorithmConfigurationManager(GObject.Object):
         Deletes the tag with the given id.
         :param tag_id: the id of the tag to delete
         """
-        await self.__manager.delete_tag(tag_id)
+        self.__manager.delete_tag(tag_id)

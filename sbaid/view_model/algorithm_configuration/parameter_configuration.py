@@ -36,12 +36,12 @@ class ParameterConfiguration(GObject.Object):
     __sort_model: Gtk.SortListModel
     __slice_models_by_parameters: WeakValueDictionary[str, Gtk.SliceListModel]
 
-    selected_cross_sections: Gtk.MultiSelection = GObject.Property(
+    selected_cross_sections: Gtk.MultiSelection = GObject.Property(  # type: ignore
         type=Gtk.MultiSelection,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    parameters: Gio.ListModel = GObject.Property(
+    parameters: Gio.ListModel = GObject.Property(  # type: ignore
         type=Gio.ListModel,
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -110,6 +110,9 @@ class ParameterConfiguration(GObject.Object):
                 continue
 
             slice_model = self.__slice_models_by_parameters.get(param.name)
+
+            if slice_model is None:
+                continue
 
             start, end = self.__sort_model.get_section(position)
             slice_model.set_offset(start)

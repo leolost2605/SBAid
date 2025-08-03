@@ -51,7 +51,7 @@ class CrossSectionParameter(Parameter):
 
         return None
 
-    def set_value(self, value: GLib.Variant) -> None:
+    def set_value(self, value: GLib.Variant) -> None:  # pylint: disable=invalid-overridden-method
         """Sets the value for the selected cross sections."""
         if not value.is_of_type(self.value_type):
             raise ValueError("Value must be of the correct type for the parameter. Got "
