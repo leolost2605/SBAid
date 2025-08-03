@@ -55,4 +55,7 @@ class ResultClassTestCase(unittest.TestCase):
         self.assertIn(my_snapshot, result.snapshots)
         self.assertIn(my_snapshot2, result.snapshots)
 
-
+    def test_name_setting(self):
+        datetime = GLib.DateTime.new_now_local()
+        result = Result(GLib.uuid_string_random(), "project_name", datetime, self.__global_db)
+        self.assertEqual(result.result_name, "project_name_" + datetime.format("%F"))
