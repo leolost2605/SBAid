@@ -3,5 +3,10 @@ The main SBAid package. It is the entry point into the application
 and contains only the application and the other packages.
 """
 
+import sys
+
+from sbaid.application import Application
+
 if __name__ == '__main__':
-    print("Hello world!")
+    app = Application()
+    app.run(sys.argv)
