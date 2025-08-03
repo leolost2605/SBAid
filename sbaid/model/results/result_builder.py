@@ -301,12 +301,12 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         self.__result_manager.register_result(result)
 
-        await self.__global_db.add_result(result.id,
-                                          result.result_name,
-                                          result.project_name,
-                                          result.creation_date_time)
+        # await self.__global_db.add_result(result.id,
+        #                                   result.result_name,
+         #                                  result.project_name,
+        #                                   result.creation_date_time)
 
-        self.__current_result = None
+        # self.__current_result = None
         return result
 
 
