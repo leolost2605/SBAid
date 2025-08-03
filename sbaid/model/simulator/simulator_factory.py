@@ -26,6 +26,11 @@ class SimulatorFactory(GObject.GObject):
 
     simulator_types: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
+    @simulator_types.getter
+    def simulator_types(self) -> Gio.ListModel:
+        """Returns the list of available simulator types."""
+        return self.__types
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -43,14 +48,14 @@ class SimulatorFactory(GObject.GObject):
         :return: the simulator implementation of the given type
         """
 
-        if sim_type.id is DummySimulator().type.id:
+        if sim_type.id == DummySimulator().type.id:
             return DummySimulator()
 
         if sys.platform.startswith("win"):
             # pylint: disable=import-outside-toplevel
             from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
 
-            if sim_type.id is VissimSimulator().type.id:
+            if sim_type.id == VissimSimulator().type.id:
                 return VissimSimulator()
 
         raise SimulatorException(f"Simulator type {sim_type.name} not found")
