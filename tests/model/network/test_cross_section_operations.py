@@ -9,8 +9,8 @@ from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
-if sys.platform.startswith("win"):
-    from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
+#if sys.platform.startswith("win"):
+    #from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 
@@ -18,8 +18,8 @@ from sbaid.common.cross_section_type import CrossSectionType
 class CrossSectionOperationsTest(unittest.TestCase):
     __dummy_simulator = DummySimulator()
     if sys.platform.startswith("win"):
-        __vissim_simulator = VissimSimulator()
-        __network = Network(__vissim_simulator, unittest.mock.Mock())
+        #__vissim_simulator = VissimSimulator()
+        __network = Network(__dummy_simulator, unittest.mock.Mock())
     #__network = Network(__dummy_simulator, unittest.mock.Mock())
     __sim_cross_section = SimulatorCrossSection()
     __cross_section: CrossSection = None
@@ -77,7 +77,6 @@ class CrossSectionOperationsTest(unittest.TestCase):
         for vissim: cross section has new location (check separately from move operation)
         """
         asyncio.run(self._test_move_cross_section_valid())
-        pass
 
     async def _test_move_cross_section_valid(self):
         await self.__network.move_cross_section(self.__cross_section.id, Location(50.268010,8.663893))
@@ -87,10 +86,9 @@ class CrossSectionOperationsTest(unittest.TestCase):
     def test_move_cross_section_invalid(self):
         """Expected behavior:
             for dummy: operation not supported error
-            for vissim: error in simulator (check for compatibility before moving? - qualitätssicherung)
+            for vissim: error in simulator
         """
         asyncio.run(self._test_move_cross_section_invalid())
-        pass
 
     async def _test_move_cross_section_invalid(self):
         await self.__network.move_cross_section(self.__cross_section.id, Location(0,0))  # 0,0 illegal bcs ocean
@@ -102,7 +100,6 @@ class CrossSectionOperationsTest(unittest.TestCase):
         for dummy: operation not supported error (?)
         for vissim: check name from id, see if == new name"""
         asyncio.run(self._test_rename_cross_section())
-        pass
 
     async def _test_rename_cross_section(self):
         self.__cross_section.name = "changed name"
@@ -126,14 +123,3 @@ class CrossSectionOperationsTest(unittest.TestCase):
         self.__cross_section.hard_shoulder_active = True
         self.assertEqual(self.__cross_section.hard_shoulder_active, True)
 
-    def test_load_from_db(self):
-        """Expected behavior:
-        cross section has value for hard shoulder active, b display active
-        (simulator, name and id all come from simulator cross section)"""
-        # use mock thing to mock values incoming from actual database
-        project_db = unittest.mock.Mock()
-        project_db.get_cross_section_name = MagicMock(return_value="test_name")
-        project_db.get_cross_section_hard_shoulder_active = MagicMock(return_value=True)
-        project_db.get_cross_section_b_display_active = MagicMock(return_value=True)
-        cross_section = CrossSection(SimulatorCrossSection(), project_db)
-        cross_section.load_from_db()

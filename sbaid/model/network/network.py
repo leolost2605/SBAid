@@ -52,7 +52,8 @@ class Network(GObject.Object):
         super().__init__(route=simulator.route)
 
     async def load(self) -> None:
-        """Loads the network data."""
+        """Sets the model for this network's MapListModel of simulator and model cross sections,
+         triggering the loading of cross section metadata from the database in the __map_func."""
         self.__cross_sections.set_model(self.__simulator.cross_sections)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
@@ -147,7 +148,6 @@ class Network(GObject.Object):
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
         return model_cross_section
-
 
 
 class FailedCrossSectionCreationException(Exception):
