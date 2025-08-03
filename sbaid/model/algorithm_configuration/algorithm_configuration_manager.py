@@ -146,4 +146,18 @@ class AlgorithmConfigurationManager(GObject.GObject):
         return self.__available_tags.get_n_items() - 1
 
     def delete_tag(self, tag_id: str) -> None:
-        """todo"""
+        """
+        Deletes the tag with the given id.
+        :param tag_id: the id of the tag to delete
+        """
+
+        for pos, tag in enumerate(common.list_model_iterator(self.__available_tags)):
+            if tag.tag_id == tag_id:
+                self.__available_tags.remove(pos)
+
+                common.run_coro_in_background(self.__db.remove_tag(tag_id))
+
+                return
+
+        raise TagNotFoundException("The algorithm configuration "
+                                   f"with id {tag_id} was not found")
