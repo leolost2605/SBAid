@@ -28,6 +28,10 @@ def get_date_time(formatted_string: str) -> GLib.DateTime:
 T = TypeVar('T', bound="GlobalDatabase")
 
 
+class InvalidDatabaseError(Exception):
+    """Exception raised when an invalid database is encountered."""
+
+
 class GlobalSQLite(GlobalDatabase):
     """This class implements the GlobalDatabase interface which allows for the all results
     and project metadata to be stored."""
@@ -38,6 +42,14 @@ class GlobalSQLite(GlobalDatabase):
 
     async def open(self) -> None:
         already_existed = self._file.query_exists()
+        is_valid = True
+        if already_existed:
+            async with aiosqlite.connect(str(self._file.get_path())) as db:
+                async with db.execute("""PRAGMA integrity_check""") as cursor:
+                    res = await cursor.fetchone()
+                    is_valid = res[0] == 'ok'
+        if not is_valid:
+            raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
             await make_directory_with_parents_async(self._file.get_parent())
             await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
@@ -79,6 +91,7 @@ class GlobalSQLite(GlobalDatabase):
                 CREATE TABLE cross_section_snapshot (
                     id TEXT PRIMARY KEY,
                     snapshot_id TEXT,
+                    cross_section_id TEXT,
                     cross_section_name TEXT,
                     b_display INT,
                     FOREIGN KEY (snapshot_id) REFERENCES snapshot (id) ON DELETE CASCADE
@@ -129,7 +142,7 @@ class GlobalSQLite(GlobalDatabase):
     async def get_all_results(self) -> list[tuple[str, str, str, GLib.DateTime]]:
         """Return all results in the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            async with db.execute("""SELECT id, date FROM result;""") as cursor:
+            async with db.execute("""SELECT * FROM result;""") as cursor:
                 return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]), get_date_time(str(x[3]))),
                             await cursor.fetchall()))
 
@@ -157,7 +170,10 @@ class GlobalSQLite(GlobalDatabase):
             async with db.execute("""
             SELECT name FROM result WHERE id = ?;
             """, [result_id]) as cursor:
-                return str(list(await cursor.fetchall())[0][0])
+                res = await cursor.fetchall()
+                if res:
+                    return str(res[0][0])
+                return "SDGWEPGUNEPOIBUNWEPJGHNWEPGJNWEPIGJNESPIGJNEPG"  # TODO empty list doesn't work
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
