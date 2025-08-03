@@ -25,3 +25,33 @@ class SimulatorCrossSection(GObject.GObject):
     hard_shoulder_available: bool = GObject.Property(type=bool,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE,
                                                      default=False)
+
+    @id.getter  # type: ignore
+    def get_id(self) -> str:
+        """Returns the id of the cross section."""
+        return self.get_id()  # type: ignore
+
+    @name.getter  # type: ignore
+    def get_name(self) -> str:
+        """Getter for the name."""
+        return self.get_name()  # type: ignore
+
+    @type.getter  # type: ignore
+    def get_type(self) -> CrossSectionType:
+        """Getter for the type."""
+        return self.get_type()  # type: ignore
+
+    @location.getter  # type: ignore
+    def get_location(self) -> Location:
+        """Getter for the location."""
+        return self.get_location()  # type: ignore
+
+    @lanes.getter  # type: ignore
+    def get_lanes(self) -> int:
+        """Getter for the lanes."""
+        return self.get_lanes()  # type: ignore
+
+    @hard_shoulder_available.getter  # type: ignore
+    def get_hard_shoulder_available(self) -> bool:
+        """Getter for the hard shoulder available boolean."""
+        return self.get_hard_shoulder_available()  # type: ignore
