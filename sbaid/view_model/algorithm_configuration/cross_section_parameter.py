@@ -31,18 +31,15 @@ class CrossSectionParameter(Parameter):
     __selected_cross_sections: Gtk.MultiSelection
     __tags: Gtk.MultiSelection
 
-    @Parameter.name.getter  # type: ignore
-    def name(self) -> str:
+    def get_name(self) -> str:
         """Returns the name of the parameter."""
         return cast(ModelParameter, self.__parameters.get_item(0)).name
 
-    @Parameter.value_type.getter  # type: ignore
-    def value_type(self) -> GLib.VariantType:
+    def get_value_type(self) -> GLib.VariantType:
         """Returns the value type of the parameter."""
         return cast(ModelParameter, self.__parameters.get_item(0)).value_type
 
-    @Parameter.value.getter  # type: ignore
-    def value(self) -> GLib.Variant | None:
+    def get_value(self) -> GLib.Variant | None:
         """Returns the value of the parameter for the selected cross sections if
         it's the same otherwise returns None."""
         if self.inconsistent:
@@ -54,8 +51,7 @@ class CrossSectionParameter(Parameter):
 
         return None
 
-    @Parameter.value.setter  # type: ignore
-    def value(self, value: GLib.Variant) -> None:
+    def set_value(self, value: GLib.Variant) -> None:
         """Sets the value for the selected cross sections."""
         if not value.is_of_type(self.value_type):
             raise ValueError("Value must be of the correct type for the parameter. Got "
@@ -65,8 +61,7 @@ class CrossSectionParameter(Parameter):
             if self.__is_cross_section_selected(param.cross_section.id):
                 param.value = value
 
-    @Parameter.inconsistent.getter  # type: ignore
-    def inconsistent(self) -> bool:
+    def get_inconsistent(self) -> bool:
         """Returns whether the selected cross sections have different values."""
         common_value = None
         for param in common.list_model_iterator(self.__parameters):
@@ -78,8 +73,7 @@ class CrossSectionParameter(Parameter):
 
         return False
 
-    @Parameter.selected_tags.getter  # type: ignore
-    def selected_tags(self) -> Gtk.MultiSelection:
+    def get_selected_tags(self) -> Gtk.MultiSelection:
         """Returns a selection model of the tags."""
         return self.__tags
 

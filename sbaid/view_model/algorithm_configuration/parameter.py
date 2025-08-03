@@ -25,3 +25,33 @@ class Parameter(GObject.GObject):
                                           flags=GObject.ParamFlags.READABLE)  # type: ignore
     selected_tags: Gtk.MultiSelection = GObject.Property(type=Gtk.MultiSelection,  # type: ignore
                                                          flags=GObject.ParamFlags.READABLE)
+
+    @name.getter  # type: ignore
+    def get_name(self) -> str:
+        """Returns the name of the parameter."""
+        return self.get_name()
+
+    @value_type.getter  # type: ignore
+    def get_value_type(self) -> GLib.VariantType:
+        """Returns the value type of the parameter."""
+        return self.get_value_type()
+
+    @value.getter  # type: ignore
+    def get_value(self) -> GLib.Variant:
+        """Returns the value of the parameter."""
+        return self.get_value()
+
+    @value.setter  # type: ignore
+    def set_value(self, value: GLib.Variant) -> None:
+        """Sets the value of the parameter."""
+        self.set_value(value)
+
+    @inconsistent.getter  # type: ignore
+    def get_inconsistent(self) -> bool:
+        """Returns whether the selected cross sections have different values."""
+        return self.get_inconsistent()
+
+    @selected_tags.getter  # type: ignore
+    def get_selected_tags(self) -> Gtk.MultiSelection:
+        """Returns the list of selected tags of the parameter."""
+        return self.get_selected_tags()

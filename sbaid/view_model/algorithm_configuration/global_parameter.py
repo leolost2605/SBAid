@@ -26,23 +26,19 @@ class GlobalParameter(Parameter):
     __parameter: ModelParameter
     __tags: Gtk.MultiSelection
 
-    @Parameter.name.getter  # type: ignore
-    def name(self) -> str:
+    def get_name(self) -> str:
         """Returns the name of the parameter."""
         return self.__parameter.name
 
-    @Parameter.value_type.getter  # type: ignore
-    def value_type(self) -> GLib.VariantType:
+    def get_value_type(self) -> GLib.VariantType:
         """Returns the value type of the parameter."""
         return self.__parameter.value_type
 
-    @Parameter.value.getter  # type: ignore
-    def value(self) -> GLib.Variant:
+    def get_value(self) -> GLib.Variant:
         """Returns the value of the parameter."""
         return self.__parameter.value
 
-    @Parameter.value.setter  # type: ignore
-    def value(self, value: GLib.Variant) -> None:
+    def set_value(self, value: GLib.Variant) -> None:
         """Sets the value of the parameter."""
         if not value.is_of_type(self.value_type):
             raise ValueError("Value must be of the correct type for the parameter. Got "
@@ -50,8 +46,7 @@ class GlobalParameter(Parameter):
 
         self.__parameter.value = value
 
-    @Parameter.selected_tags.getter  # type: ignore
-    def selected_tags(self) -> Gtk.MultiSelection:
+    def get_selected_tags(self) -> Gtk.MultiSelection:
         """Returns the list of selected tags of the parameter."""
         return self.__tags
 
