@@ -29,7 +29,7 @@ class Context(GObject.GObject):
                                                flags=GObject.ParamFlags.READABLE)
 
     @projects.getter  # type: ignore
-    def projects(self):
+    def projects(self) -> Gio.ListModel:
         """Returns the list with all projects"""
         return self.__projects
 
@@ -73,7 +73,7 @@ class Context(GObject.GObject):
         """Deletes the project with the given ID."""
         for pos, project in enumerate(common.list_model_iterator(self.__projects)):
             if project.project_id == project_id:
-                self.__projects.remove(project)
+                self.__projects.remove(pos)
                 await self.__global_db.remove_project(project_id)
                 break
 

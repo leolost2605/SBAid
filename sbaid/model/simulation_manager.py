@@ -20,5 +20,5 @@ class SimulationManager(GObject.GObject):
     async def cancel(self) -> None:
         """todo"""
 
-    async def start(self) -> None:
+    def start(self) -> None:
         """todo"""
