@@ -384,6 +384,12 @@ class ProjectSQLite(ProjectDatabase):
         await self._connection.execute("""DELETE FROM tag WHERE id = ?""", [tag_id])
         await self._connection.commit()
 
+    async def get_tag_name(self, tag_id: str) -> str:
+        """Return the name of the given tag_id."""
+        async with self._connection.execute("""
+        SELECT name FROM tag WHERE id = ?""", [tag_id]) as cursor:
+            return await cursor.fetchone()[0]
+
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
                                 algorithm_configuration_id: str,
                                 cross_section_id: str | None, tag_id: str) -> None:
@@ -403,6 +409,12 @@ class ProjectSQLite(ProjectDatabase):
         await self._connection.execute("""DELETE FROM parameter_tag WHERE id = ?""",
                                        [parameter_tag_id])
         await self._connection.commit()
+
+    async def get_all_tags(self) -> tuple[str, str]:
+        """Return the id and name for all tags in this project."""
+        async with self._connection.execute("""
+        SELECT * FROM tag""") as cursor:
+            return await cursor.fetchall()
 
     async def get_all_tag_ids_for_parameter(self, algorithm_configuration_id: str,
                                             parameter_name: str,
