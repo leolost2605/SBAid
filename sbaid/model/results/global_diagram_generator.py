@@ -13,5 +13,5 @@ class GlobalDiagramGenerator(DiagramHandler):
 
     @abstractmethod
     def get_diagram(self, result: Result, cross_section_ids: list[str],
-                    export_format: ImageFormat) -> Image:
+                    image_format: ImageFormat) -> Image:
         """Returns image of generated diagram."""
