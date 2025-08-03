@@ -33,21 +33,18 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.foreign_key_error()
         await self.multiple_context_managers()
 
-    def on_delete_async(feld, file, result, user_data):
-        file.delete_finish(result)
-
 
     async def path(self):
         file = Gio.File.new_for_path("recursive/directories/test/apparently/successful/test.db")
         async with GlobalSQLite(file) as db:
             self.assertTrue(file.query_exists())
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def remove(self) -> None:
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
             self.assertEqual(len(await db.get_all_projects()), 0)
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
 
@@ -55,17 +52,17 @@ class GlobalSQLiteTest(unittest.TestCase):
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 0)
 
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def result(self) -> None:
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
             self.assertEqual(len(await db.get_all_projects()), 0)
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path",
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path",
                                  "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
@@ -78,12 +75,12 @@ class GlobalSQLiteTest(unittest.TestCase):
             all_results = await db.get_all_results()
             self.assertEqual(len(all_results), 0)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -96,12 +93,12 @@ class GlobalSQLiteTest(unittest.TestCase):
 
             self.assertEqual(len(await db.get_all_snapshots("my_snapshot_id")), 1)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def cross_section_snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -118,12 +115,12 @@ class GlobalSQLiteTest(unittest.TestCase):
                                                 BDisplay.OFF)
             self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 2)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def lane_snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -139,31 +136,33 @@ class GlobalSQLiteTest(unittest.TestCase):
             cs_snapshot = await db.get_all_lane_snapshots("my_cross_section_snapshot_id")
             self.assertEqual(cs_snapshot[0][4], ADisplay.OFF)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def times(self):
         revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
                                                        TimeZone.new_utc())
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
                                  "my_project_name",
                                 revo_date)
             all_results = await db.get_all_results()
-            result_time = all_results[0][1]
-            self.assertEqual(result_time.format_iso8601(), revo_date.format_iso8601())
+            self.assertEqual(all_results[0][0], "my_result_id")
+            self.assertEqual(all_results[0][1], "my_result_name")
+            self.assertEqual(all_results[0][2], "my_project_name")
+            self.assertEqual(all_results[0][3].format_iso8601(), revo_date.format_iso8601())
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def tags(self):
         revo_date = DateTime.new_from_iso8601("1917-10-25T08:00:00.200000+02",
                                                        TimeZone.new_utc())
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -177,7 +176,7 @@ class GlobalSQLiteTest(unittest.TestCase):
             self.assertEqual(len(my_project_tags), 1)
             self.assertEqual(my_project_tags[0][0], "my_tag_id")
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def foreign_key_error(self):
         file = Gio.File.new_for_path("test.db")
@@ -195,19 +194,19 @@ class GlobalSQLiteTest(unittest.TestCase):
             with self.assertRaises(ForeignKeyError):
                 await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
                                               VehicleType.CAR, 100.0)
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
 
     async def multiple_context_managers(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path", "my_project_file_path")
 
         async with GlobalSQLite(file) as db2:
-            await db2.add_project("my_project_id_2", "proj_name", SimulatorType("0", "Vissim"),
+            await db2.add_project("my_project_id_2", SimulatorType("0", "Vissim"),
                                   "my_simulator_file_path", "my_project_file_path")
 
         async with GlobalSQLite(file) as db3:
             self.assertEqual(len(await db3.get_all_projects()), 2)
 
-        file.delete_async(0, None, self.on_delete_async, None)
+        await file.delete_async(0, None)
