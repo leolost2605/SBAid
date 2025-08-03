@@ -5,7 +5,7 @@ from gi.repository import GObject, GLib, Gio
 
 
 from sbaid import common
-from sbaid.model.simulator_factory import SimulatorFactory
+from sbaid.model.simulator.simulator_factory import SimulatorFactory
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType

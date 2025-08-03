@@ -1,20 +1,16 @@
-"""TODO"""
 import asyncio
 import unittest
+from unittest.mock import Mock, AsyncMock
 
 from gi.events import GLibEventLoopPolicy
-from gi.repository import Gio
+from gi.repository import Gio, GLib
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
+from sbaid.model.project import Project
 
 
 class ProjectTestCase(unittest.TestCase):
-
-    def on_delete_async(feld, file, result, user_data):
-        file.delete_finish(result)
-
-
     def test(self):
         self.assertTrue(True)
         asyncio.set_event_loop_policy(GLibEventLoopPolicy())
@@ -24,17 +20,16 @@ class ProjectTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        # TODO test start_simulation (only works when dependencies are implemented
         await self.load_from_db()
-        # load is not tested as it only delegates to network and
-        # algorithm configuration manager loading
-
+        await self.start_simulation()
 
     async def load_from_db(self) -> None:
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
+
         context = Context()
         await context.load()
-        my_project_id = await context.create_project(sim_type, "sim_file_path", "proj_file_path")
+
+        my_project_id = await context.create_project("my_cool_name", sim_type, "sim_file_path", "proj_file_path")
         project = context.projects.get_item(0)
         project.name = "my_cool_name"
         created_at = project.created_at
@@ -53,3 +48,26 @@ class ProjectTestCase(unittest.TestCase):
 
         await Gio.File.new_for_path("proj_file_path").delete_async(0)
         await Gio.File.new_for_path("global_db").delete_async(0)
+
+        db_mock = Mock()
+        db_mock.get_project_name = AsyncMock(return_value="my loaded name")
+        db_mock.get_created_at = AsyncMock(return_value=GLib.DateTime.new_now_local())
+        db_mock.get_last_modified_at = AsyncMock(return_value=GLib.DateTime.new_now_local())
+
+        project = Project("myid", sim_type, "sim_file_path", "proj_file_path", db_mock)
+        await project.load_from_db()
+
+        self.assertEqual(project.name, "my loaded name")
+        self.assertEqual(project.id, "myid")
+        self.assertEqual(project.simulation_file_path, "sim_file_path")
+
+    async def start_simulation(self):
+        sim_type = SimulatorType("dummy_json", "Dummy Simulator")
+
+        project = Project("myid", sim_type, "sim_file_path", "proj_file_path", Mock())
+        await project.algorithm_configuration_manager.create_algorithm_configuration()
+
+        observer = Mock()
+
+        await project.start_simulation(observer)
+
