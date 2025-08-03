@@ -34,7 +34,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         return SeabornImage(buffer.getvalue())
 
     def get_diagram_type(self) -> DiagramType:
-        return DiagramType("heatmap_diagram", "Heatmap")
+        return DiagramType("heatmap_diagram", "Heatmap-Diagram")
 
     def __filter_result_data(self, result: Result, cross_section_ids: list[str])\
             -> tuple[list[float], list[str], list[str]]:
