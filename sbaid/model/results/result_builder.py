@@ -147,8 +147,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     __current_vehicle_builder: _VehicleBuilder | None
 
     def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
-        super().__init__()
         """Initializes the ResultBuilder class."""
+        super().__init__()
         self.__result_manager = result_manager
         self.__global_db = global_db
 
@@ -300,7 +300,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         result = self.__current_result
 
         self.__result_manager.register_result(result)
-        #await self.__global_db.add_result(result.id,
+        # await self.__global_db.add_result(result.id,
         #                        result.result_name,
         #                        result.project_name,
         #                        result.creation_date_time)

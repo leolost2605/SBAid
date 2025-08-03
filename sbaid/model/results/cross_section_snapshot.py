@@ -39,14 +39,12 @@ class CrossSectionSnapshot(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    b_display: BDisplay = GObject.Property(  # type
+    b_display: BDisplay = GObject.Property(  # type: ignore
         type=BDisplay,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY,
         default=BDisplay.OFF)
-
-
 
     __lane_snapshots: Gio.ListStore
     __global_db: GlobalDatabase

@@ -16,7 +16,3 @@ class SeabornImage(Image):
 
         with open(path, 'wb') as f:
             f.write(self._image_bytes)
-
-
-
-
