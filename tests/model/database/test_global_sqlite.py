@@ -1,6 +1,7 @@
 import asyncio
 import unittest
 
+from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
@@ -33,8 +34,6 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.foreign_key_error()
         await self.multiple_dbs()
 
-    def on_delete_async(feld, file, result, user_data):
-        file.delete_finish(result)
 
     async def path(self):
         file = Gio.File.new_for_path("recursive/directories/test/apparently/successful/test.db")
@@ -159,8 +158,10 @@ class GlobalSQLiteTest(unittest.TestCase):
                              "my_project_name",
                             revo_date)
         all_results = await db.get_all_results()
-        result_time = all_results[0][1]
-        self.assertEqual(result_time.format_iso8601(), revo_date.format_iso8601())
+        self.assertEqual(all_results[0][0], "my_result_id")
+        self.assertEqual(all_results[0][1], "my_result_name")
+        self.assertEqual(all_results[0][2], "my_project_name")
+        self.assertEqual(all_results[0][3].format_iso8601(), revo_date.format_iso8601())
 
         await file.delete_async(0, None)
 
@@ -194,17 +195,17 @@ class GlobalSQLiteTest(unittest.TestCase):
         with self.assertRaises(ForeignKeyError):
             await db.add_snapshot("my_snapshot_id", "my_nonexistent_result_id",
                                   DateTime.new_now(TimeZone.new_utc()))
-        # with self.assertRaises(ForeignKeyError):
-        #     await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
-        #                                         "my_nonexistent_snapshot_id",
-        #                                         "my_cross_section_name", BDisplay.OFF)
-        # with self.assertRaises(ForeignKeyError):
-        #     await db.add_lane_snapshot("my_lane_snapshot_id",
-        #                                "my_nonexistent_snapshot_id", 0, 0.0, 0, ADisplay.OFF)
-        # with self.assertRaises(ForeignKeyError):
-        #     await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
-        #                                   VehicleType.CAR, 100.0)
-        # await file.delete_async(0, None)
+        with self.assertRaises(ForeignKeyError):
+            await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
+                                                "my_nonexistent_snapshot_id",
+                                                "my_cross_section_name", BDisplay.OFF)
+        with self.assertRaises(ForeignKeyError):
+            await db.add_lane_snapshot("my_lane_snapshot_id",
+                                       "my_nonexistent_snapshot_id", 0, 0.0, 0, ADisplay.OFF)
+        with self.assertRaises(ForeignKeyError):
+            await db.add_vehicle_snapshot("my_nonexistent_lane_snapshot_id",
+                                              VehicleType.CAR, 100.0)
+        await file.delete_async(0, None)
 
     async def multiple_dbs(self):
         file = Gio.File.new_for_path("test.db")

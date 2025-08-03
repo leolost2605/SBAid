@@ -13,33 +13,27 @@ class DummyCrossSection(SimulatorCrossSection):
     _lanes: int
     _hard_shoulder_available: bool
 
-    @SimulatorCrossSection.id.getter  # type: ignore
-    def id(self) -> str:
+    def get_id(self) -> str:
         """Getter for the id."""
         return self._id
 
-    @SimulatorCrossSection.name.getter  # type: ignore
-    def name(self) -> str:
+    def get_name(self) -> str:
         """Getter for the name."""
         return self._name
 
-    @SimulatorCrossSection.type.getter  # type: ignore
-    def type(self) -> CrossSectionType:
+    def get_type(self) -> CrossSectionType:
         """Getter for the type."""
         return self._type
 
-    @SimulatorCrossSection.location.getter  # type: ignore
-    def location(self) -> Location:
+    def get_location(self) -> Location:
         """Getter for the location."""
         return self._location
 
-    @SimulatorCrossSection.lanes.getter  # type: ignore
-    def lanes(self) -> int:
+    def get_lanes(self) -> int:
         """Getter for the lanes."""
         return self._lanes
 
-    @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
-    def hard_shoulder_available(self) -> bool:
+    def get_hard_shoulder_available(self) -> bool:
         """Getter for the hard shoulder available boolean."""
         return self._hard_shoulder_available
 

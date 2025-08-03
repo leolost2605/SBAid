@@ -43,7 +43,7 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
-    _cross_sections: Gio.ListModel
+    _cross_sections: Gio.ListStore
     _simulation_start_time: int
     _simulation_end_time: int
     _schema = {
@@ -85,18 +85,15 @@ class DummySimulator(Simulator):
         "additionalProperties": False
     }
 
-    @Simulator.type.getter  # type: ignore
-    def type(self) -> SimulatorType:
+    def get_type(self) -> SimulatorType:
         """Property definition for the simulator type."""
         return self._type
 
-    @Simulator.route.getter  # type: ignore
-    def route(self) -> Gio.ListModel:
+    def get_route(self) -> Gio.ListModel:
         """TODO"""
         return None
 
-    @Simulator.cross_sections.getter  # type: ignore
-    def cross_sections(self) -> Gio.ListModel:
+    def get_cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
         return self._cross_sections
 
@@ -132,10 +129,10 @@ class DummySimulator(Simulator):
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
-                    self.cross_sections.append(DummyCrossSection(cross_section, cross_section,
-                                                                 CrossSectionType.COMBINED,
-                                                                 Location(0, 0), max_lanes,
-                                                                 False))
+                    self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
+                                                                  CrossSectionType.COMBINED,
+                                                                  Location(0, 0), max_lanes,
+                                                                  False))
                 self._sequence[int(snapshot_time)] = current_input
 
         self._simulation_start_time = min(self._sequence.keys())

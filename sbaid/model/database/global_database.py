@@ -27,7 +27,7 @@ class GlobalDatabase(ABC):
         """Remove a project from the database."""
 
     @abstractmethod
-    async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
+    async def get_all_results(self) -> list[tuple[str, str, str, GLib.DateTime]]:
         """Return all results in the database."""
 
     @abstractmethod
