@@ -1,11 +1,11 @@
 """This module defines the AlgorithmConfiguration class"""
-import asyncio
 import importlib.util
 import sys
 import os
 
 from gi.repository import GObject
 
+from sbaid import common
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.network.network import Network
 from sbaid.model.algorithm.algorithm import Algorithm
@@ -24,7 +24,6 @@ class AlgorithmConfiguration(GObject.GObject):
     algorithm.
     """
 
-    __background_tasks: set[asyncio.Task[None]]
     __db: ProjectDatabase
 
     __name: str = "New Algorithm Configuration"
@@ -49,9 +48,7 @@ class AlgorithmConfiguration(GObject.GObject):
         """Sets the name of the algo config"""
         self.__name = new_name
 
-        task = asyncio.create_task(self.__db.set_algorithm_configuration_name(self.id, new_name))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        common.run_coro_in_background(self.__db.set_algorithm_configuration_name(self.id, new_name))
 
     script_path: str = GObject.Property(type=str)  # type: ignore
 
@@ -65,13 +62,8 @@ class AlgorithmConfiguration(GObject.GObject):
         """Sets the current script path of the algo config"""
         self.__script_path = new_script_path
 
-        task = asyncio.create_task(self.__db.set_script_path(self.id, new_script_path))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
-
-        load_task = asyncio.create_task(self.__load_algorithm())
-        self.__background_tasks.add(load_task)
-        task.add_done_callback(self.__background_tasks.discard)
+        common.run_coro_in_background(self.__db.set_script_path(self.id, new_script_path))
+        common.run_coro_in_background(self.__load_algorithm())
 
     evaluation_interval: int = GObject.Property(type=int)  # type: ignore
 
@@ -85,10 +77,8 @@ class AlgorithmConfiguration(GObject.GObject):
         """Sets the evaluation interval"""
         self.__evaluation_interval = new_evaluation_interval
 
-        task = asyncio.create_task(self.__db.set_evaluation_interval(self.id,
-                                                                     new_evaluation_interval))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        common.run_coro_in_background(self.__db.set_evaluation_interval(self.id,
+                                                                        new_evaluation_interval))
 
     display_interval: int = GObject.Property(type=int)  # type: ignore
 
@@ -102,10 +92,8 @@ class AlgorithmConfiguration(GObject.GObject):
         """Sets the display interval"""
         self.__display_interval = new_display_interval
 
-        task = asyncio.create_task(self.__db.set_evaluation_interval(self.id,
+        common.run_coro_in_background(self.__db.set_display_interval(self.id,
                                                                      new_display_interval))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
 
     algorithm: Algorithm = GObject.Property(  # type: ignore
         type=Algorithm,
@@ -123,7 +111,6 @@ class AlgorithmConfiguration(GObject.GObject):
         super().__init__(id=configuration_id, parameter_configuration=ParameterConfiguration(
                          network, db, configuration_id))
 
-        self.__background_tasks = set()
         self.__db = db
 
     async def load_from_db(self) -> None:

@@ -1,6 +1,4 @@
 """This module defines the Parameter class."""
-import asyncio
-
 from gi.repository import GLib, GObject, Gio
 
 from sbaid import common
@@ -25,7 +23,6 @@ class Parameter(GObject.GObject):
     applies to.
     """
 
-    __background_tasks: set[asyncio.Task[None]]
     __db: ProjectDatabase
     __algo_config_id: str
     __value: GLib.Variant | None = None
@@ -65,10 +62,8 @@ class Parameter(GObject.GObject):
                              f"Expected: {self.value_type.dup_string()}")
         self.__value = value
 
-        task = asyncio.create_task(self.__db.set_parameter_value(self.__algo_config_id, self.name,
-                                                                 self.__get_cs_id(), value))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        common.run_coro_in_background(self.__db.set_parameter_value(
+            self.__algo_config_id, self.name, self.__get_cs_id(), value))
 
     cross_section: CrossSection = GObject.Property(  # type: ignore
         type=CrossSection,
@@ -88,7 +83,6 @@ class Parameter(GObject.GObject):
                  cross_section: CrossSection | None, db: ProjectDatabase,
                  algo_config_id: str) -> None:
         super().__init__(name=name, value_type=value_type, cross_section=cross_section)
-        self.__background_tasks = set()
         self.__db = db
         self.__algo_config_id = algo_config_id
         self.value = value
@@ -108,12 +102,9 @@ class Parameter(GObject.GObject):
         self.__selected_tags.append(tag)
 
         # TODO, Parameter Tag fixen in db
-        task = asyncio.create_task(self.__db.add_parameter_tag(
+        common.run_coro_in_background(self.__db.add_parameter_tag(
             "this field should be removed", self.name,
             self.__algo_config_id, self.__get_cs_id(), tag.tag_id))
-
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
 
     def remove_tag(self, tag: Tag) -> None:
         """
@@ -124,10 +115,8 @@ class Parameter(GObject.GObject):
                 self.__selected_tags.remove(i)
 
                 # TODO, Parameter Tag fixen in db
-                task = asyncio.create_task(self.__db.remove_parameter_tag(
+                common.run_coro_in_background(self.__db.remove_parameter_tag(
                     "we need algo config, name, cs id and tag id"))
-                self.__background_tasks.add(task)
-                task.add_done_callback(self.__background_tasks.discard)
 
                 return
 

@@ -1,5 +1,4 @@
 """This module represents the class AlgorithmConfigurationManager"""
-import asyncio
 from typing import cast
 from uuid import uuid4
 
@@ -23,8 +22,6 @@ class AlgorithmConfigurationManager(GObject.GObject):
     the tags that can be given to parameters across the algorithm configurations.
     """
 
-    __background_tasks: set[asyncio.Task[None]]
-
     __db: ProjectDatabase
     __network: Network
 
@@ -47,9 +44,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
         """Sets the id of the selected algorithm configuration"""
         self.__selected_algo_config = new_id
 
-        task = asyncio.create_task(self.__db.set_selected_algorithm_configuration_id(new_id))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        common.run_coro_in_background(self.__db.set_selected_algorithm_configuration_id(new_id))
 
     available_tags: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
@@ -68,7 +63,6 @@ class AlgorithmConfigurationManager(GObject.GObject):
     def __init__(self, network: Network, db: ProjectDatabase) -> None:
         super().__init__()
 
-        self.__background_tasks = set()
         self.__db = db
         self.__network = network
         self.__available_tags = Gio.ListStore.new(Tag)
@@ -126,9 +120,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
                     else:
                         self.selected_algorithm_configuration_id = None
 
-                task = asyncio.create_task(self.__db.remove_algorithm_configuration(algo_config_id))
-                self.__background_tasks.add(task)
-                task.add_done_callback(self.__background_tasks.discard)
+                common.run_coro_in_background(
+                    self.__db.remove_algorithm_configuration(algo_config_id))
 
                 return
 
@@ -160,9 +153,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
             if tag.tag_id == tag_id:
                 self.__available_tags.remove(pos)
 
-                task = asyncio.create_task(self.__db.remove_tag(tag_id))
-                self.__background_tasks.add(task)
-                task.add_done_callback(self.__background_tasks.discard)
+                common.run_coro_in_background(self.__db.remove_tag(tag_id))
 
                 return
 
