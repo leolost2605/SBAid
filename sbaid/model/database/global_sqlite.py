@@ -174,8 +174,8 @@ class GlobalSQLite(GlobalDatabase):
         async with self._connection.execute("""
         SELECT name FROM tag WHERE id = ?
         """, [tag_id]) as cursor:
-            result = await cursor.fetchone()
-            return result[0]
+            result = list(await cursor.fetchall())
+            return str(result[0][0])
 
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
