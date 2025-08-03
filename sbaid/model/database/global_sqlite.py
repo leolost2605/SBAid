@@ -1,5 +1,6 @@
 """This module contains the GLobalSQLite class."""
 import sqlite3
+from typing import TypeVar
 
 import aiosqlite
 
@@ -24,6 +25,9 @@ def get_date_time(formatted_string: str) -> GLib.DateTime:
     return date_time
 
 
+T = TypeVar('T', bound="GlobalDatabase")
+
+
 class GlobalSQLite(GlobalDatabase):
     """This class implements the GlobalDatabase interface which allows for the all results
     and project metadata to be stored."""
@@ -33,75 +37,70 @@ class GlobalSQLite(GlobalDatabase):
     def __init__(self, file: Gio.File) -> None:
         self._file = file
 
-    async def __aenter__(self) -> GlobalDatabase:
-        if not self._file.query_exists():
+    async def __aenter__(self) -> T:
+        already_existed = self._file.query_exists()
+        if not already_existed:
             await make_directory_with_parents_async(self._file.get_parent())
             await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
                                           GLib.PRIORITY_DEFAULT)
         self._connection = await aiosqlite.connect(str(self._file.get_path()))
-        await self._connection.executescript("""PRAGMA foreign_keys = ON;
-DROP TABLE IF EXISTS project;
-DROP TABLE IF EXISTS result;
-DROP TABLE IF EXISTS result_tag;
-DROP TABLE IF EXISTS tag;
-DROP TABLE IF EXISTS snapshot;
-DROP TABLE IF EXISTS cross_section_snapshot;
-DROP TABLE IF EXISTS lane_snapshot;
-DROP TABLE IF EXISTS vehicle_snapshot;
-
-CREATE TABLE project (
-    id TEXT PRIMARY KEY,
-    simulator_type_id TEXT,
-    simulator_type_name TEXT,
-    simulator_file_path TEXT,
-    project_file_path TEXT
-);
-CREATE TABLE result (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    project_name TEXT,
-    date TEXT
-);
-CREATE TABLE result_tag (
-    id TEXT PRIMARY KEY,
-    tag_id TEXT,
-    result_id TEXT,
-    FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE
-);
-CREATE TABLE tag (
-    id TEXT PRIMARY KEY,
-    name TEXT
-);
-CREATE TABLE snapshot (
-    id TEXT PRIMARY KEY,
-    result_id TEXT,
-    date TEXT,
-    FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE
-);
-CREATE TABLE cross_section_snapshot (
-    id TEXT PRIMARY KEY,
-    snapshot_id TEXT,
-    cross_section_name TEXT,
-    b_display INT,
-    FOREIGN KEY (snapshot_id) REFERENCES snapshot (id) ON DELETE CASCADE
-);
-CREATE TABLE lane_snapshot (
-    id TEXT PRIMARY KEY,
-    cross_section_snapshot_id TEXT,
-    lane_number INT,
-    average_speed REAL,
-    traffic_volume INT,
-    a_display INT,
-    FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id) ON DELETE CASCADE
-);
-CREATE TABLE vehicle_snapshot (
-    lane_snapshot_id TEXT,
-    vehicle_type INT,
-    speed REAL,
-    FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id) ON DELETE CASCADE
-);""")
-        await self._connection.commit()
+        if not already_existed:
+            await self._connection.executescript("""
+            PRAGMA foreign_keys = ON;
+            CREATE TABLE project (
+                id TEXT PRIMARY KEY,
+                simulator_type_id TEXT,
+                simulator_type_name TEXT,
+                simulator_file_path TEXT,
+                project_file_path TEXT
+            );
+            CREATE TABLE result (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                project_name TEXT,
+                date TEXT
+            );
+            CREATE TABLE result_tag (
+                id TEXT PRIMARY KEY,
+                tag_id TEXT,
+                result_id TEXT,
+                FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE
+            );
+            CREATE TABLE tag (
+                id TEXT PRIMARY KEY,
+                name TEXT
+            );
+            CREATE TABLE snapshot (
+                id TEXT PRIMARY KEY,
+                result_id TEXT,
+                date TEXT,
+                FOREIGN KEY (result_id) REFERENCES result (id) ON DELETE CASCADE
+            );
+            CREATE TABLE cross_section_snapshot (
+                id TEXT PRIMARY KEY,
+                snapshot_id TEXT,
+                cross_section_name TEXT,
+                b_display INT,
+                FOREIGN KEY (snapshot_id) REFERENCES snapshot (id) ON DELETE CASCADE
+            );
+            CREATE TABLE lane_snapshot (
+                id TEXT PRIMARY KEY,
+                cross_section_snapshot_id TEXT,
+                lane_number INT,
+                average_speed REAL,
+                traffic_volume INT,
+                a_display INT,
+                FOREIGN KEY (cross_section_snapshot_id) REFERENCES cross_section_snapshot (id)
+                    ON DELETE CASCADE
+            );
+            CREATE TABLE vehicle_snapshot (
+                lane_snapshot_id TEXT,
+                vehicle_type INT,
+                speed REAL,
+                FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id)
+                    ON DELETE CASCADE);""")
+            await self._connection.commit()
         return self
 
     async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
@@ -129,10 +128,10 @@ CREATE TABLE vehicle_snapshot (
         await self._connection.execute("""DELETE FROM project WHERE id = ?;""", [project_id])
         await self._connection.commit()
 
-    async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
+    async def get_all_results(self) -> list[tuple[str, str, str, GLib.DateTime]]:
         """Return all results in the database."""
-        async with self._connection.execute("""SELECT id, date FROM result;""") as cursor:
-            return list(map(lambda x: (str(x[0]), get_date_time(str(x[1]))),
+        async with self._connection.execute("""SELECT * FROM result;""") as cursor:
+            return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]), get_date_time(str(x[3]))),
                             await cursor.fetchall()))
 
     async def add_result(self, result_id: str, result_name: str, project_name: str,
