@@ -99,7 +99,6 @@ class GlobalSQLite(GlobalDatabase):
                     speed REAL,
                     FOREIGN KEY (lane_snapshot_id) REFERENCES lane_snapshot (id)
                         ON DELETE CASCADE);""")
-                await db.execute("""PRAGMA integrity_check(project)""")
                 await db.commit()
 
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
