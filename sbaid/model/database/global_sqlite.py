@@ -128,10 +128,10 @@ class GlobalSQLite(GlobalDatabase):
         await self._connection.execute("""DELETE FROM project WHERE id = ?;""", [project_id])
         await self._connection.commit()
 
-    async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
+    async def get_all_results(self) -> list[tuple[str, str, str, GLib.DateTime]]:
         """Return all results in the database."""
-        async with self._connection.execute("""SELECT id, date FROM result;""") as cursor:
-            return list(map(lambda x: (str(x[0]), get_date_time(str(x[1]))),
+        async with self._connection.execute("""SELECT * FROM result;""") as cursor:
+            return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]), get_date_time(str(x[3]))),
                             await cursor.fetchall()))
 
     async def add_result(self, result_id: str, result_name: str, project_name: str,
