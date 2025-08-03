@@ -10,8 +10,11 @@ from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
+from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
+from sbaid.model.results.lane_snapshot import LaneSnapshot
 from sbaid.model.results.result import Result
 from sbaid.model.results.seaborn_image import SeabornImage
+from sbaid.model.results.snapshot import Snapshot
 
 
 class QVGenerator(CrossSectionDiagramGenerator):
@@ -48,11 +51,14 @@ class QVGenerator(CrossSectionDiagramGenerator):
         cross_section_name: str | None = None
 
         for snapshot in result.snapshots:
+            assert isinstance(snapshot, Snapshot)
             for cs_snapshot in snapshot.cross_section_snapshots:
+                assert isinstance(cs_snapshot, CrossSectionSnapshot)
                 if cs_snapshot.cross_section_id == cross_section_id:
                     if cross_section_name is None:
                         cross_section_name = cs_snapshot.cross_section_name
                     for lane_snapshot in cs_snapshot.lane_snapshots:
+                        assert isinstance(lane_snapshot, LaneSnapshot)
                         average_speed.append(lane_snapshot.average_speed)
                         traffic_volume.append(lane_snapshot.traffic_volume)
                         a_displays.append(lane_snapshot.a_display)

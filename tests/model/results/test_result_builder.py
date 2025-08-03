@@ -57,7 +57,7 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
     async def generate_result(self, snapshot_amount: int, cs_amount: int, lane_amount: int) -> Result:
         """Generates a result with random values. The only thing not realistic is that
         the average speed calculated from the vehicles will not match the lane average."""
-        result_builder = ResultBuilder(ResultManager(), self.__global_placeholder_db)
+        result_builder = ResultBuilder(ResultManager(self.__global_placeholder_db), self.__global_placeholder_db)
         result_builder.begin_result("randomized_result")
         random_ids = self.__generate_random_ids(cs_amount)
         for i in range(snapshot_amount):  # amount of snapshots

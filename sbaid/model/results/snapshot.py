@@ -1,7 +1,6 @@
 """ This module represents the Snapshot class."""
 
 from gi.repository import Gio, GLib, GObject
-
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 
@@ -29,20 +28,24 @@ class Snapshot(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    cross_section_snapshots = GObject.Property(
-        type=Gio.ListModel,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+    cross_section_snapshots: Gio.ListModel = GObject.Property(
+        type=Gio.ListModel)  # type: ignore[assignment]
+
+    @cross_section_snapshots.getter  # type: ignore
+    def cross_section_snapshots(self) -> Gio.ListModel:
+        """Getter for the cross section snapshots."""
+        return self.__cross_section_snapshots
 
     __global_db: GlobalDatabase
+    __cross_section_snapshots: Gio.ListStore
 
     def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime,
                  global_db: GlobalDatabase) -> None:
         """Initialize the Snapshot class."""
         super().__init__(id=snapshot_id,
-                         capture_timestamp=capture_timestamp,
-                         cross_section_snapshots=Gio.ListStore.new(CrossSectionSnapshot))
+                         capture_timestamp=capture_timestamp)
+
+        self.__cross_section_snapshots = Gio.ListStore.new(CrossSectionSnapshot)
         self.__global_database = global_db
 
     async def load_from_db(self) -> None:
@@ -57,4 +60,4 @@ class Snapshot(GObject.GObject):
 
     def add_cross_section_snapshot(self, snapshot: CrossSectionSnapshot) -> None:
         """This method adds a cross-section snapshot to the existing list."""
-        self.cross_section_snapshots.append(snapshot)   # pylint:disable=no-member
+        self.__cross_section_snapshots.append(snapshot)

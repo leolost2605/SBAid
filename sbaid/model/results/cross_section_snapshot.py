@@ -19,22 +19,22 @@ class CrossSectionSnapshot(GObject.GObject):
     """
 
     # GObject Property definitions
-    snapshot_id = GObject.Property(
+    snapshot_id: str = GObject.Property(  # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    cs_snapshot_id = GObject.Property(
+    cs_snapshot_id: str = GObject.Property(  # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    cross_section_name = GObject.Property(
+    cross_section_name: str = GObject.Property(  # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    cross_section_id = GObject.Property(
+    cross_section_id: str = GObject.Property(  # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -46,13 +46,15 @@ class CrossSectionSnapshot(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT_ONLY,
         default=BDisplay.OFF)
 
-    __lane_snapshots: Gio.ListStore
-    __global_db: GlobalDatabase
+    lane_snapshots: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
 
-    @GObject.Property
+    @lane_snapshots.getter  # type: ignore
     def lane_snapshots(self) -> Gio.ListModel:
         """Returns ListModel of available diagram types"""
         return self.__lane_snapshots
+
+    __lane_snapshots: Gio.ListStore
+    __global_db: GlobalDatabase
 
     def __init__(self, snapshot_id: str, cross_section_snapshot_id: str, cross_section_name: str,
                  cross_section_id: str, b_display: BDisplay, global_db: GlobalDatabase) -> None:
@@ -85,7 +87,7 @@ class CrossSectionSnapshot(GObject.GObject):
     def calculate_cs_average_speed(self) -> float:
         """Calculate the average of the average speed value from
         all lanes in this cross-section snapshot. """
-        speed_sum = 0
+        speed_sum = 0.0
         for snapshot in self.__lane_snapshots:
             assert isinstance(snapshot, LaneSnapshot)  # todo delete this and figure it out
             speed_sum += snapshot.average_speed
