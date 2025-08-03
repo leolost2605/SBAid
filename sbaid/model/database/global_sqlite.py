@@ -169,6 +169,13 @@ class GlobalSQLite(GlobalDatabase):
         DELETE FROM tag WHERE id = ?;""", (tag_id,))
         await self._connection.commit()
 
+    async def get_tag_name(self, tag_id: str) -> str:
+        """Return the name of the given tag_id."""
+        async with self._connection.execute("""
+        SELECT name FROM tag WHERE id = ?
+        """, [tag_id]) as cursor:
+            return str(await cursor.fetchone()[0])
+
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
         try:

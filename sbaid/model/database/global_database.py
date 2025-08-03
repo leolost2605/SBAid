@@ -52,6 +52,10 @@ class GlobalDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
+    async def get_tag_name(self, tag_id: str) -> str:
+        """Return the name of the given tag_id."""
+
+    @abstractmethod
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""
 
