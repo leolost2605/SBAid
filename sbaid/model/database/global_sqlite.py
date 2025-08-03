@@ -41,12 +41,14 @@ class GlobalSQLite(GlobalDatabase):
         self._file = file
 
     async def open(self) -> None:
+        """Load the database's schema."""
         already_existed = self._file.query_exists()
         is_valid = True
         if already_existed:
             async with aiosqlite.connect(str(self._file.get_path())) as db:
                 async with db.execute("""PRAGMA integrity_check""") as cursor:
                     res = await cursor.fetchone()
+                    assert (res is not None)
                     is_valid = res[0] == 'ok'
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
@@ -143,8 +145,8 @@ class GlobalSQLite(GlobalDatabase):
         """Return all results in the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT * FROM result;""") as cursor:
-                return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]), get_date_time(str(x[3]))),
-                            await cursor.fetchall()))
+                return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]),
+                                           get_date_time(str(x[3]))), await cursor.fetchall()))
 
     async def add_result(self, result_id: str, result_name: str, project_name: str,
                          creation_date_time: GLib.DateTime) -> None:
@@ -172,8 +174,8 @@ class GlobalSQLite(GlobalDatabase):
             """, [result_id]) as cursor:
                 res = await cursor.fetchall()
                 if res:
-                    return str(res[0][0])
-                return "SDGWEPGUNEPOIBUNWEPJGHNWEPGJNWEPIGJNESPIGJNEPG"  # TODO empty list doesn't work
+                    return str(list(res)[0][0])
+                return ""  # TODO empty list doesn't work
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
@@ -218,7 +220,7 @@ class GlobalSQLite(GlobalDatabase):
 
                 await db.execute("""
                 INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
-                                               (result_tag_id, result_id, tag_id))
+                                 (result_tag_id, result_id, tag_id))
                 await db.commit()
             except sqlite3.IntegrityError as e:
                 raise ForeignKeyError("Result id is invalid") from e
@@ -258,8 +260,8 @@ class GlobalSQLite(GlobalDatabase):
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, BDisplay]]:
+        """Return all cross section snapshots from a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            """Return all cross section snapshots from a given snapshot."""
             async with db.execute("""
             SELECT id, snapshot_id, b_display FROM cross_section_snapshot WHERE snapshot_id = ?;
             """, [snapshot_id]) as cursor:

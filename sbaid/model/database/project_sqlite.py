@@ -1,6 +1,6 @@
 """This module contains the ProjectSQLite class."""
 import sqlite3
-from typing import TypeVar
+from typing import TypeVar, cast
 
 import aiosqlite
 from gi.repository import GLib, Gio
@@ -12,8 +12,10 @@ from sbaid.model.database.project_database import ProjectDatabase
 
 T = TypeVar('T', bound="ProjectDatabase")
 
+
 class InvalidDatabaseError(Exception):
     """Exception raised when an invalid database is encountered."""
+
 
 class ProjectSQLite(ProjectDatabase):
     """This class implements the ProjectDatabase interface which allows for the
@@ -23,15 +25,17 @@ class ProjectSQLite(ProjectDatabase):
 
     def __init__(self, file: Gio.File) -> None:
         self._file = file
-        self._creation_time = GLib.DateTime.new_now_local()
+        self._creation_time = cast(GLib.DateTime, GLib.DateTime.new_now_local())
 
     async def open(self) -> None:
+        """Loads the database's schema."""
         already_existed = self._file.query_exists()
         is_valid = True
         if already_existed:
             async with aiosqlite.connect(str(self._file.get_path())) as db:
                 async with db.execute("""PRAGMA integrity_check""") as cursor:
                     res = await cursor.fetchone()
+                    assert res is not None
                     is_valid = res[0] == 'ok'
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
@@ -88,10 +92,10 @@ class ProjectSQLite(ProjectDatabase):
                     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
                 );""")
             await db.execute("""
-                                    INSERT INTO meta_information (name, created_at, last_modified) VALUES
-                                    (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
-                                                   GLib.DateTime.format_iso8601(  # pylint: disable=no-member
-                                                       GLib.DateTime.new_now_local())))  # type: ignore
+            INSERT INTO meta_information (name, created_at, last_modified) VALUES
+            (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
+                           GLib.DateTime.format_iso8601(  # pylint: disable=no-member
+                               GLib.DateTime.new_now_local())))  # type: ignore
             await db.commit()
 
     async def get_created_at(self) -> GLib.DateTime:
@@ -118,7 +122,7 @@ class ProjectSQLite(ProjectDatabase):
         """Update the GLib.DateTime when the project was last modified."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE meta_information SET last_modified = ?""",
-                                           [new_last_modified.format_iso8601()])
+                             [new_last_modified.format_iso8601()])
             await db.commit()
 
     async def get_project_name(self) -> str:
@@ -138,7 +142,7 @@ class ProjectSQLite(ProjectDatabase):
         """Return the name of the cross_section with the given id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT name FROM cross_section WHERE id = ?""",
-                                                [cross_section_id]) as cursor:
+                                  [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
                     return ""
@@ -289,7 +293,7 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT parameter_name,
             cross_section_id FROM parameter WHERE algorithm_configuration_id = ?""",
-                                                [algorithm_configuration_id]) as cursor:
+                                  [algorithm_configuration_id]) as cursor:
                 result = await cursor.fetchall()
                 if result is None:
                     return []
@@ -303,8 +307,7 @@ class ProjectSQLite(ProjectDatabase):
             if cross_section_id is None:
                 async with db.execute("""SELECT value FROM parameter
                 WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
-                                                    (algorithm_configuration_id,
-                                                     parameter_name)) as cursor:
+                                      (algorithm_configuration_id, parameter_name)) as cursor:
                     result = await cursor.fetchone()
                     if result is None:
                         return None
@@ -312,8 +315,8 @@ class ProjectSQLite(ProjectDatabase):
             else:
                 async with db.execute("""SELECT value FROM parameter
                 WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
-                                                    (algorithm_configuration_id, parameter_name,
-                                                     cross_section_id)) as cursor:
+                                      (algorithm_configuration_id, parameter_name,
+                                       cross_section_id)) as cursor:
                     result = await cursor.fetchone()
                     if result is None:
                         return None
@@ -328,8 +331,8 @@ class ProjectSQLite(ProjectDatabase):
             if cross_section_id is None:
                 await db.execute("""UPDATE parameter SET value = ?
                 WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                                               (parameter_value.print_(True),
-                                                algorithm_configuration_id, parameter_name))
+                                 (parameter_value.print_(True),
+                                  algorithm_configuration_id, parameter_name))
             else:
                 await db.execute("""UPDATE parameter SET value = ?
                             WHERE algorithm_configuration_id = ? AND name = ?
@@ -345,14 +348,15 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""
             INSERT INTO cross_section (id, name, hard_shoulder_active, b_display_active)
-            VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active, b_display_active))
+            VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active,
+                                     b_display_active))
             await db.commit()
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Remove a cross section from the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""DELETE FROM cross_section WHERE id = ?""",
-                                           [cross_section_id])
+                             [cross_section_id])
             await db.commit()
 
     async def add_algorithm_configuration(self, algorithm_configuration_id: str, name: str,
@@ -367,17 +371,18 @@ class ProjectSQLite(ProjectDatabase):
 
             await db.execute("""
             INSERT INTO algorithm_configuration (id, name, evaluation_interval, display_interval,
-            script_path, is_selected) VALUES (?, ?, ?, ?, ?, ?)""", (algorithm_configuration_id, name,
-                                                                     evaluation_interval,
-                                                                     display_interval,
-                                                                     script_path, is_selected))
+            script_path, is_selected) VALUES (?, ?, ?, ?, ?, ?)""",
+                             (algorithm_configuration_id, name,
+                              evaluation_interval,
+                              display_interval,
+                              script_path, is_selected))
             await db.commit()
 
     async def remove_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
         """Remove a algorithm configuration from the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""DELETE FROM algorithm_configuration WHERE id = ?""",
-                                           [algorithm_configuration_id])
+                             [algorithm_configuration_id])
             await db.commit()
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
@@ -387,7 +392,7 @@ class ProjectSQLite(ProjectDatabase):
             try:
                 await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
                 name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                                               (algorithm_configuration_id, name, value.print_(True)))
+                                 (algorithm_configuration_id, name, value.print_(True)))
                 await db.commit()
             except sqlite3.IntegrityError as e:
                 raise ForeignKeyError("Foreign key does not exist!") from e
@@ -400,7 +405,7 @@ class ProjectSQLite(ProjectDatabase):
             if cross_section_id is None:
                 await db.execute("""DELETE FROM parameter
                 WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                                               (algorithm_configuration_id, name))
+                                 (algorithm_configuration_id, name))
             else:
                 await db.execute("""DELETE FROM parameter
                             WHERE algorithm_configuration_id = ? AND name = ?
@@ -412,7 +417,7 @@ class ProjectSQLite(ProjectDatabase):
         """Add a new tag to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""INSERT INTO tag (id, name) VALUES (?, ?)""",
-                                           (tag_id, name))
+                             (tag_id, name))
             await db.commit()
 
     async def remove_tag(self, tag_id: str) -> None:
@@ -435,20 +440,20 @@ class ProjectSQLite(ProjectDatabase):
         """Add a new parameter tag entry which represents a tag
         belonging to the given parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""INSERT INTO parameter_tag (id, parameter_name,
-                algorithm_configuration_id, cross_section_id, tag_id)
-                VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
-                                            algorithm_configuration_id, cross_section_id, tag_id))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            # try:
+            await db.execute("""INSERT INTO parameter_tag (id, parameter_name,
+            algorithm_configuration_id, cross_section_id, tag_id)
+            VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
+                                        algorithm_configuration_id, cross_section_id, tag_id))
+            await db.commit()
+            # except sqlite3.IntegrityError as e:
+            #     raise ForeignKeyError(e) from e
 
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""DELETE FROM parameter_tag WHERE id = ?""",
-                                           [parameter_tag_id])
+                             [parameter_tag_id])
             await db.commit()
 
     async def get_all_tags(self) -> tuple[str, str]:
