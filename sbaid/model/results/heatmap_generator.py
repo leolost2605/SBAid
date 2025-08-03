@@ -14,15 +14,18 @@ from sbaid.model.results.result import Result
 from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.seaborn_image import SeabornImage
 from sbaid.common import list_model_iterator
+from sbaid.model.results.snapshot import Snapshot
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
     """This class contains the logic for generating a heatmap diagram,
     given the simulation results."""
 
-    def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
+    def get_diagram(self, result: Result, cross_section_ids: list[str],
+                    image_format: ImageFormat) -> Image:
         data = self.__filter_result_data(result, cross_section_ids)
-        fig = self.__generate_diagram(result.result_name, result.project_name,data, result.creation_date_time)
+        fig = self.__generate_diagram(result.result_name, result.project_name,
+                                      data, result.creation_date_time)
 
         buffer = BytesIO()
         fig.savefig(buffer, format=image_format.value_name.lower(), bbox_inches='tight')
@@ -33,7 +36,8 @@ class HeatmapGenerator(GlobalDiagramGenerator):
     def get_diagram_type(self) -> DiagramType:
         return DiagramType("heatmap_diagram", "Heatmap")
 
-    def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
+    def __filter_result_data(self, result: Result, cross_section_ids: list[str])\
+            -> tuple[list[float], list[str], list[str]]:
         diagram_data = []
         timestamps = []
         cross_section_names = self.__get_cross_section_names_from_ids(result, cross_section_ids)
@@ -53,28 +57,30 @@ class HeatmapGenerator(GlobalDiagramGenerator):
     def __get_cross_section_names_from_ids(self, result: Result, ids: list[str]) -> list[str]:
         random_snapshot = random.choice(list(result.snapshots))
         cross_section_names = []
-        for snapshot in random_snapshot.cross_section_snapshots:
+        assert isinstance(random_snapshot, Snapshot)
+        for snapshot in list_model_iterator(random_snapshot.cross_section_snapshots):
             if snapshot.cross_section_id in ids and snapshot.cross_section_name not in ids:
                 cross_section_names.append(snapshot.cross_section_name)
 
         return cross_section_names
 
     def __generate_diagram(self, result_name: str, project_name: str,
-                           data: tuple[list, list, list], datetime: GLib.DateTime) -> Figure:
+                           data: tuple[list[float], list[str], list[str]],
+                           datetime: GLib.DateTime) -> Figure:
         colorscheme = (LinearSegmentedColormap.from_list
-                       ('rg',["#910000", "#c10000", "r", "#ffa500", "y", "g"], N=256))
+                       ('rg', ["#910000", "#c10000", "r", "#ffa500", "y", "g"], N=256))
         diagram_data = np.array(data[0])
         cross_sections = data[1]
         timestamps = data[2]
         formatted_date = datetime.format("%F")
         fig, ax = plt.subplots()
         sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
-                         square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
+                    square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
         ax.set_title(result_name + " from project " + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
         ax.tick_params(left=False)
-        ax.annotate(formatted_date, (0, 0), (-60, -20), xycoords='axes fraction',
-                     textcoords='offset points', va='top')
+        ax.annotate(str(formatted_date), (0, 0), (-60, -20), xycoords='axes fraction',
+                    textcoords='offset points', va='top')
         plt.tight_layout()
         plt.show()
         return fig

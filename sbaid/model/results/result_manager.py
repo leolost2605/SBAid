@@ -40,7 +40,7 @@ class ResultManager(GObject.GObject):
         result_information = await self.__global_db.get_all_results()
         for results in result_information:
             project_name = "placeholder"  # todo  await .__global_db.get_project_name(results[0])
-            result = Result(results[0], "placeholder", results[1], self.__global_db)
+            result = Result(results[0], project_name, results[1], self.__global_db)
             # todo change this i think
 
             tag_information = await self.__global_db.get_all_tags()
