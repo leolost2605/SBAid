@@ -73,10 +73,10 @@ class Project(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
-                 project_file_path: str) -> None:
+    def __init__(self, project_id: str, project_name: str, sim_type: SimulatorType,
+                 simulation_file_path: str, project_file_path: str) -> None:
         """todo"""
-        super().__init__(id=project_id, simulator_type=sim_type,
+        super().__init__(id=project_id, name=project_name, simulator_type=sim_type,
                          simulation_file_path=simulation_file_path,
                          project_file_path=project_file_path)
 

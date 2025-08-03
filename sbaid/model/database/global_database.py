@@ -14,12 +14,12 @@ class GlobalDatabase(ABC):
     the global database functionality."""
 
     @abstractmethod
-    async def add_project(self, project_id: str, simulator_type: SimulatorType,
+    async def add_project(self, project_id: str, project_name: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""
 
     @abstractmethod
-    async def get_all_projects(self) -> list[tuple[str, SimulatorType, str, str,]]:
+    async def get_all_projects(self) -> list[tuple[str, str, SimulatorType, str, str,]]:
         """Return meta-information about all projects in the database."""
 
     @abstractmethod

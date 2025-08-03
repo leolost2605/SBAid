@@ -49,6 +49,7 @@ class GlobalSQLite(GlobalDatabase):
             PRAGMA foreign_keys = ON;
             CREATE TABLE project (
                 id TEXT PRIMARY KEY,
+                name TEXT,
                 simulator_type_id TEXT,
                 simulator_type_name TEXT,
                 simulator_file_path TEXT,
@@ -106,21 +107,21 @@ class GlobalSQLite(GlobalDatabase):
     async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
         await self._connection.close()
 
-    async def add_project(self, project_id: str, simulator_type: SimulatorType,
+    async def add_project(self, project_id: str, project_name: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""
         await self._connection.execute("""
-        INSERT INTO project (id, simulator_type_id, simulator_type_name,
+        INSERT INTO project (id, name, simulator_type_id, simulator_type_name,
         simulator_file_path, project_file_path)
-        VALUES (?, ?, ?, ?, ?);
-        """, (project_id, simulator_type.id, simulator_type.name,
+        VALUES (?, ?, ?, ?, ?, ?);
+        """, (project_id, project_name, simulator_type.id, simulator_type.name,
               simulator_file_path, project_file_path))
         await self._connection.commit()
 
-    async def get_all_projects(self) -> list[tuple[str, SimulatorType, str, str,]]:
+    async def get_all_projects(self) -> list[tuple[str, str, SimulatorType, str, str,]]:
         """Return meta-information about all projects in the database."""
         async with self._connection.execute("""SELECT * FROM project;""") as cursor:
-            return list(map(lambda x: (x[0], SimulatorType(x[1], x[2]), x[3], x[4]),
+            return list(map(lambda x: (x[0], x[1], SimulatorType(x[2], x[3]), x[4], x[5]),
                             list(await cursor.fetchall())))
 
     async def remove_project(self, project_id: str) -> None:

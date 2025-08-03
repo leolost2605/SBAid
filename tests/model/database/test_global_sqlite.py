@@ -1,7 +1,6 @@
 import asyncio
 import unittest
 
-from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
@@ -48,7 +47,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
             self.assertEqual(len(await db.get_all_projects()), 0)
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
 
@@ -56,7 +55,7 @@ class GlobalSQLiteTest(unittest.TestCase):
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 0)
 
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path", "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
 
@@ -66,7 +65,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
             self.assertEqual(len(await db.get_all_projects()), 0)
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"), "my_simulator_file_path",
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"), "my_simulator_file_path",
                                  "my_project_file_path")
             all_projects = await db.get_all_projects()
             self.assertEqual(len(all_projects), 1)
@@ -84,7 +83,7 @@ class GlobalSQLiteTest(unittest.TestCase):
     async def snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -102,7 +101,7 @@ class GlobalSQLiteTest(unittest.TestCase):
     async def cross_section_snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -124,7 +123,7 @@ class GlobalSQLiteTest(unittest.TestCase):
     async def lane_snapshot(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -147,7 +146,7 @@ class GlobalSQLiteTest(unittest.TestCase):
                                                        TimeZone.new_utc())
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -164,7 +163,7 @@ class GlobalSQLiteTest(unittest.TestCase):
                                                        TimeZone.new_utc())
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path",
                                  "my_project_file_path")
             await db.add_result("my_result_id", "my_result_name",
@@ -201,11 +200,11 @@ class GlobalSQLiteTest(unittest.TestCase):
     async def multiple_context_managers(self):
         file = Gio.File.new_for_path("test.db")
         async with GlobalSQLite(file) as db:
-            await db.add_project("my_project_id", SimulatorType("0", "Vissim"),
+            await db.add_project("my_project_id", "proj_name", SimulatorType("0", "Vissim"),
                                  "my_simulator_file_path", "my_project_file_path")
 
         async with GlobalSQLite(file) as db2:
-            await db2.add_project("my_project_id_2", SimulatorType("0", "Vissim"),
+            await db2.add_project("my_project_id_2", "proj_name", SimulatorType("0", "Vissim"),
                                   "my_simulator_file_path", "my_project_file_path")
 
         async with GlobalSQLite(file) as db3:
