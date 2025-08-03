@@ -145,8 +145,10 @@ class ProjectSQLiteTest(unittest.TestCase):
 
             await db.add_parameter_tag("my_parameter_tag_id", "my_parameter_name",
                                        "my_algorithm_configuration_id", None, "my_tag_id")
-            all_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
-            self.assertEqual(len(all_parameter_tags), 1)
+            all_parameter_tag_ids = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
+            self.assertEqual(len(all_parameter_tag_ids), 1)
+            self.assertEqual(all_parameter_tag_ids[0], "my_tag_id")
+            self.assertEqual("my_tag_name", await db.get_tag_name("my_tag_id"))
 
             await db.remove_tag("my_tag_id")
             updated_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
@@ -156,14 +158,15 @@ class ProjectSQLiteTest(unittest.TestCase):
             await db.add_tag("my_tag_id", "my_tag_name")
             await db.add_parameter_tag("my_parameter_tag_id", "my_parameter_name",
                                        "my_algorithm_configuration_id", None, "my_tag_id")
-            all_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
-            self.assertEqual(len(all_parameter_tags), 1)
+            all_parameter_tag_ids = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
+            self.assertEqual(len(all_parameter_tag_ids), 1)
+            self.assertEqual(all_parameter_tag_ids[0], "my_tag_id")
 
             await db.remove_parameter("my_parameter_name", "my_algorithm_configuration_id", None)
             await db.remove_parameter_tag("my_parameter_tag_id")
 
-            all_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
-            self.assertEqual(len(all_parameter_tags), 0)
+            all_parameter_tag_ids = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
+            self.assertEqual(len(all_parameter_tag_ids), 0)
 
             file.delete_async(0, None, self.on_delete_async, None)
 
