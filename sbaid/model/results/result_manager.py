@@ -36,12 +36,10 @@ class ResultManager(GObject.GObject):
         self.__global_db = global_db
 
     async def load_from_db(self) -> None:
-        """todo"""
+        """Loads metainformation about the results and tags from the global database"""
         result_information = await self.__global_db.get_all_results()
         for results in result_information:
-            project_name = "placeholder"  # todo  await .__global_db.get_project_name(results[0])
-            result = Result(results[0], "placeholder", results[1], self.__global_db)
-            # todo change this i think
+            result = Result(results[0], results[2], results[3], self.__global_db)
 
             tag_information = await self.__global_db.get_all_tags()
 
