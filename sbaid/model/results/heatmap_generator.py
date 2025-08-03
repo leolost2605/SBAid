@@ -7,7 +7,6 @@ import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
 from gi.repository import GLib
-from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
 from sbaid.common.image_format import ImageFormat
 from sbaid.common.image import Image
@@ -21,8 +20,6 @@ class HeatmapGenerator(GlobalDiagramGenerator):
     """This class contains the logic for generating a heatmap diagram,
     given the simulation results."""
 
-    __diagram_type: DiagramType = DiagramType("heatmap_diagram", "Heatmap")
-
     def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
         data = self.__filter_result_data(result, cross_section_ids)
         fig = self.__generate_diagram(result.result_name, result.project_name,data, result.creation_date_time)
@@ -34,7 +31,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         return SeabornImage(buffer.getvalue())
 
     def get_diagram_type(self) -> DiagramType:
-        return self.__diagram_type
+        return DiagramType("heatmap_diagram", "Heatmap")
 
     def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
         diagram_data = []
