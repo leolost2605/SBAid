@@ -64,7 +64,8 @@ class Result(GObject.GObject):
         """Initializes the Result class."""
         super().__init__(id=result_id,
                          project_name=project_name,
-                         creation_date_time=creation_date_time)
+                         creation_date_time=creation_date_time,
+                         result_name=project_name + "_" + str(creation_date_time.format("%F")))
 
         self.__snapshots = Gio.ListStore.new(Snapshot)
         self.__selected_tags = Gio.ListStore.new(Tag)
