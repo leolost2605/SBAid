@@ -62,4 +62,4 @@ class ResultBuilder(GObject.GObject):
     def end_result(self) -> Result:
         """todo"""
         # pylint: disable=no-value-for-parameter
-        return Result() # type: ignore
+        return Result()  # type: ignore
