@@ -57,6 +57,7 @@ class Result(GObject.GObject):
         super().__init__(id=result_id,
                          project_name=project_name,
                          creation_date_time=creation_date_time,
+                         result_name = project_name + "_" + creation_date_time.format("%F"),
                          selected_tags=Gio.ListStore.new(Tag),
                          snapshots=Gio.ListStore.new(Snapshot))
 
