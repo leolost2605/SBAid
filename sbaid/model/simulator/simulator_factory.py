@@ -3,7 +3,7 @@ import sys
 
 from gi.repository import Gio, GObject
 
-import sbaid.model.simulator.vissim.vissim_simulator
+import sbaid
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 from sbaid.model.simulator.simulator import Simulator
 
