@@ -6,7 +6,6 @@ from jsonschema import validate, ValidationError
 
 from gi.repository import GLib, Gio
 
-from sbaid.model.network.route import Route
 from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -44,8 +43,8 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
-    _route: Route
-    _cross_sections: Gio.ListModel
+    _route: Gio.ListModel
+    _cross_sections: Gio.ListStore
     _simulation_start_time: int
     _simulation_end_time: int
     _schema = {
@@ -87,18 +86,15 @@ class DummySimulator(Simulator):
         "additionalProperties": False
     }
 
-    @Simulator.type.getter  # type: ignore
-    def type(self) -> SimulatorType:
+    def get_type(self) -> SimulatorType:
         """Property definition for the simulator type."""
         return self._type
 
-    @Simulator.route.getter  # type: ignore
-    def route(self) -> Route:
+    def get_route(self) -> Gio.ListModel:
         """TODO"""
         return self._route
 
-    @Simulator.cross_sections.getter  # type: ignore
-    def cross_sections(self) -> Gio.ListModel:
+    def get_cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
         return self._cross_sections
 
@@ -107,7 +103,7 @@ class DummySimulator(Simulator):
         super().__init__()
         self._cross_sections = Gio.ListStore.new(DummyCrossSection)
         self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
-        self._route = Route(Gio.ListStore())
+        self._route = Gio.ListStore.new(Location)
         self._sequence = {}
         self._pointer = 0
         self._simulation_start_time = 0
@@ -135,10 +131,10 @@ class DummySimulator(Simulator):
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
-                    self.cross_sections.append(DummyCrossSection(cross_section, cross_section,
-                                                                 CrossSectionType.COMBINED,
-                                                                 Location(0, 0), max_lanes,
-                                                                 False))
+                    self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
+                                                                  CrossSectionType.COMBINED,
+                                                                  Location(0, 0), max_lanes,
+                                                                  False))
                 self._sequence[int(snapshot_time)] = current_input
 
         self._simulation_start_time = min(self._sequence.keys())
