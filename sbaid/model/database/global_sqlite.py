@@ -174,7 +174,8 @@ class GlobalSQLite(GlobalDatabase):
         async with self._connection.execute("""
         SELECT name FROM tag WHERE id = ?
         """, [tag_id]) as cursor:
-            return str(await cursor.fetchone()[0])
+            result = await cursor.fetchone()
+            return result[0]
 
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
@@ -205,7 +206,7 @@ class GlobalSQLite(GlobalDatabase):
         async with self._connection.execute("""SELECT * FROM tag;""") as cursor:
             return await cursor.fetchall()
 
-    async def get_result_tags(self, result_id: str) -> list[str]:
+    async def get_result_tag_ids(self, result_id: str) -> list[str]:
         """Return all tags that belong to the given result."""
         async with self._connection.execute("""SELECT tag_id FROM result_tag WHERE result_id = ?;
         """, (result_id,)) as cursor:

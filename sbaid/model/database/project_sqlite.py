@@ -388,7 +388,8 @@ class ProjectSQLite(ProjectDatabase):
         """Return the name of the given tag_id."""
         async with self._connection.execute("""
         SELECT name FROM tag WHERE id = ?""", [tag_id]) as cursor:
-            return await cursor.fetchone()[0]
+            result = await cursor.fetchone()
+            return result[0]
 
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
                                 algorithm_configuration_id: str,
