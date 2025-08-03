@@ -38,8 +38,9 @@ class SimulatorFactory(GObject.GObject):
         self.__types.append(DummySimulator().type)
 
         if sys.platform.startswith("win"):
-            self.__types.append(
-                sbaid.model.simulator.vissim.vissim_simulator.VissimSimulator().type)
+            # pylint: disable=import-outside-toplevel
+            from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
+            self.__types.append(VissimSimulator().type)
 
     def get_simulator(self, sim_type: SimulatorType) -> Simulator:
         """
@@ -54,8 +55,8 @@ class SimulatorFactory(GObject.GObject):
         if sys.platform.startswith("win"):
             # pylint: disable=import-outside-toplevel
             from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
-
-            if sim_type.id == VissimSimulator().type.id:
-                return VissimSimulator()
+            sim = VissimSimulator()
+            if sim_type.id == sim.type.id:
+                return sim
 
         raise SimulatorException(f"Simulator type {sim_type.name} not found")
