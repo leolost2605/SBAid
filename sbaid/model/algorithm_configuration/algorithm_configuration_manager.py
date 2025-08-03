@@ -90,7 +90,8 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
     async def create_algorithm_configuration(self) -> int:
         """
-        Creates a new algorithm configuration.
+        Creates a new algorithm configuration. The new configuration will be automatically
+        set as the selected one.
         :return: the position of the new algo config in the list of algo configs
         """
         algo_config = AlgorithmConfiguration(str(uuid4()), self.__network, self.__db)
@@ -106,7 +107,9 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
     def delete_algorithm_configuration(self, algo_config_id: str) -> None:
         """
-        Deletes the algorithm configuration with the given id.
+        Deletes the algorithm configuration with the given id. If the algorithm configuration
+        is currently selected the next configuration will be selected. If no other
+        configuration is available None will be selected.
         """
 
         for pos, config in enumerate(common.list_model_iterator(self.__algorithm_configurations)):
