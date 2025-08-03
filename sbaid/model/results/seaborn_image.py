@@ -1,5 +1,4 @@
 """This module defines the seaborn image"""
-from typing_extensions import override
 
 from sbaid.common.image import Image
 

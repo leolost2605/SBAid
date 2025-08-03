@@ -40,13 +40,13 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         result_builder.begin_result("randomized_result")
         random_ids = self.__generate_random_ids(cs_amount)
         for i in range(snapshot_amount):  # amount of snapshots
-            minute = (30 + i) % 60
+            minute = (30 + i*10) % 60
             hour = 15 + ((30 + i) // 60)
             time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=7,
                                      day=24, hour=hour, minute=minute, seconds=0)
             result_builder.begin_snapshot(time)
             for m in range(cs_amount):  # amount of cross-sections
-                result_builder.begin_cross_section("cross-section " + str(m), random_ids[m])
+                result_builder.begin_cross_section("AMQ_04_KA", random_ids[m])
                 result_builder.add_b_display(random.choice(list(BDisplay)))
 
                 for p in range(lane_amount):  # amount of lanes

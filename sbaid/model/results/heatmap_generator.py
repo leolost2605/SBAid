@@ -1,5 +1,5 @@
 """This module contains the HeatMapGenerator class."""
-
+import random
 from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,48 +25,47 @@ class HeatmapGenerator(GlobalDiagramGenerator):
 
     def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
         data = self.__filter_result_data(result, cross_section_ids)
-        colorscheme = LinearSegmentedColormap.from_list('rg',
-                                                        ["g", "y", "#ffa500", "r", "#ba0000"], N=256)
-        sns.heatmap(data[0], cmap= colorscheme, cbar=True, cbar_kws={'label': 'average km/h'},
-                    square=False, xticklabels=data[1], yticklabels=data[2])
-        #TODO: dont show all timestamps
-        pass
+        fig = self.__generate_diagram(result.result_name, result.project_name,data, result.creation_date_time)
 
-    def get_diagram_type(self) -> DiagramType:
-        return self.__diagram_type
-
-    def get_diagram(self, result: Result, cross_section_ids: list, image_format: ImageFormat) -> Image:
-        data: tuple[list, list, list] = self.__filter_result_data(result, cross_section_ids)
-        fig: Figure = self.__generate_diagram(result.result_name, result.project_name,
-                                                 data, result.creation_date_time)
         buffer = BytesIO()
-
         fig.savefig(buffer, format=image_format.value_name.lower(), bbox_inches='tight')
         plt.close(fig)
 
         return SeabornImage(buffer.getvalue())
 
+    def get_diagram_type(self) -> DiagramType:
+        return self.__diagram_type
+
     def __filter_result_data(self, result: Result, cross_section_ids: list) -> tuple[list, list, list]:
         diagram_data = []
-        cross_sections = []
         timestamps = []
+        cross_section_names = self.__get_cross_section_names_from_ids(result, cross_section_ids)
         for snapshot in list_model_iterator(result.snapshots):
-            timestamp = snapshot.get_timestamp()
-            if timestamp.getMinute() == 0 and timestamp.getSecond() == 0:
-                timestamps.append(snapshot.capture_timestamp)
+            timestamp = snapshot.capture_timestamp
+            if timestamp.get_minute() == 0 and timestamp.get_second() == 0:
+                timestamps.append(timestamp.format("%R"))
             else:
                 timestamps.append("")
             average_speeds = []
             for cs_snapshot in snapshot.cross_section_snapshots:
                 if cs_snapshot.cross_section_id in cross_section_ids:
-                    cross_sections.append(cs_snapshot.cross_section.id)
                     average_speeds.append(cs_snapshot.calculate_cs_average_speed())
             diagram_data.append(average_speeds)
-        return diagram_data, cross_sections, timestamps
+        return diagram_data, cross_section_names, timestamps
 
-    def __generate_diagram(self, result_name: str, project_name: str, data: tuple[list, list, list], datetime: GLib.DateTime) -> Figure:
-        colorscheme = LinearSegmentedColormap.from_list('rg',
-                                                        ["#910000", "#c10000", "r", "#ffa500", "y", "g"], N=256)
+    def __get_cross_section_names_from_ids(self, result: Result, ids: list[str]) -> list[str]:
+        random_snapshot = random.choice(list(result.snapshots))
+        cross_section_names = []
+        for snapshot in random_snapshot.cross_section_snapshots:
+            if snapshot.cross_section_id in ids and snapshot.cross_section_name not in ids:
+                cross_section_names.append(snapshot.cross_section_name)
+
+        return cross_section_names
+
+    def __generate_diagram(self, result_name: str, project_name: str,
+                           data: tuple[list, list, list], datetime: GLib.DateTime) -> Figure:
+        colorscheme = (LinearSegmentedColormap.from_list
+                       ('rg',["#910000", "#c10000", "r", "#ffa500", "y", "g"], N=256))
         diagram_data = np.array(data[0])
         cross_sections = data[1]
         timestamps = data[2]
@@ -79,10 +78,6 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         ax.tick_params(left=False)
         ax.annotate(formatted_date, (0, 0), (-60, -20), xycoords='axes fraction',
                      textcoords='offset points', va='top')
-        # plt.tight_layout()
-        # plt.show()
+        plt.tight_layout()
+        plt.show()
         return fig
-
-    def get_diagram_type(self) -> DiagramType:
-        """todo"""
-        return DiagramType("Heatmap-Diagram", "Heatmap-Diagram")
