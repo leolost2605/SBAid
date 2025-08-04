@@ -38,7 +38,8 @@ class ProjectSQLite(ProjectDatabase):
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
             async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
-            await async_path.mkdir(parents=True)
+            if not await async_path.exists():
+                await async_path.mkdir(parents=True)
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:
                 await db.executescript("""
