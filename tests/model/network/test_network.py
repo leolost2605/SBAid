@@ -43,7 +43,7 @@ class NetworkTest(unittest.TestCase):
          Expected output:
             dummy simulator: InvalidFormattingException because adding cross sections is not supported
             vissim simulator: return value (20,0)"""
-        file = Gio.File.new_for_path("valid_input.csv")
+        file = Gio.File.new_for_path("./tests/model/network/valid_input.csv")
         await self.__mock_network.load()
         self.assertEqual(await self.__mock_network.import_from_file(file), (20, 0))
 
