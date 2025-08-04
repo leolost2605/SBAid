@@ -1,8 +1,8 @@
-QS_NR,k1,Aktivierung_HFB
-26,2,True
-27,2,True
-28,2,False
-29,2,True
-30,2,True
-31,2,False
-"",2,True
+CS-id,param_1,param_2, param_3
+AQ_00_KA,2,True, 3.4
+AQ_01_KA,2,True, 1.3
+AQ_02_KA,2,False, 1.24
+AQ_03_KA,2,True, 4.23
+AQ_04_KA,2,True, 3.1
+AQ_05_KA,2,False, 3.5
+AQ_06_KA,2,True, 1.1
