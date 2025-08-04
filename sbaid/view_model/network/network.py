@@ -30,6 +30,12 @@ class Network(GObject.GObject):
     __network: ModelNetwork
     __cross_sections: Gtk.MapListModel
 
+    route_points: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
+
+    @route_points.getter  # type: ignore
+    def route_points(self) -> Gio.ListModel:
+        return self.__network.route.points
+
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
     @cross_sections.getter  # type: ignore
