@@ -93,10 +93,11 @@ class Result(GObject.GObject):
     async def load_from_db(self) -> None:
         """Loads metainformation about the result name and tags, and saves them in the class."""
         self.result_name = await self.__global_db.get_result_name(self.id)
-        tag_information = await self.__global_db.get_result_tags(self.id)
+        tag_ids = await self.__global_db.get_result_tag_ids(self.id)
 
-        for tag in tag_information:
-            self.add_tag(Tag(str(uuid.uuid4()), tag[0]))
+        for tag_id in tag_ids:
+            tag_name = await self.__global_db.get_tag_name(tag_id)
+            self.add_tag(Tag(tag_id, tag_name))
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""
