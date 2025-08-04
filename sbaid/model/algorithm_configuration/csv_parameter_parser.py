@@ -1,6 +1,7 @@
 """This module defines the CSVParameterParser class."""
 import csv
 import typing
+import aiofiles
 from typing import Tuple
 
 from gi.repository import Gio, GLib
@@ -16,7 +17,7 @@ class CSVParameterParser(ParameterParser):
         # TODO: Make platform independent
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
-    def for_each_parameter(self, file: Gio.File,
+    async def for_each_parameter(self, file: Gio.File,
                            callback: ParameterParserForeachFunc) -> Tuple[int, int]:
         """Loads the file contents asynchronously and reads the input CSV file row by row,
         attempting to add the parameter to the parameter configuration.
@@ -34,9 +35,7 @@ class CSVParameterParser(ParameterParser):
                 csv_reader = csv.reader(rows)
                 header = next(csv_reader)
                 for row in csv_reader:
-                    try:
-                        if not any(row):
-                            continue
+
                     row_info = dict(zip(header, row))
                     raw_number = row_info.get("QS_NR", '').strip()
                     cross_section = raw_number
