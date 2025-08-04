@@ -1,11 +1,7 @@
 import unittest
 
 from sbaid.common.diagram_type import DiagramType
-from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.qv_generator import QVGenerator
-from tests.model.results.test_result_builder import ResultBuilderTest
-from tests.model.results.test_velocity_generator import VelocityGeneratorTest
-
 
 class QVDiagramTest(unittest.TestCase):
     generator = QVGenerator()

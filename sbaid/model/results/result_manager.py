@@ -24,6 +24,10 @@ class ResultManager(GObject.GObject):
         """Getter for the available tags."""
         return self.__available_tags
 
+    def global_db(self) -> GlobalDatabase:
+        """Getter for the global database."""
+        return self.__global_db
+
     __available_tags: Gio.ListStore
     __results: Gio.ListStore
     __global_db: GlobalDatabase
@@ -48,6 +52,8 @@ class ResultManager(GObject.GObject):
                 result.add_tag(new_tag)
                 if not self.__is_tag_already_loaded(tag[0]):
                     self.__available_tags.append(new_tag)
+
+            self.__results.append(result)
 
     def __is_tag_already_loaded(self, tag_id: str) -> bool:
         """Checks if a tag is already loaded."""
@@ -95,6 +101,11 @@ class ResultManager(GObject.GObject):
                 self.__results.remove(i)
                 break
 
-    def register_result(self, result: Result) -> None:
+    async def register_result(self, result: Result) -> None:
         """Appends a result to the existing list of results in the result manager."""
         self.__results.append(result)
+
+        await self.__global_db.add_result(result.id,
+                                          result.result_name,
+                                          result.project_name,
+                                          result.creation_date_time)

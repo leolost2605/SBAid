@@ -146,11 +146,11 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     __current_vehicle: VehicleSnapshot | None = None
     __current_vehicle_builder: _VehicleBuilder | None = None
 
-    def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
+    def __init__(self, result_manager: ResultManager) -> None:
         """Initializes the ResultBuilder class."""
         super().__init__()
         self.__result_manager = result_manager
-        self.__global_db = global_db
+        self.__global_db = result_manager.global_db()
 
     def begin_result(self, project_name: str) -> None:
         """Sets current_result to a new result instance using
@@ -299,12 +299,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         result = self.__current_result
 
-        self.__result_manager.register_result(result)
-
-        await self.__global_db.add_result(result.id,
-                                          result.result_name,
-                                          result.project_name,
-                                          result.creation_date_time)
+        await self.__result_manager.register_result(result)
 
         return result
 

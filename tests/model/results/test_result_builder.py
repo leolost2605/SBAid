@@ -50,7 +50,7 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
 
     async def __build_incomplete_cross_section(self):
         """Starts building the result but does not add required values for the cross-section"""
-        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db))
         result_builder.begin_result("randomized_result")
 
         time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=8,
@@ -60,7 +60,7 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         result_builder.begin_lane(0)
 
     async def __build_incomplete_lane(self):
-        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db))
         result_builder.begin_result("randomized_result")
 
         time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=8,
@@ -78,7 +78,7 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         from the vehicles will not match the lane average.
         The next month is also not supported."""
 
-        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db))
         result_builder.begin_result("randomized_result")
         random_ids = self.__generate_random_ids(cs_amount)
         for i in range(snapshot_amount):  # amount of snapshots
