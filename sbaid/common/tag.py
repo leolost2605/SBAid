@@ -21,3 +21,6 @@ class Tag(GObject.GObject):
     def __init__(self, tag_id: str, name: str) -> None:
         """TODO"""
         super().__init__(tag_id=tag_id, name=name)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Tag) and self.tag_id == other.tag_id
