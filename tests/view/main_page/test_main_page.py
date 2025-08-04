@@ -25,6 +25,9 @@ class MainPageTestCase(unittest.TestCase):
         project_mock.name = "My Project 1"
         network_mock = Mock()
         network_mock.cross_sections = Gio.ListStore.new(CrossSection)
+        cs_mock = Mock()
+        cs_mock.location = Location(0, 0.5)
+        network_mock.cross_sections.append(CrossSection(cs_mock))
         network_mock.route_points = Gio.ListStore.new(Location)
         network_mock.route_points.append(Location(0, 0))
         network_mock.route_points.append(Location(0, 1))

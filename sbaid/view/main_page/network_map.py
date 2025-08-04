@@ -56,6 +56,6 @@ class NetworkMap(Adw.Bin):
 
         for cross_section in common.list_model_iterator(self.__network.cross_sections):
             loc = cross_section.location
-            marker = Shumate.Marker.new()
+            marker = Shumate.Point.new()
             marker.set_location(loc.y, loc.x)
             self.__cross_sections_layer.add_marker(marker)
