@@ -48,7 +48,7 @@ class GlobalSQLite(GlobalDatabase):
             async with aiosqlite.connect(str(self._file.get_path())) as db:
                 async with db.execute("""PRAGMA integrity_check""") as cursor:
                     res = await cursor.fetchone()
-                    assert (res is not None)
+                    assert res is not None
                     is_valid = res[0] == 'ok'
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
