@@ -6,10 +6,10 @@ from gi.repository import Gio, GLib
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.vehicle_type import VehicleType
-from sbaid.model.database.global_sqlite import GlobalSQLite
+from unittest import mock
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.result import Result
-from sbaid.model.results.result_builder import ResultBuilder
+from sbaid.model.results.result_builder import ResultBuilder, WrongOrderException
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.results.snapshot import Snapshot
 
@@ -17,7 +17,7 @@ from sbaid.model.results.snapshot import Snapshot
 class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
 
     __gio_file = Gio.File.new_for_path("placeholder_path.db")
-    __global_placeholder_db = GlobalSQLite(__gio_file)
+    __global_mock_db = unittest.mock.AsyncMock()
 
     def test_build_with_random_values(self):
         asyncio.run(self.__test_build_with_random_values())
@@ -29,7 +29,6 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         lane_amount = 5
         result = await self.generate_result(snapshot_amount, cs_amount, lane_amount)
 
-        # todo i dont know what else I can assert
         self.assertIsNotNone(result)
         self.assertIsInstance(result, Result)
         self.assertEqual(len(result.snapshots), snapshot_amount)
@@ -43,27 +42,50 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(random_cs_snapshot.lane_snapshots), lane_amount)
 
 
-
     def test_build_in_wrong_order(self):
         """Tests if the internal logic is robust enough to catch errors in the false building order."""
+        with self.assertRaises(WrongOrderException):
+            asyncio.run(self.__build_incomplete_cross_section())
+            asyncio.run(self.__build_incomplete_lane())
 
-    async def __call_in_wrong_order(self):
-        """Tests the result builder by calling the methods in the wrong order with random values."""
+    async def __build_incomplete_cross_section(self):
+        """Starts building the result but does not add required values for the cross-section"""
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
+        result_builder.begin_result("randomized_result")
 
+        time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=8,
+                                 day=3, hour=13, minute=35, seconds=4)
+        result_builder.begin_snapshot(time)
+        result_builder.begin_cross_section(str(uuid.uuid4()), "cross-section")
+        result_builder.begin_lane(0)
 
-    def test_build_with_incomplete_values(self):
-        """Tests if the internal logic is """
+    async def __build_incomplete_lane(self):
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
+        result_builder.begin_result("randomized_result")
+
+        time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=8,
+                                 day=3, hour=13, minute=35, seconds=4)
+        result_builder.begin_snapshot(time)
+        result_builder.begin_cross_section(str(uuid.uuid4()), "cross-section")
+        result_builder.add_b_display(random.choice(list(BDisplay)))
+        result_builder.begin_lane(0)
+        result_builder.add_a_display(random.choice(list(ADisplay)))
+        result_builder.end_lane()
 
     async def generate_result(self, snapshot_amount: int, cs_amount: int, lane_amount: int) -> Result:
-        """Generates a result with random values. The only thing not realistic is that
-        the average speed calculated from the vehicles will not match the lane average."""
-        result_builder = ResultBuilder(ResultManager(self.__global_placeholder_db), self.__global_placeholder_db)
+        """Generates a result with random values for testing purposes.
+        The only thing not realistic is that the average speed calculated
+        from the vehicles will not match the lane average.
+        The next month is also not supported."""
+
+        result_builder = ResultBuilder(ResultManager(self.__global_mock_db), self.__global_mock_db)
         result_builder.begin_result("randomized_result")
         random_ids = self.__generate_random_ids(cs_amount)
         for i in range(snapshot_amount):  # amount of snapshots
             minute = (30 + (i * 10)) % 60
             hour = ( 15 + ((30 + (i * 10)) // 60) ) % 24
             day = ( 24 + ((30 + (i * 10)) // 60)) // 24
+
             time = GLib.DateTime.new(tz=GLib.TimeZone.new_local(), year=2025, month=7,
                                      day=day, hour=hour, minute=minute, seconds=0)
             result_builder.begin_snapshot(time)
@@ -96,11 +118,4 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
         for i in range(n):
             random_ids.append(uuid.uuid4())
         return random_ids
-
-
-
-
-
-
-
 

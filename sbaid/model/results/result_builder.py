@@ -134,17 +134,17 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     # the following optionals are also used for controlling the logic
     # that regulates the correct building order.
 
-    __current_result: Result | None
-    __current_snapshot: Snapshot | None
+    __current_result: Result | None = None
+    __current_snapshot: Snapshot | None = None
 
-    __current_cross_section: CrossSectionSnapshot | None
-    __current_cs_builder: _CrossSectionBuilder | None
+    __current_cross_section: CrossSectionSnapshot | None = None
+    __current_cs_builder: _CrossSectionBuilder | None = None
 
-    __current_lane: LaneSnapshot | None
-    __current_lane_builder: _LaneBuilder | None
+    __current_lane: LaneSnapshot | None = None
+    __current_lane_builder: _LaneBuilder | None = None
 
-    __current_vehicle: VehicleSnapshot | None
-    __current_vehicle_builder: _VehicleBuilder | None
+    __current_vehicle: VehicleSnapshot | None = None
+    __current_vehicle_builder: _VehicleBuilder | None = None
 
     def __init__(self, result_manager: ResultManager, global_db: GlobalDatabase) -> None:
         """Initializes the ResultBuilder class."""
@@ -301,12 +301,11 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         self.__result_manager.register_result(result)
 
-        # await self.__global_db.add_result(result.id,
-        #                        result.result_name,
-        #                        result.project_name,
-        #                        result.creation_date_time)
+        await self.__global_db.add_result(result.id,
+                                          result.result_name,
+                                          result.project_name,
+                                          result.creation_date_time)
 
-        # self.__current_result = None
         return result
 
 
