@@ -1,3 +1,4 @@
+# pylint: disable=too-many-locals
 """This module contains the DummySimulator class."""
 import json
 import aiofiles
@@ -43,6 +44,7 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
+    _route_points: Gio.ListStore
     _cross_sections: Gio.ListStore
     _simulation_start_time: int
     _simulation_end_time: int
@@ -50,6 +52,20 @@ class DummySimulator(Simulator):
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+            "cross_section_locations": {
+                "type": "object",
+                "patternProperties": {
+                    "^cs[\\w\\d_]+$": {
+                        "type": "object",
+                        "properties": {
+                            "x": {"type": "number"},
+                            "y": {"type": "number"}
+                        },
+                        "required": ["x", "y"],
+                        "additionalProperties": False
+                    }
+                }
+            },
             "vehicle_infos": {
                 "type": "object",
                 "patternProperties": {
@@ -81,7 +97,7 @@ class DummySimulator(Simulator):
                 "additionalProperties": False
             }
         },
-        "required": ["vehicle_infos"],
+        "required": ["cross_section_locations", "vehicle_infos"],
         "additionalProperties": False
     }
 
@@ -89,9 +105,9 @@ class DummySimulator(Simulator):
         """Property definition for the simulator type."""
         return self._type
 
-    def get_route(self) -> Gio.ListModel:
-        """TODO"""
-        return None
+    def get_route_points(self) -> Gio.ListModel:
+        """Return a list model of locations which represent the route of cross sections."""
+        return self._route_points
 
     def get_cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
@@ -100,6 +116,7 @@ class DummySimulator(Simulator):
     def __init__(self) -> None:
         """Create a new dummy simulator."""
         super().__init__()
+        self._route_points = Gio.ListStore.new(Location)
         self._cross_sections = Gio.ListStore.new(DummyCrossSection)
         self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
         self._sequence = {}
@@ -119,6 +136,12 @@ class DummySimulator(Simulator):
             except ValidationError as e:
                 raise JSONExeption(e.message) from e
 
+            cs_location_map = {}
+            for cross_section in data['cross_section_locations']:
+                location_x = data['cross_section_locations'].get(cross_section)['x']
+                location_y = data['cross_section_locations'].get(cross_section)['y']
+                cs_location_map[cross_section] = Location(location_x, location_y)
+
             for snapshot_time, snapshot in data["vehicle_infos"].items():
                 current_input = Input()
                 for cross_section, lanes in snapshot.items():
@@ -131,12 +154,19 @@ class DummySimulator(Simulator):
                         max_lanes = max(max_lanes, int(lane_id))
                     self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
                                                                   CrossSectionType.COMBINED,
-                                                                  Location(0, 0), max_lanes,
-                                                                  False))
+                                                                  cs_location_map[cross_section],
+                                                                  max_lanes, False))
                 self._sequence[int(snapshot_time)] = current_input
 
         self._simulation_start_time = min(self._sequence.keys())
         self._simulation_end_time = max(self._sequence.keys())
+
+        route = Gio.ListStore.new(Location)
+
+        for location in cs_location_map.values():
+            route.append(location)
+
+        self._route_points = route
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
