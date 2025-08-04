@@ -64,7 +64,7 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
                             assert isinstance(vehicle_snapshot, VehicleSnapshot)
                             vehicle_speeds.append(vehicle_snapshot.speed)
                             vehicle_type.append(vehicle_snapshot.vehicle_type)
-                            formatted_time = snapshot.capture_timestamp.format("%H:%M:%S")
+                            formatted_time = snapshot.capture_timestamp.format("%y:%m:%d:%H:%M:%S")
                             capture_timestamps.append(formatted_time)
 
         data = {
@@ -84,6 +84,7 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
 
         ax.set_xlabel("Zeit")
         ax.set_ylabel("V[km/h]")
+
         avg_data = data.groupby("timestamps", as_index=False)["vehicle speeds"].mean()
 
         sns.scatterplot(data=data, x="timestamps", y="vehicle speeds",
@@ -94,11 +95,32 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
 
         timestamps = data["timestamps"]
 
-        labels = [t if t.endswith(":00:00") else "" for t in timestamps]
-        positions = [t if (t.endswith(":00:00")
-                           or t.endswith(":30:00")) else "" for t in timestamps]
+        tick_positions = [t for t in timestamps if t.endswith(":00:00")]
+        labels = VelocityGenerator.__get_labels(tick_positions)
 
-        ax.set_xticks(positions, labels=labels)
+        ax.set_xticklabels(labels, rotation=90)
+        ax.set_xticks(tick_positions)
+
         fig.tight_layout()
 
         return fig
+
+    @staticmethod
+    def __get_labels(timestamps: list[str]) -> list[str]:
+        to_return = []
+        set_unique_values = set(())
+
+        for t in timestamps:
+            if t.endswith(":00:00"):
+                formated_time = t.split(":")[3] + ":" + t.split(":")[4]
+
+                if t not in set_unique_values:
+                    set_unique_values.add(t)
+                    to_return.append(formated_time)
+
+                else:
+                    to_return.append("")
+            else:
+                to_return.append("")
+
+        return to_return

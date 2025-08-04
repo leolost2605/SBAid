@@ -171,7 +171,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         self.__current_snapshot = Snapshot(str(uuid.uuid4()),
                                            simulation_timestamp, self.__global_db)
 
-    def begin_cross_section(self, cross_section_name: str, cross_section_id: str) -> None:
+    def begin_cross_section(self, cross_section_id: str, cross_section_name: str) -> None:
         """Sets the current cs builder to a new instance, constructed with
         the given cross-section name and current snapshot id."""
         if self.__current_snapshot is None:

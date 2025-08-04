@@ -20,7 +20,7 @@ class DiagramExporterTest(unittest.TestCase):
 
     async def __test_create_diagram(self):
         test = ResultBuilderTest()
-        result = await test.generate_result(100, 20, 4)
+        result = await test.generate_result(200, 10, 2)
         test_id= random.choice(list(random.choice(list(result.snapshots)).cross_section_snapshots)).cross_section_id
 
         png_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[1])
@@ -35,7 +35,6 @@ class DiagramExporterTest(unittest.TestCase):
         self.assertIsNotNone(png_velocity)
         png_velocity.save_to_file(r"C:\Users\PC\Projects\SBAid\tests\model\results\generator_outputs\velocity.png")
 
-        svg_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG,
-                                           self.exporter.available_diagram_types[3])
+        svg_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[3])
         self.assertIsNotNone(svg_velocity)
         svg_velocity.save_to_file(r"C:\Users\PC\Projects\SBAid\tests\model\results\generator_outputs\velocity.svg")

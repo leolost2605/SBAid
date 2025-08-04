@@ -1,8 +1,6 @@
 """This module contains unittests for the Result class."""
 import unittest
-
 from gi.repository import GLib, Gio
-
 from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag

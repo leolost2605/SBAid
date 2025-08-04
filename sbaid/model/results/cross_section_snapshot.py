@@ -89,6 +89,6 @@ class CrossSectionSnapshot(GObject.GObject):
         all lanes in this cross-section snapshot. """
         speed_sum = 0.0
         for snapshot in self.__lane_snapshots:
-            assert isinstance(snapshot, LaneSnapshot)  # todo delete this and figure it out
+            assert isinstance(snapshot, LaneSnapshot)
             speed_sum += snapshot.average_speed
         return speed_sum / len(self.lane_snapshots)
