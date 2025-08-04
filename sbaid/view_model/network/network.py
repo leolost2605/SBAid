@@ -71,3 +71,4 @@ class Network(GObject.GObject):
         :param new_location: the new location of the cross section
         """
         return await self.__network.move_cross_section(cs_id, new_location)
+# diff
