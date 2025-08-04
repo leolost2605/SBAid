@@ -6,7 +6,7 @@ and contains only the application and the other packages.
 import sys
 import asyncio
 
-from gi.events import GLibEventLoopPolicy
+from gi.events import GLibEventLoopPolicy  # type: ignore
 
 from sbaid.application import Application
 
