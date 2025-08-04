@@ -8,6 +8,10 @@ class ProjectDatabase(ABC):
     """This interface contains methods that encapsulate necessary database behaviour."""
 
     @abstractmethod
+    async def open(self) -> None:
+        """Opens the file for the database."""
+
+    @abstractmethod
     async def get_created_at(self) -> GLib.DateTime:
         """Return the GLib.DateTime when the project was created."""
 
@@ -160,6 +164,10 @@ class ProjectDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
+    async def get_tag_name(self, tag_id: str) -> str:
+        """Return the name of the given tag_id."""
+
+    @abstractmethod
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
                                 algorithm_configuration_id: str, cross_section_id: str | None,
                                 tag_id: str) -> None:
@@ -169,6 +177,10 @@ class ProjectDatabase(ABC):
     @abstractmethod
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
+
+    @abstractmethod
+    async def get_all_tags(self) -> tuple[str, str]:
+        """Return the id and name for all tags in this project."""
 
     @abstractmethod
     async def get_all_tag_ids_for_parameter(self, algorithm_configuration_id: str,
