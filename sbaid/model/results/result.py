@@ -1,5 +1,4 @@
 """ This module represents the Result class."""
-import uuid
 
 from gi.repository import Gio, GLib, GObject
 from sbaid.common.tag import Tag
