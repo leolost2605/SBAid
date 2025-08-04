@@ -14,7 +14,9 @@ from sbaid.model.simulation.display import Display
 
 
 class Simulator(GObject.GObject):
-    """TODO"""
+    """
+    This class defines the interface for a simulator.
+    """
 
     type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                            flags=GObject.ParamFlags.READABLE)
@@ -24,6 +26,32 @@ class Simulator(GObject.GObject):
 
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE)
+
+    @type.getter  # type: ignore
+    def get_type(self) -> SimulatorType:
+        """
+        Returns the simulator type, in this case PTV Vissim.
+        :return: the type of this simulator
+        """
+        return self.get_type()  # type: ignore
+
+    @route.getter  # type: ignore
+    def get_route(self) -> Gio.ListModel:
+        """
+        Returns the route of this simulation file as a list of locations.
+        :return: The route as a listmodel of locations
+        """
+        return self.get_route()  # type: ignore
+
+    @cross_sections.getter  # type: ignore
+    def get_cross_sections(self) -> Gio.ListModel:
+        """
+        Returns a Gio.ListModel containing the cross sections in this simulator file.
+        Returns an empty model if no file was loaded yet. The model is guaranteed to be
+        the same over the lifetime of this.
+        :return: A Gio.ListModel containing the cross sections in this simulator file.
+        """
+        return self.get_cross_sections()  # type: ignore
 
     async def load_file(self, file: Gio.File) -> None:
         """Load the simulation file."""
