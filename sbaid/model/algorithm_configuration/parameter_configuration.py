@@ -34,7 +34,9 @@ class ParameterConfiguration(GObject.GObject):
     __global_params_map_model: Gtk.MapListModel
     __parameters: Gtk.FlattenListModel
 
-    @GObject.Property(type=Gio.ListModel)
+    parameters: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
+
+    @parameters.getter  # type: ignore
     def parameters(self) -> Gio.ListModel:
         """The list of global and per cross section parameters for each cross section."""
         return self.__parameters
