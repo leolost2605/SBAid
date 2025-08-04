@@ -3,7 +3,6 @@ import sys
 
 from gi.repository import Gio, GObject
 
-import sbaid
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 from sbaid.model.simulator.simulator import Simulator
 
@@ -26,7 +25,7 @@ class SimulatorFactory(GObject.GObject):
 
     simulator_types: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
-    @simulator_types.getter
+    @simulator_types.getter  # type: ignore
     def simulator_types(self) -> Gio.ListModel:
         """Returns the list of available simulator types."""
         return self.__types

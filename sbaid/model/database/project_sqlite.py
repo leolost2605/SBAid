@@ -1,6 +1,6 @@
 """This module contains the ProjectSQLite class."""
 import sqlite3
-from typing import TypeVar, cast
+from typing import cast
 
 import aiosqlite
 import aiopathlib
@@ -37,7 +37,7 @@ class ProjectSQLite(ProjectDatabase):
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
-            async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())
+            async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
             await async_path.mkdir(parents=True)
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:

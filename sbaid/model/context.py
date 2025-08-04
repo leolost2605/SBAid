@@ -39,7 +39,7 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db")) # TODO: User data folder
+        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))  # TODO: Userdata folder
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()
