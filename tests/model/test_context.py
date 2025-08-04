@@ -43,6 +43,7 @@ class ContextTestCase(unittest.TestCase):
 
         self.assertIsNotNone(context2.projects.get_item(0))
         self.assertEqual(context2.projects.get_item(0).id, proj_id)
+        self.assertEqual(context2.projects.get_n_items(), 2)
 
         await global_file.delete_async(0, None)
 
@@ -52,12 +53,12 @@ class ContextTestCase(unittest.TestCase):
         context = Context()
         await context.load()
 
-        proj_id_1 = await context.create_project(SimulatorType("dummy_json", "JSON Dummy Simulator"),
+        proj_id_1 = await context.create_project("my project name", SimulatorType("dummy_json", "JSON Dummy Simulator"),
                                "simulation_file_path", "test_project")
 
         self.assertEqual(context.projects.get_item(0).id, proj_id_1)
 
-        proj_id_2 = await context.create_project(SimulatorType("dummy_json", "JSON Dummy Simulator"),
+        proj_id_2 = await context.create_project("my other project name", SimulatorType("dummy_json", "JSON Dummy Simulator"),
                                "simulation_file_path", "test_project")
 
         self.assertEqual(context.projects.get_n_items(), 2)

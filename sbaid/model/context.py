@@ -65,6 +65,8 @@ class Context(GObject.GObject):
                               project_file_path, self.result_manager)
         self.__projects.append(new_project)
 
+        await new_project.load_from_db()
+
         new_project.name = name
 
         return project_id
