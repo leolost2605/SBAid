@@ -33,7 +33,7 @@ class Application(Adw.Application):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(
             *args,
-            application_id="io.github.leolost2605.sbaid", # type: ignore
+            application_id="io.github.leolost2605.sbaid",  # type: ignore
             **kwargs,
         )
 

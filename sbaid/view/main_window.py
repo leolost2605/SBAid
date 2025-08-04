@@ -78,12 +78,12 @@ class MainWindow(Adw.ApplicationWindow):
     def __on_open_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
-        self.__nav_view.push(ProjectMainPage(project))  # type: ignore
+        self.__nav_view.push(ProjectMainPage(project))  # type: ignore # noqa
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
-        self.__nav_view.push(ParameterEditingPage(  # type: ignore
+        self.__nav_view.push(ParameterEditingPage(  # type: ignore # noqa
             project.algorithm_configuration_manager))
 
     def __on_edit_cross_section(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
@@ -94,7 +94,7 @@ class MainWindow(Adw.ApplicationWindow):
         for cs in common.list_model_iterator(project.network.cross_sections):
             if cs.id == cross_section_id:
                 # pylint: disable=undefined-variable
-                self.__nav_view.push(CrossSectionEditingPage(  # type: ignore
+                self.__nav_view.push(CrossSectionEditingPage(  # type: ignore # noqa
                     project.algorithm_configuration_manager))
                 return
 
@@ -104,4 +104,4 @@ class MainWindow(Adw.ApplicationWindow):
     def __on_run_simulation(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
-        self.__nav_view.push(SimulationRunningPage(project))  # type: ignore
+        self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
