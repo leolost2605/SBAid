@@ -9,7 +9,7 @@ from sbaid.model.results.result_manager import ResultManager
 
 try:
     gi.require_version('Gtk', '4.0')
-    from gi.repository import GObject, GLib, Gtk, Gio
+    from gi.repository import GObject, Gtk, Gio
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)

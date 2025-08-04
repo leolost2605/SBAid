@@ -10,7 +10,7 @@ from sbaid.model.results.result import Result
 
 try:
     gi.require_version('Gtk', '4.0')
-    from gi.repository import GObject, GLib, Gtk, Gio
+    from gi.repository import GObject, Gtk, Gio
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -57,15 +57,15 @@ class Result(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, result: Result, available_tags: Gio.ListModel):
-        id = result.id
-        name = result.name
-        creation_date_time = result.creation_date_time
-        project_name = result.project_name
-        selected_tags = result.selected_tags
-        previews = result.previews
-        cross_section = result.cross_section
-        diagram_types = result.diagram_types
-        formats = result.formats
+        self.id = result.id
+        self.name = result.name
+        self.creation_date_time = result.creation_date_time
+        self.project_name = result.project_name
+        self.selected_tags = result.selected_tags
+        self.previews = result.previews
+        self.cross_section = result.cross_section
+        self.diagram_types = result.diagram_types
+        self.formats = result.formats
 
         self.result: Result = result
         self.available_tags = available_tags
