@@ -5,6 +5,7 @@ from gi.repository import GObject, Gio, GLib
 from sbaid import common
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.common.simulator_type import SimulatorType
+from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.project import Project
 from sbaid.model.results.result_manager import ResultManager
 
@@ -32,15 +33,14 @@ class Context(GObject.GObject):
         """Returns the list with all projects"""
         return self.__projects
 
-    def __init__(self, global_db: GlobalDatabase) -> None:
-        super().__init__(result_manager=ResultManager(global_db))
+    def __init__(self) -> None:
+        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
+        # TODO: Userdata folder
+        super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
-        self.__global_db = global_db
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        # self.__global_db = GlobalSQLite
-        # (Gio.File.new_for_path("global_db"))  # TODO: Userdata folder
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()

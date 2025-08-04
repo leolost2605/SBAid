@@ -7,7 +7,6 @@ from gi.repository import Gio
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
 
-@unittest.skip("because i cannot figure out what is wrong")
 class ContextTestCase(unittest.TestCase):
     def test(self):
         self.assertTrue(True)
@@ -25,8 +24,7 @@ class ContextTestCase(unittest.TestCase):
     async def load(self):
         global_file = Gio.File.new_for_path("global_db")
 
-        global_db = unittest.mock.AsyncMock()
-        context1 = Context(global_db)
+        context1 = Context()
         await context1.load()
 
         proj_id = await context1.create_project("project name",
