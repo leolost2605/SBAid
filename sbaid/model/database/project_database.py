@@ -1,22 +1,11 @@
 """This module contains the ProjectDatabase interface."""
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
 from gi.repository import GLib
 
 
-T = TypeVar('T', bound="ProjectDatabase")
-
-
 class ProjectDatabase(ABC):
     """This interface contains methods that encapsulate necessary database behaviour."""
-    @abstractmethod
-    async def __aenter__(self: T) -> T:
-        """TODO"""
-
-    @abstractmethod
-    async def __aexit__(self, exc_type: Exception, exc_val: Exception, exc_tb: Exception) -> None:
-        """TODO"""
 
     @abstractmethod
     async def get_created_at(self) -> GLib.DateTime:
