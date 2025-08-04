@@ -27,7 +27,7 @@ class VissimSimulator(Simulator):
         """
         return self.__type
 
-    def get_route(self) -> Gio.ListModel:
+    def get_route_points(self) -> Gio.ListModel:
         """
         Returns the route of this simulation file as a list of locations.
         :return: The route as a listmodel of locations
