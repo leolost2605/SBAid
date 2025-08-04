@@ -1,6 +1,6 @@
 import asyncio
 import unittest
-
+from unittest import mock
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
@@ -25,7 +25,8 @@ class ContextTestCase(unittest.TestCase):
     async def load(self):
         global_file = Gio.File.new_for_path("global_db")
 
-        context1 = Context()
+        global_db = unittest.mock.AsyncMock()
+        context1 = Context(global_db)
         await context1.load()
 
         proj_id = await context1.create_project("project name",
