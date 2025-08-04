@@ -12,36 +12,33 @@ class MockCrossSection(SimulatorCrossSection):
     __location: Location
     __lanes: int
 
-    @SimulatorCrossSection.id.getter  # type: ignore
-    def id(self) -> str:
+    def get_id(self) -> str:
         """Returns the id of the cross section."""
         return self.__id
 
-    @SimulatorCrossSection.name.getter  # type: ignore
-    def name(self) -> str:
+    def get_name(self) -> str:
         """Returns the name of the cross section."""
         return self.__name
 
-    @SimulatorCrossSection.type.getter  # type: ignore
-    def type(self) -> CrossSectionType:
+    def get_type(self) -> CrossSectionType:
         """Returns the type of this cross section."""
         return self.__type
 
-    @SimulatorCrossSection.location.getter  # type: ignore
-    def location(self) -> Location:
+    def get_location(self) -> Location:
         """Returns the location of this cross section."""
         return self.__location
 
-    @SimulatorCrossSection.lanes.getter  # type: ignore
-    def lanes(self) -> int:
+    def get_lanes(self) -> int:
         """Returns the number of lanes at this cross section."""
         return self.__lanes
 
-    @SimulatorCrossSection.hard_shoulder_available.getter  # type: ignore
-    def hard_shoulder_available(self) -> bool:
+    def get_hard_shoulder_available(self) -> bool:
         """Returns whether the lane with index 0 is a hard shoulder. Always returns true
         because we assume every furthest-right lane is a hard shoulder."""
         return True
+
+    def move(self, location: Location):
+        self.__location = location
 
     def __init__(self, cs_id: str, name: str, cs_type: CrossSectionType, location: Location,
                  lanes: int):
