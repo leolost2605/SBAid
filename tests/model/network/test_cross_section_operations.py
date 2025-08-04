@@ -14,7 +14,7 @@ from sbaid.common.cross_section_type import CrossSectionType
 
 class CrossSectionOperationsTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
-    __mock_network = Network(__mock_simulator, unittest.mock.Mock())
+    __network = Network(__mock_simulator, unittest.mock.Mock())
     __sim_cross_section = SimulatorCrossSection()
     __mock_cross_section = MockCrossSection("test_id",
                                             "start_name",
@@ -24,7 +24,7 @@ class CrossSectionOperationsTest(unittest.TestCase):
     __cross_section: CrossSection = CrossSection(__mock_cross_section, unittest.mock.Mock())
 
 
-    def test_create_valid_cross_section(self):
+    def test_create_cross_section(self):
         """Expected behavior:
             for dummy: operation not supported raised
             for vissim: an int, representing the position of the successfully added cross section
@@ -32,25 +32,25 @@ class CrossSectionOperationsTest(unittest.TestCase):
             mock: an int, representing the position of the successfully added cross section
                         in the network's cross sections ListModel
         """
-        asyncio.run(self._test_create_valid_cross_section())
+        asyncio.run(self._test_create_cross_section())
 
-    async def _test_create_valid_cross_section(self):
-        await self.__mock_network.load()
-        position = await self.__mock_network.create_cross_section("creation_name",
-                         Location(50.16106, 8.39521), CrossSectionType.COMBINED)
-        self.assertEqual(self.__mock_network.cross_sections.get_item(position).name, "creation_name")
-        self.__cross_section = cast(CrossSection, self.__mock_network.cross_sections.get_item(position))
+    async def _test_create_cross_section(self):
+        await self.__network.load()
+        position = await self.__network.create_cross_section("creation_name",
+                                                             Location(50.16106, 8.39521), CrossSectionType.COMBINED)
+        self.assertEqual(self.__network.cross_sections.get_item(position).name, "creation_name")
+        self.__cross_section = cast(CrossSection, self.__network.cross_sections.get_item(position))
 
-    def test_move_cross_section_valid(self):
+    def test_move_cross_section(self):
         """Expected behavior:
         for dummy: operation not supported error
         for vissim: cross section has new location (check separately from move operation)
         """
-        asyncio.run(self._test_move_cross_section_valid())
+        asyncio.run(self._test_move_cross_section())
 
-    async def _test_move_cross_section_valid(self):
+    async def _test_move_cross_section(self):
         self.__mock_simulator.cross_sections.append(self.__mock_cross_section)
-        await self.__mock_network.move_cross_section(self.__cross_section.id, Location(50.268010,8.663893))
+        await self.__network.move_cross_section(self.__cross_section.id, Location(50.268010, 8.663893))
         self.assertEqual(self.__cross_section.location, Location(50.268010, 8.663893))
 
     def test_delete_cross_section(self):
@@ -61,10 +61,10 @@ class CrossSectionOperationsTest(unittest.TestCase):
         asyncio.run(self._test_delete_cross_section())
 
     async def _test_delete_cross_section(self):
-        await self.__mock_network.load()
-        await self.__mock_network.delete_cross_section(self.__cross_section.id)
+        await self.__network.load()
+        await self.__network.delete_cross_section(self.__cross_section.id)
         deleted: bool = True
-        for cs in list_model_iterator(self.__mock_network.cross_sections):
+        for cs in list_model_iterator(self.__network.cross_sections):
             if cs.id == self.__cross_section.id:
                 deleted = False
         self.assertEqual(True, deleted)
@@ -97,4 +97,3 @@ class CrossSectionOperationsTest(unittest.TestCase):
             mock: new value is the given value"""
         self.__cross_section.hard_shoulder_active = True
         self.assertEqual(self.__cross_section.hard_shoulder_active, True)
-

@@ -15,7 +15,7 @@ from tests.MockSimulator import MockSimulator
 
 class NetworkTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
-    __mock_network = Network(__mock_simulator, unittest.mock.Mock())
+    __network = Network(__mock_simulator, unittest.mock.Mock())
 
     def test_factory_singleton(self):
         first_instance = ParserFactory()
@@ -30,10 +30,10 @@ class NetworkTest(unittest.TestCase):
         """Tests the network's load method.
         Expected behavior: All model cross sections are created from simulator cross sections and
         their metadata loaded from the database."""
-        await self.__mock_network.load()
-        self.assertEqual(self.__mock_network.cross_sections.get_n_items(),
-                         self.__mock_network.cross_sections.get_n_items())
-        self.assertEqual(self.__mock_network.cross_sections.get_item(1).name, "cross_section_1")
+        await self.__network.load()
+        self.assertEqual(self.__network.cross_sections.get_n_items(),
+                         self.__network.cross_sections.get_n_items())
+        self.assertEqual(self.__network.cross_sections.get_item(1).name, "cross_section_1")
 
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_import_from_file(self):
@@ -46,8 +46,8 @@ class NetworkTest(unittest.TestCase):
             dummy simulator: InvalidFormattingException because adding cross sections is not supported
             vissim simulator: return value (20,0)"""
         file = Gio.File.new_for_path("./tests/model/network/valid_input.csv")
-        await self.__mock_network.load()
-        self.assertEqual(await self.__mock_network.import_from_file(file), (20, 0))
+        await self.__network.load()
+        self.assertEqual(await self.__network.import_from_file(file), (20, 0))
 
 
     def test_load_from_db(self):
