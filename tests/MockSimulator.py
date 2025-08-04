@@ -12,7 +12,7 @@ class MockSimulator(Simulator):
     """Mocks a Simulator, for testing purposes."""
 
     __type: SimulatorType
-    __route: Route
+    __route_points: Gio.ListStore
     __cross_sections: Gio.ListStore
 
 
@@ -23,12 +23,12 @@ class MockSimulator(Simulator):
         """
         return self.__type
 
-    def get_route(self) -> Route:
+    def get_route_points(self) -> Gio.ListModel:
         """
         Returns the route of this simulation file as a list of locations.
         :return: The route as a listmodel of locations
         """
-        return self.__route
+        return self.__route_points
 
     def get_cross_sections(self) -> Gio.ListModel:
         """
@@ -42,7 +42,7 @@ class MockSimulator(Simulator):
     def __init__(self):
         super().__init__()
         self.__cross_sections = Gio.ListStore()
-        self.__route = Route(Gio.ListStore())
+        self.__route_points = Gio.ListStore()
         self.__cross_sections.append(MockCrossSection("cs_0_id", "cross_section_0",
                                                       CrossSectionType.COMBINED, Location(0, 0), 4))
         self.__cross_sections.append(MockCrossSection("cs_1_id", "cross_section_1",
@@ -75,3 +75,5 @@ class MockSimulator(Simulator):
             if cross_section.id == cross_section_id:
                 cross_section.move(new_location)
                 return
+
+
