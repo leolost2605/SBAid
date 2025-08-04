@@ -5,8 +5,8 @@ from gi.repository import GObject
 
 from sbaid.model.simulation_manager import SimulationManager
 from sbaid.model.simulation_observer import SimulationObserver as ModelSimulationObserver
-from view_model.simulation import Simulation
-from view_model.simulation_observer import SimulationObserver
+from sbaid.view_model.simulation import Simulation
+from sbaid.view_model.simulation_observer import SimulationObserver
 
 
 class SimulationTestCase(unittest.TestCase):
