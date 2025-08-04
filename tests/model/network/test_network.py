@@ -1,5 +1,6 @@
+import sys
 import unittest
-from unittest import mock
+from unittest import mock, skipIf
 from unittest.mock import AsyncMock
 import asyncio
 from gi.repository import Gio
@@ -34,6 +35,7 @@ class NetworkTest(unittest.TestCase):
                          self.__mock_network.cross_sections.get_n_items())
         self.assertEqual(self.__mock_network.cross_sections.get_item(1).name, "cross_section_1")
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_import_from_file(self):
         asyncio.run(self._test_import_from_file())
 
