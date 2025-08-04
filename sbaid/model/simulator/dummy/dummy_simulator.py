@@ -44,7 +44,7 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
-    _cs_locations: Gio.ListStore
+    _route_points: Gio.ListStore
     _cross_sections: Gio.ListStore
     _simulation_start_time: int
     _simulation_end_time: int
@@ -107,7 +107,7 @@ class DummySimulator(Simulator):
 
     def get_route_points(self) -> Gio.ListModel:
         """Return a list model of locations which represent the route of cross sections."""
-        return self._cs_locations
+        return self._route_points
 
     def get_cross_sections(self) -> Gio.ListModel:
         """Property definition for the simulator cross section list model."""
@@ -116,7 +116,7 @@ class DummySimulator(Simulator):
     def __init__(self) -> None:
         """Create a new dummy simulator."""
         super().__init__()
-        self._cs_locations = Gio.ListStore.new(Location)
+        self._route_points = Gio.ListStore.new(Location)
         self._cross_sections = Gio.ListStore.new(DummyCrossSection)
         self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
         self._sequence = {}
@@ -166,7 +166,7 @@ class DummySimulator(Simulator):
         for location in cs_location_map.values():
             route.append(location)
 
-        self._cs_locations = route
+        self._route_points = route
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:

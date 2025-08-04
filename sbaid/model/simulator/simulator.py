@@ -21,8 +21,8 @@ class Simulator(GObject.GObject):
     type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                            flags=GObject.ParamFlags.READABLE)
 
-    route: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
-                                            flags=GObject.ParamFlags.READABLE)
+    route_points: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
+                                                   flags=GObject.ParamFlags.READABLE)
 
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE)
@@ -35,7 +35,7 @@ class Simulator(GObject.GObject):
         """
         return self.get_type()  # type: ignore
 
-    @route.getter  # type: ignore
+    @route_points.getter  # type: ignore
     def get_route_points(self) -> Gio.ListModel:
         """
         Returns the route of this simulation file as a list of locations.
