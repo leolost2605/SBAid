@@ -20,7 +20,7 @@ class ResultBuilder(GObject.GObject):
     def begin_snapshot(self, simulation_timestamp: GLib.DateTime) -> None:
         """todo"""
 
-    def begin_cross_section(self, cross_section_name: str) -> None:
+    def begin_cross_section(self, cross_section_id: str, cross_section_name: str) -> None:
         """todo"""
 
     def add_b_display(self, b_display: BDisplay) -> None:
@@ -61,4 +61,5 @@ class ResultBuilder(GObject.GObject):
 
     def end_result(self) -> Result:
         """todo"""
-        return None
+        # pylint: disable=no-value-for-parameter
+        return Result()  # type: ignore
