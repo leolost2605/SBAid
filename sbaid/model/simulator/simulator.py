@@ -36,12 +36,12 @@ class Simulator(GObject.GObject):
         return self.get_type()  # type: ignore
 
     @route.getter  # type: ignore
-    def get_route(self) -> Gio.ListModel:
+    def get_route_points(self) -> Gio.ListModel:
         """
         Returns the route of this simulation file as a list of locations.
         :return: The route as a listmodel of locations
         """
-        return self.get_route()  # type: ignore
+        return self.get_route_points()  # type: ignore
 
     @cross_sections.getter  # type: ignore
     def get_cross_sections(self) -> Gio.ListModel:

@@ -47,7 +47,7 @@ class Network(GObject.Object):
         self.__project_db = project_db
         self.__background_tasks = set()
         self.__cross_sections = Gtk.MapListModel.new(None, self.__map_func)
-        super().__init__(route=simulator.route)
+        super().__init__(route=Route(simulator.get_route_points))
 
     async def load(self) -> None:
         """Loads the network data."""
