@@ -14,6 +14,10 @@ class GlobalDatabase(ABC):
     the global database functionality."""
 
     @abstractmethod
+    async def open(self) -> None:
+        """Opens the file for the database."""
+
+    @abstractmethod
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""
@@ -27,7 +31,7 @@ class GlobalDatabase(ABC):
         """Remove a project from the database."""
 
     @abstractmethod
-    async def get_all_results(self) -> list[tuple[str, GLib.DateTime]]:
+    async def get_all_results(self) -> list[tuple[str, str, str, GLib.DateTime]]:
         """Return all results in the database."""
 
     @abstractmethod
@@ -52,6 +56,10 @@ class GlobalDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
+    async def get_tag_name(self, tag_id: str) -> str:
+        """Return the name of the given tag_id."""
+
+    @abstractmethod
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""
 
@@ -60,7 +68,7 @@ class GlobalDatabase(ABC):
         """Return all tags in the database."""
 
     @abstractmethod
-    async def get_result_tags(self, result_id: str) -> list[str]:
+    async def get_result_tag_ids(self, result_id: str) -> list[str]:
         """Return all tags that belong to the given result."""
 
     @abstractmethod

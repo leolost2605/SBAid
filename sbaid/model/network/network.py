@@ -47,10 +47,11 @@ class Network(GObject.Object):
         self.__project_db = project_db
         self.__background_tasks = set()
         self.__cross_sections = Gtk.MapListModel.new(None, self.__map_func)
-        super().__init__(route=simulator.route)
+        super().__init__(route=Route(simulator.route_points))
 
     async def load(self) -> None:
-        """Loads the network data."""
+        """Sets the model for this network's MapListModel of simulator and model cross sections,
+         triggering the loading of cross section metadata from the database in the __map_func."""
         self.__cross_sections.set_model(self.__simulator.cross_sections)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
@@ -148,8 +149,7 @@ class Network(GObject.Object):
 
 
 class FailedCrossSectionCreationException(Exception):
-    """Exception raised when the creation of a cross section fails.
-    No error message needed as the exception doesn't show up to the user as an error."""
+    """Exception raised when the creation of a cross section fails."""
 
 
 class NoSuitableParserException(Exception):

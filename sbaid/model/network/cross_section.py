@@ -38,6 +38,7 @@ class CrossSection(GObject.GObject):
 
     @name.setter  # type: ignore
     def name(self, value: str) -> None:  # pylint: disable=function-redefined
+        self.__name = value
         task = asyncio.create_task(self.__update_cross_section_name(value))
         self.__background_tasks.add(task)
         task.add_done_callback(self.__background_tasks.discard)
