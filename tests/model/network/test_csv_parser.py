@@ -16,6 +16,7 @@ from sbaid.model.network.network import FailedCrossSectionCreationException
 class CsvParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
         self.assertEqual(parser.can_handle_file("./tests/model/network/valid_input.csv"), True)
@@ -30,7 +31,7 @@ class CsvParserTest(unittest.TestCase):
         """Unit testing with dummy simulator so no upload of the vissim simulation
         files to github is needed"""
         network = Network(DummySimulator(), unittest.mock.Mock())
-        return await network.create_cross_section(name, location, cross_section_type) is not None  #???? como check se raised um error ou returned algo?
+        return await network.create_cross_section(name, location, cross_section_type) is not None
 
 
     def test_valid_parsing(self):
