@@ -2,7 +2,7 @@
 This module contains the simulation observer interface implementation.
 """
 
-from gi.repository import GObject
+from gi.repository import GLib, GObject
 
 from sbaid.model.simulation_observer import SimulationObserver as ModelSimulationObserver
 
@@ -34,7 +34,7 @@ class SimulationObserver(ModelSimulationObserver):
         """
         self.emit("finished", result_id)
 
-    def failed(self, error: GObject.Error) -> None:
+    def failed(self, error: GLib.Error) -> None:
         """
         Emits the failed signal with the given error.
         :param error: the error that caused the simulation to fail

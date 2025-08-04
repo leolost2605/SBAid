@@ -84,9 +84,9 @@ class Project(GObject.GObject):
                                         GObject.ParamFlags.WRITABLE |
                                         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    algorithm_configuration_manager: AlgorithmConfigurationManager = (
+    algorithm_configuration_manager: ConfigurationManager = (
         GObject.Property(  # type: ignore
-            type=AlgorithmConfigurationManager,
+            type=ConfigurationManager,
             flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
             GObject.ParamFlags.CONSTRUCT_ONLY))
 
@@ -105,7 +105,7 @@ class Project(GObject.GObject):
         simulator = SimulatorFactory().get_simulator(sim_type)
 
         network = Network(simulator, self.__project_db)
-        algo_manager = AlgorithmConfigurationManager(network, self.__project_db)
+        algo_manager = ConfigurationManager(network, self.__project_db)
 
         super().__init__(id=project_id, name="Unknown Project Name",
                          simulator_type=sim_type,

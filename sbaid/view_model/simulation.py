@@ -29,6 +29,8 @@ class Simulation(GObject.Object):
         observer.connect("finished", self.__on_finished)
         observer.connect("failed", self.__on_failed)
 
+    # parameter observer is a placeholder for the signal functionality as there must exist a
+    # positional argument for the observer to be passed with the signal automatically.
     def __on_progressed(self, observer: SimulationObserver, progress: float) -> None:
         self.emit("progressed", progress)
 
@@ -38,8 +40,8 @@ class Simulation(GObject.Object):
     def __on_failed(self, observer: SimulationObserver, error: GObject.Error) -> None:
         self.emit("failed", error)
 
-    def cancel(self) -> None:
+    async def cancel(self) -> None:
         """
         Cancels the simulation.
         """
-        self.__manager.cancel()
+        await self.__manager.cancel()

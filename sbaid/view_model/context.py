@@ -6,7 +6,9 @@ import sys
 
 import gi
 
+from sbaid.model.simulator.simulator_factory import SimulatorFactory
 from sbaid.common.simulator_type import SimulatorType
+# from sbaid.view_model.results import ResultManager
 from sbaid.model.context import Context as ModelContext
 from sbaid.model.project import Project as ModelProject
 from sbaid.view_model.project import Project
@@ -26,28 +28,28 @@ class Context(GObject.Object):
 
     __context: ModelContext
 
-    result_manager: ResultManager = GObject.Property(type=ResultManager,
-                                                     flags=GObject.ParamFlags.READABLE |
-                                                     GObject.ParamFlags.WRITABLE |
-                                                     GObject.ParamFlags.CONSTRUCT_ONLY)
+    # result_manager: ResultManager = GObject.Property(type=ResultManager,
+    #                                                  flags=GObject.ParamFlags.READABLE |
+    #                                                  GObject.ParamFlags.WRITABLE |
+    #                                                  GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    projects: Gio.ListModel = GObject.Property(type=Gio.ListModel,
+    projects: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                flags=GObject.ParamFlags.READABLE |
                                                GObject.ParamFlags.WRITABLE |
                                                GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    simulator_types: Gio.ListModel = GObject.Property(type=Gio.ListModel)
+    simulator_types: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
     @simulator_types.getter  # type: ignore
     def simulator_types(self) -> Gio.ListModel:
         """Returns a list of all available simulator types."""
-        # TODO: Get them from the simulator factory singleton
-        return Gio.ListStore()
+        return SimulatorFactory().simulator_types
 
     def __init__(self, context: ModelContext) -> None:
         super().__init__(
             projects=Gtk.MapListModel.new(context.projects, self.__project_map_func),
-            result_manager=ResultManager(context.result_manager)
+            # result_manager=None
+            # TODO should be ResultManager(context.result_manager)
         )
 
         self.__context = context
