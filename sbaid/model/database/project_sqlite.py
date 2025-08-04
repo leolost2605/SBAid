@@ -3,14 +3,11 @@ import sqlite3
 from typing import TypeVar, cast
 
 import aiosqlite
+import aiopathlib
 from gi.repository import GLib, Gio
 
 from sbaid.model.database.foreign_key_error import ForeignKeyError
-from sbaid.common import make_directory_with_parents_async
 from sbaid.model.database.project_database import ProjectDatabase
-
-
-T = TypeVar('T', bound="ProjectDatabase")
 
 
 class InvalidDatabaseError(Exception):
@@ -40,9 +37,8 @@ class ProjectSQLite(ProjectDatabase):
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
-            await make_directory_with_parents_async(self._file.get_parent())
-            await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
-                                          GLib.PRIORITY_DEFAULT)
+            async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())
+            await async_path.mkdir(parents=True)
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:
                 await db.executescript("""

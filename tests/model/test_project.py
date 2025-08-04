@@ -21,7 +21,6 @@ class ProjectTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        await self.load_from_db()
         await self.create_via_context()
         await self.start_simulation()
 
@@ -56,13 +55,12 @@ class ProjectTestCase(unittest.TestCase):
         self.assertIsNotNone(other_project.algorithm_configuration_manager)
         self.assertIsNotNone(other_project.simulator)
 
-        await Gio.File.new_for_path("proj_file_path").delete_async(0)
         await Gio.File.new_for_path("global_db").delete_async(0)
 
     async def start_simulation(self):
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
 
-        project = Project("myid", sim_type, "sim_file_path", "proj_file_path", Mock())
+        project = Project("myid", sim_type, "sim_file_path", "proj_file_path", ResultManager())
         await project.algorithm_configuration_manager.create_algorithm_configuration()
 
         observer = Mock()

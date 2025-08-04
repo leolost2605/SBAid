@@ -39,7 +39,7 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))
+        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db")) # TODO: User data folder
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()
@@ -74,9 +74,9 @@ class Context(GObject.GObject):
     async def delete_project(self, project_id: str) -> None:
         """Deletes the project with the given ID."""
         for pos, project in enumerate(common.list_model_iterator(self.__projects)):
-            if project.project_id == project_id:
+            if project.id == project_id:
                 self.__projects.remove(pos)
                 await self.__global_db.remove_project(project_id)
-                break
+                return
 
         raise ProjectNotFoundError(f"The Project with the id {project_id} was not found")
