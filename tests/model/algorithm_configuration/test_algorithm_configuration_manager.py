@@ -1,51 +1,71 @@
 """This module contains unittest for the AlgorithmConfiguration class."""
 import random
 import unittest
-from unittest.mock import MagicMock, mock_open
+from unittest.mock import Mock, AsyncMock
 
-from gi.repository import GLib
+from sbaid.model.algorithm_configuration.algorithm_configuration_manager import \
+    AlgorithmConfigurationManager
+from sbaid.model.network.network import Network
+from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
-from sbaid.common.tag import Tag
-from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 
-
-class AlgorithmConfigurationManagerTest(unittest.TestCase):
-    """This class tests teh algorithm configuration using pythons unittest."""
-
+class MyTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.test = GLib.VariantType.new('s')
-        self.test_value = GLib.Variant.new_string('test_value')
-        self.mock_network = MagicMock(name="MockNetwork")
-        self.algo_config_manager = AlgorithmConfigurationManager(self.mock_network)
+        self.__db_mock = Mock()
+        self.__db_mock.get_all_algorithm_configuration_ids = AsyncMock(return_value=["1", "2"])
+        self.__db_mock.get_selected_algorithm_configuration_id = AsyncMock(return_value="1")
+        self.__db_mock.get_algorithm_configuration_name = AsyncMock(return_value="test_algorithm_configuration")
+        self.__db_mock.get_script_path = AsyncMock(return_value="my script path")
+        self.__db_mock.get_evaluation_interval = AsyncMock(return_value=15)
+        self.__db_mock.get_display_interval = AsyncMock(return_value=30)
+        self.__db_mock.add_algorithm_configuration = AsyncMock()
+        self.__db_mock.remove_algorithm_configuration = AsyncMock()
+        self.__db_mock.set_selected_algorithm_configuration_id = AsyncMock()
+        self.__db_mock.add_tag = AsyncMock()
+        self.__db_mock.remove_tag = AsyncMock()
 
-    def test_create_tag(self):
-        a = Tag(GLib.uuid_string_random(), "first_tag")
-        b = Tag(GLib.uuid_string_random(), "second_tag")
+    async def test_algo_config_manager(self):
+        sim = DummySimulator()
+        network = Network(sim, self.__db_mock)
+        manager = AlgorithmConfigurationManager(network, self.__db_mock)
 
-        self.algo_config_manager.create_tag(a)
-        self.algo_config_manager.create_tag(b)
+        await manager.load()
 
-        tags = self.algo_config_manager.available_tags
-        self.assertIn(a.id, tags.get_ids())
-        self.assertIn(b.id, tags.get_ids())
+        self.assertEqual(manager.algorithm_configurations.get_n_items(), 2)
+        self.assertEqual(manager.selected_algorithm_configuration_id, "1")
+        self.assertEqual(manager.algorithm_configurations.get_item(0).id, "1")
+        self.assertEqual(manager.algorithm_configurations.get_item(0).name, "test_algorithm_configuration")
 
-    def test_delete_tag(self):
-        a = Tag(GLib.uuid_string_random(), "temp_tag")
-        self.algo_config_manager.create_tag(a)
+        manager.selected_algorithm_configuration_id = "2"
 
-        all_tags = self.algo_config_manager.available_tags
-        all_tags_ids = all_tags.get_ids()
-        self.assertIn(a.id, all_tags_ids)
+        self.assertEqual(manager.selected_algorithm_configuration_id, "2")
 
-        self.algo_config_manager.delete_tag(a.id)
-        all_tags_after = self.algo_config_manager.available_tags.get_ids()
-        self.assertNotIn(a.id, all_tags_after)
+        pos = await manager.create_algorithm_configuration()
 
-    def test_create_algorithm_configuration(self):
-        pass
+        self.assertEqual(pos, 2)
+        self.assertEqual(manager.algorithm_configurations.get_n_items(), 3)
+        self.assertEqual(manager.algorithm_configurations.get_item(2).name, "New Algorithm Configuration")
 
-    def test_delete_algorithm_configuration(self):
-        pass
+        manager.selected_algorithm_configuration_id = "1"
+        self.assertEqual(manager.selected_algorithm_configuration_id, "1")
+
+        manager.delete_algorithm_configuration("1")
+
+        self.assertEqual(manager.algorithm_configurations.get_n_items(), 2)
+        self.assertEqual(manager.algorithm_configurations.get_item(0).id, "2")
+        self.assertNotEqual(manager.algorithm_configurations.get_item(1).id, "1")
+        self.assertEqual(manager.selected_algorithm_configuration_id, "2")
+
+        tag_pos = await manager.create_tag("my tag")
+
+        self.assertEqual(tag_pos, 0)
+        self.assertEqual(manager.available_tags.get_n_items(), 1)
+        self.assertEqual(manager.available_tags.get_item(0).name, "my tag")
+
+        manager.delete_tag(manager.available_tags.get_item(0).tag_id)
+
+        self.assertEqual(manager.available_tags.get_n_items(), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

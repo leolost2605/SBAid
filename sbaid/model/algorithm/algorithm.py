@@ -22,5 +22,5 @@ class Algorithm(GObject.GObject):
              network_state: NetworkState) -> None:
         """todo"""
 
-    def calculate_display(self, algorithm_input: list[Input]) -> Display:
+    def calculate_display(self, algorithm_input: Input) -> Display:
         """todo"""

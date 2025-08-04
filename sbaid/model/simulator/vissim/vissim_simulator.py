@@ -20,24 +20,21 @@ class VissimSimulator(Simulator):
     __cross_sections: Gio.ListStore
     __connector: VissimConnector
 
-    @Simulator.type.getter  # type: ignore
-    def type(self) -> SimulatorType:
+    def get_type(self) -> SimulatorType:
         """
         Returns the simulator type, in this case PTV Vissim.
         :return: the type of this simulator
         """
         return self.__type
 
-    @Simulator.route.getter  # type: ignore
-    def route(self) -> Gio.ListModel:
+    def get_route_points(self) -> Gio.ListModel:
         """
         Returns the route of this simulation file as a list of locations.
         :return: The route as a listmodel of locations
         """
         return self.__route
 
-    @Simulator.cross_sections.getter  # type: ignore
-    def cross_sections(self) -> Gio.ListModel:
+    def get_cross_sections(self) -> Gio.ListModel:
         """
         Returns a Gio.ListModel containing the cross sections in this simulator file.
         Returns an empty model if no file was loaded yet. The model is guaranteed to be
