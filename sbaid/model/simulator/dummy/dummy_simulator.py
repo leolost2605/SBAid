@@ -44,8 +44,8 @@ class DummySimulator(Simulator):
     _sequence: dict[int, Input]
     _pointer: int
     _type: SimulatorType
-    _route: Gio.ListModel
-    _cross_sections: Gio.ListModel
+    _route: Gio.ListStore
+    _cross_sections: Gio.ListStore
     _simulation_start_time: int
     _simulation_end_time: int
     _schema = {
@@ -106,7 +106,7 @@ class DummySimulator(Simulator):
         return self._type
 
     def get_route(self) -> Gio.ListModel:
-        """TODO"""
+        """Return a list model of locations which represent the route of cross sections."""
         return self._route
 
     def get_cross_sections(self) -> Gio.ListModel:
@@ -152,9 +152,9 @@ class DummySimulator(Simulator):
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
                     self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
-                                                                 CrossSectionType.COMBINED,
-                                                                 cs_location_map[cross_section],
-                                                                 max_lanes, False))
+                                                                  CrossSectionType.COMBINED,
+                                                                  cs_location_map[cross_section],
+                                                                  max_lanes, False))
                 self._sequence[int(snapshot_time)] = current_input
 
         self._simulation_start_time = min(self._sequence.keys())
