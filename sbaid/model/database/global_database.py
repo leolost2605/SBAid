@@ -14,6 +14,10 @@ class GlobalDatabase(ABC):
     the global database functionality."""
 
     @abstractmethod
+    async def open(self) -> None:
+        """Opens the file for the database."""
+
+    @abstractmethod
     async def add_project(self, project_id: str, simulator_type: SimulatorType,
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""

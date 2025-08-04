@@ -8,6 +8,10 @@ class ProjectDatabase(ABC):
     """This interface contains methods that encapsulate necessary database behaviour."""
 
     @abstractmethod
+    async def open(self) -> None:
+        """Opens the file for the database."""
+
+    @abstractmethod
     async def get_created_at(self) -> GLib.DateTime:
         """Return the GLib.DateTime when the project was created."""
 
