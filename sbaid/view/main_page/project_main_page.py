@@ -1,3 +1,7 @@
+"""
+This module contains the project main page.
+"""
+
 import sys
 
 import gi
@@ -20,27 +24,29 @@ class Project:
 
 
 class ProjectMainPage(Adw.NavigationPage):
-    __project: Project
+    """
+    This class represents the main page where the project is opened to.
+    It contains the network map and lists all cross sections in the sidebar.
+    It also allows to open the edit algorithm configurations dialog and start a simulation.
+    """
 
     def __init__(self, project: Project) -> None:
         super().__init__()
 
-        self.__project = project
+        side_header_bar = Adw.HeaderBar()
 
-        side_header_bar = Adw.HeaderBar.new()
-
-        cross_sections_list = Gtk.ListBox.new()
+        cross_sections_list = Gtk.ListBox()
         cross_sections_list.bind_model(project.network.cross_sections, self.__create_cs_row)
 
-        scrolled_window = Gtk.ScrolledWindow.new()
+        scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_child(cross_sections_list)
         scrolled_window.set_vexpand(True)
 
-        add_cs_button = Gtk.MenuButton.new()
+        add_cs_button = Gtk.MenuButton()
         add_cs_button.set_label("+ Add Cross Section")
         add_cs_button.set_popover(AddNewCrossSectionListPopover(project.network))
 
-        sidebar = Adw.ToolbarView.new()
+        sidebar = Adw.ToolbarView()
         sidebar.add_top_bar(side_header_bar)
         sidebar.set_content(scrolled_window)
         sidebar.add_bottom_bar(add_cs_button)
@@ -49,25 +55,25 @@ class ProjectMainPage(Adw.NavigationPage):
         start_button.set_action_name("win.start-simulation")
         start_button.set_action_target_value(GLib.Variant.new_string(project.id))
 
-        start_menu = Gio.Menu.new()
+        start_menu = Gio.Menu()
         start_menu.append("Edit Algorithm Configurations",
                           Gio.Action.print_detailed_name("win.edit-algo-configs",
                                                          GLib.Variant.new_string(project.id)))
 
-        menu_button = Gtk.MenuButton.new()
+        menu_button = Gtk.MenuButton()
         menu_button.set_menu_model(start_menu)
 
-        content_header_bar = Adw.HeaderBar.new()
+        content_header_bar = Adw.HeaderBar()
         content_header_bar.pack_end(menu_button)
         content_header_bar.pack_end(start_button)
 
         network_map = NetworkMap(project.network)
 
-        content = Adw.ToolbarView.new()
+        content = Adw.ToolbarView()
         content.add_top_bar(content_header_bar)
         content.set_content(network_map)
 
-        main_view = Adw.OverlaySplitView.new()
+        main_view = Adw.OverlaySplitView()
         main_view.set_sidebar(sidebar)
         main_view.set_content(content)
 

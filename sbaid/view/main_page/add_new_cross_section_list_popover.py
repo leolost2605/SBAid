@@ -14,7 +14,7 @@ from sbaid.view_model.network.network import Network
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gio, Gtk, GObject
+    from gi.repository import Gtk
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -36,15 +36,15 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         self.__network = network
 
         name_label = Gtk.Label.new("Name:")
-        name_entry = Gtk.Entry.new()
+        name_entry = Gtk.Entry()
         self.__name_entry = name_entry
 
         x_label = Gtk.Label.new("X:")
-        x_entry = Gtk.Entry.new()
+        x_entry = Gtk.Entry()
         self.__x_entry = x_entry
 
         y_label = Gtk.Label.new("Y:")
-        y_entry = Gtk.Entry.new()
+        y_entry = Gtk.Entry()
         self.__y_entry = y_entry
 
         cs_types = ["Display", "Measuring", "Combined"]
@@ -54,7 +54,7 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         done_button = Gtk.Button.new_with_label("Add")
         done_button.connect("clicked", self.__on_done_clicked)
 
-        grid = Gtk.Grid.new()
+        grid = Gtk.Grid()
         grid.attach(name_label, 0, 0, 1, 1)
         grid.attach(name_entry, 1, 0, 3, 1)
         grid.attach(x_label, 0, 1, 1, 1)

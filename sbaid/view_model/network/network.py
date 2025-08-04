@@ -34,6 +34,7 @@ class Network(GObject.GObject):
 
     @route_points.getter  # type: ignore
     def route_points(self) -> Gio.ListModel:
+        """Returns a model with the points of the route"""
         return self.__network.route.points
 
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore

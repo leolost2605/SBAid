@@ -1,3 +1,7 @@
+"""
+This module contains the network map.
+"""
+
 import sys
 
 import gi
@@ -8,13 +12,17 @@ from sbaid.view_model.network.network import Network
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gio, Gtk, GObject, Shumate
+    from gi.repository import Adw, Gio, Shumate
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
 class NetworkMap(Adw.Bin):
+    """
+    Displays the world map with the route and cross sections on it.
+    """
+
     __network: Network
     __map: Shumate.SimpleMap
     __path_layer: Shumate.PathLayer
@@ -27,7 +35,8 @@ class NetworkMap(Adw.Bin):
         network.cross_sections.connect("items-changed", self.__on_cross_sections_changed)
 
         self.__map = Shumate.SimpleMap()
-        self.__map.set_map_source(Shumate.RasterRenderer.new_from_url(r"https://tile.openstreetmap.org/{z}/{x}/{y}.png"))
+        self.__map.set_map_source(Shumate.RasterRenderer.new_from_url(
+            r"https://tile.openstreetmap.org/{z}/{x}/{y}.png"))
 
         self.__path_layer = Shumate.PathLayer.new(self.__map.get_viewport())
         self.__cross_sections_layer = Shumate.MarkerLayer.new(self.__map.get_viewport())
@@ -56,6 +65,6 @@ class NetworkMap(Adw.Bin):
 
         for cross_section in common.list_model_iterator(self.__network.cross_sections):
             loc = cross_section.location
-            marker = Shumate.Point.new()
+            marker = Shumate.Point()
             marker.set_location(loc.y, loc.x)
             self.__cross_sections_layer.add_marker(marker)
