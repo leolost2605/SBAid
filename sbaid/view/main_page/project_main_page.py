@@ -34,6 +34,7 @@ class ProjectMainPage(Adw.NavigationPage):
         super().__init__()
 
         side_header_bar = Adw.HeaderBar()
+        side_header_bar.set_show_title(False)
 
         cross_sections_list = Gtk.ListBox()
         cross_sections_list.bind_model(project.network.cross_sections, self.__create_cs_row)
@@ -67,7 +68,7 @@ class ProjectMainPage(Adw.NavigationPage):
         content_header_bar.pack_end(menu_button)
         content_header_bar.pack_end(start_button)
 
-        network_map = NetworkMap(project.network)
+        network_map = NetworkMap(project.id, project.network)
 
         content = Adw.ToolbarView()
         content.add_top_bar(content_header_bar)

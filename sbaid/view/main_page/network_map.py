@@ -7,6 +7,7 @@ import sys
 import gi
 
 from sbaid import common
+from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
 from sbaid.view_model.network.network import Network
 
 try:
@@ -23,13 +24,16 @@ class NetworkMap(Adw.Bin):
     Displays the world map with the route and cross sections on it.
     """
 
+    __project_id: str
     __network: Network
     __map: Shumate.SimpleMap
     __path_layer: Shumate.PathLayer
     __cross_sections_layer: Shumate.MarkerLayer
 
-    def __init__(self,  network: Network) -> None:
+    def __init__(self, project_id: str, network: Network) -> None:
         super().__init__()
+
+        self.__project_id = project_id
         self.__network = network
         network.route_points.connect("items-changed", self.__on_route_changed)
         network.cross_sections.connect("items-changed", self.__on_cross_sections_changed)
@@ -65,6 +69,7 @@ class NetworkMap(Adw.Bin):
 
         for cross_section in common.list_model_iterator(self.__network.cross_sections):
             loc = cross_section.location
-            marker = Shumate.Point()
+            marker = Shumate.Marker()
+            marker.set_child(CrossSectionMarker(self.__project_id, self.__network, cross_section))
             marker.set_location(loc.y, loc.x)
             self.__cross_sections_layer.add_marker(marker)
