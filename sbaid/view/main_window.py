@@ -3,6 +3,8 @@ This module contains the main window of sbaid.
 """
 
 import sys
+from typing import Any
+
 import gi
 
 from sbaid.view.start.welcome_page import WelcomePage
@@ -28,13 +30,13 @@ class MainWindow(Adw.ApplicationWindow):
     __context: Context
     __nav_view: Adw.NavigationView
 
-    def __init__(self, context: Context, **kwargs):
+    def __init__(self, context: Context, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.__context = context  # pylint: disable=unused-private-member
 
         welcome_page = WelcomePage()
 
-        self.__nav_view = Adw.NavigationView.new()  # pylint: disable=no-value-for-parameter
+        self.__nav_view = Adw.NavigationView()
         self.__nav_view.add(welcome_page)
 
         self.set_content(self.__nav_view)

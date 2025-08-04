@@ -23,9 +23,9 @@ class WelcomePage(Adw.NavigationPage):
     def __init__(self) -> None:
         super().__init__()
 
-        header_bar = Adw.HeaderBar.new()  # pylint: disable=no-value-for-parameter
+        header_bar = Adw.HeaderBar()
 
-        main_view = Adw.ToolbarView.new()  # pylint: disable=no-value-for-parameter
+        main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
 
         self.set_child(main_view)

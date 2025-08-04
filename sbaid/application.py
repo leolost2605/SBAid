@@ -3,6 +3,8 @@ This module contains the main application class that is initialized in the SBAid
 """
 
 import sys
+from typing import Any
+
 import gi
 
 try:
@@ -27,21 +29,22 @@ class Application(Adw.Application):
     __view_model_context: Context
     __window: Gtk.Window | None
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(
             *args,
-            application_id="io.github.leolost2605.sbaid",
-            **kwargs
+            application_id="io.github.leolost2605.sbaid", # type: ignore
+            **kwargs,
         )
+
         self.__window = None
 
-    def do_startup(self) -> None:  # pylint: disable=arguments-differ
+    def do_startup(self, *args: Any, **kwargs: Any) -> None:
         Adw.Application.do_startup(self)
 
         ModelContext()
         self.__view_model_context = Context()
 
-    def do_activate(self, *args, **kwargs) -> None:
+    def do_activate(self, *args: Any, **kwargs: Any) -> None:
         if not self.__window:
             self.__window = MainWindow(self.__view_model_context, application=self)
 
