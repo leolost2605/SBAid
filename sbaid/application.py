@@ -7,6 +7,10 @@ from typing import Any
 
 import gi
 
+from sbaid.model.context import Context as ModelContext
+from sbaid.view_model.context import Context
+from sbaid.view.main_window import MainWindow
+
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
@@ -14,9 +18,6 @@ try:
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
-
-from sbaid.model.context import Context as ModelContext
-from sbaid.view.main_window import MainWindow, Context
 
 
 class Application(Adw.Application):
@@ -41,8 +42,7 @@ class Application(Adw.Application):
     def do_startup(self, *args: Any, **kwargs: Any) -> None:
         Adw.Application.do_startup(self)
 
-        ModelContext()
-        self.__view_model_context = Context()
+        self.__view_model_context = Context(ModelContext())
 
     def do_activate(self, *args: Any, **kwargs: Any) -> None:
         if not self.__window:
