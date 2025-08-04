@@ -3,12 +3,12 @@ which can be raised during file parsing and handling."""
 import asyncio
 import sys
 import unittest
-
+from unittest.mock import Mock
 from gi.repository import Gio
 
 from sbaid.model.algorithm_configuration.csv_parameter_parser import CSVParameterParser
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
-from sbaid.model.network.network import Network, FailedCrossSectionCreationException
+from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
 
@@ -19,7 +19,7 @@ class CsvParameterParserTest(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVParameterParser()
-        self.assertEqual(parser.can_handle_file("valid_input.csv"), True)
+        self.assertEqual(parser.can_handle_file("valid_parameter_config.csv"), True)
 
     async def _testing_callback_func(self, path: str):
         parser = CSVParameterParser()
