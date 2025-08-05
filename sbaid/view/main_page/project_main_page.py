@@ -9,6 +9,7 @@ import gi
 from sbaid.view.main_page.add_new_cross_section_list_popover import AddNewCrossSectionListPopover
 from sbaid.view.main_page.network_map import NetworkMap
 from sbaid.view_model.network.cross_section import CrossSection
+from sbaid.view_model.project import Project
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -17,10 +18,6 @@ try:
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
-
-
-class Project:
-    pass
 
 
 class ProjectMainPage(Adw.NavigationPage):

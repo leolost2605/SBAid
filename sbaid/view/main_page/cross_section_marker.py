@@ -13,7 +13,7 @@ from sbaid.view.main_page.cross_section_details_popover import CrossSectionDetai
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, Gio, Gtk
+    from gi.repository import Adw, Gtk
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -26,7 +26,7 @@ class CrossSectionMarker(Adw.Bin):
     __project_id: str
     __network: Network
     __cross_section: CrossSection
-    __popover: Gtk.Popover = None
+    __popover: Gtk.Popover | None = None
 
     def __init__(self, project_id: str, network: Network, cross_section: CrossSection) -> None:
         super().__init__()
