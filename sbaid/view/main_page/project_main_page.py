@@ -57,6 +57,7 @@ class ProjectMainPage(Adw.NavigationPage):
         sidebar.add_bottom_bar(add_cs_button)
 
         start_button = Gtk.Button.new_with_label("Start Simulating")
+        start_button.add_css_class("suggested-action")
         start_button.set_action_name("win.start-simulation")
         start_button.set_action_target_value(GLib.Variant.new_string(project.id))
 
@@ -68,9 +69,13 @@ class ProjectMainPage(Adw.NavigationPage):
         menu_button = Gtk.MenuButton()
         menu_button.set_menu_model(start_menu)
 
+        start_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
+        start_box.add_css_class("linked")
+        start_box.append(start_button)
+        start_box.append(menu_button)
+
         content_header_bar = Adw.HeaderBar()
-        content_header_bar.pack_end(menu_button)
-        content_header_bar.pack_end(start_button)
+        content_header_bar.pack_end(start_box)
 
         self.__network_map = NetworkMap(project.id, project.network)
 
