@@ -31,7 +31,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         fig.savefig(buffer, format=image_format.value_name.lower(), bbox_inches='tight')
         plt.close(fig)
 
-        return SeabornImage(buffer.getvalue())
+        return SeabornImage(buffer.getvalue(), image_format)
 
     def get_diagram_type(self) -> DiagramType:
         return DiagramType("heatmap_diagram", "Heatmap-Diagram")
@@ -82,5 +82,4 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         ax.annotate(str(formatted_date), (0, 0), (-60, -20), xycoords='axes fraction',
                     textcoords='offset points', va='top')
         plt.tight_layout()
-        plt.show()
         return fig

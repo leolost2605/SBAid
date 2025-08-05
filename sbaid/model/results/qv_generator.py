@@ -38,7 +38,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
         fig.savefig(buffer, format=export_format.value_name.lower(), bbox_inches='tight')
         plt.close(fig)
 
-        return SeabornImage(buffer.getvalue())
+        return SeabornImage(buffer.getvalue(), export_format)
 
     def __extract_data(self, result: Result, cross_section_id: str) -> DataFrame:
         """Extracts the needed information from the Result class and puts

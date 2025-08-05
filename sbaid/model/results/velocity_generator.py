@@ -39,7 +39,7 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
         fig.savefig(buffer, format=export_format.value_name.lower(), bbox_inches='tight')
         plt.close(fig)
 
-        return SeabornImage(buffer.getvalue())
+        return SeabornImage(buffer.getvalue(), export_format)
 
     @staticmethod
     def __extract_data(result: Result, cross_section_id: str) -> DataFrame:
