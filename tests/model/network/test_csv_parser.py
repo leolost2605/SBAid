@@ -16,6 +16,23 @@ from sbaid.model.network.network import FailedCrossSectionCreationException
 class CsvParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
 
+    def setUp(self):
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(self.test())
+        loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
+
+    async def test(self) -> None:
+        if sys.platform.startswith("win"):
+            self.test_file_type_guesser()
+        await self._test_valid_parsing()
+        await self._test_empty_csv()
+        await self._test_invalid_coordinates()
+        await self._test_invalid_types()
+        await self._test_invalid_columns()
+        await self._test_invalid_misc()
+
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVCrossSectionParser()
@@ -34,8 +51,8 @@ class CsvParserTest(unittest.TestCase):
         return await network.create_cross_section(name, location, cross_section_type) is not None
 
 
-    def test_valid_parsing(self):
-        asyncio.run(self._test_valid_parsing())
+    # def test_valid_parsing(self):
+    #     asyncio.run(self._test_valid_parsing())
 
     async def _test_valid_parsing(self):
         """Expected behavior with dummy simulator: skipping the first row of file and attempting
@@ -45,16 +62,16 @@ class CsvParserTest(unittest.TestCase):
             await self._testing_callback_func("./tests/model/network/valid_input.csv")
 
 
-    def test_empty_csv(self):
-        asyncio.run(self._test_empty_csv())
+    # def test_empty_csv(self):
+    #     asyncio.run(self._test_empty_csv())
 
     async def _test_empty_csv(self):
         with self.assertRaises(InvalidFileFormattingException):
             await self._testing_callback_func("./tests/model/network/empty_sheet.csv")
 
 
-    def test_invalid_coordinates(self):
-        asyncio.run(self._test_invalid_coordinates())
+    # def test_invalid_coordinates(self):
+    #     asyncio.run(self._test_invalid_coordinates())
 
     async def _test_invalid_coordinates(self):
         """Expected behavior with dummy simulator: skipping the first row of file and attempting
@@ -64,8 +81,8 @@ class CsvParserTest(unittest.TestCase):
             await self._testing_callback_func("./tests/model/network/invalid_coordinates.csv")
 
 
-    def test_invalid_types(self):
-        asyncio.run(self._test_invalid_types())
+    # def test_invalid_types(self):
+    #     asyncio.run(self._test_invalid_types())
 
     async def _test_invalid_types(self):
         """Expected behavior with dummy simulator: skipping the first row of file and attempting
@@ -74,9 +91,9 @@ class CsvParserTest(unittest.TestCase):
         with self.assertRaises(FailedCrossSectionCreationException):
             await self._testing_callback_func("./tests/model/network/invalid_types.csv")
 
-    def test_invalid_columns(self):
-        asyncio.run(self._test_invalid_columns())
-        pass
+    # def test_invalid_columns(self):
+    #     asyncio.run(self._test_invalid_columns())
+    #     pass
 
     async def _test_invalid_columns(self):
         """Expected behavior with dummy simulator: skipping the first row of file and attempting
@@ -86,8 +103,8 @@ class CsvParserTest(unittest.TestCase):
             await self._testing_callback_func("./tests/model/network/invalid_columns.csv")
 
 
-    def test_invalid_misc(self):
-        asyncio.run(self._test_invalid_misc())
+    # def test_invalid_misc(self):
+    #     asyncio.run(self._test_invalid_misc())
 
     async def _test_invalid_misc(self):
         """TODO: run with vissim"""

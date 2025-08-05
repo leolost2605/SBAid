@@ -3,6 +3,8 @@ import unittest
 from unittest import mock, skipIf
 from unittest.mock import AsyncMock
 import asyncio
+
+from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 from sbaid.model.network.network import Network
 from sbaid.model.network.cross_section import CrossSection
@@ -17,14 +19,27 @@ class NetworkTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
     __network = Network(__mock_simulator, unittest.mock.Mock())
 
+    def setUp(self):
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(self.test())
+        loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
+
+    async def test(self) -> None:
+        await self._test_load()
+        if sys.platform.startswith("win"):
+            await self._test_import_from_file()
+        await self._test_load_from_db()
+
     def test_factory_singleton(self):
         first_instance = ParserFactory()
         second_instance = ParserFactory()
         self.assertEqual(first_instance, second_instance)
 
-    def test_load(self):
-        """Uses async method to test loading of the network from the database."""
-        asyncio.run(self._test_load())
+    # def test_load(self):
+    #     """Uses async method to test loading of the network from the database."""
+    #     asyncio.run(self._test_load())
 
     async def _test_load(self):
         """Tests the network's load method.
@@ -35,9 +50,9 @@ class NetworkTest(unittest.TestCase):
                          self.__network.cross_sections.get_n_items())
         self.assertEqual(self.__network.cross_sections.get_item(1).name, "cross_section_1")
 
-    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
-    def test_import_from_file(self):
-        asyncio.run(self._test_import_from_file())
+    # @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
+    # def test_import_from_file(self):
+    #     asyncio.run(self._test_import_from_file())
 
     async def _test_import_from_file(self):
         """Mocks a Gio file to import cross sections from; or use one of the test ones (parsing
@@ -50,8 +65,8 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual(await self.__network.import_from_file(file), (20, 0))
 
 
-    def test_load_from_db(self):
-        asyncio.run(self._test_load_from_db())
+    # def test_load_from_db(self):
+    #     asyncio.run(self._test_load_from_db())
 
     async def _test_load_from_db(self):
         """Expected behavior:
