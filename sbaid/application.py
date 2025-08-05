@@ -7,6 +7,7 @@ from typing import Any
 
 import gi
 
+from sbaid import common
 from sbaid.model.context import Context as ModelContext
 from sbaid.view_model.context import Context
 from sbaid.view.main_window import MainWindow
@@ -43,6 +44,7 @@ class Application(Adw.Application):
         Adw.Application.do_startup(self)
 
         self.__view_model_context = Context(ModelContext())
+        common.run_coro_in_background(self.__view_model_context.load())
 
     def do_activate(self, *args: Any, **kwargs: Any) -> None:
         if not self.__window:
