@@ -15,22 +15,27 @@ class CsvParameterParserTest(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVParameterParser()
-        self.assertEqual(parser.can_handle("valid_parameter_config.csv"), True)
+        self.assertEqual(parser.can_handle
+                         ("./tests/model/algorithm_configuration/valid_parameter_config.csv"),
+                         True)
 
     def test_valid_parsing(self):
-        asyncio.run(self._testing_callback_func("valid_parameter_config.csv"))
+        asyncio.run(self._testing_callback_func
+                    ("./tests/model/algorithm_configuration/valid_parameter_config.csv"))
 
     async def _testing_callback_func(self, path: str):
         parser = CSVParameterParser()
         file = Gio.File.new_for_path(path)
         await parser.for_each_parameter(file, self.foreach_func_callback_func)
 
-    def foreach_func_callback_func(self, param_name: str, cs_id: str, variant: GLib.Variant) -> bool:
+    def foreach_func_callback_func(self, param_name: str, cs_id: str,
+                                   variant: GLib.Variant) -> bool:
         print("param name:", param_name, "cs id:", cs_id, "variant:", variant)
         return True
 
     def test_invalid_parsing(self):
         with self.assertRaises(InvalidFileFormattingException):
-            asyncio.run(self._testing_callback_func("invalid_param_import.csv"))
+            asyncio.run(self._testing_callback_func
+                        ("./tests/model/algorithm_configuration/invalid_param_import.csv"))
 
 
