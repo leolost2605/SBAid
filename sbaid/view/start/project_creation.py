@@ -2,6 +2,10 @@ import sys
 
 import gi
 
+import common
+from common.simulator_type import SimulatorType
+from model.context import Context
+from model.simulator.simulator import Simulator
 from view.start.simulator_entry_popover import SimulatorEntryPopover
 from view_model.project import Project
 
@@ -15,65 +19,65 @@ except (ImportError, ValueError) as exc:
 
 
 class ProjectCreation(Adw.NavigationPage):
-    def __init__(self):
+    def __init__(self, context: Context):
         super().__init__()
-        header_bar = Adw.HeaderBar()
+        self.__context = context
 
-        main_view = Adw.ToolbarView()
-        main_view.add_top_bar(header_bar)
-
-
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.sim_popover = None
 
         self.enter_name = Adw.EntryRow(title="Name")
-        self.enter_name.connect("entry-activated", self.__on_enter_name)
 
         self.enter_simulator = Gtk.Button(label="Simulator")
         self.enter_simulator.connect("clicked", self.__on_enter_simulator)
 
-        self.project_path = Adw.EntryRow(title="Project Path")
-        self.project_path.connect("entry-activated", self.__on_enter_project_path)
+        self.enter_project_path = Adw.EntryRow(title="Project Path")
 
         self.enter_name.set_action_target_value(GLib.Variant.new_string(self.enter_name.get_text()))
 
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         box.append(self.enter_name)
         box.append(self.enter_simulator)
-        box.append(self.project_path)
-
-        main_view.set_content(box)
+        box.append(self.enter_project_path)
 
         self.enter = Gtk.Button(label="Enter")
         self.enter.connect("clicked", self.__on_enter)
-        self.enter.set_action_name("win.create-project")
 
+        header_bar = Adw.HeaderBar()
+
+        main_view = Adw.ToolbarView()
+        main_view.add_top_bar(header_bar)
         main_view.add_bottom_bar(self.enter)
+
+        main_view.set_content(box)
 
         self.set_child(main_view)
         self.set_title("Project Creation")
 
-    def __on_enter_name(self, widget: Gtk.Widget) -> None:
-        self.__name = self.enter_name.get_text()
-
     def __on_enter_simulator(self, widget: Gtk.Widget) -> None:
-        self.sim_popover = SimulatorEntryPopover()
+        self.sim_popover = SimulatorEntryPopover(self.__context)
         self.sim_popover.set_parent(widget)
         self.sim_popover.popup()
 
-
-    def __on_enter_project_path(self, widget: Gtk.Widget) -> None:
-        self.__project_path = self.project_path.get_text()
+    async def __create_project_coro(self, args):
+        proj_id = await self.__context.create_project(self.enter_name.get_text(),
+                                            self.sim_popover.type,
+                                            self.enter_project_path.get_text(),
+                                            self.sim_popover.path)
+        self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
 
     def __on_enter(self, widget: Gtk.Widget) -> None:
-        print("entered name:", self.__name)
-        print("entered simulator path: ", "TODO nothing yet")
-        print("entered project path: ", self.__project_path)
-        # self.__project_path
-        # self.sim_popover.get
+        name = self.enter_name.get_text()
+        proj_path = self.enter_project_path.get_text()
 
-        self.enter.activate_action("create-project")
-        # name_variant = GLib.Variant.new_string(proj_name)
-        # sequence = GLib.Sequence()
-        # sequence.append(None)
-        # elements = GLib.Variant.new_array(GLib.VariantType('s'), None)
-        # self.enter.activate_action("create-project", GLib.Variant.new_fixed_array(
+        if self.sim_popover is not None:
+            sim_type = self.sim_popover.type
+            sim_path = self.sim_popover.type
+            if name and sim_type and proj_path and sim_path:
+                common.run_coro_in_background(self.__create_project_coro(self.enter_name.get_text(),))
 
+    def __enter_type(self, sim_type_id: str) -> None:
+        match sim_type_id:
+            case "dummy_json":
+                self.__sim_type = SimulatorType("dummy_json", "JSON Dummy")
+            case "com.ptvgroup.vissim":
+                self.__sim_type = SimulatorType("com.ptvgroup.vissim", "Vissim")

@@ -36,10 +36,6 @@ class Context(GObject.GObject):
     def __init__(self) -> None:
         super().__init__(result_manager=ResultManager())
         self.__projects = Gio.ListStore.new(Project)
-        self.__projects.append(Project("id", SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                                   "my_simulator", "my_project_path", ResultManager()))
-        self.__projects.get_item(0).name = "AO{IUGENEO"
-        print(self.__projects.get_item(0).name)
 
     async def load(self) -> None:
         """Loads the projects and the results."""

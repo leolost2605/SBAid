@@ -49,9 +49,8 @@ class Project(GObject.GObject):
         """Sets the name of the project"""
         self.__name = new_name
 
-        # common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
-    simulator_type: SimulatorType = GObject.Property(  # type: ignore
+    simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE |
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
