@@ -16,9 +16,11 @@ class SeabornImage(Image):
         super().__init__()
         self._image_bytes = image_bytes
         random_name = uuid.uuid4().hex
-        file_path = "./tests/model/results/generator_outputs/" + random_name + "." + export_format.name.lower()
+        file_path = ("./tests/model/results/generator_outputs/" +
+                     random_name + "." + export_format.name.lower())
+        file = Gio.File.new_for_path(file_path)
         self.save_to_file(file_path)
-        self.__texture = Gdk.Texture.new_from_file(Gio.file_new_for_path(file_path))
+        self.__texture = Gdk.Texture.new_from_file(file)
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""
