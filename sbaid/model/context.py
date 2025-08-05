@@ -39,7 +39,14 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        self.__global_db = GlobalSQLite(Gio.File.new_for_path("global_db"))  # TODO: Userdata folder
+        user_data_file = Gio.File.new_for_path(GLib.get_user_data_dir())
+        sbaid_folder = user_data_file.get_child("sbaid")
+        if not sbaid_folder.query_exists():
+            await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
+
+        db_file = sbaid_folder.get_child("global_database")
+
+        self.__global_db = GlobalSQLite(db_file)
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()
@@ -58,14 +65,14 @@ class Context(GObject.GObject):
 
         project_id = GLib.uuid_string_random()  # pylint: disable=no-value-for-parameter
 
-        # await self.__global_db.add_project(project_id, sim_type, simulation_file_path,
-        #                                    project_file_path)
+        await self.__global_db.add_project(project_id, sim_type, simulation_file_path,
+                                           project_file_path)
 
         new_project = Project(project_id, sim_type, simulation_file_path,
                               project_file_path, self.result_manager)
         self.__projects.append(new_project)
 
-        # await new_project.load_from_db()
+        await new_project.load_from_db()
 
         new_project.name = name
 

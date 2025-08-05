@@ -1,18 +1,20 @@
+"""This module contains the all projects page."""
 import sys
 
 import gi
 
 try:
-    gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw
+    from gi.repository import Adw
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
 class AllProjects(Adw.NavigationPage):
-    def __init__(self):
+    """This class represents the all projects page, where
+    all projects that are known to sbaid can be seen and edited."""
+    def __init__(self) -> None:
         super().__init__()
         header_bar = Adw.HeaderBar()
 

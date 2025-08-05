@@ -5,12 +5,12 @@ import sys
 
 import gi
 
-from view_model.context import Context
+from sbaid.view_model.context import Context
 
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, Gtk, GLib, Gio, GObject
+    from gi.repository import Adw, Gtk, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -42,6 +42,7 @@ class WelcomePage(Adw.NavigationPage):
         projects_to_show = Gtk.SliceListModel.new(self.__context.projects, 0, 3)
         # TODO sort by last edited DateTime value descending
         self.last_projects_box.bind_model(projects_to_show,
+                                          # pylint: disable=unnecessary-lambda
                                           lambda x: self.__create_last_project_button(x))
 
         box.append(self.create_project)

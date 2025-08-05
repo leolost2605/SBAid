@@ -1,13 +1,12 @@
+"""This module contains the project creation page."""
 import sys
+from typing import Any
 
 import gi
 
-import common
-from common.simulator_type import SimulatorType
-from model.context import Context
-from model.simulator.simulator import Simulator
-from view.start.simulator_entry_popover import SimulatorEntryPopover
-from view_model.project import Project
+import sbaid.common
+from sbaid.view_model.context import Context
+from sbaid.view.start.simulator_entry_popover import SimulatorEntryPopover
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -19,11 +18,12 @@ except (ImportError, ValueError) as exc:
 
 
 class ProjectCreation(Adw.NavigationPage):
+    """This class represents the project creation page, that is used to create new projects."""
     def __init__(self, context: Context):
         super().__init__()
         self.__context = context
 
-        self.sim_popover = None
+        self.sim_popover = SimulatorEntryPopover(self.__context)
 
         self.enter_name = Adw.EntryRow(title="Name")
 
@@ -54,30 +54,22 @@ class ProjectCreation(Adw.NavigationPage):
         self.set_title("Project Creation")
 
     def __on_enter_simulator(self, widget: Gtk.Widget) -> None:
-        self.sim_popover = SimulatorEntryPopover(self.__context)
         self.sim_popover.set_parent(widget)
         self.sim_popover.popup()
 
-    async def __create_project_coro(self, args):
+    async def __create_project_coro(self, args: Any) -> None:
         proj_id = await self.__context.create_project(self.enter_name.get_text(),
-                                            self.sim_popover.type,
-                                            self.enter_project_path.get_text(),
-                                            self.sim_popover.path)
+                                                      self.sim_popover.type,
+                                                      self.enter_project_path.get_text(),
+                                                      self.sim_popover.path)
         self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
 
     def __on_enter(self, widget: Gtk.Widget) -> None:
         name = self.enter_name.get_text()
         proj_path = self.enter_project_path.get_text()
+        sim_type = self.sim_popover.type
+        sim_path = self.sim_popover.type
 
-        if self.sim_popover is not None:
-            sim_type = self.sim_popover.type
-            sim_path = self.sim_popover.type
-            if name and sim_type and proj_path and sim_path:
-                common.run_coro_in_background(self.__create_project_coro(self.enter_name.get_text(),))
-
-    def __enter_type(self, sim_type_id: str) -> None:
-        match sim_type_id:
-            case "dummy_json":
-                self.__sim_type = SimulatorType("dummy_json", "JSON Dummy")
-            case "com.ptvgroup.vissim":
-                self.__sim_type = SimulatorType("com.ptvgroup.vissim", "Vissim")
+        if name and sim_type and proj_path and sim_path:
+            sbaid.common.run_coro_in_background(self.__create_project_coro(
+                self.enter_name.get_text(),))

@@ -7,14 +7,13 @@ from typing import Any, cast
 
 import gi
 
-from common.simulator_type import SimulatorType
 from sbaid import common
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
-from view.start.all_projects import AllProjects
-from view.start.project_creation import ProjectCreation
-from view.start.results import Results
+from sbaid.view.start.all_projects import AllProjects
+from sbaid.view.start.project_creation import ProjectCreation
+from sbaid.view.start.results import Results
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -92,12 +91,11 @@ class MainWindow(Adw.ApplicationWindow):
         raise ProjectNotFoundError(f"The project with the id {project_id} was not found.")
 
     def __on_open_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
-        project = self.__get_project_by_id(param.get_string())  # TODO needs ID, not name...
+        project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
-        if type(self.__nav_view.get_visible_page()) is ProjectCreation:
+        if isinstance(self.__nav_view.get_visible_page(), ProjectCreation):
             self.__nav_view.pop()
         self.__nav_view.push(ProjectMainPage(project))  # type: ignore # noqa
-
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
@@ -125,12 +123,12 @@ class MainWindow(Adw.ApplicationWindow):
         # pylint: disable=undefined-variable
         self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
 
-    def __on_create_project_page(self, action: Gio.SimpleAction, idk) -> None:
-        self.__project_creation = ProjectCreation(self.__context)
-        self.__nav_view.push(self.__project_creation)
+    def __on_create_project_page(self, action: Gio.SimpleAction, idk: Any) -> None:
+        project_creation = ProjectCreation(self.__context)
+        self.__nav_view.push(project_creation)
 
-    def __on_all_projects(self, action: Gio.SimpleAction, idk) -> None:
+    def __on_all_projects(self, action: Gio.SimpleAction, idk: Any) -> None:
         self.__nav_view.push(AllProjects())
 
-    def __on_results(self, action: Gio.SimpleAction, idk) -> None:
+    def __on_results(self, action: Gio.SimpleAction, idk: Any) -> None:
         self.__nav_view.push(Results())

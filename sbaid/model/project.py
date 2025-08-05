@@ -49,8 +49,7 @@ class Project(GObject.GObject):
         """Sets the name of the project"""
         self.__name = new_name
 
-
-    simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
+    simulator_type: SimulatorType = GObject.Property(  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE |
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -100,8 +99,7 @@ class Project(GObject.GObject):
         are already created, but not yet loaded."""
         project_file = Gio.File.new_for_path(project_file_path)
 
-        # self.__project_db = ProjectSQLite(project_file.get_child("db"))
-        self.__project_db = None
+        self.__project_db = ProjectSQLite(project_file.get_child(project_id))
 
         simulator = SimulatorFactory().get_simulator(sim_type)
 
