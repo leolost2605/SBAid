@@ -12,7 +12,7 @@ class SeabornImage(Image):
     def __init__(self, image_bytes: bytes):
         super().__init__()
         self._image_bytes = image_bytes
-        self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new_take(list(image_bytes)))
+        self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""
