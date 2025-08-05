@@ -25,6 +25,8 @@ class ParamCell(Adw.Bin):
     __label: Gtk.Label
     __entry: Gtk.Entry
 
+    __parameter: Parameter | None = None
+
     def __init__(self, cell_type: ParamCellType) -> None:
         super().__init__()
 
@@ -36,7 +38,10 @@ class ParamCell(Adw.Bin):
                 self.__label = child = Gtk.Label()
 
             case ParamCellType.VALUE:
-                self.__entry = child = Gtk.Entry()
+                self.__entry = child = Gtk.Entry(
+                    primary_icon_name="confirm", primary_icon_activatable=True)
+                self.__entry.connect("icon-release", self.__on_entry_icon_release)
+                self.__entry.connect("activate", self.__update_value)
 
             case ParamCellType.TAGS:
                 self.__label = child = Gtk.Label()
@@ -44,13 +49,27 @@ class ParamCell(Adw.Bin):
         if child:
             self.set_child(child)
 
+    def __on_entry_icon_release(self, entry: Gtk.Entry, pos: Gtk.EntryIconPosition) -> None:
+        self.__update_value(entry)
+
+    def __update_value(self, entry: Gtk.Entry) -> None:
+        variant = GLib.Variant.parse(None, entry.get_text())
+        # TODO: Error handling
+        self.__parameter.value = variant
+        entry.set_text(self.__parameter.value.print_(True))
+
     def bind(self, param: Parameter) -> None:
         match self.__type.value:
             case ParamCellType.NAME:
                 self.__label.set_label(param.name)
 
             case ParamCellType.VALUE:
-                self.__entry.set_placeholder_text(param.value.get_type_string())
+                if param.inconsistent:
+                    self.__entry.set_text("")
+                else:
+                    self.__entry.set_text(param.value.print_(True))
 
             case ParamCellType.TAGS:
                 self.__label.set_label("tags")
+
+        self.__parameter = param
