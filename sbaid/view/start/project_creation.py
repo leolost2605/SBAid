@@ -53,23 +53,22 @@ class ProjectCreation(Adw.NavigationPage):
 
     def __on_enter_name(self, widget: Gtk.Widget) -> None:
         self.__name = self.enter_name.get_text()
-        print("entered name: ", self.__name)
 
     def __on_enter_simulator(self, widget: Gtk.Widget) -> None:
         self.sim_popover = SimulatorEntryPopover()
         self.sim_popover.set_parent(widget)
         self.sim_popover.popup()
 
+
     def __on_enter_project_path(self, widget: Gtk.Widget) -> None:
         self.__project_path = self.project_path.get_text()
-        print("entered project: ", self.__project_path)
 
-    def __on_enter(self, widget: Gtk.Widget, sim_type_id: str, sim_type_name: str,
-                   sim_path: str) -> None:
-        print("entered")
-        self.__name
-        self.__project_path
-        self.sim_popover.get
+    def __on_enter(self, widget: Gtk.Widget) -> None:
+        print("entered name:", self.__name)
+        print("entered simulator path: ", "TODO nothing yet")
+        print("entered project path: ", self.__project_path)
+        # self.__project_path
+        # self.sim_popover.get
 
         self.enter.activate_action("create-project")
         # name_variant = GLib.Variant.new_string(proj_name)

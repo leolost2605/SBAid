@@ -45,7 +45,7 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self.__context = context
 
-        welcome_page = WelcomePage()
+        welcome_page = WelcomePage(self.__context)
 
         self.__nav_view = Adw.NavigationView()
         self.__nav_view.add(welcome_page)
@@ -97,7 +97,7 @@ class MainWindow(Adw.ApplicationWindow):
         raise ProjectNotFoundError(f"The project with the id {project_id} was not found.")
 
     def __on_open_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
-        project = self.__get_project_by_id(param.get_string())
+        project = self.__get_project_by_id(param.get_string())  # TODO needs ID, not name...
         # pylint: disable=undefined-variable
         self.__nav_view.push(ProjectMainPage(project))  # type: ignore # noqa
 
@@ -133,8 +133,8 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_create_project(self, action: Gio.SimpleAction, idk) -> None:
         print(type(idk))
-        # common.run_coro_in_background(self.__context.create_project("Open1", SimulatorType("dummy_json", "JSON Dummy"),
-        #                               "sim_file_path", "proj_file_path"))
+        common.run_coro_in_background(self.__context.create_project("Open1", SimulatorType("dummy_json", "JSON Dummy"),
+                                      "sim_file_path", "proj_file_path"))
 
         # self.__context.create_project()
 

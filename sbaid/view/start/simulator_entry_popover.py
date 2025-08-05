@@ -20,7 +20,7 @@ class SimulatorEntryPopover(Gtk.Popover):
 
 
         self.enter_type = Adw.ComboRow(title="Type")
-        self.enter_type = Gtk.DropDown.new_from_strings(["vissim", "dummy"])
+        self.enter_type = Gtk.DropDown.new_from_strings(["vissim", "dummy"])  # todo change to lm
         # lm = Gio.ListStore.new(str)
         # lm.append("vissim")
         # lm.append("dummy")

@@ -49,9 +49,9 @@ class Project(GObject.GObject):
         """Sets the name of the project"""
         self.__name = new_name
 
-        common.run_coro_in_background(self.__project_db.set_project_name(new_name))
+        # common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
-    simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
+    simulator_type: SimulatorType = GObject.Property(  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE |
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -100,7 +100,9 @@ class Project(GObject.GObject):
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         project_file = Gio.File.new_for_path(project_file_path)
-        self.__project_db = ProjectSQLite(project_file.get_child("db"))
+
+        # self.__project_db = ProjectSQLite(project_file.get_child("db"))
+        self.__project_db = None
 
         simulator = SimulatorFactory().get_simulator(sim_type)
 
