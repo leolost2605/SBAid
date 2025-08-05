@@ -8,6 +8,7 @@ from typing import Any, cast
 import gi
 
 from sbaid import common
+from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
@@ -103,5 +104,8 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_run_simulation(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        # pylint: disable=undefined-variable
-        self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
+        common.run_coro_in_background(self.__run_simulation(project))
+
+    async def __run_simulation(self, project: Project) -> None:
+        simulation = await project.start_simulation()
+        self.__nav_view.push(SimulationRunningPage(simulation))
