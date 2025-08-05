@@ -1,4 +1,3 @@
-CS_id,param_1,param_2, param_3, param_4
 AQ_00_KA,2,true, 3.4, "string param"
 AQ_01_KA,2,true, 1.3, "string param"
 AQ_02_KA,2,false, 1.24, "string param"
