@@ -2,6 +2,7 @@
 This module contains the project main page.
 """
 
+from typing import cast
 import sys
 
 import gi
@@ -27,14 +28,20 @@ class ProjectMainPage(Adw.NavigationPage):
     It also allows to open the edit algorithm configurations dialog and start a simulation.
     """
 
+    __project: Project
+    __network_map: NetworkMap
+
     def __init__(self, project: Project) -> None:
         super().__init__()
+
+        self.__project = project
 
         side_header_bar = Adw.HeaderBar()
         side_header_bar.set_show_title(False)
 
         cross_sections_list = Gtk.ListBox()
         cross_sections_list.bind_model(project.network.cross_sections, self.__create_cs_row)
+        cross_sections_list.connect("row-activated", self.__on_cs_row_activated)
 
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_child(cross_sections_list)
@@ -65,11 +72,11 @@ class ProjectMainPage(Adw.NavigationPage):
         content_header_bar.pack_end(menu_button)
         content_header_bar.pack_end(start_button)
 
-        network_map = NetworkMap(project.id, project.network)
+        self.__network_map = NetworkMap(project.id, project.network)
 
         content = Adw.ToolbarView()
         content.add_top_bar(content_header_bar)
-        content.set_content(network_map)
+        content.set_content(self.__network_map)
 
         main_view = Adw.OverlaySplitView()
         main_view.set_sidebar(sidebar)
@@ -83,3 +90,8 @@ class ProjectMainPage(Adw.NavigationPage):
         cross_section.bind_property("name", label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
         return label
+
+    def __on_cs_row_activated(self, list_box: Gtk.ListBox, row: Gtk.ListBoxRow) -> None:
+        index = row.get_index()
+        cross_section = cast(CrossSection, self.__project.network.cross_sections.get_item(index))
+        self.__network_map.show_cross_section_details(cross_section)

@@ -3,11 +3,13 @@ This module contains the network map.
 """
 
 import sys
+from typing import cast
 
 import gi
 
 from sbaid import common
 from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
+from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
 
 try:
@@ -17,6 +19,10 @@ try:
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
+
+
+class CrossSectionNotFoundError(Exception):
+    """Raised when it was tried to go to a cross section that doesn't exist."""
 
 
 class NetworkMap(Adw.Bin):
@@ -30,6 +36,8 @@ class NetworkMap(Adw.Bin):
     __path_layer: Shumate.PathLayer
     __cross_sections_layer: Shumate.MarkerLayer
 
+    __show_details_after_animation: CrossSectionMarker | None = None
+
     def __init__(self, project_id: str, network: Network) -> None:
         super().__init__()
 
@@ -41,6 +49,7 @@ class NetworkMap(Adw.Bin):
         self.__map = Shumate.SimpleMap()
         self.__map.set_map_source(Shumate.RasterRenderer.new_from_url(
             r"https://tile.openstreetmap.org/{z}/{x}/{y}.png"))
+        self.__map.get_map().connect("animation-completed", self.__on_animation_completed)
 
         self.__path_layer = Shumate.PathLayer.new(self.__map.get_viewport())
         self.__cross_sections_layer = Shumate.MarkerLayer.new(self.__map.get_viewport())
@@ -73,3 +82,23 @@ class NetworkMap(Adw.Bin):
             marker.set_child(CrossSectionMarker(self.__project_id, self.__network, cross_section))
             marker.set_location(loc.y, loc.x)
             self.__cross_sections_layer.add_marker(marker)
+
+    def show_cross_section_details(self, cross_section: CrossSection) -> None:
+        """
+        Moves the map to the location of the cross section and shows a popup with details.
+        :param cross_section: the cross section to show details for
+        """
+        self.__map.get_map().go_to_full(cross_section.location.y, cross_section.location.x, 10)
+
+        for marker in self.__cross_sections_layer.get_markers():
+            cs_marker = cast(CrossSectionMarker, marker.get_child())
+            if cs_marker.cross_section == cross_section:
+                self.__show_details_after_animation = cs_marker
+                return
+
+        raise CrossSectionNotFoundError
+
+    def __on_animation_completed(self, shumate_map: Shumate.Map) -> None:
+        if self.__show_details_after_animation is not None:
+            self.__show_details_after_animation.show_details()
+            self.__show_details_after_animation = None

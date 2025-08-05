@@ -28,6 +28,11 @@ class CrossSectionMarker(Adw.Bin):
     __cross_section: CrossSection
     __popover: Gtk.Popover | None = None
 
+    @property
+    def cross_section(self) -> CrossSection:
+        """Returns the cross section that this marker represents."""
+        return self.__cross_section
+
     def __init__(self, project_id: str, network: Network, cross_section: CrossSection) -> None:
         super().__init__()
 
@@ -42,10 +47,16 @@ class CrossSectionMarker(Adw.Bin):
         click.connect("released", self.__on_clicked)
         self.add_controller(click)
 
-    def __on_clicked(self, click: Gtk.GestureClick, n_press: int, x: float, y: float) -> None:
+    def show_details(self) -> None:
+        """
+        Opens a popover at this location showing details of the cross section.
+        """
         if self.__popover is None:
             self.__popover = CrossSectionDetailsPopover(self.__project_id, self.__network,
                                                         self.__cross_section)
             self.__popover.set_parent(self)
 
         self.__popover.popup()
+
+    def __on_clicked(self, click: Gtk.GestureClick, n_press: int, x: float, y: float) -> None:
+        self.show_details()
