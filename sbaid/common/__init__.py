@@ -34,7 +34,7 @@ def _discard_task(task: asyncio.Task[None]) -> None:
     _background_tasks.discard(task)
 
 
-def run_coro_in_background(coro: Coroutine[Any, Any, None]) -> None:
+def run_coro_in_background(coro: Coroutine[Any, Any, Any]) -> Any:
     """Runs a task in the background the fire and forget way."""
     task = asyncio.create_task(coro)
     _background_tasks.add(task)

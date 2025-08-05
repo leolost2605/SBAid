@@ -7,10 +7,14 @@ from typing import Any, cast
 
 import gi
 
+from common.simulator_type import SimulatorType
 from sbaid import common
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
+from view.start.all_projects import AllProjects
+from view.start.project_creation import ProjectCreation
+from view.start.results import Results
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -63,10 +67,27 @@ class MainWindow(Adw.ApplicationWindow):
         run_simulation_action = Gio.SimpleAction.new("run-simulation", GLib.VariantType.new("s"))
         run_simulation_action.connect("activate", self.__on_run_simulation)
 
+        create_project_page_action = Gio.SimpleAction.new("create-project-page")
+        create_project_page_action.connect("activate", self.__on_create_project_page)
+
+
+        create_project_action = Gio.SimpleAction.new("create-project")
+        create_project_action.connect("activate", self.__on_create_project)
+
+        all_projects_action = Gio.SimpleAction.new("all-projects")
+        all_projects_action.connect("activate", self.__on_all_projects)
+
+        results_action = Gio.SimpleAction.new("results")
+        results_action.connect("activate", self.__on_results)
+
         self.add_action(open_project_action)
         self.add_action(edit_algo_configs_action)
         self.add_action(edit_cross_section_action)
         self.add_action(run_simulation_action)
+        self.add_action(create_project_page_action)
+        self.add_action(create_project_action)
+        self.add_action(all_projects_action)
+        self.add_action(results_action)
 
     def __get_project_by_id(self, project_id: str) -> Project:
         for project in common.list_model_iterator(self.__context.projects):
@@ -105,3 +126,21 @@ class MainWindow(Adw.ApplicationWindow):
         project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
         self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
+
+    def __on_create_project_page(self, action: Gio.SimpleAction, idk) -> None:
+        # self.__context.create_project()
+        self.__nav_view.push(ProjectCreation())
+
+    def __on_create_project(self, action: Gio.SimpleAction, idk) -> None:
+        print(type(idk))
+        # common.run_coro_in_background(self.__context.create_project("Open1", SimulatorType("dummy_json", "JSON Dummy"),
+        #                               "sim_file_path", "proj_file_path"))
+
+        # self.__context.create_project()
+
+    def __on_all_projects(self, action: Gio.SimpleAction, idk) -> None:
+        self.__nav_view.push(AllProjects())
+
+    def __on_results(self, action: Gio.SimpleAction, idk) -> None:
+        self.__nav_view.push(Results())
+
