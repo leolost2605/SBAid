@@ -1,7 +1,5 @@
 """This module defines the seaborn image"""
-import uuid
-
-from gi.repository import Gdk, Gio
+from gi.repository import Gdk, GLib
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 
@@ -11,16 +9,14 @@ class SeabornImage(Image):
 
     __image_bytes: bytes
     __texture: Gdk.Texture
+    __export_format: ImageFormat
 
     def __init__(self, image_bytes: bytes, export_format: ImageFormat):
         super().__init__()
         self._image_bytes = image_bytes
-        random_name = uuid.uuid4().hex
-        file_path = ("./tests/model/results/generator_outputs/" +
-                     random_name + "." + export_format.name.lower())
-        file = Gio.File.new_for_path(file_path)
-        self.save_to_file(file_path)
-        self.__texture = Gdk.Texture.new_from_file(file)
+        self.__export_format = export_format
+        if self.__export_format == ImageFormat.PNG:
+            self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""
