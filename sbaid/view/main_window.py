@@ -8,6 +8,7 @@ from typing import Any, cast
 import gi
 
 from sbaid import common
+from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
@@ -92,10 +93,9 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_open_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        # pylint: disable=undefined-variable
         if isinstance(self.__nav_view.get_visible_page(), ProjectCreation):
             self.__nav_view.pop()
-        self.__nav_view.push(ProjectMainPage(project))  # type: ignore # noqa
+        self.__nav_view.push(ProjectMainPage(project))
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
