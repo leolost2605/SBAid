@@ -157,5 +157,6 @@ class Project(GObject.GObject):
 
     async def delete(self) -> None:
         """Deletes the project database file."""
+        # TODO: Delete whole folder
         file = Gio.File.new_for_path(self.project_file_path).get_child("db")
         await file.delete_async(0, None)  # type: ignore
