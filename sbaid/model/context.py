@@ -72,12 +72,12 @@ class Context(GObject.GObject):
                                            project_file_path)
         new_project = Project(project_id, sim_type, simulation_file_path,
                               project_file_path, self.result_manager)
-        await new_project.set_name(name)
+
+        await new_project.load_from_db()
+
         new_project.name = name
 
         self.__projects.append(new_project)
-
-        await new_project.load_from_db()
 
         return project_id
 

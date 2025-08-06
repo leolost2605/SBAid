@@ -1,6 +1,6 @@
 """This module contains the simulator entry popover."""
 import sys
-from typing import cast, Any
+from typing import cast
 
 import gi
 
@@ -19,43 +19,31 @@ except (ImportError, ValueError) as exc:
 class SimulatorEntryPopover(Gtk.Popover):
     """This class contains the simulator entry popover which is used
     to enter the simulator type and simulation file path."""
-    __type: SimulatorType
-    __path: str
-
     @property
     def type(self) -> SimulatorType:
         """Getter for the simulator type entry."""
-        return self.__type
+        return cast(SimulatorType, self.__enter_type_drop_down.get_selected_item())
 
     @property
     def path(self) -> str:
         """Getter for the simulator file path entry."""
-        return self.__path
+        return self.__enter_path_row.get_text()
 
     def __init__(self,  context: Context):
         super().__init__()
         self.__context = context
 
-        self.enter_type = Gtk.DropDown()
-        self.enter_type.set_model(self.__context.simulator_types)
-        self.enter_type.set_expression(Gtk.PropertyExpression.new(SimulatorType, None, "name"))
-        self.enter_type.connect("notify::selected", self.__on_enter_type)
+        self.__enter_type_drop_down = Gtk.DropDown()
+        self.__enter_type_drop_down.set_model(self.__context.simulator_types)
+        self.__enter_type_drop_down.set_expression(Gtk.PropertyExpression.new(SimulatorType, None,
+                                                                              "name"))
 
-        self.enter_path = Adw.EntryRow(title="Simulator Path")
-        self.enter_path.connect("entry-activated", self.__on_enter_path)
+        self.__enter_path_row = Adw.EntryRow(title="Simulator Path")
 
         preferences_group = Adw.PreferencesGroup()
         preferences_group.set_title("Simulator Options")
 
-        preferences_group.add(self.enter_type)
-        preferences_group.add(self.enter_path)
+        preferences_group.add(self.__enter_type_drop_down)
+        preferences_group.add(self.__enter_path_row)
 
         self.set_child(preferences_group)
-
-        self.enter_type.notify("selected")
-
-    def __on_enter_type(self, widget: Gtk.Widget, params: Any) -> None:
-        self.__type = cast(SimulatorType, self.enter_type.get_selected_item())
-
-    def __on_enter_path(self, widget: Gtk.Widget) -> None:
-        self.__path = self.enter_path.get_text()
