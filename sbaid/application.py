@@ -43,10 +43,6 @@ class Application(Adw.Application):
     def do_startup(self, *args: Any, **kwargs: Any) -> None:
         Adw.Application.do_startup(self)
 
-        model_context = ModelContext()
-        self.__view_model_context = Context(model_context)
-        common.run_coro_in_background(model_context.load())
-
         self.__view_model_context = Context(ModelContext())
         common.run_coro_in_background(self.__view_model_context.load())
 

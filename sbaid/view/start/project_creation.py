@@ -60,8 +60,8 @@ class ProjectCreation(Adw.NavigationPage):
     async def __create_project_coro(self, args: Any) -> None:
         proj_id = await self.__context.create_project(self.enter_name.get_text(),
                                                       self.sim_popover.type,
-                                                      self.enter_project_path.get_text(),
-                                                      self.sim_popover.path)
+                                                      self.sim_popover.path,
+                                                      self.enter_project_path.get_text())
         self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
 
     def __on_enter(self, widget: Gtk.Widget) -> None:

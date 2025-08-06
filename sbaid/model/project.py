@@ -48,6 +48,8 @@ class Project(GObject.GObject):
     def name(self, new_name: str) -> None:
         """Sets the name of the project"""
         self.__name = new_name
+        # common.run_coro_in_background(self.__project_db.open()) # TODO: this needs to work
+        # common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
     simulator_type: SimulatorType = GObject.Property(  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE |
@@ -93,13 +95,20 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    async def delete(self) -> None:
+        file = Gio.File.new_for_path(self.project_file_path).get_child("db")
+        await file.delete_async(0, None)
+        self.__project_db = None
+        del self
+
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str, result_manager: ResultManager) -> None:
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         project_file = Gio.File.new_for_path(project_file_path)
 
-        self.__project_db = ProjectSQLite(project_file.get_child(project_id))
+        self.__project_db = ProjectSQLite(project_file.get_child("db"))
+
 
         simulator = SimulatorFactory().get_simulator(sim_type)
 
@@ -151,3 +160,7 @@ class Project(GObject.GObject):
         self.__name = await self.__project_db.get_project_name()
         self.created_at = await self.__project_db.get_created_at()
         self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
+
+    async def set_name(self, name: str) -> None:
+        await self.__project_db.open()
+        await self.__project_db.set_project_name(name)

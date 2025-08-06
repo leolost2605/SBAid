@@ -1,4 +1,5 @@
 """This module defines the Context Class"""
+import asyncio
 
 from gi.repository import GObject, Gio, GLib
 
@@ -54,8 +55,8 @@ class Context(GObject.GObject):
         for project_id, simulator_type, simulation_file_path, project_file_path in projects:
             project = Project(project_id, simulator_type,
                               simulation_file_path, project_file_path, self.result_manager)
-            self.__projects.append(project)
             await project.load_from_db()
+            self.__projects.append(project)
 
         await self.result_manager.load_from_db()
 
@@ -68,14 +69,14 @@ class Context(GObject.GObject):
 
         await self.__global_db.add_project(project_id, sim_type, simulation_file_path,
                                            project_file_path)
-
         new_project = Project(project_id, sim_type, simulation_file_path,
                               project_file_path, self.result_manager)
+        await new_project.set_name(name)
+        new_project.name = name
+
         self.__projects.append(new_project)
 
         await new_project.load_from_db()
-
-        new_project.name = name
 
         return project_id
 
@@ -85,6 +86,7 @@ class Context(GObject.GObject):
             if project.id == project_id:
                 self.__projects.remove(pos)
                 await self.__global_db.remove_project(project_id)
+                await project.delete()
                 return
 
         raise ProjectNotFoundError(f"The Project with the id {project_id} was not found")

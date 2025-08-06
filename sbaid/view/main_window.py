@@ -128,7 +128,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.__nav_view.push(project_creation)
 
     def __on_all_projects(self, action: Gio.SimpleAction, idk: Any) -> None:
-        self.__nav_view.push(AllProjects())
+        self.__nav_view.push(AllProjects(self.__context))
 
     def __on_results(self, action: Gio.SimpleAction, idk: Any) -> None:
         self.__nav_view.push(Results())
