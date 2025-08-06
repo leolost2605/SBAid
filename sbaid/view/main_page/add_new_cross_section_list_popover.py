@@ -51,10 +51,14 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         type_drop_down = Gtk.DropDown.new_from_strings(cs_types)
         self.__type_drop_down = type_drop_down
 
+        import_button = Gtk.Button.new_with_label("Import")
+        import_button.connect("clicked", self.__on_import_clicked)
+
         done_button = Gtk.Button.new_with_label("Add")
+        done_button.add_css_class("suggested-action")
         done_button.connect("clicked", self.__on_done_clicked)
 
-        grid = Gtk.Grid()
+        grid = Gtk.Grid(row_spacing=6, column_spacing=6)
         grid.attach(name_label, 0, 0, 1, 1)
         grid.attach(name_entry, 1, 0, 3, 1)
         grid.attach(x_label, 0, 1, 1, 1)
@@ -62,13 +66,32 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         grid.attach(y_label, 2, 1, 1, 1)
         grid.attach(y_entry, 3, 1, 1, 1)
         grid.attach(type_drop_down, 0, 2, 4, 1)
-        grid.attach(done_button, 4, 3, 1, 1)
+        grid.attach(import_button, 0, 3, 2, 1)
+        grid.attach(done_button, 3, 3, 2, 1)
 
         self.set_child(grid)
 
-    def __on_done_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__add_cross_section())
+    def __on_import_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
+        common.run_coro_in_background(self.__collect_import_file())
+
+    async def __collect_import_file(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.open(self.get_root())
+        except Exception as e:
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        await self.__network.import_cross_sections(file)
+
+    def __on_done_clicked(self, button: Gtk.Button) -> None:
+        self.popdown()
+        common.run_coro_in_background(self.__add_cross_section())
 
     async def __add_cross_section(self) -> None:
         name = self.__name_entry.get_text()

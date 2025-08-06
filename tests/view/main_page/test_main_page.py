@@ -12,7 +12,7 @@ from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view_model.network.network import Network
 from sbaid.model.network.network import Network as ModelNetwork
 
-@skipIf(True, "this is for human testing as it spawns a window that will stay indefinitely")
+# @skipIf(True, "this is for human testing as it spawns a window that will stay indefinitely")
 class MainPageTestCase(unittest.TestCase):
     def test_something(self):
         app = Adw.Application()
@@ -28,8 +28,14 @@ class MainPageTestCase(unittest.TestCase):
         network_mock.cross_sections = Gio.ListStore.new(CrossSection)
         cs_mock = Mock()
         cs_mock.id = "cs id"
+        cs_mock.name = "Messquerschnitt 1"
         cs_mock.location = Location(0, 0.5)
+        cs_mock_aq = Mock()
+        cs_mock_aq.id = "cs id2"
+        cs_mock_aq.name = "Anzeigequerschnitt 5"
+        cs_mock_aq.location = Location(0, 0.75)
         network_mock.cross_sections.append(CrossSection(cs_mock))
+        network_mock.cross_sections.append(CrossSection(cs_mock_aq))
         network_mock.route_points = Gio.ListStore.new(Location)
         network_mock.route_points.append(Location(0, 0))
         network_mock.route_points.append(Location(0, 1))

@@ -38,18 +38,23 @@ class CrossSectionDetailsPopover(Gtk.Popover):
                                     GObject.BindingFlags.SYNC_CREATE)
 
         x_label = Gtk.Label.new("X:")
+        x_label.set_halign(Gtk.Align.END)
         x_value_label = Gtk.Label.new(None)
+        x_value_label.set_halign(Gtk.Align.START)
         cross_section.bind_property("location", x_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE,
                                     self.__transform_location_to_x)
 
         y_label = Gtk.Label.new("Y:")
+        y_label.set_halign(Gtk.Align.END)
         y_value_label = Gtk.Label.new(None)
+        y_value_label.set_halign(Gtk.Align.START)
         cross_section.bind_property("location", y_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE,
                                     self.__transform_location_to_y)
 
         delete_button = Gtk.Button.new_with_label("Delete")
+        delete_button.add_css_class("destructive-action")
         delete_button.connect("clicked", self.__on_delete_clicked)
 
         builder = GLib.VariantBuilder(GLib.VariantType("(ss)"))
@@ -61,7 +66,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         edit_button.set_action_name("win.edit-cross-section")
         edit_button.set_action_target_value(target)
 
-        grid = Gtk.Grid()
+        grid = Gtk.Grid(row_spacing=6, column_spacing=6, column_homogeneous=True)
         grid.attach(name_label, 0, 0, 2, 1)
         grid.attach(x_label, 0, 1, 1, 1)
         grid.attach(x_value_label, 1, 1, 1, 1)

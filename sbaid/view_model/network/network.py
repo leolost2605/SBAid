@@ -78,3 +78,10 @@ class Network(GObject.GObject):
         :param new_location: the new location of the cross section
         """
         return await self.__network.move_cross_section(cs_id, new_location)
+
+    async def import_cross_sections(self, file: Gio.File) -> None:
+        """
+        Imports cross sections from the given file
+        :param file: the file to import cross sections from
+        """
+        await self.__network.import_from_file(file)

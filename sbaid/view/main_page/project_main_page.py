@@ -36,26 +36,6 @@ class ProjectMainPage(Adw.NavigationPage):
 
         self.__project = project
 
-        side_header_bar = Adw.HeaderBar()
-        side_header_bar.set_show_title(False)
-
-        cross_sections_list = Gtk.ListBox()
-        cross_sections_list.bind_model(project.network.cross_sections, self.__create_cs_row)
-        cross_sections_list.connect("row-activated", self.__on_cs_row_activated)
-
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_child(cross_sections_list)
-        scrolled_window.set_vexpand(True)
-
-        add_cs_button = Gtk.MenuButton()
-        add_cs_button.set_label("+ Add Cross Section")
-        add_cs_button.set_popover(AddNewCrossSectionListPopover(project.network))
-
-        sidebar = Adw.ToolbarView()
-        sidebar.add_top_bar(side_header_bar)
-        sidebar.set_content(scrolled_window)
-        sidebar.add_bottom_bar(add_cs_button)
-
         start_button = Gtk.Button.new_with_label("Start Simulating")
         start_button.add_css_class("suggested-action")
         start_button.set_action_name("win.start-simulation")
@@ -74,24 +54,41 @@ class ProjectMainPage(Adw.NavigationPage):
         start_box.append(start_button)
         start_box.append(menu_button)
 
-        content_header_bar = Adw.HeaderBar()
-        content_header_bar.pack_end(start_box)
+        header_bar = Adw.HeaderBar()
+        header_bar.pack_end(start_box)
+
+        cross_sections_list = Gtk.ListBox()
+        cross_sections_list.set_css_classes([])
+        cross_sections_list.bind_model(project.network.cross_sections, self.__create_cs_row)
+        cross_sections_list.connect("row-activated", self.__on_cs_row_activated)
+
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_child(cross_sections_list)
+        scrolled_window.set_vexpand(True)
+
+        add_cs_button = Gtk.MenuButton(direction=Gtk.ArrowType.UP)
+        add_cs_button.set_label("+ Add Cross Section")
+        add_cs_button.set_popover(AddNewCrossSectionListPopover(project.network))
+
+        sidebar = Adw.ToolbarView()
+        sidebar.set_content(scrolled_window)
+        sidebar.add_bottom_bar(add_cs_button)
 
         self.__network_map = NetworkMap(project.id, project.network)
 
-        content = Adw.ToolbarView()
-        content.add_top_bar(content_header_bar)
-        content.set_content(self.__network_map)
+        split_view = Adw.OverlaySplitView()
+        split_view.set_sidebar(sidebar)
+        split_view.set_content(self.__network_map)
 
-        main_view = Adw.OverlaySplitView()
-        main_view.set_sidebar(sidebar)
-        main_view.set_content(content)
+        main_view = Adw.ToolbarView()
+        main_view.add_top_bar(header_bar)
+        main_view.set_content(split_view)
 
         self.set_child(main_view)
         self.set_title(project.name)
 
     def __create_cs_row(self, cross_section: CrossSection) -> Gtk.Widget:
-        label = Gtk.Label.new(None)
+        label = Gtk.Label(xalign=0, margin_top=6, margin_bottom=6, margin_end=12, margin_start=6)
         cross_section.bind_property("name", label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
         return label
