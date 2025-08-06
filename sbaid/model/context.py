@@ -49,9 +49,6 @@ class Context(GObject.GObject):
         #     await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
         #
         # db_file = sbaid_folder.get_child("global_database")
-        db_file = Gio.File.new_for_path("global_db")
-
-        self.__global_db = GlobalSQLite(db_file)
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()
