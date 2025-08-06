@@ -40,7 +40,8 @@ class Context(GObject.GObject):
     async def load(self) -> None:
         """Loads the projects and the results."""
         # pylint: disable=no-value-for-parameter
-        user_data_file = Gio.File.new_for_path(GLib.get_user_data_dir())
+        # user_data_file = Gio.File.new_for_path(GLib.get_user_data_dir())  TODO activate
+        user_data_file = Gio.File.new_for_path("global_database")
         sbaid_folder = user_data_file.get_child("sbaid")
         if not sbaid_folder.query_exists():
             await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
