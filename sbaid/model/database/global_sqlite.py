@@ -263,7 +263,8 @@ class GlobalSQLite(GlobalDatabase):
         """Return all cross section snapshots from a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
-            SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""", [snapshot_id]) as cursor:
+            SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""",
+                                  [snapshot_id]) as cursor:
                 return await cursor.fetchall()
 
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
