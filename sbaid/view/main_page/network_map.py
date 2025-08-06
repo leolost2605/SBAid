@@ -15,6 +15,7 @@ from sbaid.view_model.network.network import Network
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
+    gi.require_version('Shumate', '1.0')
     from gi.repository import Adw, Gio, Shumate
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
