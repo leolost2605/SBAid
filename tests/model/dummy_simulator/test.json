@@ -1,7 +1,7 @@
 {
     "cross_section_locations": {
         "cs1": { "x": 5.4, "y": 8.8 },
-        "cs2": { "x": 2.5, "y": 9.9 }
+        "cs2": { "x": 2.5, "y": 7.9 }
     },
     "vehicle_infos": {
         "0": {
