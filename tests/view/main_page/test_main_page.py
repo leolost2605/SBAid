@@ -2,17 +2,19 @@ import unittest
 from unittest import skipIf
 from unittest.mock import Mock
 
+raise unittest.SkipTest("this is for human testing as it spawns a window "
+                        "that will stay indefinitely")
+
 from gi.repository import Adw, Gio
 
 from sbaid.common.location import Location
-from sbaid.model.network.route import Route
 from sbaid.model.simulator.vissim.vissim_simulator import VissimSimulator
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view_model.network.network import Network
 from sbaid.model.network.network import Network as ModelNetwork
 
-@skipIf(True, "this is for human testing as it spawns a window that will stay indefinitely")
+
 class MainPageTestCase(unittest.TestCase):
     def test_something(self):
         app = Adw.Application()
