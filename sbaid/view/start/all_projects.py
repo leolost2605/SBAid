@@ -1,12 +1,12 @@
 """This module contains the all projects page."""
 import sys
-import datetime
+# import datetime
 
 from typing import cast, Any, Callable
 
 import gi
 
-from babel.dates import format_datetime
+# from babel.dates import format_datetime
 import sbaid.common
 from sbaid.view_model.context import Context
 
@@ -52,21 +52,25 @@ class AllProjects(Adw.NavigationPage):
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
 
         last_modified_factory = Gtk.SignalListItemFactory()
+        # last_modified_factory.connect("bind", self.on_factory_bind,
+        #                               lambda obj: format_datetime(
+        #                                   datetime.datetime.fromisoformat(
+        #                                       obj.last_modified.format_iso8601()),
+        #                                   format="medium", locale='de'))
         last_modified_factory.connect("bind", self.on_factory_bind,
-                                      lambda obj: format_datetime(
-                                          datetime.datetime.fromisoformat(
-                                              obj.last_modified.format_iso8601()),
-                                          format="medium", locale='de'))
+                                      lambda obj: obj.last_modified.format_iso8601())
         last_modified_factory.connect("setup", self.on_factory_setup)
 
         last_modified_column = Gtk.ColumnViewColumn.new("Created at", last_modified_factory)
 
         created_at_factory = Gtk.SignalListItemFactory()
-        created_at_factory.connect("bind", self.on_factory_bind,
-                                   lambda obj: format_datetime(
-                                       datetime.datetime.fromisoformat(
-                                           obj.created_at.format_iso8601()),
-                                       format="medium", locale='de'))
+        # created_at_factory.connect("bind", self.on_factory_bind,
+        #                            lambda obj: format_datetime(
+        #                                datetime.datetime.fromisoformat(
+        #                                    obj.created_at.format_iso8601()),
+        #                                format="medium", locale='de'))
+        last_modified_factory.connect("bind", self.on_factory_bind,
+                                      lambda obj: obj.last_modified.format_iso8601())
         created_at_factory.connect("setup", self.on_factory_setup)
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Modified", last_modified_factory)
