@@ -1,3 +1,7 @@
+"""
+This module contains the algo configs dialog.
+"""
+
 import sys
 from typing import cast
 
@@ -224,6 +228,10 @@ class _AlgoConfigView(Adw.Bin):
         await self.__algo_config.parameter_configuration.import_parameter_values(file)
 
     def set_algo_config(self, config: AlgorithmConfiguration) -> None:
+        """
+        Sets the algo config that is currently edited
+        :param config: the config to edit
+        """
         if self.__name_binding:
             self.__name_binding.unbind()
 
@@ -260,6 +268,11 @@ class _AlgoConfigView(Adw.Bin):
 
 
 class AlgoConfigsDialog(Adw.Window):
+    """
+    Represents a dialog shown to the user to allow configuring the algorithm configurations
+    of a project.
+    """
+
     __manager: AlgorithmConfigurationManager
     __algo_config_view: _AlgoConfigView
     __split_view: Adw.NavigationSplitView
