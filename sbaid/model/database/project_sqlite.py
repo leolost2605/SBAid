@@ -100,6 +100,8 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with (db.execute("""SELECT created_at FROM meta_information""")
                         as cursor):
+                if cursor.rowcount == 0:
+                    return GLib.DateTime.new_now_local()
                 date = await cursor.fetchone()
                 if date is None:
                     raise KeyError("The project was not created properly.")
@@ -112,7 +114,7 @@ class ProjectSQLite(ProjectDatabase):
                         as cursor):
                 date = await cursor.fetchone()
                 if date is None:
-                    raise KeyError("The project was not modified properly.")
+                    return GLib.DateTime.new_now_local()
                 return GLib.DateTime.new_from_iso8601(date[0])  # pylint: disable=no-member
 
     async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
@@ -127,7 +129,9 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT name FROM meta_information""") as cursor:
                 result_list = await cursor.fetchone()
-                return str(result_list[0])  # type: ignore
+                if result_list is None:
+                    return "temp_project_name"
+                return str(result_list[0])
 
     async def set_project_name(self, name: str) -> None:
         """Update the name of the project."""
@@ -142,7 +146,7 @@ class ProjectSQLite(ProjectDatabase):
                                   [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
-                    return None
+                    return "temp_cs_name"
                 return str(list(result)[0])
 
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
@@ -160,7 +164,7 @@ class ProjectSQLite(ProjectDatabase):
                     [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
-                    raise KeyError("Invalid cross section id")
+                    return False
                 return bool(list(result)[0])
 
     async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
@@ -179,7 +183,7 @@ class ProjectSQLite(ProjectDatabase):
                     [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
-                    raise KeyError("Invalid cross section id")
+                    return False
                 return bool(list(result)[0])
 
     async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
@@ -195,7 +199,9 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT name FROM algorithm_configuration
             WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
-                return str(result_list[0])  # type: ignore
+                if result_list is None:
+                    return "temp_algo_config_name"
+                return str(result_list[0])
 
     async def set_algorithm_configuration_name(self, algorithm_configuration_id: str,
                                                name: str) -> None:
@@ -212,14 +218,19 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT * FROM algorithm_configuration
             WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
-                return str(result_list[0])  # type: ignore
+                if result_list is None:
+                    return "", "", 0, 0, "", False
+                return result_list[0]  # type: ignore
 
     async def get_all_algorithm_configuration_ids(self) -> list[str]:
         """Return all algorithm_configuration ids."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with (db.execute("""SELECT id FROM algorithm_configuration""")
                         as cursor):
-                return await cursor.fetchall()
+                res = await cursor.fetchall()
+                if res is None:
+                    return []
+                return res
 
     async def get_selected_algorithm_configuration_id(self) -> str:
         """Return the currently selected algorithm_configuration id."""
@@ -228,7 +239,7 @@ class ProjectSQLite(ProjectDatabase):
             WHERE is_selected = 1""") as cursor:
                 result = await cursor.fetchone()
                 if result is None:
-                    return ""
+                    return "temp_algo_config_id"
                 return str(list(result)[0])
 
     async def set_selected_algorithm_configuration_id(self, configuration_id: str) -> None:
@@ -245,7 +256,9 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT display_interval FROM algorithm_configuration
             WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
-                return int(result_list[0])  # type: ignore
+                if result_list is None:
+                    return 0
+                return int(result_list[0])
 
     async def set_display_interval(self, algorithm_configuration_id: str, interval: int) -> None:
         """Update the display interval of the given algorithm_configuration id."""
@@ -260,7 +273,9 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT evaluation_interval
             FROM algorithm_configuration WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
-                return int(result_list[0])  # type: ignore
+                if result_list is None:
+                    return 0
+                return int(result_list[0])
 
     async def set_evaluation_interval(self, algorithm_configuration_id: str,
                                       interval: int) -> None:
@@ -276,7 +291,9 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT script FROM algorithm_configuration
             WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
-                return str(result_list[0])  # type: ignore
+                if result_list is None:
+                    return "temp_scrip_path"
+                return str(result_list[0])
 
     async def set_script_path(self, algorithm_configuration_id: str, path: str) -> None:
         """Update the script path of the given algorithm_configuration id."""
@@ -429,6 +446,8 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""
             SELECT name FROM tag WHERE id = ?""", [tag_id]) as cursor:
                 result = list(await cursor.fetchall())
+                if result is None:
+                    return "temp_tag_name"
                 return str(result[0][0])
 
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
@@ -458,7 +477,10 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
             SELECT * FROM tag""") as cursor:
-                return await cursor.fetchall()
+                res = await cursor.fetchall()
+                if res is None:
+                    return "temp_tag_id", "temp_tag_name"
+                return res
 
     async def get_all_tag_ids_for_parameter(self, algorithm_configuration_id: str,
                                             parameter_name: str,

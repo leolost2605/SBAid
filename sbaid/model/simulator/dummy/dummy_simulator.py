@@ -159,7 +159,6 @@ class DummySimulator(Simulator):
                                               CrossSectionType.COMBINED,
                                               cs_location_map[cross_section],
                                               max_lanes, False))
-                if not self.are_cs_set:
                     self._sequence[int(snapshot_time)] = current_input
                 self.are_cs_set = True
 
