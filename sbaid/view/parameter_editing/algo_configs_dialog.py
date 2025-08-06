@@ -32,15 +32,15 @@ class _AlgoConfigView(Adw.Bin):
     __display_interval_binding: GObject.Binding | None = None
     __script_path_binding: GObject.Binding | None = None
 
-    __parameter_model: Gtk.MultiSelection
+    __search_entry: Gtk.SearchEntry
+    __filter: Gtk.CustomFilter
+    __parameter_model: Gtk.FilterListModel
     __cross_sections_list_view: Gtk.ListView
 
     __algo_config: AlgorithmConfiguration | None = None
 
     def __init__(self) -> None:
         super().__init__()
-
-        header_bar = Adw.HeaderBar()
 
         self.__name_entry_row = Adw.EntryRow()
         self.__name_entry_row.set_title("Name")
@@ -65,7 +65,14 @@ class _AlgoConfigView(Adw.Bin):
         preferences_group.add(self.__display_interval_row)
         preferences_group.add(self.__script_path_row)
 
-        self.__parameter_model = Gtk.MultiSelection()
+        self.__search_entry = Gtk.SearchEntry()
+        self.__search_entry.connect("search-changed", self.__on_search_entry_changed)
+
+        self.__filter = Gtk.CustomFilter.new(self.__filter_func)
+
+        self.__parameter_model = Gtk.FilterListModel.new(None, self.__filter)
+
+        selection_model = Gtk.MultiSelection.new(self.__parameter_model)
 
         name_factory = Gtk.SignalListItemFactory()
         name_factory.connect("setup", self.__setup_param_name_cell)
@@ -86,7 +93,7 @@ class _AlgoConfigView(Adw.Bin):
 
         tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
 
-        column_view = Gtk.ColumnView.new(self.__parameter_model)
+        column_view = Gtk.ColumnView.new(selection_model)
         column_view.set_hexpand(True)
         column_view.set_vexpand(True)
         column_view.append_column(name_column)
@@ -118,18 +125,29 @@ class _AlgoConfigView(Adw.Bin):
 
         cross_sections_frame = Gtk.Frame(child=cross_sections_box)
 
+        import_button = Gtk.Button.new_with_label("Import")
+        import_button.connect("clicked", self.__on_import_clicked)
+
         grid = Gtk.Grid(margin_end=12, margin_top=12, margin_bottom=12, margin_start=12)
         grid.set_column_spacing(12)
         grid.set_row_spacing(12)
         grid.attach(preferences_group, 0, 1, 1, 1)
+        grid.attach(self.__search_entry, 1, 0, 1, 1)
         grid.attach(column_view_frame, 1, 1, 1, 1)
         grid.attach(cross_sections_frame, 2, 1, 1, 1)
+        grid.attach(import_button, 2, 2, 1, 1)
 
-        toolbar_view = Adw.ToolbarView()
-        toolbar_view.add_top_bar(header_bar)
-        toolbar_view.set_content(grid)
+        self.set_child(grid)
 
-        self.set_child(toolbar_view)
+    def __on_search_entry_changed(self, entry: Gtk.SearchEntry) -> None:
+        self.__filter.changed(Gtk.FilterChange.DIFFERENT)
+
+    def __filter_func(self, param: Parameter) -> bool:
+        if self.__search_entry.get_text().strip() == "":
+            return True
+
+        return self.__search_entry.get_text().strip() in param.name
+
 
     def __setup_param_name_cell(self, factory: Gtk.SignalListItemFactory,
                                 obj: GObject.Object) -> None:
@@ -188,6 +206,23 @@ class _AlgoConfigView(Adw.Bin):
         else:
             self.__algo_config.parameter_configuration.selected_cross_sections.unselect_all()
 
+    def __on_import_clicked(self, button: Gtk.Button) -> None:
+        common.run_coro_in_background(self.__collect_import_file())
+
+    async def __collect_import_file(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.open(self.get_root())
+        except Exception as e:
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        await self.__algo_config.parameter_configuration.import_parameter_values(file)
+
     def set_algo_config(self, config: AlgorithmConfiguration) -> None:
         if self.__name_binding:
             self.__name_binding.unbind()
@@ -227,17 +262,27 @@ class _AlgoConfigView(Adw.Bin):
 class AlgoConfigsDialog(Adw.Window):
     __manager: AlgorithmConfigurationManager
     __algo_config_view: _AlgoConfigView
+    __split_view: Adw.NavigationSplitView
 
     def __init__(self, algo_config_manager: AlgorithmConfigurationManager):
         super().__init__()
 
         self.__manager = algo_config_manager
 
+        collapse_button = Gtk.Button.new_from_icon_name("collapse")
+        collapse_button.connect("clicked", self.__on_collapse_clicked)
+
+        content_header_bar = Adw.HeaderBar()
+        # content_header_bar.pack_start(collapse_button) TODO
+
         self.__algo_config_view = _AlgoConfigView()
 
-        content_page = Adw.NavigationPage.new(self.__algo_config_view, "Algorithm Configuration")
+        content_toolbar_view = Adw.ToolbarView(content=self.__algo_config_view)
+        content_toolbar_view.add_top_bar(content_header_bar)
 
-        header_bar = Adw.HeaderBar()
+        content_page = Adw.NavigationPage.new(content_toolbar_view, "Algorithm Configuration")
+
+        header_bar = Adw.HeaderBar(show_title=False)
 
         sidebar = Gtk.ListBox()
         sidebar.set_selection_mode(Gtk.SelectionMode.SINGLE)
@@ -261,11 +306,14 @@ class AlgoConfigsDialog(Adw.Window):
 
         sidebar_page = Adw.NavigationPage.new(sidebar_view, "Algorithm Configurations")
 
-        split_view = Adw.NavigationSplitView()
-        split_view.set_content(content_page)
-        split_view.set_sidebar(sidebar_page)
+        self.__split_view = Adw.NavigationSplitView()
+        self.__split_view.set_content(content_page)
+        self.__split_view.set_sidebar(sidebar_page)
 
-        self.set_content(split_view)
+        self.set_content(self.__split_view)
+
+    def __on_collapse_clicked(self, button: Gtk.Button) -> None:
+        self.__split_view.set_collapsed(not self.__split_view.get_collapsed())
 
     def __create_algo_config_row(self, algo_config: AlgorithmConfiguration) -> Gtk.Widget:
         label = Gtk.Label()
