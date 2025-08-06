@@ -34,7 +34,7 @@ class Context(GObject.GObject):
         return self.__projects
 
     def __init__(self) -> None:
-        super().__init__(result_manager=ResultManager())
+        super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
 
     async def load(self) -> None:
