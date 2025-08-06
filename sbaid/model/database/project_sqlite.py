@@ -288,7 +288,7 @@ class ProjectSQLite(ProjectDatabase):
     async def get_script_path(self, algorithm_configuration_id: str) -> str:
         """Return the scrip path of the given algorithm_configuration id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            async with db.execute("""SELECT script FROM algorithm_configuration
+            async with db.execute("""SELECT script_path FROM algorithm_configuration
             WHERE id = ?""", [algorithm_configuration_id]) as cursor:
                 result_list = await cursor.fetchone()
                 if result_list is None:
