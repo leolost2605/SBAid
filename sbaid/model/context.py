@@ -1,6 +1,4 @@
 """This module defines the Context Class"""
-import unittest
-
 from gi.repository import GObject, Gio, GLib
 from sbaid import common
 from sbaid.model.database.global_database import GlobalDatabase
