@@ -123,6 +123,7 @@ class DummySimulator(Simulator):
         self._pointer = 0
         self._simulation_start_time = 0
         self._simulation_end_time = 0
+        self.are_cs_set = False
 
     async def load_file(self, file: Gio.File) -> None:
         """Loads a new file that is used to create simulator cross sections and the deterministic
@@ -142,7 +143,6 @@ class DummySimulator(Simulator):
                 location_y = data['cross_section_locations'].get(cross_section)['y']
                 cs_location_map[cross_section] = Location(location_x, location_y)
 
-            are_cs_set = False
             for snapshot_time, snapshot in data["vehicle_infos"].items():
                 current_input = Input()
                 for cross_section, lanes in snapshot.items():
@@ -153,15 +153,15 @@ class DummySimulator(Simulator):
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
-                    if not are_cs_set:
+                    if not self.are_cs_set:
                         self._cross_sections.append(
                             DummyCrossSection(cross_section, cross_section,
                                               CrossSectionType.COMBINED,
                                               cs_location_map[cross_section],
                                               max_lanes, False))
-                if not are_cs_set:
+                if not self.are_cs_set:
                     self._sequence[int(snapshot_time)] = current_input
-                are_cs_set = True
+                self.are_cs_set = True
 
         self._simulation_start_time = min(self._sequence.keys())
         self._simulation_end_time = max(self._sequence.keys())
