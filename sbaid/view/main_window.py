@@ -66,8 +66,8 @@ class MainWindow(Adw.ApplicationWindow):
         run_simulation_action = Gio.SimpleAction.new("run-simulation", GLib.VariantType.new("s"))
         run_simulation_action.connect("activate", self.__on_run_simulation)
 
-        create_project_page_action = Gio.SimpleAction.new("create-project-page")
-        create_project_page_action.connect("activate", self.__on_create_project_page)
+        create_project_action = Gio.SimpleAction.new("create-project-page")
+        create_project_action.connect("activate", self.__on_create_project)
 
         all_projects_action = Gio.SimpleAction.new("all-projects")
         all_projects_action.connect("activate", self.__on_all_projects)
@@ -79,7 +79,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.add_action(edit_algo_configs_action)
         self.add_action(edit_cross_section_action)
         self.add_action(run_simulation_action)
-        self.add_action(create_project_page_action)
+        self.add_action(create_project_action)
         self.add_action(all_projects_action)
         self.add_action(results_action)
 
@@ -123,12 +123,12 @@ class MainWindow(Adw.ApplicationWindow):
         # pylint: disable=undefined-variable
         self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
 
-    def __on_create_project_page(self, action: Gio.SimpleAction, idk: Any) -> None:
+    def __on_create_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project_creation = ProjectCreation(self.__context)
         self.__nav_view.push(project_creation)
 
-    def __on_all_projects(self, action: Gio.SimpleAction, idk: Any) -> None:
+    def __on_all_projects(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         self.__nav_view.push(AllProjects(self.__context))
 
-    def __on_results(self, action: Gio.SimpleAction, idk: Any) -> None:
+    def __on_results(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         self.__nav_view.push(Results())

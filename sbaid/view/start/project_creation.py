@@ -23,53 +23,48 @@ class ProjectCreation(Adw.NavigationPage):
         super().__init__()
         self.__context = context
 
-        self.sim_popover = SimulatorEntryPopover(self.__context)
+        self.__sim_popover = SimulatorEntryPopover(self.__context)
 
-        self.enter_name = Adw.EntryRow(title="Name")
+        self.__enter_name_row = Adw.EntryRow(title="Name")
 
-        self.enter_simulator = Gtk.Button(label="Simulator")
-        self.enter_simulator.connect("clicked", self.__on_enter_simulator)
+        enter_simulator_button = Gtk.MenuButton(label="Select", popover=self.__sim_popover)
+        enter_sim_row = Adw.ActionRow(title="Simulator")
+        enter_sim_row.add_suffix(enter_simulator_button)
 
-        self.enter_project_path = Adw.EntryRow(title="Project Path")
+        self.__project_path_row = Adw.EntryRow(title="Project Path")
 
-        self.enter_name.set_action_target_value(GLib.Variant.new_string(self.enter_name.get_text()))
+        enter_button = Gtk.Button(label="Create", margin_top=12)
+        enter_button.add_css_class("suggested-action")
+        enter_button.connect("clicked", self.__on_enter)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        box.append(self.enter_name)
-        box.append(self.enter_simulator)
-        box.append(self.enter_project_path)
+        preferences_group = Adw.PreferencesGroup(
+            margin_end=12, margin_top=12, margin_bottom=12, margin_start=12,
+            valign=Gtk.Align.CENTER)
+        preferences_group.add(self.__enter_name_row)
+        preferences_group.add(enter_sim_row)
+        preferences_group.add(self.__project_path_row)
+        preferences_group.add(enter_button)
 
-        self.enter = Gtk.Button(label="Enter")
-        self.enter.connect("clicked", self.__on_enter)
+        clamp = Adw.Clamp(child=preferences_group, maximum_size=400)
 
         header_bar = Adw.HeaderBar()
 
         main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
-        main_view.add_bottom_bar(self.enter)
-
-        main_view.set_content(box)
+        main_view.set_content(clamp)
 
         self.set_child(main_view)
         self.set_title("Project Creation")
 
-    def __on_enter_simulator(self, widget: Gtk.Widget) -> None:
-        self.sim_popover.set_parent(widget)
-        self.sim_popover.popup()
-
-    async def __create_project_coro(self, args: Any) -> None:
-        proj_id = await self.__context.create_project(self.enter_name.get_text(),
-                                                      self.sim_popover.type,
-                                                      self.sim_popover.path,
-                                                      self.enter_project_path.get_text())
-        self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
-
-    def __on_enter(self, widget: Gtk.Widget) -> None:
-        name = self.enter_name.get_text()
-        proj_path = self.enter_project_path.get_text()
-        sim_type = self.sim_popover.type
-        sim_path = self.sim_popover.type
+    async def __create_project_coro(self) -> None:
+        name = self.__enter_name_row.get_text()
+        sim_path = self.__sim_popover.path
+        sim_type = self.__sim_popover.type
+        proj_path = self.__project_path_row.get_text()
 
         if name and sim_type and proj_path and sim_path:
-            sbaid.common.run_coro_in_background(self.__create_project_coro(
-                self.enter_name.get_text(),))
+            proj_id = await self.__context.create_project(name, sim_type, sim_path, proj_path)
+            self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
+
+    def __on_enter(self, widget: Gtk.Widget) -> None:
+        sbaid.common.run_coro_in_background(self.__create_project_coro())

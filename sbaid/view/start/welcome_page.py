@@ -2,6 +2,7 @@
 This module contains the welcome page.
 """
 import sys
+from typing import Any
 
 import gi
 
@@ -27,39 +28,42 @@ class WelcomePage(Adw.NavigationPage):
         super().__init__()
         self.__context = context
 
-        self.create_project = Gtk.Button(label="Create Project")
-        self.create_project.set_action_name("win.create-project-page")
+        self.__create_project_button = Gtk.Button(label="Create Project")
+        self.__create_project_button.set_action_name("win.create-project-page")
 
-        self.all_projects = Gtk.Button(label="All Projects")
-        self.all_projects.set_action_name("win.all-projects")
+        time_sorter = Gtk.CustomSorter.new(self.__sort_func)
+        sort_model = Gtk.SortListModel.new(self.__context.projects, time_sorter)
 
-        self.results = Gtk.Button(label="Results")
-        self.results.set_action_name("win.results")
+        recent_projects_slice = Gtk.SliceListModel.new(sort_model, 0, 3)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.__last_projects_box = Gtk.ListBox()
+        self.__last_projects_box.bind_model(
+            recent_projects_slice, self.__create_last_project_button)
 
-        # create listmodel containing the latest 3 project
-        self.last_projects_box = Gtk.ListBox(name="Last Projects")
-        projects_to_show = Gtk.SliceListModel.new(self.__context.projects, 0, 3)
-        # TODO sort by last edited DateTime value descending
-        self.last_projects_box.bind_model(projects_to_show,
-                                          # pylint: disable=unnecessary-lambda
-                                          lambda x: self.__create_last_project_button(x))
+        self.__all_projects_button = Gtk.Button(label="All Projects")
+        self.__all_projects_button.set_action_name("win.all-projects")
 
-        box.append(self.create_project)
-        box.append(self.last_projects_box)
-        box.append(self.all_projects)
-        box.append(self.results)
+        self.__results_button = Gtk.Button(label="Results")
+        self.__results_button.set_action_name("win.results")
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, valign=Gtk.Align.CENTER,
+                      halign=Gtk.Align.CENTER)
+        box.append(self.__create_project_button)
+        box.append(self.__last_projects_box)
+        box.append(self.__all_projects_button)
+        box.append(self.__results_button)
 
         header_bar = Adw.HeaderBar()
 
         main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
-
         main_view.set_content(box)
 
-        self.set_title("Welcome Page")
+        self.set_title("SBAid")
         self.set_child(main_view)
+
+    def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
+        return project_two.last_modified.compare(project_one.last_modified)
 
     def __create_last_project_button(self, proj: Project) -> Gtk.Button:
         button = Gtk.Button()
