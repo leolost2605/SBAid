@@ -1,5 +1,4 @@
 import asyncio
-import unittest
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
