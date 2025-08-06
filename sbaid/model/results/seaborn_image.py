@@ -15,7 +15,6 @@ class SeabornImage(Image):
         super().__init__()
         self._image_bytes = image_bytes
         self.__export_format = export_format
-        
         # separates supported types for gdk texture for the previews in the ui
         if self.__export_format == ImageFormat.PNG:
             self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
@@ -29,24 +28,35 @@ class SeabornImage(Image):
 
     def do_snapshot(self, snapshot: Gdk.Snapshot, width: float, height: float) -> None:
         """Delegate method to texture."""
-        self.__texture.snapshot(snapshot, width, height)
+        if self.__texture is not None:
+            self.__texture.snapshot(snapshot, width, height)
 
-    def do_get_intrinsic_width(self) -> int:
+    def do_get_intrinsic_width(self) -> int | None:
         """Delegate method to texture."""
-        return self.__texture.get_intrinsic_width()
+        if self.__texture is not None:
+            return self.__texture.get_intrinsic_width()
+        return None
 
-    def do_get_intrinsic_height(self) -> int:
+    def do_get_intrinsic_height(self) -> int | None:
         """Delegate method to texture."""
-        return self.__texture.get_intrinsic_height()
+        if self.__texture is not None:
+            return self.__texture.get_intrinsic_height()
+        return None
 
-    def do_get_intrinsic_aspect_ratio(self) -> float:
+    def do_get_intrinsic_aspect_ratio(self) -> float | None:
         """Delegate method to texture."""
-        return self.__texture.get_intrinsic_aspect_ratio()
+        if self.__texture is not None:
+            return self.__texture.get_intrinsic_aspect_ratio()
+        return None
 
-    def do_get_flags(self) -> Gdk.PaintableFlags:
+    def do_get_flags(self) -> Gdk.PaintableFlags | None:
         """Delegate method to texture."""
-        return self.__texture.get_flags()
+        if self.__texture is not None:
+            return self.__texture.get_flags()
+        return None
 
-    def do_get_current_image(self) -> Gdk.Paintable:
+    def do_get_current_image(self) -> Gdk.Paintable | None:
         """Delegate method to texture."""
-        return self.__texture.get_current_image()
+        if self.__texture is not None:
+            return self.__texture.get_current_image()
+        return None
