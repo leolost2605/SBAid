@@ -48,7 +48,6 @@ class Project(GObject.GObject):
     def name(self, new_name: str) -> None:
         """Sets the name of the project"""
         self.__name = new_name
-
         common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
     simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
@@ -100,6 +99,7 @@ class Project(GObject.GObject):
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         project_file = Gio.File.new_for_path(project_file_path)
+
         self.__project_db = ProjectSQLite(project_file.get_child("db"))
 
         simulator = SimulatorFactory().get_simulator(sim_type)
@@ -107,7 +107,7 @@ class Project(GObject.GObject):
         network = Network(simulator, self.__project_db)
         algo_manager = AlgorithmConfigurationManager(network, self.__project_db)
 
-        super().__init__(id=project_id, name="Unknown Project Name",
+        super().__init__(id=project_id,
                          simulator_type=sim_type,
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
@@ -117,6 +117,8 @@ class Project(GObject.GObject):
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
+
+        self.__name = "Unknown Project Name"
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
@@ -152,3 +154,9 @@ class Project(GObject.GObject):
         self.__name = await self.__project_db.get_project_name()
         self.created_at = await self.__project_db.get_created_at()
         self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
+
+    async def delete(self) -> None:
+        """Deletes the project database file."""
+        # TODO: Delete whole folder
+        file = Gio.File.new_for_path(self.project_file_path).get_child("db")
+        await file.delete_async(0, None)  # type: ignore
