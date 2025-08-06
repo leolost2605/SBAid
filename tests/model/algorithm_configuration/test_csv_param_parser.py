@@ -16,7 +16,7 @@ class CsvParameterParserTest(unittest.TestCase):
     def test_file_type_guesser(self):
         parser = CSVParameterParser()
         self.assertEqual(parser.can_handle
-                         ("valid_parameter_config.csv"),
+                         ("./tests/model/algorithm_configuration/valid_parameter_config.csv"),
                          True)
 
     async def _testing_callback_func(self, path: str) -> tuple[int, int]:
@@ -45,9 +45,9 @@ class CsvParameterParserTest(unittest.TestCase):
         asyncio.run(self._test_valid_parsing())
 
     async def _test_valid_parsing(self) -> None:
-        self.assertEqual(await self._testing_callback_func("valid_parameter_config.csv"), (24, 4))
+        self.assertEqual(await self._testing_callback_func("./tests/model/algorithm_configuration/valid_parameter_config.csv"), (24, 4))
 
     def test_invalid_parsing(self):
         with self.assertRaises(InvalidFileFormattingException):
             asyncio.run(self._testing_callback_func
-                        ("invalid_param_import.csv"))
+                        ("./tests/model/algorithm_configuration/invalid_param_import.csv"))
