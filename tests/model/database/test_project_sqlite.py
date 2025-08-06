@@ -131,7 +131,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         await db.remove_cross_section("my_cross_section_id_2")
 
-        self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), "")
+        self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), None)
 
         file.delete_async(0, None)
 
