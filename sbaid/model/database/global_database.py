@@ -81,7 +81,7 @@ class GlobalDatabase(ABC):
 
     @abstractmethod
     async def get_all_cross_section_snapshots(self, snapshot_id: str)\
-            -> list[tuple[str, str, BDisplay]]:
+            -> list[tuple[str, str, str, str, BDisplay]]:
         """Return all cross section snapshots from a given snapshot."""
 
     @abstractmethod
