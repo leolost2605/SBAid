@@ -1,7 +1,7 @@
 """This module defines the Context Class"""
+import unittest
 
 from gi.repository import GObject, Gio, GLib
-
 from sbaid import common
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.database.global_sqlite import GlobalSQLite
@@ -34,6 +34,8 @@ class Context(GObject.GObject):
         return self.__projects
 
     def __init__(self) -> None:
+        db_file = Gio.File.new_for_path("global_db")
+        self.__global_db = GlobalSQLite(db_file)
         super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
 
