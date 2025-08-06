@@ -45,8 +45,8 @@ class DisplayTestCase(unittest.TestCase):
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
 
-        self.assertEqual(sim.route_points.get_item(0), Location(123.4, 567.8))
-        self.assertEqual(sim.route_points.get_item(1), Location(234.5, 678.9))
+        self.assertEqual(sim.route_points.get_item(0), Location(5.4, 8.8))
+        self.assertEqual(sim.route_points.get_item(1), Location(2.5, 7.9))
 
     async def reset(self) -> None:
         self.assertTrue(True)

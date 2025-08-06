@@ -161,12 +161,8 @@ class DummySimulator(Simulator):
         self._simulation_start_time = min(self._sequence.keys())
         self._simulation_end_time = max(self._sequence.keys())
 
-        route = Gio.ListStore.new(Location)
-
         for location in cs_location_map.values():
-            route.append(location)
-
-        self._route_points = route
+            self._route_points.append(location)
 
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
