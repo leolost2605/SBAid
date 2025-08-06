@@ -7,6 +7,7 @@ import sys
 
 import gi
 
+from sbaid import common
 from sbaid.view.main_page.add_new_cross_section_list_popover import AddNewCrossSectionListPopover
 from sbaid.view.main_page.network_map import NetworkMap
 from sbaid.view_model.network.cross_section import CrossSection
@@ -38,7 +39,7 @@ class ProjectMainPage(Adw.NavigationPage):
 
         start_button = Gtk.Button.new_with_label("Start Simulating")
         start_button.add_css_class("suggested-action")
-        start_button.set_action_name("win.start-simulation")
+        start_button.set_action_name("win.run-simulation")
         start_button.set_action_target_value(GLib.Variant.new_string(project.id))
 
         start_menu = Gio.Menu()
@@ -86,6 +87,8 @@ class ProjectMainPage(Adw.NavigationPage):
 
         self.set_child(main_view)
         self.set_title(project.name)
+
+        common.run_coro_in_background(project.load())
 
     def __create_cs_row(self, cross_section: CrossSection) -> Gtk.Widget:
         label = Gtk.Label(xalign=0, margin_top=6, margin_bottom=6, margin_end=12, margin_start=6)
