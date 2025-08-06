@@ -142,6 +142,7 @@ class DummySimulator(Simulator):
                 location_y = data['cross_section_locations'].get(cross_section)['y']
                 cs_location_map[cross_section] = Location(location_x, location_y)
 
+            are_cs_set = False
             for snapshot_time, snapshot in data["vehicle_infos"].items():
                 current_input = Input()
                 for cross_section, lanes in snapshot.items():
@@ -152,11 +153,14 @@ class DummySimulator(Simulator):
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
-                    self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
-                                                                  CrossSectionType.COMBINED,
-                                                                  cs_location_map[cross_section],
-                                                                  max_lanes, False))
-                self._sequence[int(snapshot_time)] = current_input
+                    if not are_cs_set:
+                        self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
+                                                                      CrossSectionType.COMBINED,
+                                                                      cs_location_map[cross_section],
+                                                                      max_lanes, False))
+                if not are_cs_set:
+                    self._sequence[int(snapshot_time)] = current_input
+                are_cs_set = True
 
         self._simulation_start_time = min(self._sequence.keys())
         self._simulation_end_time = max(self._sequence.keys())
