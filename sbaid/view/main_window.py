@@ -9,6 +9,7 @@ import gi
 
 from sbaid import common
 from sbaid.view.main_page.project_main_page import ProjectMainPage
+from sbaid.view.parameter_editing.algo_configs_dialog import AlgoConfigsDialog
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
@@ -99,9 +100,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        # pylint: disable=undefined-variable
-        self.__nav_view.push(ParameterEditingPage(  # type: ignore # noqa
-            project.algorithm_configuration_manager))
+        AlgoConfigsDialog(project.algorithm_configuration_manager).present()
 
     def __on_edit_cross_section(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project_id = param.get_child_value(0).get_string()

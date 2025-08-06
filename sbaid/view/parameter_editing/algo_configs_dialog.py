@@ -298,6 +298,7 @@ class AlgoConfigsDialog(Adw.Window):
         header_bar = Adw.HeaderBar(show_title=False)
 
         sidebar = Gtk.ListBox()
+        sidebar.add_css_class("navigation-sidebar")
         sidebar.set_selection_mode(Gtk.SelectionMode.SINGLE)
         sidebar.bind_model(algo_config_manager.algorithm_configurations,
                            self.__create_algo_config_row)
@@ -329,11 +330,11 @@ class AlgoConfigsDialog(Adw.Window):
         self.__split_view.set_collapsed(not self.__split_view.get_collapsed())
 
     def __create_algo_config_row(self, algo_config: AlgorithmConfiguration) -> Gtk.Widget:
-        label = Gtk.Label()
+        label = Gtk.Label(xalign=0)
         algo_config.bind_property("name", label, "label", GObject.BindingFlags.SYNC_CREATE)
         return label
 
-    def __on_row_selected(self, list_box: Gtk.ListBox, row: Gtk.ListBoxRow) -> None:
+    def __on_row_selected(self, list_box: Gtk.ListBox, row: Gtk.ListBoxRow | None) -> None:
         if not row:
             return
 
