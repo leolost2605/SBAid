@@ -1,21 +1,22 @@
 """This module contains the all projects page."""
 import sys
-from typing import cast, Any
+import datetime
+
+from typing import cast, Any, Callable
 
 import gi
 
+from babel.dates import format_datetime
 import sbaid.common
 from sbaid.view_model.context import Context
 
-from babel.dates import format_datetime
-import datetime
 
-from view_model.project import Project
+from sbaid.view_model.project import Project
 
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, GLib, Gio
+    from gi.repository import Gtk, Adw, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -25,18 +26,17 @@ class AllProjects(Adw.NavigationPage):
     """This class represents the all projects page, where
     all projects that are known to sbaid can be seen and edited."""
 
-    def on_factory_setup(self, factory, list_item):
+    def on_factory_setup(self, factory: Any, list_item: Gtk.ColumnViewCell) -> None:
+        """TODO"""
         label = Gtk.Label(xalign=0)
         list_item.set_child(label)
-        self.right_click.connect("pressed", self.__on_right_click)
-        # list_item.add_controller(right_click)
 
-
-    def on_factory_bind(self, factory, list_item, get_text_func):
+    def on_factory_bind(self, factory: Any, list_item: Gtk.ColumnViewCell,
+                        get_text_func: Callable[[Any], str]) -> None:
+        """TODO"""
         item = list_item.get_item()
         label = list_item.get_child()
-        label.set_text(get_text_func(item))
-
+        label.set_text(get_text_func(item))  # type: ignore
 
     def __init__(self, context: Context) -> None:
         super().__init__()
@@ -50,13 +50,6 @@ class AllProjects(Adw.NavigationPage):
         name_factory.connect("setup", self.on_factory_setup)
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
-        sorter = Gtk.StringSorter()
-        expression = Gtk.PropertyExpression.new(Project, None, "name")
-        sorter.set_expression(expression)
-
-        name_column.set_sorter(sorter)
-
-        # name_column.set_sorter(Gtk.CustomSorter.new(self.__sort_name_func))
 
         last_modified_factory = Gtk.SignalListItemFactory()
         last_modified_factory.connect("bind", self.on_factory_bind,
@@ -70,10 +63,10 @@ class AllProjects(Adw.NavigationPage):
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("bind", self.on_factory_bind,
-                                      lambda obj: format_datetime(
-                                          datetime.datetime.fromisoformat(
-                                              obj.created_at.format_iso8601()),
-                                          format="medium", locale='de'))
+                                   lambda obj: format_datetime(
+                                       datetime.datetime.fromisoformat(
+                                           obj.created_at.format_iso8601()),
+                                       format="medium", locale='de'))
         created_at_factory.connect("setup", self.on_factory_setup)
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Modified", last_modified_factory)
@@ -97,7 +90,8 @@ class AllProjects(Adw.NavigationPage):
         open_button = Gtk.Button(label="Open")
         open_button.set_action_name("win.open-project")
         project = self.selection.get_selected_item()
-        open_button.set_action_target_value(GLib.Variant.new_string(project.id))
+        open_button.set_action_target_value(
+            GLib.Variant.new_string(project.id))  # type: ignore
 
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         button_box.append(delete_button)
@@ -113,33 +107,10 @@ class AllProjects(Adw.NavigationPage):
 
         self.set_child(main_view)
         self.set_title("All Projects")
-    async def __delete_project(self, project: Project):
+
+    async def __delete_project(self, project: Project) -> None:
         await self.__context.delete_project(project.id)
 
-    def __on_delete(self, widget: Gtk.Widget):
+    def __on_delete(self, widget: Gtk.Widget) -> None:
         sbaid.common.run_coro_in_background(self.__delete_project(
             cast(Project, self.selection.get_selected_item())))
-
-
-
-    def __on_right_click(self, gesture, n_press, x, y):
-        # is right click
-        if gesture.get_current_button() == 3:
-
-            menu = Gio.Menu()
-            menu.append("test")
-
-            right_click_menu = Gtk.PopoverMenu()
-            right_click_menu.set_menu_model(menu)
-            right_click_menu.set_parent(self)
-            print("debug")
-            right_click_menu.popup()
-
-    # def __sort_name_func(self, project1: Any, project2: Any, data: Any) -> int | None:
-    #     if not isinstance(project1, Project) or not isinstance(project2, Project):
-    #         return None
-    #     if project1.name > project2.name:
-    #         return 1
-    #     if project1.name < project2.name:
-    #         return -1
-    #     return 0

@@ -2,13 +2,11 @@
 This module contains the welcome page.
 """
 import sys
-from typing import Any
 
 import gi
 
-import sbaid.common
 from sbaid.view_model.context import Context
-from view_model.project import Project
+from sbaid.view_model.project import Project
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -42,14 +40,7 @@ class WelcomePage(Adw.NavigationPage):
 
         # create listmodel containing the latest 3 project
         self.last_projects_box = Gtk.ListBox(name="Last Projects")
-        print(self.__context.projects.get_n_items())
-        sorted_lm = Gtk.SortListModel.new(self.__context.projects)
-        sorted_lm.set_section_sorter(Gtk.CustomSorter.new(self.__sort_name_func))
-        print(sorted_lm.get_n_items())
-        for project in sbaid.common.list_model_iterator(sorted_lm):
-            print(project.name)
-        assert sorted_lm is not None
-        projects_to_show = Gtk.SliceListModel.new(sorted_lm, 0, 3)
+        projects_to_show = Gtk.SliceListModel.new(self.__context.projects, 0, 3)
         # TODO sort by last edited DateTime value descending
         self.last_projects_box.bind_model(projects_to_show,
                                           # pylint: disable=unnecessary-lambda
@@ -76,12 +67,3 @@ class WelcomePage(Adw.NavigationPage):
         button.set_action_target_value(GLib.Variant.new_string(proj.id))
         proj.bind_property("name", button, "label", GObject.BindingFlags.SYNC_CREATE)
         return button
-
-    def __sort_name_func(self, project1: Any, project2: Any, data: Any) -> int | None:
-        if not isinstance(project1, Project) or not isinstance(project2, Project):
-            return None
-        if project1.name > project2.name:
-            return 1
-        if project1.name < project2.name:
-            return -1
-        return 0

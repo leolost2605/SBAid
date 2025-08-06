@@ -1,5 +1,4 @@
 """This module defines the Context Class"""
-import asyncio
 
 from gi.repository import GObject, Gio, GLib
 

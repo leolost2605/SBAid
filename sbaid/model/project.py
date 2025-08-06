@@ -96,9 +96,9 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
     async def delete(self) -> None:
+        """Deletes the project database file."""
         file = Gio.File.new_for_path(self.project_file_path).get_child("db")
-        await file.delete_async(0, None)
-        self.__project_db = None
+        await file.delete_async(0, None)  # type: ignore
         del self
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
@@ -108,7 +108,6 @@ class Project(GObject.GObject):
         project_file = Gio.File.new_for_path(project_file_path)
 
         self.__project_db = ProjectSQLite(project_file.get_child("db"))
-
 
         simulator = SimulatorFactory().get_simulator(sim_type)
 
@@ -162,5 +161,6 @@ class Project(GObject.GObject):
         self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
 
     async def set_name(self, name: str) -> None:
+        """Sets the name of the project in the database."""
         await self.__project_db.open()
         await self.__project_db.set_project_name(name)
