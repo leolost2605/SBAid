@@ -88,11 +88,11 @@ class ProjectSQLite(ProjectDatabase):
                             ON DELETE CASCADE,
                     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
                 );""")
-            await db.execute("""
-            INSERT INTO meta_information (name, created_at, last_modified) VALUES
-            (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
-                           GLib.DateTime.format_iso8601(  # pylint: disable=no-member
-                               GLib.DateTime.new_now_local())))  # type: ignore
+                await db.execute("""
+                INSERT INTO meta_information (name, created_at, last_modified) VALUES
+                (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
+                               GLib.DateTime.format_iso8601(  # pylint: disable=no-member
+                                   GLib.DateTime.new_now_local())))  # type: ignore
             await db.commit()
 
     async def get_created_at(self) -> GLib.DateTime:
