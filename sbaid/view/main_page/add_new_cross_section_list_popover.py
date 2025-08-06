@@ -51,7 +51,7 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         type_drop_down = Gtk.DropDown.new_from_strings(cs_types)
         self.__type_drop_down = type_drop_down
 
-        import_button = Gtk.Button.new_with_label("Import")
+        import_button = Gtk.Button.new_with_label("Import...")
         import_button.connect("clicked", self.__on_import_clicked)
 
         done_button = Gtk.Button.new_with_label("Add")
