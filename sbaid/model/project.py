@@ -48,10 +48,9 @@ class Project(GObject.GObject):
     def name(self, new_name: str) -> None:
         """Sets the name of the project"""
         self.__name = new_name
-        # common.run_coro_in_background(self.__project_db.open()) # TODO: this needs to work
-        # common.run_coro_in_background(self.__project_db.set_project_name(new_name))
+        common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
-    simulator_type: SimulatorType = GObject.Property(  # type: ignore
+    simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
                                                      flags=GObject.ParamFlags.READABLE |
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -95,12 +94,6 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    async def delete(self) -> None:
-        """Deletes the project database file."""
-        file = Gio.File.new_for_path(self.project_file_path).get_child("db")
-        await file.delete_async(0, None)  # type: ignore
-        del self
-
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str, result_manager: ResultManager) -> None:
         """Creates a new project. The network and algorithm configuration manager
@@ -114,7 +107,7 @@ class Project(GObject.GObject):
         network = Network(simulator, self.__project_db)
         algo_manager = AlgorithmConfigurationManager(network, self.__project_db)
 
-        super().__init__(id=project_id, name="Unknown Project Name",
+        super().__init__(id=project_id,
                          simulator_type=sim_type,
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
@@ -124,6 +117,8 @@ class Project(GObject.GObject):
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
+
+        self.__name = "Unknown Project Name"
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
@@ -160,7 +155,7 @@ class Project(GObject.GObject):
         self.created_at = await self.__project_db.get_created_at()
         self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
 
-    async def set_name(self, name: str) -> None:
-        """Sets the name of the project in the database."""
-        await self.__project_db.open()
-        await self.__project_db.set_project_name(name)
+    async def delete(self) -> None:
+        """Deletes the project database file."""
+        file = Gio.File.new_for_path(self.project_file_path).get_child("db")
+        await file.delete_async(0, None)  # type: ignore
