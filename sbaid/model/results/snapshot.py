@@ -36,7 +36,7 @@ class Snapshot(GObject.GObject):
         """Getter for the cross section snapshots."""
         return self.__cross_section_snapshots
 
-    __global_db: GlobalDatabase
+    __global_database: GlobalDatabase
     __cross_section_snapshots: Gio.ListStore
 
     def __init__(self, snapshot_id: str, capture_timestamp: GLib.DateTime,
@@ -54,7 +54,7 @@ class Snapshot(GObject.GObject):
         for cross_section in cross_section_ids:
             cross_section_snapshot = (CrossSectionSnapshot
                                       (self.id, cross_section[0], cross_section[1],
-                                       "TODO", cross_section[2], self.__global_db))
+                                       "TODO", cross_section[2], self.__global_database))
             await cross_section_snapshot.load_from_db()
             self.add_cross_section_snapshot(cross_section_snapshot)
 

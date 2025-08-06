@@ -1,6 +1,8 @@
 """This module defines the ResultManager class."""
 import uuid
 from gi.repository import Gio, GObject
+
+import sbaid
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
@@ -44,6 +46,7 @@ class ResultManager(GObject.GObject):
         result_information = await self.__global_db.get_all_results()
         for results in result_information:
             result = Result(results[0], results[2], results[3], self.__global_db)
+            result.result_name = results[1]
 
             tag_information = await self.__global_db.get_all_tags()
 
@@ -69,43 +72,34 @@ class ResultManager(GObject.GObject):
         self.__available_tags.append(new_tag)
         return len(self.__available_tags) - 1
 
-    def delete_tag(self, tags_id: str) -> None:
+    async def delete_tag(self, tags_id: str) -> None:
         """Removes a tag with the given id from the list of available tags,
          and removes all its uses in results"""
-
-        n = self.__available_tags.get_n_items()
-
-        for i in range(n):
-            tag = self.__available_tags.get_item(i)
-
+        for i, tag in enumerate(sbaid.common.list_model_iterator(self.__available_tags)):
             assert isinstance(tag, Tag)
             if tags_id == tag.tag_id:
                 self.__available_tags.remove(i)
-
-                m = self.__results.get_n_items()
-                for a in range(m):
-                    result = self.__results.get_item(a)
+                for j, result in enumerate(sbaid.common.list_model_iterator(self.__results)):
                     assert isinstance(result, Result)
                     result.remove_tag(tag)
-
+                    # await self.__global_db.remove_result_tag(result.id, tag.tag_id)
                 break
+            await self.__global_db.remove_tag(tags_id)
 
-    def delete_result(self, result_id: str) -> None:
+    async def delete_result(self, result_id: str) -> None:
         """Removes a result with the given id from the list of available tags."""
-        n = self.__results.get_n_items()
-
-        for i in range(n):
-            result = self.__results.get_item(i)
+        for i, result in enumerate(sbaid.common.list_model_iterator(self.__results)):
             assert isinstance(result, Result)
             if result.id == result_id:
                 self.__results.remove(i)
+                await self.__global_db.delete_result(result_id)
                 break
 
     async def register_result(self, result: Result) -> None:
         """Appends a result to the existing list of results in the result manager."""
         self.__results.append(result)
-
         await self.__global_db.add_result(result.id,
                                           result.result_name,
                                           result.project_name,
                                           result.creation_date_time)
+

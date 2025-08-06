@@ -8,15 +8,19 @@ class SeabornImage(Image):
     """Implements methods for handling images made out of seaborn diagrams."""
 
     __image_bytes: bytes
-    __texture: Gdk.Texture
+    __texture: Gdk.Texture | None
     __export_format: ImageFormat
 
     def __init__(self, image_bytes: bytes, export_format: ImageFormat):
         super().__init__()
         self._image_bytes = image_bytes
         self.__export_format = export_format
+        
+        # separates supported types for gdk texture for the previews in the ui
         if self.__export_format == ImageFormat.PNG:
             self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
+        else:
+            self.__texture = None
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""

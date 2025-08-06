@@ -16,12 +16,6 @@ class DiagramExporter(GObject.GObject):
     """Handles logic for the configuration and exporting of results, """
     __global_gens: list[GlobalDiagramGenerator]
     __cross_section_gens: list[CrossSectionDiagramGenerator]
-
-    __heatmap_gen: HeatmapGenerator
-    __qv_gen: QVGenerator
-    __display_gen: DisplayGenerator
-    __velocity_gen: VelocityGenerator
-
     __diagram_types: Gio.ListStore
 
     # GObject.Property definitions
@@ -59,18 +53,14 @@ class DiagramExporter(GObject.GObject):
 
     def __add_available_types(self) -> None:
         """Gets available diagram types and initialize references"""
-        self.__heatmap_gen = HeatmapGenerator()
-        self.__diagram_types.append(
-            self.__heatmap_gen.get_diagram_type())
-        self.__qv_gen = QVGenerator()
-        self.__diagram_types.append(
-            self.__qv_gen.get_diagram_type())
-        self.__display_gen = DisplayGenerator()
-        self.__diagram_types.append(
-            self.__display_gen.get_diagram_type())
-        self.__velocity_gen = VelocityGenerator()
-        self.__diagram_types.append(
-            self.__velocity_gen.get_diagram_type())
+        heatmap_gen = HeatmapGenerator()
+        self.__diagram_types.append(heatmap_gen.get_diagram_type())
+        qv_gen = QVGenerator()
+        self.__diagram_types.append(qv_gen.get_diagram_type())
+        display_gen = DisplayGenerator()
+        self.__diagram_types.append(display_gen.get_diagram_type())
+        velocity_gen = VelocityGenerator()
+        self.__diagram_types.append(velocity_gen.get_diagram_type())
 
-        self.__cross_section_gens = [self.__qv_gen, self.__display_gen, self.__velocity_gen]
-        self.__global_gens = [self.__heatmap_gen]
+        self.__cross_section_gens = [qv_gen, display_gen, velocity_gen]
+        self.__global_gens = [heatmap_gen]

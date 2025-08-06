@@ -264,7 +264,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         self.__current_lane_builder = None
         self.__current_lane = None
 
-    def end_cross_section(self) -> None:
+
+    async def end_cross_section(self) -> None:
         """Adds the current cross-section snapshot to current snapshot.
         Resets current cross-section snapshot and its builder to None.
         Raises WrongOrderException if cross-section snapshot has not been created
@@ -275,8 +276,17 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
             raise WrongOrderException("Cross section snapshot creation cannot successfully finish")
 
         self.__current_snapshot.add_cross_section_snapshot(self.__current_cross_section)
+        # await self.__add_cross_section_to_db()
+
         self.__current_cs_builder = None
         self.__current_cross_section = None
+
+    async def __add_cross_section_to_db(self) -> None:
+        """Adds the current cross-section snapshot to the global database."""
+        await self.__global_db.add_cross_section_snapshot(self.__current_cross_section.cs_snapshot_id,
+                                                          self.__current_snapshot.id,
+                                                          self.__current_cross_section.cross_section_name,
+                                                          self.__current_cross_section.b_display)
 
     def end_snapshot(self) -> None:
         """Adds the current snapshot to current result. Resets current snapshot to None.
@@ -288,7 +298,14 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
             raise WrongOrderException("Snapshot creation cannot successfully finish")
 
         self.__current_result.add_snapshot(self.__current_snapshot)
+        # await self.__add_snapshot_to_db()
         self.__current_snapshot = None
+
+    async def __add_snapshot_to_db(self):
+        """Adds the current snapshot to database."""
+        await self.__global_db.add_snapshot(self.__current_snapshot.id,
+                                            self.__current_result.id,
+                                            self.__current_snapshot.capture_timestamp)
 
     async def end_result(self) -> Result:
         """Returns current result and resets to None.
