@@ -89,13 +89,14 @@ class AllProjects(Adw.NavigationPage):
         self.column_view.add_controller(self.right_click)
 
         delete_button = Gtk.Button(label="Delete")
-        delete_button.connect("clicked", self.__on_delete)
-
         open_button = Gtk.Button(label="Open")
-        open_button.set_action_name("win.open-project")
         project = self.selection.get_selected_item()
-        open_button.set_action_target_value(
-            GLib.Variant.new_string(project.id))  # type: ignore
+        if self.selection.get_selected_item():
+            delete_button.connect("clicked", self.__on_delete)
+
+            open_button.set_action_name("win.open-project")
+            open_button.set_action_target_value(
+                GLib.Variant.new_string(project.id))  # type: ignore
 
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         button_box.append(delete_button)
