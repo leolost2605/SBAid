@@ -33,7 +33,7 @@ class ParamCell(Adw.Bin):
         self.__type = cell_type
 
         child = None
-        match cell_type.value:
+        match cell_type:
             case ParamCellType.NAME:
                 self.__label = child = Gtk.Label()
 
@@ -53,13 +53,16 @@ class ParamCell(Adw.Bin):
         self.__update_value(entry)
 
     def __update_value(self, entry: Gtk.Entry) -> None:
-        variant = GLib.Variant.parse(None, entry.get_text())
-        # TODO: Error handling
-        self.__parameter.value = variant
+        try:
+            variant = GLib.Variant.parse(None, entry.get_text())
+            self.__parameter.value = variant
+        except Exception as e:
+            print("Invalid value given", e)
+
         entry.set_text(self.__parameter.value.print_(True))
 
     def bind(self, param: Parameter) -> None:
-        match self.__type.value:
+        match self.__type:
             case ParamCellType.NAME:
                 self.__label.set_label(param.name)
 
