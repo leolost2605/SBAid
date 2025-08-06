@@ -1,4 +1,4 @@
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals, too-many-instance-attributes
 """This module contains the DummySimulator class."""
 import json
 import aiofiles
