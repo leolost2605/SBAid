@@ -154,10 +154,11 @@ class DummySimulator(Simulator):
                                                            vehicle_type, float(vehicle["speed"]))
                         max_lanes = max(max_lanes, int(lane_id))
                     if not are_cs_set:
-                        self._cross_sections.append(DummyCrossSection(cross_section, cross_section,
-                                                                      CrossSectionType.COMBINED,
-                                                                      cs_location_map[cross_section],
-                                                                      max_lanes, False))
+                        self._cross_sections.append(
+                            DummyCrossSection(cross_section, cross_section,
+                                              CrossSectionType.COMBINED,
+                                              cs_location_map[cross_section],
+                                              max_lanes, False))
                 if not are_cs_set:
                     self._sequence[int(snapshot_time)] = current_input
                 are_cs_set = True
