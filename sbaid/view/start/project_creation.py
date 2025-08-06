@@ -1,6 +1,5 @@
 """This module contains the project creation page."""
 import sys
-from typing import Any
 
 import gi
 

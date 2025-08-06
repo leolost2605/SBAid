@@ -1,6 +1,6 @@
 """This module contains the simulator entry popover."""
 import sys
-from typing import cast, Any
+from typing import cast
 
 import gi
 
