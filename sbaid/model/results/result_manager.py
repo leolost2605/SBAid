@@ -84,7 +84,7 @@ class ResultManager(GObject.GObject):
             assert isinstance(tag, Tag)
             if tags_id == tag.tag_id:
                 self.__available_tags.remove(i)
-                for result in enumerate(list_model_iterator(self.__results)):
+                for result in self.__results:
                     assert isinstance(result, Result)
                     result.remove_tag(tag)
                     # await self.__global_db.remove_result_tag(result.id, tag.tag_id)
