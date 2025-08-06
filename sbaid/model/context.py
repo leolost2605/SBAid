@@ -41,12 +41,13 @@ class Context(GObject.GObject):
         """Loads the projects and the results."""
         # pylint: disable=no-value-for-parameter
         # user_data_file = Gio.File.new_for_path(GLib.get_user_data_dir())  TODO activate
-        user_data_file = Gio.File.new_for_path("global_database")
-        sbaid_folder = user_data_file.get_child("sbaid")
-        if not sbaid_folder.query_exists():
-            await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
-
-        db_file = sbaid_folder.get_child("global_database")
+        # user_data_file = Gio.File.new_for_path("global_database")
+        # sbaid_folder = user_data_file.get_child("sbaid")
+        # if not sbaid_folder.query_exists():
+        #     await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
+        #
+        # db_file = sbaid_folder.get_child("global_database")
+        db_file = Gio.File.new_for_path("global_db")
 
         self.__global_db = GlobalSQLite(db_file)
         await self.__global_db.open()
