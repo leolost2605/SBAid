@@ -37,7 +37,7 @@ class CSVParameterParser(ParameterParser):
             for row in csv_reader:
                 for i in range(len(row)-1):
                     if row[i+1] != "" and foreach_func(header[i + 1], row[0],
-                                        GLib.Variant.parse(None, row[i+1])):
+                                                       GLib.Variant.parse(None, row[i+1])):
                         valid_parameters += 1
                     else:
                         invalid_parameters += 1
