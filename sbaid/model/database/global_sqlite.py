@@ -259,12 +259,11 @@ class GlobalSQLite(GlobalDatabase):
                 raise ForeignKeyError("Foreign key does not exist!") from e
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
-            -> list[tuple[str, str, BDisplay]]:
+            -> list[tuple[str, str, str, str, BDisplay]]:
         """Return all cross section snapshots from a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
-            SELECT id, snapshot_id, b_display FROM cross_section_snapshot WHERE snapshot_id = ?;
-            """, [snapshot_id]) as cursor:
+            SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""", [snapshot_id]) as cursor:
                 return await cursor.fetchall()
 
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
