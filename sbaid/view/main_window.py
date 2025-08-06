@@ -12,6 +12,9 @@ from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
+from sbaid.view.start.all_projects import AllProjects
+from sbaid.view.start.project_creation import ProjectCreation
+from sbaid.view.start.results import Results
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -42,7 +45,7 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self.__context = context
 
-        welcome_page = WelcomePage()
+        welcome_page = WelcomePage(self.__context)
 
         self.__nav_view = Adw.NavigationView()
         self.__nav_view.add(welcome_page)
@@ -64,10 +67,22 @@ class MainWindow(Adw.ApplicationWindow):
         run_simulation_action = Gio.SimpleAction.new("run-simulation", GLib.VariantType.new("s"))
         run_simulation_action.connect("activate", self.__on_run_simulation)
 
+        create_project_action = Gio.SimpleAction.new("create-project-page")
+        create_project_action.connect("activate", self.__on_create_project)
+
+        all_projects_action = Gio.SimpleAction.new("all-projects")
+        all_projects_action.connect("activate", self.__on_all_projects)
+
+        results_action = Gio.SimpleAction.new("results")
+        results_action.connect("activate", self.__on_results)
+
         self.add_action(open_project_action)
         self.add_action(edit_algo_configs_action)
         self.add_action(edit_cross_section_action)
         self.add_action(run_simulation_action)
+        self.add_action(create_project_action)
+        self.add_action(all_projects_action)
+        self.add_action(results_action)
 
     def __get_project_by_id(self, project_id: str) -> Project:
         for project in common.list_model_iterator(self.__context.projects):
@@ -79,6 +94,8 @@ class MainWindow(Adw.ApplicationWindow):
     def __on_open_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
         # pylint: disable=undefined-variable
+        if isinstance(self.__nav_view.get_visible_page(), ProjectCreation):
+            self.__nav_view.pop()
         self.__nav_view.push(ProjectMainPage(project))  # type: ignore # noqa
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
@@ -109,3 +126,13 @@ class MainWindow(Adw.ApplicationWindow):
     async def __run_simulation(self, project: Project) -> None:
         simulation = await project.start_simulation()
         self.__nav_view.push(SimulationRunningPage(simulation))
+
+    def __on_create_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
+        project_creation = ProjectCreation(self.__context)
+        self.__nav_view.push(project_creation)
+
+    def __on_all_projects(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
+        self.__nav_view.push(AllProjects(self.__context))
+
+    def __on_results(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
+        self.__nav_view.push(Results())
