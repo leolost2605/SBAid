@@ -98,8 +98,7 @@ class AlgorithmConfiguration(GObject.GObject):
     algorithm: Algorithm = GObject.Property(  # type: ignore
         type=Algorithm,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT_ONLY)
+        GObject.ParamFlags.WRITABLE) # TODO: Private writable
 
     parameter_configuration: ParameterConfiguration = GObject.Property(  # type: ignore
         type=ParameterConfiguration,
@@ -149,5 +148,5 @@ class AlgorithmConfiguration(GObject.GObject):
 
         spec.loader.exec_module(module)
 
-        self.algorithm = module.Algorithm()
+        self.algorithm = module.AlgorithmImpl()
         self.parameter_configuration.set_algorithm(self.algorithm)
