@@ -63,7 +63,7 @@ class _AlgoConfigView(Adw.Bin):
         self.__script_path_row.set_title("Script Path")
         self.__script_path_row.add_suffix(script_path_button)
 
-        preferences_group = Adw.PreferencesGroup()
+        preferences_group = Adw.PreferencesGroup(width_request=300)
         preferences_group.add(self.__name_entry_row)
         preferences_group.add(self.__eval_interval_row)
         preferences_group.add(self.__display_interval_row)
@@ -110,6 +110,7 @@ class _AlgoConfigView(Adw.Bin):
         column_view_frame = Gtk.Frame(child=column_view_scrolled)
 
         cross_sections_check_button = Gtk.CheckButton.new_with_label("Cross Sections")
+        cross_sections_check_button.set_halign(Gtk.Align.START)
         cross_sections_check_button.connect("toggled", self.__on_toggled)
 
         cross_section_factory = Gtk.SignalListItemFactory()
@@ -117,6 +118,7 @@ class _AlgoConfigView(Adw.Bin):
         cross_section_factory.connect("bind", self.__bind_cross_section_row)
 
         self.__cross_sections_list_view = Gtk.ListView.new(None, cross_section_factory)
+        self.__cross_sections_list_view.set_size_request(180, -1)
         self.__cross_sections_list_view.set_vexpand(True)
 
         cross_sections_scrolled = Gtk.ScrolledWindow(
@@ -294,6 +296,7 @@ class AlgoConfigsDialog(Adw.Window):
         content_toolbar_view.add_top_bar(content_header_bar)
 
         content_page = Adw.NavigationPage.new(content_toolbar_view, "Algorithm Configuration")
+        content_page.set_tag("algo_config_view")
 
         header_bar = Adw.HeaderBar(show_title=False)
 
@@ -324,7 +327,13 @@ class AlgoConfigsDialog(Adw.Window):
         self.__split_view.set_content(content_page)
         self.__split_view.set_sidebar(sidebar_page)
 
+        condition = Adw.BreakpointCondition.new_length(Adw.BreakpointConditionLengthType.MAX_WIDTH,
+                                                       600, Adw.LengthUnit.PT)
+        bpoint = Adw.Breakpoint.new(condition)
+        bpoint.add_setter(self.__split_view, "collapsed", True)
+
         self.set_content(self.__split_view)
+        self.add_breakpoint(bpoint)
 
     def __on_collapse_clicked(self, button: Gtk.Button) -> None:
         self.__split_view.set_collapsed(not self.__split_view.get_collapsed())
@@ -332,7 +341,10 @@ class AlgoConfigsDialog(Adw.Window):
     def __create_algo_config_row(self, algo_config: AlgorithmConfiguration) -> Gtk.Widget:
         label = Gtk.Label(xalign=0)
         algo_config.bind_property("name", label, "label", GObject.BindingFlags.SYNC_CREATE)
-        return label
+        row = Gtk.ListBoxRow(child=label)
+        row.set_action_name("navigation.push")
+        row.set_action_target_value(GLib.Variant.new_string("algo_config_view"))
+        return row
 
     def __on_row_selected(self, list_box: Gtk.ListBox, row: Gtk.ListBoxRow | None) -> None:
         if not row:
