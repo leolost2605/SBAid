@@ -104,11 +104,11 @@ class ResultManager(GObject.GObject):
         """Appends a result to the existing list of results in the result manager.
         Also registers result and all snapshots to the database"""
         self.__results.append(result)
+        await self.__add_all_snapshots_to_database(result)
         await self.__global_db.add_result(result.id,
                                           result.result_name,
                                           result.project_name,
                                           result.creation_date_time)
-        await self.__add_all_snapshots_to_database(result)
 
     async def __add_all_snapshots_to_database(self, result: Result) -> None:
 

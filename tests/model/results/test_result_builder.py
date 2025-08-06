@@ -14,7 +14,7 @@ from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.results.snapshot import Snapshot
 
 
-class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
+class ResultBuilderTest(unittest.TestCase):
 
     __gio_file = Gio.File.new_for_path("placeholder_path.db")
     __global_mock_db = unittest.mock.AsyncMock()
@@ -110,7 +110,8 @@ class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
                 result_builder.end_cross_section()
             result_builder.end_snapshot()
 
-            result = await result_builder.end_result()
+        result = await result_builder.end_result()
+
         return result
 
     def __generate_random_ids(self, n: int):
