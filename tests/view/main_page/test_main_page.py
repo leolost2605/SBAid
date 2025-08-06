@@ -12,7 +12,7 @@ from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view_model.network.network import Network
 from sbaid.model.network.network import Network as ModelNetwork
 
-# @skipIf(True, "this is for human testing as it spawns a window that will stay indefinitely")
+@skipIf(True, "this is for human testing as it spawns a window that will stay indefinitely")
 class MainPageTestCase(unittest.TestCase):
     def test_something(self):
         app = Adw.Application()

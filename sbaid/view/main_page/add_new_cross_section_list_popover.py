@@ -79,8 +79,8 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         dialog = Gtk.FileDialog()
 
         try:
-            file = await dialog.open(self.get_root())
-        except Exception as e:
+            file = await dialog.open(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to allow the user to choose a file: ", e)
             return
 
