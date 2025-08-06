@@ -1,6 +1,7 @@
 """
 The main SBAid package. It is the entry point into the application
 and contains only the application and the other packages.
+TEST
 """
 
 import sys
