@@ -12,11 +12,14 @@ class ResultManagerTest(unittest.TestCase):
     result_manager = ResultManager(__global_db)
 
     def test_add_and_remove_tag(self):
+        asyncio.run(self.__test_add_and_remove_tag())
+
+    async def __test_add_and_remove_tag(self):
         """Test creating and removing tags to the list of available tags."""
 
         # create two tags
-        self.result_manager.create_tag("test")
-        self.result_manager.create_tag("test2")
+        await self.result_manager.create_tag("test")
+        await self.result_manager.create_tag("test2")
 
         # assert length
         self.assertEqual(len(self.result_manager.available_tags), 2)
@@ -29,7 +32,7 @@ class ResultManagerTest(unittest.TestCase):
         self.assertIn(available_tag_two, self.result_manager.available_tags)
 
         # delete tag
-        self.result_manager.delete_tag(available_tag_one.tag_id)
+        await self.result_manager.delete_tag(available_tag_one.tag_id)
 
         # assert length and non-existence in list
         self.assertEqual(len(self.result_manager.available_tags), 1)
@@ -64,7 +67,7 @@ class ResultManagerTest(unittest.TestCase):
         self.assertEqual(len(self.result_manager.results), 3)
 
         # delete first result
-        self.result_manager.delete_result(test_id)
+        await self.result_manager.delete_result(test_id)
 
         # assert state of results list
         self.assertEqual(len(self.result_manager.results), 2)
