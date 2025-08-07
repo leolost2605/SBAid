@@ -91,7 +91,12 @@ class Result(GObject.GObject):
 
     async def load_from_db(self) -> None:
         """Loads metainformation about the result name and tags, and saves them in the class."""
-        self.result_name = await self.__global_db.get_result_name(self.id)
+        name_from_db = await self.__global_db.get_result_name(self.id)
+        if name_from_db is not None:
+            self.result_name = name_from_db
+        else:
+            self.result_name = self.project_name + "_" + str(self.creation_date_time.format("%F"))
+
         tag_ids = await self.__global_db.get_result_tag_ids(self.id)
 
         for tag_id in tag_ids:
