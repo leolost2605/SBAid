@@ -151,7 +151,9 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         await self.__project_db.open()
-        self.__name = str(await self.__project_db.get_project_name())
+        name = await self.__project_db.get_project_name()
+        if name is not None:
+            self.__name = name
         created_at = await self.__project_db.get_created_at()
         if created_at is not None:
             self.created_at = created_at
