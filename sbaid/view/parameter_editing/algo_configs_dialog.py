@@ -19,13 +19,13 @@ from sbaid.view_model.network.cross_section import CrossSection
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gio, Gtk, GObject
+    from gi.repository import Adw, GLib, Gtk, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
-class _AlgoConfigView(Adw.Bin):
+class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     __name_entry_row: Adw.EntryRow
     __eval_interval_row: Adw.SpinRow
     __display_interval_row: Adw.SpinRow
@@ -43,7 +43,7 @@ class _AlgoConfigView(Adw.Bin):
 
     __algo_config: AlgorithmConfiguration | None = None
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # pylint: disable=too-many-locals, too-many-statements
         super().__init__()
 
         self.__name_entry_row = Adw.EntryRow()
@@ -204,11 +204,14 @@ class _AlgoConfigView(Adw.Bin):
         common.run_coro_in_background(self.__collect_script_path())
 
     async def __collect_script_path(self) -> None:
+        if self.__algo_config is None:
+            return
+
         dialog = Gtk.FileDialog()
 
         try:
-            file = await dialog.open(self.get_root())
-        except Exception as e:
+            file = await dialog.open(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to allow the user to choose a file: ", e)
             return
 
@@ -218,6 +221,9 @@ class _AlgoConfigView(Adw.Bin):
         self.__algo_config.script_path = file.get_path()
 
     def __on_toggled(self, check_button: Gtk.CheckButton) -> None:
+        if self.__algo_config is None:
+            return
+
         if check_button.get_active():
             self.__algo_config.parameter_configuration.selected_cross_sections.select_all()
         else:
@@ -227,11 +233,14 @@ class _AlgoConfigView(Adw.Bin):
         common.run_coro_in_background(self.__collect_import_file())
 
     async def __collect_import_file(self) -> None:
+        if self.__algo_config is None:
+            return
+
         dialog = Gtk.FileDialog()
 
         try:
-            file = await dialog.open(self.get_root())
-        except Exception as e:
+            file = await dialog.open(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to allow the user to choose a file: ", e)
             return
 

@@ -98,7 +98,7 @@ class AlgorithmConfiguration(GObject.GObject):
     algorithm: Algorithm = GObject.Property(  # type: ignore
         type=Algorithm,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE) # TODO: Private writable
+        GObject.ParamFlags.WRITABLE)  # TODO: Private writable
 
     parameter_configuration: ParameterConfiguration = GObject.Property(  # type: ignore
         type=ParameterConfiguration,

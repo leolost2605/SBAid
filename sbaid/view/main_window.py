@@ -100,7 +100,10 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_edit_algo_configs(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        AlgoConfigsDialog(project.algorithm_configuration_manager).present()
+        dialog = AlgoConfigsDialog(project.algorithm_configuration_manager)
+        dialog.set_modal(True)
+        dialog.set_transient_for(self)
+        dialog.present()
 
     def __on_edit_cross_section(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project_id = param.get_child_value(0).get_string()
