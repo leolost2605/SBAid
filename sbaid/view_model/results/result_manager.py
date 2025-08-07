@@ -40,9 +40,9 @@ class ResultManager(GObject.GObject):
         self.__results = Gio.ListStore().new(Result)
         super().__init__(available_tags=Gtk.MultiSelection.new(self.__result_manager.available_tags))
 
-    def create_tag(self, name: str) -> int:
+    async def create_tag(self, name: str) -> int:
         """Creates a new tag for the result with a given name."""
-        return self.__result_manager.create_tag(name)
+        return await self.__result_manager.create_tag(name)
 
     def delete_tag(self, tag_id: str) -> None:
         """Deletes a tag from the result with the given id."""

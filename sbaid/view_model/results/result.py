@@ -1,15 +1,17 @@
 """
 This module contains the class that represents the result of simulation.
 """
+from typing import Tuple
 import gi
 import sys
 from gi.repository import GLib
-
-from sbaid.common.image import Image
+from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.diagram_exporter import DiagramExporter
 from sbaid.model.results.result import Result as ModelResult
+from sbaid.model.results.seaborn_image import SeabornImage
+from sbaid.model.results.snapshot import Snapshot
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -26,21 +28,15 @@ class _ImageFormatWrapper(GObject.GObject):
 
 class _CrossSectionSnapshotWrapper(GObject.GObject):
     """todo"""
-    cross_section_id: str
-    cross_section_name: str
+    cs_info = Tuple[str, str]
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
-        # cross_section_id = cs_snapshot.cross_section_id
-        cross_section_name = cs_snapshot.cross_section_name
+        self.cs_info = Tuple[cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name]
 
 class Result(GObject.GObject):
     """
     This class represents the result of simulation.
     """
-    __diagram_exporter: DiagramExporter
-    __result: ModelResult
-    __previews: Gio.ListStore
-
     id: str = GObject.Property(type=str)
 
     @id.getter  # type: ignore
@@ -101,38 +97,64 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
 
+    __diagram_exporter: DiagramExporter
+    __available_diagram_types: Gio.ListModel
+    __result: ModelResult
+    __previews: Gio.ListStore
+
     def __init__(self, result: ModelResult, available_tags: Gio.ListModel):
         self.__result = result
-
-        self.selected_tags = result.selected_tags
-
         self.__diagram_exporter = DiagramExporter()
+        self.__available_diagram_types = self.__diagram_exporter.available_diagram_types
         self.__previews = Gio.ListStore.new(SeabornImage)
+
         super().__init__(selected_tags=Gtk.MultiSelection.new(available_tags),
-                         diagram_types=Gtk.SingleSelection.new(self.__diagram_exporter.available_diagram_types),
+                         diagram_types=Gtk.SingleSelection.new(self.__available_diagram_types),
                          cross_section=Gtk.MultiSelection.new(self.__get_cross_section_selection(result)),
                          formats=Gtk.SingleSelection.new(self.__get_format_selection()))
 
     def save_diagrams(self, path: str) -> None:
-        """Saves diagrams to a file."""
+        """Saves one diagram to a file."""
+        id_list, image_format, diagram_type = self.__get_selected_diagram_information()
+        image = self.__diagram_exporter.get_diagram(self.__result, id_list, image_format, diagram_type)
+        image.save_to_file(path)
+
+    def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
+        diagram_type = self.__available_diagram_types.get_item(self.diagram_types.get_selected())
+        assert isinstance(diagram_type, DiagramType)
 
-        for cross_sections in self.cross_section:
-            """todo"""
+        id_list = []
+        for i in range(self.cross_section.get_n_items()):
+            if self.cross_section.is_selected(i):
+                wrapper = self.cross_section.get_item(i)
+                assert isinstance(wrapper, _CrossSectionSnapshotWrapper)
+                id_list.append(wrapper.cs_info[0])
 
+        return id_list, image_format, diagram_type
 
     def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
         """Returns the cross section information """
-        cross_section__selections = Gio.ListStore.new(_CrossSectionSnapshotWrapper)
-        return cross_section__selections
+        cross_section_selections = Gio.ListStore.new(_CrossSectionSnapshotWrapper)
+        snapshot = result.snapshots.get_item(0)
+        assert isinstance(snapshot, Snapshot)
+        for cross_section in snapshot.cross_section_snapshots:
+            assert isinstance(cross_section, CrossSectionSnapshot)
+            cross_section_selections.append(_CrossSectionSnapshotWrapper(cross_section))
+        return cross_section_selections
+
 
     def __get_format_selection(self) -> Gio.ListModel:
-
         format_selections = Gio.ListStore.new(ImageFormat)
         for image_format in ImageFormat:
             format_selections.append(_ImageFormatWrapper(image_format))
         return format_selections
 
-
-    def __load_previews(self):
+    def load_previews(self):
         """Loads previews from a file."""
+        id_list, image_format, diagram_type = self.__get_selected_diagram_information()
+        for cs_id in id_list:
+            self.__previews.append(self.__diagram_exporter.get_diagram(self.__result,
+                                                                       [cs_id],
+                                                                       image_format,
+                                                                       diagram_type))
