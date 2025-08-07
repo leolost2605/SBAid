@@ -7,6 +7,7 @@ from gi.repository import GLib
 
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
+from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.diagram_exporter import DiagramExporter
 from sbaid.model.results.result import Result as ModelResult
 
@@ -17,12 +18,25 @@ except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
+class _ImageFormatWrapper(GObject.GObject):
+    image_format: ImageFormat
+    def __init__(self, image_format: ImageFormat):
+        super().__init__()
+        self.format = image_format
+
+class _CrossSectionSnapshotWrapper(GObject.GObject):
+    """todo"""
+    cross_section_id: str
+    cross_section_name: str
+    def __init__(self, cs_snapshot: CrossSectionSnapshot):
+        super().__init__()
+        # cross_section_id = cs_snapshot.cross_section_id
+        cross_section_name = cs_snapshot.cross_section_name
 
 class Result(GObject.GObject):
     """
     This class represents the result of simulation.
     """
-
     __diagram_exporter: DiagramExporter
     __result: ModelResult
     __previews: Gio.ListStore
@@ -91,25 +105,32 @@ class Result(GObject.GObject):
         self.__result = result
 
         self.selected_tags = result.selected_tags
-        self.__diagram_exporter = DiagramExporter()
-        # self.diagram_types = self.__diagram_exporter.available_diagram_types
-        self.__previews = Gio.ListStore.new(Image)
 
+        self.__diagram_exporter = DiagramExporter()
+        self.__previews = Gio.ListStore.new(SeabornImage)
         super().__init__(selected_tags=Gtk.MultiSelection.new(available_tags),
                          diagram_types=Gtk.SingleSelection.new(self.__diagram_exporter.available_diagram_types),
-                         cross_section="todo",
-                         formats=Gtk.SingleSelection.new())
+                         cross_section=Gtk.MultiSelection.new(self.__get_cross_section_selection(result)),
+                         formats=Gtk.SingleSelection.new(self.__get_format_selection()))
 
     def save_diagrams(self, path: str) -> None:
         """Saves diagrams to a file."""
+        image_format = ImageFormat(self.formats.get_selected())
 
-    def __get_cross_section_selection(self) -> Gio.ListModel:
-        """todo"""
+        for cross_sections in self.cross_section:
+            """todo"""
+
+
+    def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
+        """Returns the cross section information """
+        cross_section__selections = Gio.ListStore.new(_CrossSectionSnapshotWrapper)
+        return cross_section__selections
 
     def __get_format_selection(self) -> Gio.ListModel:
+
         format_selections = Gio.ListStore.new(ImageFormat)
         for image_format in ImageFormat:
-            format_selections.append(image_format)
+            format_selections.append(_ImageFormatWrapper(image_format))
         return format_selections
 
 
