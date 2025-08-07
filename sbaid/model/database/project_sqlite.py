@@ -152,7 +152,7 @@ class ProjectSQLite(ProjectDatabase):
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
         """Update the name of the cross_section with the given id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""UPDATE cross_section SET cross_section_name= ?,
+            await db.execute("""UPDATE cross_section SET name = ?
             WHERE id = ?""", (name, cross_section_id))
             await db.commit()
 

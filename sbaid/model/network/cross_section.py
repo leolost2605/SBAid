@@ -113,13 +113,16 @@ class CrossSection(GObject.GObject):
     def __init__(self, simulator_cross_section: SimulatorCrossSection,
                  project_db: ProjectDatabase) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
+        super().__init__()
         self.__cross_section = simulator_cross_section
         self.__project_db = project_db
         self.__background_tasks = set()
-        self.__b_display_active = False
-        self.__hard_shoulder_active = False
-        self.__name = self.__cross_section.name
-        super().__init__()
+        self.__hard_shoulder_available = simulator_cross_section.hard_shoulder_available
+        if self.__hard_shoulder_available:
+            self.hard_shoulder_active = False
+        self.b_display_active = False
+
+        self.name = self.__cross_section.name
 
     async def load_from_db(self) -> None:
         """Loads cross section details from the database."""
