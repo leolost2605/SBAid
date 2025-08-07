@@ -16,7 +16,7 @@ import pythoncom  # type: ignore
 # pylint: disable=import-error
 import win32com.client as com  # type: ignore
 
-from gi.repository import GLib
+from gi.repository import GLib, Gio
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -321,7 +321,7 @@ class VissimConnector:
     """
     __thread: Thread
     __queue: Queue[_VissimCommand]
-    __vissim: Any  # For the COM interface we use dynamic typing
+    __vissim: Any = None  # For the COM interface we use dynamic typing
     __network: VissimNetwork
     __cross_sections_by_id: dict[str, _CrossSection]
     __speed_distr_by_speed: dict[int, int]
@@ -330,6 +330,8 @@ class VissimConnector:
         self.__queue = Queue()
         self.__thread = Thread(target=self.__thread_func, args=(self.__queue,), daemon=True)
         self.__thread.start()
+
+        Gio.Application.get_default().connect("shutdown", self.__on_app_shutdown)
 
     async def __push_command(self, func: Callable[..., Any] | None, *args: Any) -> Any:
         command = _VissimCommand(func, *args)
@@ -344,8 +346,9 @@ class VissimConnector:
         while queue.get().run():
             pass
 
-        self.__vissim.Exit()
-        self.__vissim = None
+        if self.__vissim:
+            self.__vissim.Exit()
+            self.__vissim = None
         pythoncom.CoUninitialize()
 
     async def load_file(self,
@@ -645,3 +648,7 @@ class VissimConnector:
         Shuts down the simulator, freeing all resources in the process.
         """
         await self.__push_command(None)
+
+    def __on_app_shutdown(self, app: Gio.Application) -> None:
+        self.__queue.put(_VissimCommand(None))
+        self.__thread.join()
