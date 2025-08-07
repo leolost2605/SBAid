@@ -113,12 +113,12 @@ class GlobalSQLiteTest(unittest.TestCase):
                               DateTime.new_now(TimeZone.new_utc()))
 
         await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
-                                            "my_snapshot_id", "my_cross_section_name",
-                                            BDisplay.OFF)
+                                            "my_snapshot_id", "my_cross_section_id",
+                                            "my_cross_section_name", BDisplay.OFF)
         self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 1)
         await db.add_cross_section_snapshot("my_cross_section_snapshot_id_2",
-                                            "my_snapshot_id", "my_cross_section_name",
-                                            BDisplay.OFF)
+                                            "my_snapshot_id", "my_cross_section_id2",
+                                            "my_cross_section_name", BDisplay.OFF)
         self.assertEqual(len(await db.get_all_cross_section_snapshots("my_snapshot_id")), 2)
 
         await file.delete_async(0, None)
@@ -135,7 +135,8 @@ class GlobalSQLiteTest(unittest.TestCase):
         await db.add_snapshot("my_snapshot_id", "my_result_id",
                               DateTime.new_now(TimeZone.new_utc()))
         await db.add_cross_section_snapshot("my_cross_section_snapshot_id", "my_snapshot_id",
-                                             "my_cross_section_name", BDisplay.OFF)
+                                             "my_cross_section_id", "my_cross_section_name",
+                                            BDisplay.OFF)
         await db.add_lane_snapshot("my_lane_snapshot_id", "my_cross_section_snapshot_id",
                                    1, 129.35, 25, ADisplay.OFF)
 
@@ -199,6 +200,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         with self.assertRaises(ForeignKeyError):
             await db.add_cross_section_snapshot("my_cross_section_snapshot_id",
                                                 "my_nonexistent_snapshot_id",
+                                                "my_cross_section_id",
                                                 "my_cross_section_name", BDisplay.OFF)
         with self.assertRaises(ForeignKeyError):
             await db.add_lane_snapshot("my_lane_snapshot_id",
