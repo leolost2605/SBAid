@@ -37,8 +37,7 @@ class CrossSection(GObject.GObject):
         """Returns this cross section's name."""
         if self.__name is not None:
             return self.__name
-        raise Exception()
-        # return self.__cross_section.name
+        return self.__cross_section.name
 
     @name.setter  # type: ignore
     def name(self, value: str) -> None:  # pylint: disable=function-redefined
@@ -130,7 +129,10 @@ class CrossSection(GObject.GObject):
         self.__name = self.__cross_section.name
 
     async def save_to_db(self, simulator_cross_section: SimulatorCrossSection) -> None:
-        if await self.__project_db.get_cross_section_name(simulator_cross_section.id) == "temp_cs_name":
+        """Saves cross section data to database if there is no entry
+        for the given simulator cross section."""
+        if (await self.__project_db.get_cross_section_name(simulator_cross_section.id)
+                == "temp_cs_name"):
             await self.__project_db.add_cross_section(
                 simulator_cross_section.id, simulator_cross_section.name, False, False)
 
