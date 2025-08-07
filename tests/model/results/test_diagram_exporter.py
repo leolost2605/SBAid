@@ -10,11 +10,10 @@ class DiagramExporterTest(unittest.TestCase):
     exporter = DiagramExporter()
 
     def test_initialize(self):
-        self.assertEqual(len(self.exporter.available_diagram_types), 4)
+        self.assertEqual(len(self.exporter.available_diagram_types), 3)
         self.assertEqual(self.exporter.available_diagram_types[0].name, "Heatmap-Diagram")
         self.assertEqual(self.exporter.available_diagram_types[1].name, "QV-Diagram")
-        self.assertEqual(self.exporter.available_diagram_types[2].name, "Display-Diagram")
-        self.assertEqual(self.exporter.available_diagram_types[3].name, "Velocity-Diagram")
+        self.assertEqual(self.exporter.available_diagram_types[2].name, "Velocity-Diagram")
 
     def test_create_diagram(self):
         asyncio.run(self.__test_create_diagram())
@@ -26,19 +25,19 @@ class DiagramExporterTest(unittest.TestCase):
 
         png_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[1])
         self.assertIsNotNone(png_qv)
-        png_qv.save_to_file("./tests/model/results/generator_outputs/qv.png")
+        png_qv.save_to_file("./tests/model/results/generator_outputs/qv")
 
         svg_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[1])
         self.assertIsNotNone(svg_qv)
-        svg_qv.save_to_file("./tests/model/results/generator_outputs/qv.svg")
+        svg_qv.save_to_file("./tests/model/results/generator_outputs/qv")
 
-        png_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[3])
+        png_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[2])
         self.assertIsNotNone(png_velocity)
-        png_velocity.save_to_file("./tests/model/results/generator_outputs/velocity.png")
+        png_velocity.save_to_file("./tests/model/results/generator_outputs/velocity")
 
-        svg_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[3])
+        svg_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[2])
         self.assertIsNotNone(svg_velocity)
-        svg_velocity.save_to_file("./tests/model/results/generator_outputs/velocity.svg")
+        svg_velocity.save_to_file("./tests/model/results/generator_outputs/velocity")
 
         png_heatmap = self.exporter.get_diagram(result, self.__get_result_cross_section_ids(result),
                                                  ImageFormat.PNG, self.exporter.available_diagram_types[0])

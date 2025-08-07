@@ -10,6 +10,7 @@ from sbaid.view_model.results.result import Result as VMResult
 class ViewModelResultTestCase(unittest.TestCase):
     __global_db = unittest.mock.AsyncMock()
     __model_result_manager = ModelResultManager(__global_db)
+    __vm_result: VMResult
 
     def test_init(self):
         asyncio.run(self.__test_init())
@@ -20,17 +21,66 @@ class ViewModelResultTestCase(unittest.TestCase):
 
         await vm_result_manager.create_tag("test_tag")
         await vm_result_manager.create_tag("test_tag2")
-        vm_result = VMResult(result, vm_result_manager.available_tags)
+        self.__vm_result = VMResult(result, vm_result_manager.available_tags)
 
-        vm_result.cross_section.select_item(3, False)
-        vm_result.cross_section.select_item(2, False)
-        vm_result.cross_section.select_item(1, False)
+    def test_diagrams(self):
+        asyncio.run(self.__test_heatmap())
+        asyncio.run(self.__test_velocity_diagram())
+        asyncio.run(self.__test_qv_diagram())
 
-        vm_result.diagram_types.select_item(0, True)
-        vm_result.formats.select_item(0, True)
 
-        vm_result.load_previews()
-        vm_result.save_diagrams(r"C:\Users\PC\Desktop\python_testing_locally")
+
+    async def __test_heatmap(self):
+        """"""
+        await self.__test_init()
+        self.__vm_result.diagram_types.select_item(0, True)
+
+        # select 3 cross sections
+        self.__vm_result.cross_section.select_item(3, False)
+        self.__vm_result.cross_section.select_item(2, False)
+        self.__vm_result.cross_section.select_item(1, False)
+
+        self.__vm_result.formats.select_item(0, True)
+
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
+        self.__vm_result.formats.select_item(1, True)
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
+    async def __test_qv_diagram(self):
+        await self.__test_init()
+        self.__vm_result.diagram_types.select_item(1, True)
+
+        # select 1 cross sections
+        self.__vm_result.cross_section.select_item(3, True)
+
+        self.__vm_result.formats.select_item(0, True)
+
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
+        self.__vm_result.formats.select_item(1, True)
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
+    async def __test_velocity_diagram(self):
+        await self.__test_init()
+        self.__vm_result.diagram_types.select_item(2, True)
+
+        # select cross section
+        self.__vm_result.cross_section.select_item(3, True)
+
+        self.__vm_result.formats.select_item(0, True)
+
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
+        self.__vm_result.formats.select_item(1, True)
+        self.__vm_result.load_previews()
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+
 
 
 

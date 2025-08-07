@@ -2,7 +2,6 @@
 from gi.repository import Gio, GObject
 from sbaid.common.image import Image
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
-from sbaid.model.results.display_generator import DisplayGenerator
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
 from sbaid.model.results.heatmap_generator import HeatmapGenerator
 from sbaid.model.results.qv_generator import QVGenerator

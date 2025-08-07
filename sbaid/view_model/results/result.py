@@ -34,7 +34,7 @@ class _ImageFormatWrapper(GObject.GObject):
 class _CrossSectionSnapshotWrapper(GObject.GObject):
     """Wrapper class containing cross-section snapshot information."""
 
-    cs_info = Tuple[str, str]
+    cs_info: Tuple[str, str]
 
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
@@ -126,10 +126,14 @@ class Result(GObject.GObject):
         """Saves one diagram to a file."""
         for index, image in enumerate(self.__previews):
             assert isinstance(image, Image)
-            # Construct a filename like: "image_0.png"
-            filename = f"image_{index}"
+            selected_diagram = self.__available_diagram_types.get_item(
+                self.diagram_types.get_selected())
+            assert isinstance(selected_diagram, DiagramType)
+            filename = selected_diagram.name + "_" + f"{index}"
             full_path = os.path.join(path, filename)
             image.save_to_file(full_path)
+
+        self.__previews.remove_all()
 
     def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
