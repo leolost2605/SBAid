@@ -34,9 +34,10 @@ class _CrossSectionSnapshotWrapper(GObject.GObject):
     """Wrapper class containing cross-section snapshot information."""
 
     cs_info = Tuple[str, str]
+
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
-        self.cs_info = Tuple[cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name]
+        self.cs_info = cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name
 
 
 class Result(GObject.GObject):
@@ -160,6 +161,7 @@ class Result(GObject.GObject):
     def load_previews(self) -> None:
         """Loads previews from a file."""
         id_list, image_format, diagram_type = self.__get_selected_diagram_information()
-        image = self.__diagram_exporter.get_diagram(self.__result, id_list, image_format,diagram_type)
+        image = self.__diagram_exporter.get_diagram(
+            self.__result, id_list, image_format,diagram_type)
         if image is not None:
             self.__previews.append(image)
