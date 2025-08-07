@@ -23,7 +23,8 @@ class SeabornImage(Image):
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""
-        with open(path, 'wb') as f:
+        path_with_ending = path + "." + self.__export_format.name.lower()
+        with open(path_with_ending, 'wb') as f:
             f.write(self._image_bytes)
 
     def do_snapshot(self, snapshot: Gdk.Snapshot, width: float, height: float) -> None:

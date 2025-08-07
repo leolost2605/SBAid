@@ -57,10 +57,10 @@ class DiagramExporter(GObject.GObject):
         self.__diagram_types.append(heatmap_gen.get_diagram_type())
         qv_gen = QVGenerator()
         self.__diagram_types.append(qv_gen.get_diagram_type())
-        display_gen = DisplayGenerator()
-        self.__diagram_types.append(display_gen.get_diagram_type())
+        # display_gen = DisplayGenerator()
+        # self.__diagram_types.append(display_gen.get_diagram_type())
         velocity_gen = VelocityGenerator()
         self.__diagram_types.append(velocity_gen.get_diagram_type())
 
-        self.__cross_section_gens = [qv_gen, display_gen, velocity_gen]
+        self.__cross_section_gens = [qv_gen, velocity_gen]
         self.__global_gens = [heatmap_gen]

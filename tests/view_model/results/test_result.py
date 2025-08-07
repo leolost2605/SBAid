@@ -22,6 +22,17 @@ class ViewModelResultTestCase(unittest.TestCase):
         await vm_result_manager.create_tag("test_tag2")
         vm_result = VMResult(result, vm_result_manager.available_tags)
 
+        vm_result.cross_section.select_item(3, False)
+        vm_result.cross_section.select_item(2, False)
+        vm_result.cross_section.select_item(1, False)
+
+        vm_result.diagram_types.select_item(0, True)
+        vm_result.formats.select_item(0, True)
+
+        vm_result.load_previews()
+        vm_result.save_diagrams(r"C:\Users\PC\Desktop\python_testing_locally")
+
+
 
 if __name__ == '__main__':
     unittest.main()

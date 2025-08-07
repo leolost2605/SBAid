@@ -1,6 +1,7 @@
 """
 This module contains the class that represents the result of simulation.
 """
+import os
 from typing import Tuple
 import sys
 import gi
@@ -37,7 +38,7 @@ class _CrossSectionSnapshotWrapper(GObject.GObject):
 
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
-        self.cs_info = cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name
+        self.cs_info = cs_snapshot.cross_section_id, cs_snapshot.cross_section_name
 
 
 class Result(GObject.GObject):
@@ -123,9 +124,12 @@ class Result(GObject.GObject):
 
     def save_diagrams(self, path: str) -> None:
         """Saves one diagram to a file."""
-        for image in self.__previews:
+        for index, image in enumerate(self.__previews):
             assert isinstance(image, Image)
-            image.save_to_file(path)
+            # Construct a filename like: "image_0.png"
+            filename = f"image_{index}"
+            full_path = os.path.join(path, filename)
+            image.save_to_file(full_path)
 
     def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
@@ -133,6 +137,7 @@ class Result(GObject.GObject):
         assert isinstance(diagram_type, DiagramType)
 
         id_list = []
+
         for i in range(self.cross_section.get_n_items()):
             if self.cross_section.is_selected(i):
                 wrapper = self.cross_section.get_item(i)
@@ -161,7 +166,9 @@ class Result(GObject.GObject):
     def load_previews(self) -> None:
         """Loads previews from a file."""
         id_list, image_format, diagram_type = self.__get_selected_diagram_information()
+
         image = self.__diagram_exporter.get_diagram(
-            self.__result, id_list, image_format,diagram_type)
+            self.__result, id_list, image_format, diagram_type)
+
         if image is not None:
             self.__previews.append(image)
