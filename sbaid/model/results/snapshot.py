@@ -53,8 +53,8 @@ class Snapshot(GObject.GObject):
         cross_section_ids = await self.__global_database.get_all_cross_section_snapshots(self.id)
         for cross_section in cross_section_ids:
             cross_section_snapshot = (CrossSectionSnapshot
-                                      (self.id, cross_section[0], cross_section[1],
-                                       "TODO", cross_section[2], self.__global_database))
+                                      (cross_section[1], cross_section[0], cross_section[2],
+                                       cross_section[3], cross_section[4], self.__global_database))
             await cross_section_snapshot.load_from_db()
             self.add_cross_section_snapshot(cross_section_snapshot)
 

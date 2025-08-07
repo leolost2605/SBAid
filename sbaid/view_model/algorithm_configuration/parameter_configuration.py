@@ -103,9 +103,10 @@ class ParameterConfiguration(GObject.Object):
         return CrossSectionParameter(slice_model, self.selected_cross_sections,
                                      self.__available_tags)
 
-    def __on_items_changed(self, position: int, removed: int, added: int) -> None:
-        for i in range(self.__sort_model.get_n_items()):
-            param = cast(ModelParameter, self.__sort_model.get_item(i))
+    def __on_items_changed(self, model: Gtk.SortListModel, position: int,
+                           removed: int, added: int) -> None:
+        for i in range(model.get_n_items()):
+            param = cast(ModelParameter, model.get_item(i))
             if param.cross_section is None:
                 continue
 

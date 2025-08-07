@@ -123,6 +123,7 @@ class ResultManager(GObject.GObject):
 
                 await self.__global_db.add_cross_section_snapshot(cs_snapshot.cs_snapshot_id,
                                                                   cs_snapshot.snapshot_id,
+                                                                  cs_snapshot.cross_section_id,
                                                                   cs_snapshot.cross_section_name,
                                                                   cs_snapshot.b_display)
 
