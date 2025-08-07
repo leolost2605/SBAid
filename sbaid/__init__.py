@@ -14,3 +14,4 @@ if __name__ == '__main__':
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
     app = Application()
     app.run(sys.argv)
+    asyncio.set_event_loop_policy(None)

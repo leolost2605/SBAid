@@ -88,7 +88,7 @@ class SimulationManager(GObject.GObject):
 
         await self.__simulator.stop_simulation()
 
-        result = self.__result_builder.end_result()
+        result = await self.__result_builder.end_result()
 
         self.__observer.finished(result.id)
 
