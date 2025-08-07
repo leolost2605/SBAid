@@ -9,6 +9,7 @@ import gi
 
 from sbaid import common
 from sbaid.view.main_page.project_main_page import ProjectMainPage
+from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
 from sbaid.view.parameter_editing.algo_configs_dialog import AlgoConfigsDialog
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
@@ -122,8 +123,11 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_run_simulation(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        # pylint: disable=undefined-variable
-        self.__nav_view.push(SimulationRunningPage(project))  # type: ignore # noqa
+        common.run_coro_in_background(self.__run_simulation(project))
+
+    async def __run_simulation(self, project: Project) -> None:
+        simulation = await project.start_simulation()
+        self.__nav_view.push(SimulationRunningPage(simulation))
 
     def __on_create_project(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project_creation = ProjectCreation(self.__context)

@@ -28,6 +28,7 @@ class Project(GObject.GObject):
     class is the entry point for a simulation."""
 
     __project_db: ProjectDatabase
+    __simulator: Simulator
     __name: str
 
     id: str = GObject.Property(type=str,  # type: ignore
@@ -73,11 +74,6 @@ class Project(GObject.GObject):
                                                     flags=GObject.ParamFlags.READABLE |
                                                     GObject.ParamFlags.WRITABLE)
 
-    simulator: Simulator = GObject.Property(type=Simulator,  # type: ignore
-                                            flags=GObject.ParamFlags.READABLE |
-                                            GObject.ParamFlags.WRITABLE |
-                                            GObject.ParamFlags.CONSTRUCT_ONLY)
-
     network: Network = GObject.Property(type=Network,  # type: ignore
                                         flags=GObject.ParamFlags.READABLE |
                                         GObject.ParamFlags.WRITABLE |
@@ -102,9 +98,9 @@ class Project(GObject.GObject):
 
         self.__project_db = ProjectSQLite(project_file.get_child("db"))
 
-        simulator = SimulatorFactory().get_simulator(sim_type)
+        self.__simulator = SimulatorFactory().get_simulator(sim_type)
 
-        network = Network(simulator, self.__project_db)
+        network = Network(self.__simulator, self.__project_db)
         algo_manager = AlgorithmConfigurationManager(network, self.__project_db)
 
         super().__init__(id=project_id,
@@ -113,7 +109,6 @@ class Project(GObject.GObject):
                          simulation_file_path=simulation_file_path,
                          created_at=GLib.DateTime.new_now_local(),
                          last_modified=GLib.DateTime.new_now_local(),  # TODO: QS
-                         simulator=simulator,
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
@@ -122,7 +117,7 @@ class Project(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
-        await self.simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
+        await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
         await self.network.load()
         await self.algorithm_configuration_manager.load()
 
@@ -142,7 +137,7 @@ class Project(GObject.GObject):
         if not algo_config:
             raise AlgorithmConfigurationException("No selected algorithm configuration found!")
 
-        manager = SimulationManager(self.name, algo_config, self.network, self.simulator,
+        manager = SimulationManager(self.name, algo_config, self.network, self.__simulator,
                                     self.result_manager, observer)
         manager.start()
         return manager
