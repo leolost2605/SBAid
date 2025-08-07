@@ -2,10 +2,10 @@
 This module contains the class that represents the result of simulation.
 """
 from typing import Tuple
-import gi
 import sys
-from gi.repository import GLib
+import gi
 from sbaid.common.diagram_type import DiagramType
+from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.diagram_exporter import DiagramExporter
@@ -15,29 +15,37 @@ from sbaid.model.results.snapshot import Snapshot
 
 try:
     gi.require_version('Gtk', '4.0')
-    from gi.repository import GObject, Gtk, Gio
+    from gi.repository import GObject, Gtk, Gio, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
+
 class _ImageFormatWrapper(GObject.GObject):
+    """Wrapper class for the ImageFormat enum."""
+
     image_format: ImageFormat
+
     def __init__(self, image_format: ImageFormat):
         super().__init__()
         self.format = image_format
 
+
 class _CrossSectionSnapshotWrapper(GObject.GObject):
-    """todo"""
+    """Wrapper class containing cross-section snapshot information."""
+
     cs_info = Tuple[str, str]
+
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
         self.cs_info = Tuple[cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name]
+
 
 class Result(GObject.GObject):
     """
     This class represents the result of simulation.
     """
-    id: str = GObject.Property(type=str)
+    id: str = GObject.Property(type=str)  # type: ignore[assignment]
 
     @id.getter  # type: ignore
     def id(self) -> str:
@@ -51,7 +59,7 @@ class Result(GObject.GObject):
         """Returns the name of the result."""
         return self.__result.result_name
 
-    @name.setter  #type: ignore
+    @name.setter  # type: ignore
     def name(self, name: str) -> None:
         """Sets the name of the result."""
         self.__result.result_name = name
@@ -59,7 +67,6 @@ class Result(GObject.GObject):
     creation_date_time: GLib.DateTime = GObject.Property(type=GLib.DateTime)
 
     @creation_date_time.getter  # type: ignore
-
     def creation_date_time(self) -> GLib.DateTime:
         """Returns the creation date of the result."""
         return self.__result.creation_date_time
@@ -72,7 +79,8 @@ class Result(GObject.GObject):
         return self.__result.project_name
 
     previews: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore[assignment]
-    @previews.getter # type: ignore
+
+    @previews.getter  # type: ignore
     def previews(self) -> Gio.ListModel:
         """Returns the previews of the result."""
         return self.__previews
@@ -110,14 +118,15 @@ class Result(GObject.GObject):
 
         super().__init__(selected_tags=Gtk.MultiSelection.new(available_tags),
                          diagram_types=Gtk.SingleSelection.new(self.__available_diagram_types),
-                         cross_section=Gtk.MultiSelection.new(self.__get_cross_section_selection(result)),
+                         cross_section=Gtk.MultiSelection.
+                         new(self.__get_cross_section_selection(result)),
                          formats=Gtk.SingleSelection.new(self.__get_format_selection()))
 
     def save_diagrams(self, path: str) -> None:
         """Saves one diagram to a file."""
-        id_list, image_format, diagram_type = self.__get_selected_diagram_information()
-        image = self.__diagram_exporter.get_diagram(self.__result, id_list, image_format, diagram_type)
-        image.save_to_file(path)
+        for image in self.__previews:
+            assert isinstance(image, Image)
+            image.save_to_file(path)
 
     def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
@@ -143,16 +152,17 @@ class Result(GObject.GObject):
             cross_section_selections.append(_CrossSectionSnapshotWrapper(cross_section))
         return cross_section_selections
 
-
     def __get_format_selection(self) -> Gio.ListModel:
-        format_selections = Gio.ListStore.new(ImageFormat)
-        for image_format in ImageFormat:
-            format_selections.append(_ImageFormatWrapper(image_format))
+        """Returns the format options as a ListModel"""
+        format_selections = Gio.ListStore.new(_ImageFormatWrapper)
+        for i in range(len(ImageFormat)):
+            format_selections.append(_ImageFormatWrapper(ImageFormat(i)))
         return format_selections
 
     def load_previews(self):
         """Loads previews from a file."""
         id_list, image_format, diagram_type = self.__get_selected_diagram_information()
+
         for cs_id in id_list:
             self.__previews.append(self.__diagram_exporter.get_diagram(self.__result,
                                                                        [cs_id],
