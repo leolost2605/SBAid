@@ -107,7 +107,7 @@ class SimulationManager(GObject.GObject):
         cs_states = []
         for cs in common.list_model_iterator(self.__network.cross_sections):
             cs_states.append(CrossSectionState(cs.id, cs.type, cs.lanes,
-                                               cs.b_display_available, cs.hard_shoulder_available))
+                                               cs.b_display_active, cs.hard_shoulder_active))
         return NetworkState(locations, cs_states)
 
     def __add_to_results(self, measurement: Input,
