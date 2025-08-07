@@ -3,6 +3,8 @@
 
 import asyncio
 from gi.repository import GObject
+
+import sbaid.common
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
@@ -35,7 +37,8 @@ class CrossSection(GObject.GObject):
         """Returns this cross section's name."""
         if self.__name is not None:
             return self.__name
-        return self.__cross_section.name
+        raise Exception()
+        # return self.__cross_section.name
 
     @name.setter  # type: ignore
     def name(self, value: str) -> None:  # pylint: disable=function-redefined
@@ -118,12 +121,18 @@ class CrossSection(GObject.GObject):
         self.__cross_section = simulator_cross_section
         self.__project_db = project_db
         self.__background_tasks = set()
+        sbaid.common.run_coro_in_background(self.save_to_db(simulator_cross_section))
         self.__hard_shoulder_available = simulator_cross_section.hard_shoulder_available
         if self.__hard_shoulder_available:
-            self.hard_shoulder_active = False
-        self.b_display_active = False
+            self.__hard_shoulder_active = False
+        self.__b_display_active = False
 
-        self.name = self.__cross_section.name
+        self.__name = self.__cross_section.name
+
+    async def save_to_db(self, simulator_cross_section: SimulatorCrossSection) -> None:
+        if await self.__project_db.get_cross_section_name(simulator_cross_section.id) == "temp_cs_name":
+            await self.__project_db.add_cross_section(
+                simulator_cross_section.id, simulator_cross_section.name, False, False)
 
     async def load_from_db(self) -> None:
         """Loads cross section details from the database."""
