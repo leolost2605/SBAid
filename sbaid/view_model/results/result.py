@@ -126,10 +126,14 @@ class Result(GObject.GObject):
         """Saves one diagram to a file."""
         for index, image in enumerate(self.__previews):
             assert isinstance(image, Image)
+
             selected_diagram = self.__available_diagram_types.get_item(
                 self.diagram_types.get_selected())
             assert isinstance(selected_diagram, DiagramType)
+
+
             filename = selected_diagram.name + "_" + f"{index}"
+
             full_path = os.path.join(path, filename)
             image.save_to_file(full_path)
 
@@ -151,7 +155,7 @@ class Result(GObject.GObject):
         return id_list, image_format, diagram_type
 
     def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
-        """Returns the cross section information """
+        """Returns the cross-section information for """
         cross_section_selections = Gio.ListStore.new(_CrossSectionSnapshotWrapper)
         snapshot = result.snapshots.get_item(0)
         assert isinstance(snapshot, Snapshot)
