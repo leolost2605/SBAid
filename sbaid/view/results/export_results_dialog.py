@@ -89,7 +89,7 @@ class ExportResultsDialog(Adw.Window):
         toolbar_view.add_bottom_bar(export_button)
 
         self.set_content(toolbar_view)
-        self.set_title("Export " + result.title)
+        self.set_title("Export " + result.name)
 
     def __setup_cross_section_row(self, factory: Gtk.SignalListItemFactory,
                                   obj: GObject.Object) -> None:
