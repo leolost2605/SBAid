@@ -19,22 +19,22 @@ class Result(GObject.GObject):
     """
 
     # GObject.Property definitions
-    id = GObject.Property(
+    id: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    result_name = GObject.Property(
+    result_name: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
-    project_name = GObject.Property(
+    project_name: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    creation_date_time = GObject.Property(
+    creation_date_time: GLib.DateTime = GObject.Property(   # type: ignore
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |

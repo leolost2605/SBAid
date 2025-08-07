@@ -1,14 +1,13 @@
 import asyncio
 import unittest
 from unittest import mock
-
 from sbaid.common.tag import Tag
 from sbaid.model.results.result_manager import ResultManager as ModelResultManager
 from sbaid.view_model.results.result_manager import ResultManager as ViewResultManager
 from tests.model.results.test_result_builder import ResultBuilderTest
 
 
-class ViewModelResultManager(unittest.TestCase):
+class ViewModelResultManagerTest(unittest.TestCase):
     __global_db = unittest.mock.AsyncMock()
     __model_result_manager = ModelResultManager(__global_db)
 

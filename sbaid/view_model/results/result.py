@@ -10,7 +10,6 @@ from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.diagram_exporter import DiagramExporter
 from sbaid.model.results.result import Result as ModelResult
-from sbaid.model.results.seaborn_image import SeabornImage
 from sbaid.model.results.snapshot import Snapshot
 
 try:
@@ -35,7 +34,6 @@ class _CrossSectionSnapshotWrapper(GObject.GObject):
     """Wrapper class containing cross-section snapshot information."""
 
     cs_info = Tuple[str, str]
-
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
         self.cs_info = Tuple[cs_snapshot.cs_snapshot_id, cs_snapshot.cross_section_name]
@@ -45,14 +43,14 @@ class Result(GObject.GObject):
     """
     This class represents the result of simulation.
     """
-    id: str = GObject.Property(type=str)  # type: ignore[assignment]
+    id = GObject.Property(type=str)
 
     @id.getter  # type: ignore
     def id(self) -> str:
         """Returns the id of the result."""
         return self.__result.id
 
-    name: str = GObject.Property(type=str)
+    name: str = GObject.Property(type=str)  # type: ignore
 
     @name.getter  # type: ignore
     def name(self) -> str:
@@ -64,14 +62,14 @@ class Result(GObject.GObject):
         """Sets the name of the result."""
         self.__result.result_name = name
 
-    creation_date_time: GLib.DateTime = GObject.Property(type=GLib.DateTime)
+    creation_date_time: GLib.DateTime = GObject.Property(type=GLib.DateTime)  # type: ignore
 
     @creation_date_time.getter  # type: ignore
     def creation_date_time(self) -> GLib.DateTime:
         """Returns the creation date of the result."""
         return self.__result.creation_date_time
 
-    project_name: str = GObject.Property(type=str)
+    project_name: str = GObject.Property(type=str)  # type: ignore
 
     @project_name.getter  # type: ignore
     def project_name(self) -> str:
@@ -114,7 +112,7 @@ class Result(GObject.GObject):
         self.__result = result
         self.__diagram_exporter = DiagramExporter()
         self.__available_diagram_types = self.__diagram_exporter.available_diagram_types
-        self.__previews = Gio.ListStore.new(SeabornImage)
+        self.__previews = Gio.ListStore.new(Image)
 
         super().__init__(selected_tags=Gtk.MultiSelection.new(available_tags),
                          diagram_types=Gtk.SingleSelection.new(self.__available_diagram_types),
@@ -159,12 +157,9 @@ class Result(GObject.GObject):
             format_selections.append(_ImageFormatWrapper(ImageFormat(i)))
         return format_selections
 
-    def load_previews(self):
+    def load_previews(self) -> None:
         """Loads previews from a file."""
         id_list, image_format, diagram_type = self.__get_selected_diagram_information()
-
-        for cs_id in id_list:
-            self.__previews.append(self.__diagram_exporter.get_diagram(self.__result,
-                                                                       [cs_id],
-                                                                       image_format,
-                                                                       diagram_type))
+        image = self.__diagram_exporter.get_diagram(self.__result, id_list, image_format,diagram_type)
+        if image is not None:
+            self.__previews.append(image)
