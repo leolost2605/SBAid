@@ -121,7 +121,7 @@ class AlgorithmConfiguration(GObject.GObject):
         self.__name = str(await self.__db.get_algorithm_configuration_name(self.id))
         script_path = await self.__db.get_script_path(self.id)
         if script_path is not None:
-            self.__script_path = str(await self.__db.get_script_path(self.id))
+            self.__script_path = script_path
         eval_int = await self.__db.get_evaluation_interval(self.id)
         if eval_int is not None:
             self.__evaluation_interval = eval_int
