@@ -331,7 +331,9 @@ class VissimConnector:
         self.__thread = Thread(target=self.__thread_func, args=(self.__queue,), daemon=True)
         self.__thread.start()
 
-        Gio.Application.get_default().connect("shutdown", self.__on_app_shutdown)
+        app = Gio.Application.get_default()  # pylint: disable=no-value-for-parameter
+        if app:
+            app.connect("shutdown", self.__on_app_shutdown)
 
     async def __push_command(self, func: Callable[..., Any] | None, *args: Any) -> Any:
         command = _VissimCommand(func, *args)
