@@ -85,6 +85,12 @@ class _AlgoConfigView(Adw.Bin):
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
 
+        value_type_factory = Gtk.SignalListItemFactory()
+        value_type_factory.connect("setup", self.__setup_param_value_type_cell)
+        value_type_factory.connect("bind", self.__bind_param_cell)
+
+        value_type_column = Gtk.ColumnViewColumn.new("Value Type", value_type_factory)
+
         value_factory = Gtk.SignalListItemFactory()
         value_factory.connect("setup", self.__setup_param_value_cell)
         value_factory.connect("bind", self.__bind_param_cell)
@@ -101,6 +107,7 @@ class _AlgoConfigView(Adw.Bin):
         column_view.set_hexpand(True)
         column_view.set_vexpand(True)
         column_view.append_column(name_column)
+        column_view.append_column(value_type_column)
         column_view.append_column(value_column)
         column_view.append_column(tag_column)
 
@@ -154,11 +161,15 @@ class _AlgoConfigView(Adw.Bin):
 
         return self.__search_entry.get_text().strip() in param.name
 
-
     def __setup_param_name_cell(self, factory: Gtk.SignalListItemFactory,
                                 obj: GObject.Object) -> None:
         list_item = cast(Gtk.ListItem, obj)
         list_item.set_child(ParamCell(ParamCellType.NAME))
+
+    def __setup_param_value_type_cell(self, factory: Gtk.SignalListItemFactory,
+                                      obj: GObject.Object) -> None:
+        list_item = cast(Gtk.ListItem, obj)
+        list_item.set_child(ParamCell(ParamCellType.VALUE_TYPE))
 
     def __setup_param_value_cell(self, factory: Gtk.SignalListItemFactory,
                                  obj: GObject.Object) -> None:
@@ -350,8 +361,10 @@ class AlgoConfigsDialog(Adw.Window):
         if not row:
             return
 
+        self.__manager.algorithm_configurations.set_selected(row.get_index())
+
         config = cast(AlgorithmConfiguration,
-                      self.__manager.algorithm_configurations.get_item(row.get_index()))
+                      self.__manager.algorithm_configurations.get_selected_item())
         self.__algo_config_view.set_algo_config(config)
 
     def __on_add_clicked(self, button: Gtk.Button) -> None:
