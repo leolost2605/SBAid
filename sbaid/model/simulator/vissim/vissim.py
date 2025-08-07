@@ -36,6 +36,7 @@ class _VissimCommand:
 
     def __init__(self, func: Callable[..., Any] | None, *args: Any) -> None:
         self.future = asyncio.get_event_loop().create_future()
+        self.future.add_done_callback(lambda x: print("executed"))
         self.func = func
         self.args = args
 
@@ -52,9 +53,11 @@ class _VissimCommand:
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self.future.get_loop().call_soon_threadsafe(self.future.set_exception, e)
 
+            GLib.idle_add(lambda: GLib.SOURCE_REMOVE)  # Make sure we get a loop iteration
             return True
 
         self.future.get_loop().call_soon_threadsafe(self.future.set_result, None)
+        GLib.idle_add(lambda: GLib.SOURCE_REMOVE)  # Make sure we get a loop iteration
         return False
 
 
