@@ -142,7 +142,7 @@ class ProjectSQLite(ProjectDatabase):
                                   [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
-                    return ""
+                    return None
                 return str(list(result)[0])
 
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:

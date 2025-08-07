@@ -1,12 +1,9 @@
 import asyncio
 import unittest
-
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
-
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
-
 
 class ContextTestCase(unittest.TestCase):
     def test(self):
