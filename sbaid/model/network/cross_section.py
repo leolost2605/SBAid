@@ -131,8 +131,7 @@ class CrossSection(GObject.GObject):
     async def save_to_db(self, simulator_cross_section: SimulatorCrossSection) -> None:
         """Saves cross section data to database if there is no entry
         for the given simulator cross section."""
-        if (await self.__project_db.get_cross_section_name(simulator_cross_section.id)
-                == "temp_cs_name"):
+        if await self.__project_db.get_cross_section_name(simulator_cross_section.id) is None:
             await self.__project_db.add_cross_section(
                 simulator_cross_section.id, simulator_cross_section.name, False, False)
 

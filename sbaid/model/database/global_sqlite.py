@@ -168,7 +168,7 @@ class GlobalSQLite(GlobalDatabase):
             """, [result_id])
             await db.commit()
 
-    async def get_result_name(self, result_id: str) -> str:
+    async def get_result_name(self, result_id: str) -> str | None:
         """Return the name of the given result_id from the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
@@ -176,7 +176,7 @@ class GlobalSQLite(GlobalDatabase):
             """, [result_id]) as cursor:
                 res = await cursor.fetchall()
                 if not res:
-                    return "temp_result_name"
+                    return None
                 return str(list(res)[0][0])
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
@@ -193,7 +193,7 @@ class GlobalSQLite(GlobalDatabase):
             DELETE FROM tag WHERE id = ?;""", (tag_id,))
             await db.commit()
 
-    async def get_tag_name(self, tag_id: str) -> str:
+    async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
@@ -201,7 +201,7 @@ class GlobalSQLite(GlobalDatabase):
             """, [tag_id]) as cursor:
                 result = await cursor.fetchall()
                 if not result:
-                    return "temp_tag_name"
+                    return None
                 return str(list(result)[0][0])
 
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:

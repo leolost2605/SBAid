@@ -118,10 +118,14 @@ class AlgorithmConfiguration(GObject.GObject):
         """
         Loads the meta data about this algorithm configuration like name, etc. from the database.
         """
-        self.__name = await self.__db.get_algorithm_configuration_name(self.id)
-        self.__script_path = await self.__db.get_script_path(self.id)
-        self.__evaluation_interval = await self.__db.get_evaluation_interval(self.id)
-        self.__display_interval = await self.__db.get_display_interval(self.id)
+        self.__name = str(await self.__db.get_algorithm_configuration_name(self.id))
+        self.__script_path = str(await self.__db.get_script_path(self.id))
+        eval_int = await self.__db.get_evaluation_interval(self.id)
+        if eval_int is not None:
+            self.__evaluation_interval = eval_int
+        display_int = await self.__db.get_display_interval(self.id)
+        if display_int is not None:
+            self.__display_interval = display_int
         await self.__load_algorithm()
 
     async def __load_algorithm(self) -> None:
