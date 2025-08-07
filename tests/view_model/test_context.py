@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import Mock
-
 from gi.repository import Gio
 
 from sbaid.common.simulator_type import SimulatorType
@@ -14,7 +13,9 @@ class ContextTestCase(unittest.TestCase):
     def test_simple(self):
         model_context = Mock()
         model_context.projects = Gio.ListStore.new(ModelProject)
-        res_manager = ResultManager()
+
+        global_mock_db = unittest.mock.AsyncMock()
+        res_manager = ResultManager(global_mock_db)
         my_model_project = ModelProject("my_project_id", SimulatorType("dummy_json", "JSON Dummy"),
                                      "sim_path", "proj_file_path", res_manager)
         model_context.projects.append(my_model_project)
