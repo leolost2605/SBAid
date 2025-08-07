@@ -68,7 +68,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         await db.remove_algorithm_configuration("my_algorithm_configuration_id_2")
 
-        self.assertEqual(await db.get_selected_algorithm_configuration_id(), "")
+        self.assertEqual(await db.get_selected_algorithm_configuration_id(), None)
 
         await db.add_algorithm_configuration("my_algorithm_configuration_id_2",
                                              "my_algorithm_configuration_name", 1, 1, "my_path")

@@ -12,7 +12,7 @@ class ProjectDatabase(ABC):
         """Opens the file for the database."""
 
     @abstractmethod
-    async def get_created_at(self) -> GLib.DateTime:
+    async def get_created_at(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was created."""
 
     @abstractmethod
@@ -20,7 +20,7 @@ class ProjectDatabase(ABC):
         """Update the GLib.DateTime when the project was last modified."""
 
     @abstractmethod
-    async def get_project_name(self) -> str:
+    async def get_project_name(self) -> str | None:
         """Return the name of the project."""
 
     @abstractmethod
@@ -28,7 +28,7 @@ class ProjectDatabase(ABC):
         """Update the name of the project."""
 
     @abstractmethod
-    async def get_cross_section_name(self, cross_section_id: str) -> str:
+    async def get_cross_section_name(self, cross_section_id: str) -> str | None:
         """Return the name of the cross_section with the given id."""
 
     @abstractmethod
@@ -36,7 +36,7 @@ class ProjectDatabase(ABC):
         """Update the name of the cross_section with the given id."""
 
     @abstractmethod
-    async def get_cross_section_hard_shoulder_active(self, cross_section_id: str) -> bool:
+    async def get_cross_section_hard_shoulder_active(self, cross_section_id: str) -> bool | None:
         """Return whether the hard should is active for the given cross section."""
 
     @abstractmethod
@@ -45,7 +45,7 @@ class ProjectDatabase(ABC):
         """Update whether the hard should is active for the given cross section."""
 
     @abstractmethod
-    async def get_cross_section_b_display_active(self, cross_section_id: str) -> bool:
+    async def get_cross_section_b_display_active(self, cross_section_id: str) -> bool | None:
         """Return whether the b is active for the given cross section."""
 
     @abstractmethod
@@ -53,7 +53,7 @@ class ProjectDatabase(ABC):
         """Update whether the b is active for the given cross section."""
 
     @abstractmethod
-    async def get_algorithm_configuration_name(self, algorithm_configuration_id: str) -> str:
+    async def get_algorithm_configuration_name(self, algorithm_configuration_id: str) -> str | None:
         """Return the name of the algorithm_configuration with the given id."""
 
     @abstractmethod
@@ -75,7 +75,7 @@ class ProjectDatabase(ABC):
         """Return all algorithm_configuration ids."""
 
     @abstractmethod
-    async def get_selected_algorithm_configuration_id(self) -> str:
+    async def get_selected_algorithm_configuration_id(self) -> str | None:
         """Return the currently selected algorithm_configuration id."""
 
     @abstractmethod
@@ -83,7 +83,7 @@ class ProjectDatabase(ABC):
         """Update the currently selected algorithm_configuration id."""
 
     @abstractmethod
-    async def get_display_interval(self, algorithm_configuration_id: str) -> int:
+    async def get_display_interval(self, algorithm_configuration_id: str) -> int | None:
         """Return the display interval of the given algorithm_configuration id."""
 
     @abstractmethod
@@ -91,7 +91,7 @@ class ProjectDatabase(ABC):
         """Update the display interval of the given algorithm_configuration id."""
 
     @abstractmethod
-    async def get_evaluation_interval(self, algorithm_configuration_id: str) -> int:
+    async def get_evaluation_interval(self, algorithm_configuration_id: str) -> int | None:
         """Return the evaluation interval of the given algorithm_configuration id."""
 
     @abstractmethod
@@ -100,7 +100,7 @@ class ProjectDatabase(ABC):
         """Update the evaluation interval of the given algorithm_configuration id."""
 
     @abstractmethod
-    async def get_script_path(self, algorithm_configuration_id: str) -> str:
+    async def get_script_path(self, algorithm_configuration_id: str) -> str | None:
         """Return the scrip path of the given algorithm_configuration id."""
 
     @abstractmethod
@@ -164,7 +164,7 @@ class ProjectDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
-    async def get_tag_name(self, tag_id: str) -> str:
+    async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
 
     @abstractmethod
@@ -179,7 +179,7 @@ class ProjectDatabase(ABC):
         """Remove a parameter tag entry."""
 
     @abstractmethod
-    async def get_all_tags(self) -> tuple[str, str]:
+    async def get_all_tags(self) -> list[tuple[str, str]]:
         """Return the id and name for all tags in this project."""
 
     @abstractmethod

@@ -44,7 +44,7 @@ class GlobalDatabase(ABC):
         """Remove a result and all sub-results from the database."""
 
     @abstractmethod
-    async def get_result_name(self, result_id: str) -> str:
+    async def get_result_name(self, result_id: str) -> str | None:
         """Return the name of the given result_id from the database."""
 
     @abstractmethod
@@ -56,7 +56,7 @@ class GlobalDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
-    async def get_tag_name(self, tag_id: str) -> str:
+    async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
 
     @abstractmethod

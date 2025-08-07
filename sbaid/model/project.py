@@ -151,9 +151,15 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         await self.__project_db.open()
-        self.__name = await self.__project_db.get_project_name()
-        self.created_at = await self.__project_db.get_created_at()
-        self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
+        name = await self.__project_db.get_project_name()
+        if name is not None:
+            self.__name = name
+        created_at = await self.__project_db.get_created_at()
+        if created_at is not None:
+            self.created_at = created_at
+        last_modified = await self.__project_db.get_last_modified()
+        if last_modified is not None:
+            self.last_modified = last_modified  # TODO: QS
 
     async def delete(self) -> None:
         """Deletes the project database file."""
