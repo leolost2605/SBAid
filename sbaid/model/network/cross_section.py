@@ -1,10 +1,7 @@
-#  pylint: disable=too-many-instance-attributes
 """This module contains the cross section class."""
 
 import asyncio
 from gi.repository import GObject
-
-import sbaid.common
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
@@ -116,24 +113,13 @@ class CrossSection(GObject.GObject):
     def __init__(self, simulator_cross_section: SimulatorCrossSection,
                  project_db: ProjectDatabase) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
-        super().__init__()
         self.__cross_section = simulator_cross_section
         self.__project_db = project_db
         self.__background_tasks = set()
-        sbaid.common.run_coro_in_background(self.save_to_db(simulator_cross_section))
-        self.__hard_shoulder_available = simulator_cross_section.hard_shoulder_available
-        if self.__hard_shoulder_available:
-            self.__hard_shoulder_active = False
         self.__b_display_active = False
-
+        self.__hard_shoulder_active = False
         self.__name = self.__cross_section.name
-
-    async def save_to_db(self, simulator_cross_section: SimulatorCrossSection) -> None:
-        """Saves cross section data to database if there is no entry
-        for the given simulator cross section."""
-        if await self.__project_db.get_cross_section_name(simulator_cross_section.id) is None:
-            await self.__project_db.add_cross_section(
-                simulator_cross_section.id, simulator_cross_section.name, False, False)
+        super().__init__()
 
     async def load_from_db(self) -> None:
         """Loads cross section details from the database."""
