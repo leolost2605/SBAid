@@ -52,7 +52,14 @@ class SimulationManager(GObject.GObject):
     def start(self) -> None:
         """Start the simulation"""
 
-        self.__simulation_task = asyncio.create_task(self.__run_simulation())
+        self.__simulation_task = asyncio.create_task(self.__try_run_simulation())
+
+    async def __try_run_simulation(self) -> None:
+        try:
+            await self.__run_simulation()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to simulate: ", e)
+            self.__observer.failed(GLib.Error("Failed to simulate: " + str(e)))
 
     async def __run_simulation(self) -> None:
         simulation_start_time, simulation_duration = await self.__simulator.init_simulation()
