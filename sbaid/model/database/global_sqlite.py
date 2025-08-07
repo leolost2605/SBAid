@@ -282,7 +282,7 @@ class GlobalSQLite(GlobalDatabase):
                 await db.execute("""
                 INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
                 cross_section_name, b_display)
-                VALUES (?, ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?);
                 """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
                       cross_section_name, b_display.value))
                 await db.commit()
