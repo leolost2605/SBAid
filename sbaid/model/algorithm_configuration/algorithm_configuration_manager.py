@@ -25,7 +25,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
     __db: ProjectDatabase
     __network: Network
 
-    __selected_algo_config: str | None
+    __selected_algo_config: str | None = None
     __available_tags: Gio.ListStore
     __algorithm_configurations: Gio.ListStore
 
