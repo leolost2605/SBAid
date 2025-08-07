@@ -96,7 +96,8 @@ class Result(GObject.GObject):
 
         for tag_id in tag_ids:
             tag_name = await self.__global_db.get_tag_name(tag_id)
-            self.add_tag(Tag(tag_id, tag_name))
+            if tag_name is not None:
+                self.add_tag(Tag(tag_id, tag_name))
 
     def add_snapshot(self, snapshot: Snapshot) -> None:
         """Adds a snapshot toe the list of snapshots"""
