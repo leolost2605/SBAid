@@ -1,3 +1,4 @@
+#  pylint: disable=too-many-instance-attributes
 """This module contains the cross section class."""
 
 import asyncio
