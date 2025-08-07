@@ -36,7 +36,6 @@ class _VissimCommand:
 
     def __init__(self, func: Callable[..., Any] | None, *args: Any) -> None:
         self.future = asyncio.get_event_loop().create_future()
-        self.future.add_done_callback(lambda x: print("executed"))
         self.func = func
         self.args = args
 
