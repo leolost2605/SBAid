@@ -274,14 +274,17 @@ class GlobalSQLite(GlobalDatabase):
                 return await cursor.fetchall()
 
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
-                                         cross_section_name: str, b_display: BDisplay) -> None:
+                                         cross_section_id: str, cross_section_name: str,
+                                         b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             try:
                 await db.execute("""
-                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_name, b_display)
+                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                cross_section_name, b_display)
                 VALUES (?, ?, ?, ?);
-                """, (cross_section_snapshot_id, snapshot_id, cross_section_name, b_display.value))
+                """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
+                      cross_section_name, b_display.value))
                 await db.commit()
             except sqlite3.IntegrityError as e:
                 raise ForeignKeyError("Foreign key does not exist!") from e

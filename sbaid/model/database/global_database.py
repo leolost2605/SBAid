@@ -87,6 +87,7 @@ class GlobalDatabase(ABC):
     @abstractmethod
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
                                          snapshot_id: str,
+                                         cross_section_id: str,
                                          cross_section_name: str,
                                          b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
