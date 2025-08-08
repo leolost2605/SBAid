@@ -1,15 +1,13 @@
 """This module contains the all projects page."""
 import sys
-# import datetime
 
-from typing import cast, Any, Callable
+from typing import cast
 
 import gi
 
-# from babel.dates import format_datetime
-import sbaid.common
+from sbaid import common
+from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
-
 
 from sbaid.view_model.project import Project
 
@@ -55,108 +53,99 @@ class _RenameDialog(Adw.Dialog):
 
 
 class AllProjects(Adw.NavigationPage):
-    """This class represents the all projects page, where
-    all projects that are known to sbaid can be seen and edited."""
+    """
+    This class represents the all projects page, where
+    all projects that are known to sbaid can be seen and edited.
+    """
 
-    def __init__(self, context: Context) -> None:
+    def __init__(self, context: Context) -> None:  # pylint: disable=too-many-locals
         super().__init__()
         self.__context = context
 
-        self.right_click = Gtk.GestureClick(button=0)
-        self.right_click.set_button(0)
+        header_bar = Adw.HeaderBar()
 
         name_factory = Gtk.SignalListItemFactory()
-        name_factory.connect("bind", self.__on_factory_bind, lambda obj: obj.name)
-        name_factory.connect("setup", self.__on_factory_setup)
+        name_factory.connect("setup", self.__on_factory_setup, ProjectCellType.NAME)
+        name_factory.connect("bind", self.__on_factory_bind)
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
+        name_column.set_expand(True)
 
         last_modified_factory = Gtk.SignalListItemFactory()
-        # last_modified_factory.connect("bind", self.on_factory_bind,
-        #                               lambda obj: format_datetime(
-        #                                   datetime.datetime.fromisoformat(
-        #                                       obj.last_modified.format_iso8601()),
-        #                                   format="medium", locale='de'))
-        last_modified_factory.connect("bind", self.__on_factory_bind,
-                                      lambda obj: obj.last_modified.format_iso8601())
-        last_modified_factory.connect("setup", self.__on_factory_setup)
+        last_modified_factory.connect("setup", self.__on_factory_setup,
+                                      ProjectCellType.LAST_MODIFIED)
+        last_modified_factory.connect("bind", self.__on_factory_bind)
 
         last_modified_column = Gtk.ColumnViewColumn.new("Created at", last_modified_factory)
 
         created_at_factory = Gtk.SignalListItemFactory()
-        # created_at_factory.connect("bind", self.on_factory_bind,
-        #                            lambda obj: format_datetime(
-        #                                datetime.datetime.fromisoformat(
-        #                                    obj.created_at.format_iso8601()),
-        #                                format="medium", locale='de'))
-        last_modified_factory.connect("bind", self.__on_factory_bind,
-                                      lambda obj: obj.last_modified.format_iso8601())
-        created_at_factory.connect("setup", self.__on_factory_setup)
+        created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
+        last_modified_factory.connect("bind", self.__on_factory_bind)
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Modified", last_modified_factory)
 
-        self.selection = Gtk.SingleSelection()
-        self.selection.set_model(self.__context.projects)
+        self.__selection = Gtk.SingleSelection.new(self.__context.projects)
 
-        # Create the column view and set the model
-        self.column_view = Gtk.ColumnView()
-        self.column_view.set_model(self.selection)
+        column_view = Gtk.ColumnView.new(self.__selection)
+        column_view.append_column(name_column)
+        column_view.append_column(last_modified_column)
+        column_view.append_column(created_at_column)
+        column_view.connect("activate", self.__on_activate)
 
-        self.column_view.append_column(name_column)
-        self.column_view.append_column(last_modified_column)
-        self.column_view.append_column(created_at_column)
+        column_view_scrolled = Gtk.ScrolledWindow(child=column_view, propagate_natural_width=True,
+                                                  propagate_natural_height=True)
 
-        self.column_view.add_controller(self.right_click)
+        column_view_frame = Gtk.Frame(child=column_view_scrolled, margin_top=12, margin_bottom=12,
+                                      margin_end=12, margin_start=12)
 
         delete_button = Gtk.Button(label="Delete")
-        open_button = Gtk.Button(label="Open")
-        project = self.selection.get_selected_item()
-        if self.selection.get_selected_item():
-            delete_button.connect("clicked", self.__on_delete)
-
-            open_button.set_action_name("win.open-project")
-            open_button.set_action_target_value(
-                GLib.Variant.new_string(project.id))  # type: ignore
+        delete_button.connect("clicked", self.__on_delete)
 
         rename_button = Gtk.Button(label="Rename", action_name="project.rename")
 
-        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        button_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+        button_box.set_margin_start(12)
+        button_box.set_margin_bottom(12)
         button_box.append(delete_button)
-        button_box.append(open_button)
         button_box.append(rename_button)
 
-        header_bar = Adw.HeaderBar()
         main_view = Adw.ToolbarView()
-
         main_view.add_top_bar(header_bar)
+        main_view.set_content(column_view_frame)
         main_view.add_bottom_bar(button_box)
-
-        main_view.set_content(self.column_view)
 
         self.set_child(main_view)
         self.set_title("All Projects")
 
         self.install_action("project.rename", None, self.__on_rename_project)
 
-    def __on_factory_setup(self, factory: Any, list_item: Gtk.ColumnViewCell) -> None:
-        label = Gtk.Label(xalign=0)
-        list_item.set_child(label)
+    @staticmethod
+    def __on_factory_setup(factory: Gtk.SignalListItemFactory,
+                           list_item: Gtk.ColumnViewCell, cell_type: ProjectCellType) -> None:
+        list_item.set_child(ProjectCell(cell_type))
 
-    def __on_factory_bind(self, factory: Any, list_item: Gtk.ColumnViewCell,
-                          get_text_func: Callable[[Any], str]) -> None:
-        item = list_item.get_item()
-        label = list_item.get_child()
-        label.set_text(get_text_func(item))  # type: ignore
+    @staticmethod
+    def __on_factory_bind(factory: Gtk.SignalListItemFactory,
+                          list_item: Gtk.ColumnViewCell) -> None:
+        project = cast(Project, list_item.get_item())
+        cell = cast(ProjectCell, list_item.get_child())
+        cell.bind(project)
+
+    def __on_activate(self, view: Gtk.ColumnView, pos: int) -> None:
+        model = view.get_model()
+        if model:
+            project = cast(Project, model.get_item(pos))  # type: ignore
+            self.activate_action("win.open-project", GLib.Variant.new_string(project.id))
 
     async def __delete_project(self, project: Project) -> None:
         await self.__context.delete_project(project.id)
 
     def __on_delete(self, widget: Gtk.Widget) -> None:
-        sbaid.common.run_coro_in_background(self.__delete_project(
-            cast(Project, self.selection.get_selected_item())))
+        common.run_coro_in_background(self.__delete_project(
+            cast(Project, self.__selection.get_selected_item())))
 
     def __on_rename_project(self, widget: Gtk.Widget, action_name: str,
                             parameter: GLib.Variant | None) -> None:
-        project = cast(Project, self.selection.get_selected_item())
+        project = cast(Project, self.__selection.get_selected_item())
         if project:
             _RenameDialog(project).present(cast(Adw.Window, self.get_root()))
