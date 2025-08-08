@@ -14,6 +14,7 @@ except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
+
 class ResultCellType(Enum):
     """
     The result property to be shown in the cell.
@@ -22,6 +23,7 @@ class ResultCellType(Enum):
     PROJECT_NAME = 1
     DATE = 2
     TAGS = 3
+
 
 class ResultCell(Adw.Bin):
     """
