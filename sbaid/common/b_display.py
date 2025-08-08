@@ -12,3 +12,4 @@ class BDisplay(GObject.GEnum):
     SNOW = 5
     SLIPPERY_ROAD = 6
     LORRY_NO_OVERTAKING = 7
+    NOT_AVAILABLE = 8

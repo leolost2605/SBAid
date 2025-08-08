@@ -10,10 +10,10 @@ class ParameterParser(ABC):
     """todo"""
 
     @abstractmethod
-    def can_handle(self, file: Gio.File) -> bool:
+    def can_handle(self, file_path: str) -> bool:
         """todo"""
 
     @abstractmethod
     async def for_each_parameter(self, file: Gio.File,
-                                 callback: ParameterParserForeachFunc) -> Tuple[int, int]:
+                                 foreach_func: ParameterParserForeachFunc) -> Tuple[int, int]:
         """todo"""
