@@ -39,7 +39,7 @@ class NotSupportedException(Exception):
 
 
 class DummySimulator(Simulator):
-    """This class implements the DummySimulator class using a JSON file for Input measurements."""
+    """This class implements the Simulator class using a JSON file for Input measurements."""
 
     _sequence: dict[int, Input]
     _pointer: int

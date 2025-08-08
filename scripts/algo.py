@@ -1,6 +1,3 @@
-# mypy: disable-error-code="empty-body"
-"""todo"""
-
 from gi.repository import Gio, GObject, GLib
 from typing_extensions import override
 
@@ -13,15 +10,12 @@ from sbaid.model.simulation.network_state import NetworkState
 
 
 class AlgorithmImpl(Algorithm):
-    """todo"""
-
     def __init__(self):
         super().__init__()
         print("inited")
 
     @override
     def get_global_parameter_template(self) -> Gio.ListModel:
-        """todo"""
         print("get global parameter template")
         store = Gio.ListStore.new(ParameterTemplate)
         store.append(ParameterTemplate("my param", GLib.VariantType.new("s"), None))
@@ -30,14 +24,12 @@ class AlgorithmImpl(Algorithm):
 
     @override
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
-        """todo"""
         print("get cross section parameter template")
         return Gio.ListStore.new(ParameterTemplate)
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
              network_state: NetworkState) -> None:
-        """todo"""
+        pass
 
     def calculate_display(self, algorithm_input: Input) -> Display:
-        """todo"""
         return Display()

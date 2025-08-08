@@ -81,7 +81,9 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
         self.__selected_algo_config = await self.__db.get_selected_algorithm_configuration_id()
 
-        # TODO: Get tags
+        tags = await self.__db.get_all_tags()
+        for tag_id, tag_name in tags:
+            self.__available_tags.append(Tag(tag_id, tag_name))
 
     async def create_algorithm_configuration(self) -> int:
         """

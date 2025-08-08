@@ -11,7 +11,7 @@ from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
 class MyTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.__db_mock = Mock()
+        self.__db_mock = AsyncMock()
         self.__db_mock.get_all_algorithm_configuration_ids = AsyncMock(return_value=["1", "2"])
         self.__db_mock.get_selected_algorithm_configuration_id = AsyncMock(return_value="1")
         self.__db_mock.get_algorithm_configuration_name = AsyncMock(return_value="test_algorithm_configuration")

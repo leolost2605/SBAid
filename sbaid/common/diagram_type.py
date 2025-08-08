@@ -3,7 +3,7 @@ from gi.repository import GObject
 
 
 class DiagramType(GObject.GObject):
-    """TODO"""
+    """This class represents a diagram type."""
     diagram_type_id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
@@ -16,5 +16,5 @@ class DiagramType(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, diagram_type_id: str, name: str) -> None:
-        """TODO"""
+        """Constructs the diagram type."""
         super().__init__(diagram_type_id=diagram_type_id, name=name)

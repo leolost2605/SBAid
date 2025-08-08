@@ -90,6 +90,6 @@ class CsvParserTest(unittest.TestCase):
         asyncio.run(self._test_invalid_misc())
 
     async def _test_invalid_misc(self):
-        """TODO: run with vissim"""
+        # TODO: run with vissim
         with self.assertRaises(FailedCrossSectionCreationException):
             await self._testing_callback_func("./tests/model/network/invalid_misc.csv"), (8,12)

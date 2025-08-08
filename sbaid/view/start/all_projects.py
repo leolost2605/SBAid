@@ -58,18 +58,6 @@ class AllProjects(Adw.NavigationPage):
     """This class represents the all projects page, where
     all projects that are known to sbaid can be seen and edited."""
 
-    def on_factory_setup(self, factory: Any, list_item: Gtk.ColumnViewCell) -> None:
-        """TODO"""
-        label = Gtk.Label(xalign=0)
-        list_item.set_child(label)
-
-    def on_factory_bind(self, factory: Any, list_item: Gtk.ColumnViewCell,
-                        get_text_func: Callable[[Any], str]) -> None:
-        """TODO"""
-        item = list_item.get_item()
-        label = list_item.get_child()
-        label.set_text(get_text_func(item))  # type: ignore
-
     def __init__(self, context: Context) -> None:
         super().__init__()
         self.__context = context
@@ -78,8 +66,8 @@ class AllProjects(Adw.NavigationPage):
         self.right_click.set_button(0)
 
         name_factory = Gtk.SignalListItemFactory()
-        name_factory.connect("bind", self.on_factory_bind, lambda obj: obj.name)
-        name_factory.connect("setup", self.on_factory_setup)
+        name_factory.connect("bind", self.__on_factory_bind, lambda obj: obj.name)
+        name_factory.connect("setup", self.__on_factory_setup)
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
 
@@ -89,9 +77,9 @@ class AllProjects(Adw.NavigationPage):
         #                                   datetime.datetime.fromisoformat(
         #                                       obj.last_modified.format_iso8601()),
         #                                   format="medium", locale='de'))
-        last_modified_factory.connect("bind", self.on_factory_bind,
+        last_modified_factory.connect("bind", self.__on_factory_bind,
                                       lambda obj: obj.last_modified.format_iso8601())
-        last_modified_factory.connect("setup", self.on_factory_setup)
+        last_modified_factory.connect("setup", self.__on_factory_setup)
 
         last_modified_column = Gtk.ColumnViewColumn.new("Created at", last_modified_factory)
 
@@ -101,9 +89,9 @@ class AllProjects(Adw.NavigationPage):
         #                                datetime.datetime.fromisoformat(
         #                                    obj.created_at.format_iso8601()),
         #                                format="medium", locale='de'))
-        last_modified_factory.connect("bind", self.on_factory_bind,
+        last_modified_factory.connect("bind", self.__on_factory_bind,
                                       lambda obj: obj.last_modified.format_iso8601())
-        created_at_factory.connect("setup", self.on_factory_setup)
+        created_at_factory.connect("setup", self.__on_factory_setup)
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Modified", last_modified_factory)
 
@@ -149,6 +137,16 @@ class AllProjects(Adw.NavigationPage):
         self.set_title("All Projects")
 
         self.install_action("project.rename", None, self.__on_rename_project)
+
+    def __on_factory_setup(self, factory: Any, list_item: Gtk.ColumnViewCell) -> None:
+        label = Gtk.Label(xalign=0)
+        list_item.set_child(label)
+
+    def __on_factory_bind(self, factory: Any, list_item: Gtk.ColumnViewCell,
+                          get_text_func: Callable[[Any], str]) -> None:
+        item = list_item.get_item()
+        label = list_item.get_child()
+        label.set_text(get_text_func(item))  # type: ignore
 
     async def __delete_project(self, project: Project) -> None:
         await self.__context.delete_project(project.id)
