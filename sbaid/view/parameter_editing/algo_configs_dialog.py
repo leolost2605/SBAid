@@ -8,6 +8,7 @@ from typing import cast
 import gi
 
 from sbaid import common
+from sbaid.view.parameter_editing.algo_config_row import AlgoConfigRow
 from sbaid.view.parameter_editing.cross_section_row import CrossSectionRow
 from sbaid.view.parameter_editing.param_cell import ParamCell, ParamCellType
 from sbaid.view_model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
@@ -302,6 +303,8 @@ class AlgoConfigsDialog(Adw.Window):
     def __init__(self, algo_config_manager: AlgorithmConfigurationManager):
         super().__init__()
 
+        self.install_action("algo-config.delete", "s", self.__on_delete)
+
         self.__manager = algo_config_manager
 
         collapse_button = Gtk.Button.new_from_icon_name("collapse")
@@ -359,9 +362,10 @@ class AlgoConfigsDialog(Adw.Window):
         self.__split_view.set_collapsed(not self.__split_view.get_collapsed())
 
     def __create_algo_config_row(self, algo_config: AlgorithmConfiguration) -> Gtk.Widget:
-        label = Gtk.Label(xalign=0)
-        algo_config.bind_property("name", label, "label", GObject.BindingFlags.SYNC_CREATE)
-        row = Gtk.ListBoxRow(child=label)
+        # TODO: Make recyclable (performance go brrr)
+        child = AlgoConfigRow()
+        child.bind(algo_config)
+        row = Gtk.ListBoxRow(child=child)
         row.set_action_name("navigation.push")
         row.set_action_target_value(GLib.Variant.new_string("algo_config_view"))
         return row
@@ -381,3 +385,14 @@ class AlgoConfigsDialog(Adw.Window):
 
     async def __add_algo_config(self) -> None:
         await self.__manager.create_algorithm_configuration()
+
+    def __on_delete(self, widget: Gtk.Widget, action_name: str,
+                    parameter: GLib.Variant | None) -> None:
+        if not parameter:
+            return
+
+        algo_id = parameter.get_string()
+        common.run_coro_in_background(self.__delete_algo_config(algo_id))
+
+    async def __delete_algo_config(self, config_id: str) -> None:
+        await self.__manager.delete_algorithm_configuration(config_id)

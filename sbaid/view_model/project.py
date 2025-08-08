@@ -28,7 +28,8 @@ class Project(GObject.Object):
         """Returns the id of this project"""
         return self.__project.id
 
-    name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
+    name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE |  # type: ignore
+                                 GObject.ParamFlags.WRITABLE)
 
     @name.getter  # type: ignore
     def name(self) -> str:
