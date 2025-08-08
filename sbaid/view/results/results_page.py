@@ -1,17 +1,17 @@
 """This module contains the results page."""
-import gi
 import sys
 from typing import cast
 
-from sbaid.view.results.result_cell import ResultCell, ResultCellType
+import gi
 
+from sbaid.view.results.result_cell import ResultCell, ResultCellType
 from sbaid.view_model.results.result import Result
 from sbaid.view_model.results.result_manager import ResultManager
 
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, GLib, GObject
+    from gi.repository import Gtk, Adw, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -26,7 +26,7 @@ class ResultsPage(Adw.NavigationPage):
     __search_entry: Gtk.SearchEntry
     __filter: Gtk.CustomFilter
 
-    def __init__(self, result_manager: ResultManager) -> None:
+    def __init__(self, result_manager: ResultManager) -> None:  # pylint: disable=too-many-locals
         super().__init__()
 
         self.__search_entry = Gtk.SearchEntry(placeholder_text="Search Results")
@@ -97,8 +97,10 @@ class ResultsPage(Adw.NavigationPage):
 
         tokens, ascii_tokens = GLib.str_tokenize_and_fold(self.__search_entry.get_text())
 
+        formatted_time = result.creation_date_time.format("%x %X")
+
         for token in tokens + ascii_tokens:
-            if token in result.name or token in result.creation_date_time.format("%x %X"):
+            if token in result.name or formatted_time and token in formatted_time:
                 return True
 
         return False

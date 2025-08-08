@@ -9,7 +9,7 @@ from sbaid.view_model.results.result import Result
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gtk
+    from gi.repository import Adw, Gtk
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -38,12 +38,20 @@ class ResultCell(Adw.Bin):
         self.set_child(self.__label)
 
     def bind(self, result: Result) -> None:
+        """
+        Binds the given result to this cell for display.
+        :param result: the result to bind
+        """
         match self.__type:
             case ResultCellType.RESULT_NAME:
                 self.__label.set_label(result.name)
             case ResultCellType.PROJECT_NAME:
                 self.__label.set_label(result.project_name)
             case ResultCellType.DATE:
-                self.__label.set_label(result.creation_date_time.format("%x %X"))
+                formatted_time = result.creation_date_time.format("%x %X")
+                if formatted_time:
+                    self.__label.set_label(formatted_time)
+                else:
+                    self.__label.set_label("Unknown Time")
             case ResultCellType.TAGS:
                 self.__label.set_label("Tags appear here")  # TODO
