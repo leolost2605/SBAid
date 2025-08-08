@@ -46,6 +46,10 @@ class GlobalParameter(Parameter):
 
         self.__parameter.value = value
 
+    def get_inconsistent(self) -> bool:
+        """Always returns false since global parameters can't be inconsistent."""
+        return False
+
     def get_selected_tags(self) -> Gtk.MultiSelection:
         """Returns the list of selected tags of the parameter."""
         return self.__tags

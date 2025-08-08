@@ -30,6 +30,13 @@ class Network(GObject.GObject):
     __network: ModelNetwork
     __cross_sections: Gtk.MapListModel
 
+    route_points: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
+
+    @route_points.getter  # type: ignore
+    def route_points(self) -> Gio.ListModel:
+        """Returns a model with the points of the route"""
+        return self.__network.route.points
+
     cross_sections: Gio.ListModel = GObject.Property(type=Gio.ListModel)  # type: ignore
 
     @cross_sections.getter  # type: ignore
@@ -71,3 +78,10 @@ class Network(GObject.GObject):
         :param new_location: the new location of the cross section
         """
         return await self.__network.move_cross_section(cs_id, new_location)
+
+    async def import_cross_sections(self, file: Gio.File) -> None:
+        """
+        Imports cross sections from the given file
+        :param file: the file to import cross sections from
+        """
+        await self.__network.import_from_file(file)

@@ -44,7 +44,7 @@ class GlobalDatabase(ABC):
         """Remove a result and all sub-results from the database."""
 
     @abstractmethod
-    async def get_result_name(self, result_id: str) -> str:
+    async def get_result_name(self, result_id: str) -> str | None:
         """Return the name of the given result_id from the database."""
 
     @abstractmethod
@@ -56,7 +56,7 @@ class GlobalDatabase(ABC):
         """Remove a tag from the database."""
 
     @abstractmethod
-    async def get_tag_name(self, tag_id: str) -> str:
+    async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
 
     @abstractmethod
@@ -81,12 +81,13 @@ class GlobalDatabase(ABC):
 
     @abstractmethod
     async def get_all_cross_section_snapshots(self, snapshot_id: str)\
-            -> list[tuple[str, str, BDisplay]]:
+            -> list[tuple[str, str, str, str, BDisplay]]:
         """Return all cross section snapshots from a given snapshot."""
 
     @abstractmethod
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str,
                                          snapshot_id: str,
+                                         cross_section_id: str,
                                          cross_section_name: str,
                                          b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""

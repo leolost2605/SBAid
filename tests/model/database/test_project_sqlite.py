@@ -68,7 +68,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         await db.remove_algorithm_configuration("my_algorithm_configuration_id_2")
 
-        self.assertEqual(await db.get_selected_algorithm_configuration_id(), "")
+        self.assertEqual(await db.get_selected_algorithm_configuration_id(), None)
 
         await db.add_algorithm_configuration("my_algorithm_configuration_id_2",
                                              "my_algorithm_configuration_name", 1, 1, "my_path")
@@ -111,7 +111,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
-        self.assertEqual(await db.get_cross_section_name("my_nonexistent_cross_section_id"), "")
+        self.assertEqual(await db.get_cross_section_name("my_nonexistent_cross_section_id"), None)
         await db.add_cross_section("my_cross_section_id", "my_cross_section_name", False, True)
 
         self.assertEqual(await db.get_cross_section_name("my_cross_section_id"), "my_cross_section_name")
@@ -131,7 +131,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         await db.remove_cross_section("my_cross_section_id_2")
 
-        self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), "")
+        self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), None)
 
         file.delete_async(0, None)
 

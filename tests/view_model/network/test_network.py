@@ -1,3 +1,4 @@
+import asyncio
 import unittest
 from unittest.mock import Mock, AsyncMock
 
@@ -9,8 +10,12 @@ from sbaid.view_model.network.network import Network
 from sbaid.model.network.cross_section import CrossSection as ModelCrossSection
 
 
-class MyTestCase(unittest.IsolatedAsyncioTestCase):
-    async def test_network(self):
+class MyTestCase(unittest.TestCase):
+
+    def test_network(self):
+        asyncio.run(self.__test_network())
+
+    async def __test_network(self):
         sim_cross_section_mock = Mock()
         sim_cross_section_mock.id = "My id"
         sim_cross_section_mock.lanes = 5

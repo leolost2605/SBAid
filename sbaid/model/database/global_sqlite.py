@@ -145,6 +145,8 @@ class GlobalSQLite(GlobalDatabase):
         """Return all results in the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT * FROM result;""") as cursor:
+                if cursor.rowcount == 0:
+                    return []
                 return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]),
                                            get_date_time(str(x[3]))), await cursor.fetchall()))
 
@@ -166,16 +168,16 @@ class GlobalSQLite(GlobalDatabase):
             """, [result_id])
             await db.commit()
 
-    async def get_result_name(self, result_id: str) -> str:
+    async def get_result_name(self, result_id: str) -> str | None:
         """Return the name of the given result_id from the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
             SELECT name FROM result WHERE id = ?;
             """, [result_id]) as cursor:
                 res = await cursor.fetchall()
-                if res:
-                    return str(list(res)[0][0])
-                return ""  # TODO empty list doesn't work
+                if not res:
+                    return None
+                return str(list(res)[0][0])
 
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
@@ -191,14 +193,16 @@ class GlobalSQLite(GlobalDatabase):
             DELETE FROM tag WHERE id = ?;""", (tag_id,))
             await db.commit()
 
-    async def get_tag_name(self, tag_id: str) -> str:
+    async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
             SELECT name FROM tag WHERE id = ?
             """, [tag_id]) as cursor:
-                result = list(await cursor.fetchall())
-                return str(result[0][0])
+                result = await cursor.fetchall()
+                if not result:
+                    return None
+                return str(list(result)[0][0])
 
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
@@ -242,8 +246,10 @@ class GlobalSQLite(GlobalDatabase):
         """Return all snapshots from a given result."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT id, date FROM snapshot;""") as cursor:
-                return list(map(lambda x: (str(x[0]), get_date_time(x[1])),
-                                await cursor.fetchall()))
+                res = await cursor.fetchall()
+                if not res:
+                    return []
+                return list(map(lambda x: (str(x[0]), get_date_time(x[1])), res))
 
     async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
         """Add a snapshot to a given result."""
@@ -259,23 +265,26 @@ class GlobalSQLite(GlobalDatabase):
                 raise ForeignKeyError("Foreign key does not exist!") from e
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
-            -> list[tuple[str, str, BDisplay]]:
+            -> list[tuple[str, str, str, str, BDisplay]]:
         """Return all cross section snapshots from a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
-            SELECT id, snapshot_id, b_display FROM cross_section_snapshot WHERE snapshot_id = ?;
-            """, [snapshot_id]) as cursor:
+            SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""",
+                                  [snapshot_id]) as cursor:
                 return await cursor.fetchall()
 
     async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
-                                         cross_section_name: str, b_display: BDisplay) -> None:
+                                         cross_section_id: str, cross_section_name: str,
+                                         b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             try:
                 await db.execute("""
-                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_name, b_display)
-                VALUES (?, ?, ?, ?);
-                """, (cross_section_snapshot_id, snapshot_id, cross_section_name, b_display.value))
+                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                cross_section_name, b_display)
+                VALUES (?, ?, ?, ?, ?);
+                """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
+                      cross_section_name, b_display.value))
                 await db.commit()
             except sqlite3.IntegrityError as e:
                 raise ForeignKeyError("Foreign key does not exist!") from e
@@ -287,8 +296,8 @@ class GlobalSQLite(GlobalDatabase):
             async with db.execute("""
             SELECT id, lane_number, average_speed, traffic_volume, a_display
             FROM lane_snapshot WHERE cross_section_snapshot_id = ?;
-            """, (cross_section_snapshot_id,)) as db_cursor:
-                return await db_cursor.fetchall()
+            """, (cross_section_snapshot_id,)) as cursor:
+                return await cursor.fetchall()
 
     async def add_lane_snapshot(self, lane_snapshot_id: str, cross_section_snapshot_id: str,
                                 lane: int, average_speed: float, traffic_volume: int,

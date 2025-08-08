@@ -28,6 +28,7 @@ class Project(GObject.GObject):
     class is the entry point for a simulation."""
 
     __project_db: ProjectDatabase
+    __simulator: Simulator
     __name: str
 
     id: str = GObject.Property(type=str,  # type: ignore
@@ -48,7 +49,6 @@ class Project(GObject.GObject):
     def name(self, new_name: str) -> None:
         """Sets the name of the project"""
         self.__name = new_name
-
         common.run_coro_in_background(self.__project_db.set_project_name(new_name))
 
     simulator_type: SimulatorType = GObject.Property(type=SimulatorType,  # type: ignore
@@ -74,11 +74,6 @@ class Project(GObject.GObject):
                                                     flags=GObject.ParamFlags.READABLE |
                                                     GObject.ParamFlags.WRITABLE)
 
-    simulator: Simulator = GObject.Property(type=Simulator,  # type: ignore
-                                            flags=GObject.ParamFlags.READABLE |
-                                            GObject.ParamFlags.WRITABLE |
-                                            GObject.ParamFlags.CONSTRUCT_ONLY)
-
     network: Network = GObject.Property(type=Network,  # type: ignore
                                         flags=GObject.ParamFlags.READABLE |
                                         GObject.ParamFlags.WRITABLE |
@@ -100,27 +95,29 @@ class Project(GObject.GObject):
         """Creates a new project. The network and algorithm configuration manager
         are already created, but not yet loaded."""
         project_file = Gio.File.new_for_path(project_file_path)
+
         self.__project_db = ProjectSQLite(project_file.get_child("db"))
 
-        simulator = SimulatorFactory().get_simulator(sim_type)
+        self.__simulator = SimulatorFactory().get_simulator(sim_type)
 
-        network = Network(simulator, self.__project_db)
+        network = Network(self.__simulator, self.__project_db)
         algo_manager = AlgorithmConfigurationManager(network, self.__project_db)
 
-        super().__init__(id=project_id, name="Unknown Project Name",
+        super().__init__(id=project_id,
                          simulator_type=sim_type,
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
                          created_at=GLib.DateTime.new_now_local(),
                          last_modified=GLib.DateTime.new_now_local(),  # TODO: QS
-                         simulator=simulator,
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
 
+        self.__name = "Unknown Project Name"
+
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
-        await self.simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
+        await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
         await self.network.load()
         await self.algorithm_configuration_manager.load()
 
@@ -140,7 +137,7 @@ class Project(GObject.GObject):
         if not algo_config:
             raise AlgorithmConfigurationException("No selected algorithm configuration found!")
 
-        manager = SimulationManager(self.name, algo_config, self.network, self.simulator,
+        manager = SimulationManager(self.name, algo_config, self.network, self.__simulator,
                                     self.result_manager, observer)
         manager.start()
         return manager
@@ -149,6 +146,18 @@ class Project(GObject.GObject):
         """Loads the attributes of the project, such as name and last modification date,
         from the database."""
         await self.__project_db.open()
-        self.__name = await self.__project_db.get_project_name()
-        self.created_at = await self.__project_db.get_created_at()
-        self.last_modified = await self.__project_db.get_last_modified()  # TODO: QS
+        name = await self.__project_db.get_project_name()
+        if name is not None:
+            self.__name = name
+        created_at = await self.__project_db.get_created_at()
+        if created_at is not None:
+            self.created_at = created_at
+        last_modified = await self.__project_db.get_last_modified()
+        if last_modified is not None:
+            self.last_modified = last_modified  # TODO: QS
+
+    async def delete(self) -> None:
+        """Deletes the project database file."""
+        # TODO: Delete whole folder
+        file = Gio.File.new_for_path(self.project_file_path).get_child("db")
+        await file.delete_async(0, None)  # type: ignore
