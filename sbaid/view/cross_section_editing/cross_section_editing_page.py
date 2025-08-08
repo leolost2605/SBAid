@@ -14,7 +14,7 @@ from sbaid.view_model.network.cross_section import CrossSection
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gtk, GObject
+    from gi.repository import Adw, Gtk, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -30,6 +30,7 @@ class CrossSectionEditingPage(Adw.NavigationPage):
     __x_entry: Gtk.Entry
     __y_entry: Gtk.Entry
 
+    # pylint: disable=too-many-locals
     def __init__(self, cross_section: CrossSection, network: Network):
         super().__init__()
 
