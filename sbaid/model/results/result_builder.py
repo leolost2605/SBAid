@@ -23,7 +23,7 @@ class _CrossSectionBuilder:
     __global_db: GlobalDatabase
 
     # added later
-    __cross_section_b_display: BDisplay | None
+    __cross_section_b_display: BDisplay
 
     def __init__(self, cs_name: str, snapshot_id: str, cross_section_id: str,
                  global_db: GlobalDatabase) -> None:
@@ -57,7 +57,7 @@ class _LaneBuilder:
     # added later
     __average_speed: float | None
     __traffic_volume: int | None
-    __a_display: ADisplay | None
+    __a_display: ADisplay
 
     def __init__(self, lane_number: int, cross_section_id: str, global_db: GlobalDatabase) -> None:
         self.__lane_number = lane_number
@@ -183,6 +183,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
                                                          self.__current_snapshot.id,
                                                          cross_section_id,
                                                          self.__global_db)
+
+        self.__current_cross_section = self.__current_cs_builder.try_build()
 
     def add_b_display(self, b_display: BDisplay) -> None:
         """Sets b-display in the current cross-section builder to desired value."""
