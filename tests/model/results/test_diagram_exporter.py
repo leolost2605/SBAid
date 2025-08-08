@@ -3,8 +3,8 @@ import random
 import unittest
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.diagram_exporter import DiagramExporter
-from tests.model.results.test_result_builder import ResultBuilderTest
 from sbaid.model.results.result import Result
+from tests import result_testing_utils
 
 class DiagramExporterTest(unittest.TestCase):
     exporter = DiagramExporter()
@@ -19,8 +19,7 @@ class DiagramExporterTest(unittest.TestCase):
         asyncio.run(self.__test_create_diagram())
 
     async def __test_create_diagram(self):
-        test = ResultBuilderTest()
-        result = await test.generate_result(200, 10, 2)
+        result = await result_testing_utils.generate_result(200, 10, 2)
         test_id= random.choice(list(random.choice(list(result.snapshots)).cross_section_snapshots)).cross_section_id
 
         png_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[1])[0]

@@ -40,3 +40,4 @@ class AlgorithmImpl(Algorithm):
 
     def calculate_display(self, algorithm_input: Input) -> Display:
         """todo"""
+        return Display()

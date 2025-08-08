@@ -12,6 +12,7 @@ from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context as ModelContext
 from sbaid.model.project import Project as ModelProject
 from sbaid.view_model.project import Project
+from sbaid.view_model.results.result_manager import ResultManager
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -28,10 +29,10 @@ class Context(GObject.Object):
 
     __context: ModelContext
 
-    # result_manager: ResultManager = GObject.Property(type=ResultManager,
-    #                                                  flags=GObject.ParamFlags.READABLE |
-    #                                                  GObject.ParamFlags.WRITABLE |
-    #                                                  GObject.ParamFlags.CONSTRUCT_ONLY)
+    result_manager: ResultManager = GObject.Property(type=ResultManager,  # type: ignore
+                                                     flags=GObject.ParamFlags.READABLE |
+                                                     GObject.ParamFlags.WRITABLE |
+                                                     GObject.ParamFlags.CONSTRUCT_ONLY)
 
     projects: Gio.ListModel = GObject.Property(type=Gio.ListModel,  # type: ignore
                                                flags=GObject.ParamFlags.READABLE |
@@ -48,8 +49,7 @@ class Context(GObject.Object):
     def __init__(self, context: ModelContext) -> None:
         super().__init__(
             projects=Gtk.MapListModel.new(context.projects, self.__project_map_func),
-            # result_manager=None
-            # TODO should be ResultManager(context.result_manager)
+            result_manager=ResultManager(context.result_manager)
         )
 
         self.__context = context
