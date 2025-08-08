@@ -21,7 +21,7 @@ class ParserFactoryMeta(type):
 class ParserFactory(metaclass=ParserFactoryMeta):
     """This class handles the creation of implementations of the Parser
     interface, as well as their assignment to user-given files."""
-    __parsers: list[ParameterParser]
+    __parsers: list[ParameterParser] = []
 
     def __init__(self) -> None:
         super().__init__()

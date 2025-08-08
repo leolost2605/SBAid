@@ -5,8 +5,10 @@ from gi.repository import Gio
 
 from sbaid.common.tag import Tag
 from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
+from sbaid.model.algorithm_configuration.csv_parameter_parser import CSVParameterParser
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 
 
 class MyTestCase(unittest.IsolatedAsyncioTestCase):
@@ -19,7 +21,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         self.__db_mock.set_evaluation_interval = AsyncMock()
 
     async def test_algorithm_configuration(self):
-        config_id = "acid"
+        config_id = "ac_id"
 
         sim = DummySimulator()
         network = Network(sim, self.__db_mock)
@@ -44,6 +46,17 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         algo_config.evaluation_interval = 30
 
         self.assertEqual(algo_config.evaluation_interval, 30)
+
+    def test_can_handle_file(self) -> None:
+        parser_factory = ParserFactory()
+        file = Gio.File.new_for_path("valid_parameter_config.csv")
+        parser = parser_factory.get_parser(file)
+        self.assertIsInstance(parser, CSVParameterParser)
+
+    def test_singleton_parser_factory(self) -> None:
+        factory_1 = ParserFactory()
+        factory_2 = ParserFactory()
+        self.assertEqual(factory_1, factory_2)
 
 
 if __name__ == '__main__':
