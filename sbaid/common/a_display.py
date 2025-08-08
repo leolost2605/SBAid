@@ -13,3 +13,4 @@ class ADisplay(GObject.GEnum):
     SPEED_LIMIT_130 = 6
     SPEED_LIMIT_LIFTED = 7
     CLOSED_LANE = 8
+    NOT_AVAILABLE = 9
