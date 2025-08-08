@@ -10,7 +10,7 @@ class ParameterParser(ABC):
     """todo"""
 
     @abstractmethod
-    def can_handle(self, file_path: str) -> bool:
+    def can_handle_file(self, file_path: str) -> bool:
         """todo"""
 
     @abstractmethod

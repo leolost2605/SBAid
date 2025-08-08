@@ -1,10 +1,10 @@
 """This module defines the ParserFactory class"""
-from gi.repository import GObject, Gio
+import typing
+
+from gi.repository import Gio
 
 from sbaid.model.algorithm_configuration.csv_parameter_parser import CSVParameterParser
 from sbaid.model.algorithm_configuration.parameter_parser import ParameterParser
-
-import typing
 
 class ParserFactoryMeta(type):
     """A Metaclass for the ParserFactory, for Singleton pattern implementation."""
@@ -19,15 +19,19 @@ class ParserFactoryMeta(type):
 class ParserFactory(metaclass=ParserFactoryMeta):
     """This class handles the creation of implementations of the Parser
     interface, as well as their assignment to user-given files."""
-    __parsers: list
+    __parsers: list[ParameterParser]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.__parsers.append(CSVParameterParser())
 
-    def get_parser(self, file: Gio.File) -> ParameterParser:
+    def get_parser(self, file: Gio.File) -> ParameterParser | None:
+        """Iterates the list of existing parsers and looks for one suitable to parse
+         the given file. Returns None if none is found."""
         path = file.get_path()
+        assert(isinstance(path, str))
         for parser in self.__parsers:
             if parser.can_handle_file(path):
+                assert isinstance(parser, ParameterParser)
                 return parser
-        raise None
+        return None
