@@ -32,7 +32,7 @@ class ExportResultsDialog(Adw.Window):
 
     # pylint: disable=too-many-locals, too-many-statements
     def __init__(self, result: Result) -> None:
-        super().__init__()
+        super().__init__(default_width=700, default_height=700)
 
         self.__result = result
 
