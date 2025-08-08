@@ -2,7 +2,6 @@
 from gi.repository import Gio, GObject
 from sbaid.common.image import Image
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
-from sbaid.model.results.display_generator import DisplayGenerator
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
 from sbaid.model.results.heatmap_generator import HeatmapGenerator
 from sbaid.model.results.qv_generator import QVGenerator
@@ -34,7 +33,7 @@ class DiagramExporter(GObject.GObject):
         self.__add_available_types()
 
     def get_diagram(self, result: Result, cross_section_ids: list[str],
-                    image_format: ImageFormat, diagram_type: DiagramType) -> Image | None:
+                    image_format: ImageFormat, diagram_type: DiagramType) -> list[Image]:
         """Attempts to generate a diagram based on the provided diagram type."""
 
         type_id = diagram_type.diagram_type_id
@@ -42,14 +41,16 @@ class DiagramExporter(GObject.GObject):
         for global_gen in self.__global_gens:
             gen_type_id = global_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
-                return global_gen.get_diagram(result, cross_section_ids, image_format)
+                return [global_gen.get_diagram(result, cross_section_ids, image_format)]
 
         for cs_gen in self.__cross_section_gens:
             gen_type_id = cs_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
-                return cs_gen.get_diagram(result, cross_section_ids[0], image_format)
-
-        return None
+                image_list = []
+                for cross_section_id in cross_section_ids:
+                    image_list.append(cs_gen.get_diagram(result, cross_section_id, image_format))
+                return image_list
+        return []
 
     def __add_available_types(self) -> None:
         """Gets available diagram types and initialize references"""
@@ -57,10 +58,8 @@ class DiagramExporter(GObject.GObject):
         self.__diagram_types.append(heatmap_gen.get_diagram_type())
         qv_gen = QVGenerator()
         self.__diagram_types.append(qv_gen.get_diagram_type())
-        display_gen = DisplayGenerator()
-        self.__diagram_types.append(display_gen.get_diagram_type())
         velocity_gen = VelocityGenerator()
         self.__diagram_types.append(velocity_gen.get_diagram_type())
 
-        self.__cross_section_gens = [qv_gen, display_gen, velocity_gen]
+        self.__cross_section_gens = [qv_gen, velocity_gen]
         self.__global_gens = [heatmap_gen]
