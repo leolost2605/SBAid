@@ -1,5 +1,9 @@
+"""
+This module contains the export results dialog.
+"""
+
 import sys
-from typing import Any, cast
+from typing import cast
 
 import gi
 
@@ -12,15 +16,21 @@ from sbaid.view_model.results.result import Result, CrossSectionSnapshotWrapper
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gtk, GObject
+    from gi.repository import Adw, Gtk, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
 class ExportResultsDialog(Adw.Window):
+    """
+    This class is used to shown an export results dialog to the user where they can
+    choose what data about the results to export.
+    """
+
     __result: Result
 
+    # pylint: disable=too-many-locals, too-many-statements
     def __init__(self, result: Result) -> None:
         super().__init__()
 
@@ -84,8 +94,6 @@ class ExportResultsDialog(Adw.Window):
         export_button.set_margin_top(6)
         export_button.set_margin_start(6)
         export_button.connect("clicked", self.__on_exported)
-
-        # TODO: bind selected to the drop downs?
 
         grid = Gtk.Grid(margin_end=12, margin_top=12, margin_bottom=12, margin_start=12,
                         column_spacing=12, row_spacing=12, column_homogeneous=True)
