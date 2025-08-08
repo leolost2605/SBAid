@@ -149,7 +149,6 @@ class Result(GObject.GObject):
         return id_list, image_format, diagram_type
 
     def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
-        """Returns the cross-section information for """
         cross_section_selections = Gio.ListStore.new(CrossSectionSnapshotWrapper)
         snapshot = result.snapshots.get_item(0)
         assert isinstance(snapshot, Snapshot)
