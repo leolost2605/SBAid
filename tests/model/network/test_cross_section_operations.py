@@ -5,8 +5,8 @@ from typing import cast
 from sbaid.common import list_model_iterator
 from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network
-from tests.MockCrossSection import MockCrossSection
-from tests.MockSimulator import MockSimulator
+from tests.mock_cross_section import MockCrossSection
+from tests.mock_simulator import MockSimulator
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType

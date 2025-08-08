@@ -9,8 +9,8 @@ from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.parser_factory import ParserFactory
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
-from tests.MockCrossSection import MockCrossSection
-from tests.MockSimulator import MockSimulator
+from tests.mock_cross_section import MockCrossSection
+from tests.mock_simulator import MockSimulator
 
 
 class NetworkTest(unittest.TestCase):

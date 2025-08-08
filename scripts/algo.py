@@ -10,21 +10,16 @@ from sbaid.model.simulation.network_state import NetworkState
 
 
 class AlgorithmImpl(Algorithm):
-    def __init__(self):
-        super().__init__()
-        print("inited")
-
-    @override
     def get_global_parameter_template(self) -> Gio.ListModel:
-        print("get global parameter template")
         store = Gio.ListStore.new(ParameterTemplate)
         store.append(ParameterTemplate("my param", GLib.VariantType.new("s"), None))
         store.append(ParameterTemplate("my other param", GLib.VariantType.new("d"), None))
         return store
 
-    @override
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
-        print("get cross section parameter template")
+        store = Gio.ListStore.new(ParameterTemplate)
+        store.append(ParameterTemplate("My cs Param", GLib.VariantType.new("s"), None))
+        store.append(ParameterTemplate("My other cs Param", GLib.VariantType.new("d"), None))
         return Gio.ListStore.new(ParameterTemplate)
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
@@ -32,4 +27,4 @@ class AlgorithmImpl(Algorithm):
         pass
 
     def calculate_display(self, algorithm_input: Input) -> Display:
-        return Display()
+        return Display()  # Everything is OFF :)

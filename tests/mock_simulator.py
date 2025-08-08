@@ -2,7 +2,7 @@ from gi.repository import Gio, GLib
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
-from tests.MockCrossSection import MockCrossSection
+from tests.mock_cross_section import MockCrossSection
 from sbaid.common import list_model_iterator
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.network.route import Route
