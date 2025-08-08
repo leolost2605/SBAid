@@ -301,7 +301,7 @@ class AlgoConfigsDialog(Adw.Window):
     __split_view: Adw.NavigationSplitView
 
     def __init__(self, algo_config_manager: AlgorithmConfigurationManager):
-        super().__init__()
+        super().__init__(default_width=809, default_height=500)
 
         self.install_action("algo-config.delete", "s", self.__on_delete)
 

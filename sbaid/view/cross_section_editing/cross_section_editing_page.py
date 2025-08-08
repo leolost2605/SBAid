@@ -52,7 +52,7 @@ class CrossSectionEditingPage(Adw.NavigationPage):
                                     hard_shoulder_available_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
 
-        hard_shoulder_active_label = Gtk.Label.new("Hard shoulder usable:")
+        hard_shoulder_active_label = Gtk.Label.new("Hard shoulder openable:")
 
         hard_shoulder_active_switch = Gtk.Switch(halign=Gtk.Align.START)
         cross_section.bind_property("hard-shoulder-usable", hard_shoulder_active_switch,

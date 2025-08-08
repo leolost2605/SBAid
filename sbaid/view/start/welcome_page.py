@@ -28,6 +28,8 @@ class WelcomePage(Adw.NavigationPage):
         super().__init__()
         self.__context = context
 
+        header_bar = Adw.HeaderBar()
+
         self.__create_project_button = Gtk.Button(label="Create Project")
         self.__create_project_button.set_action_name("win.create-project-page")
 
@@ -53,11 +55,11 @@ class WelcomePage(Adw.NavigationPage):
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
 
-        header_bar = Adw.HeaderBar()
+        status_page = Adw.StatusPage(child=box)
 
         main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
-        main_view.set_content(box)
+        main_view.set_content(status_page)
 
         self.set_title("SBAid")
         self.set_child(main_view)

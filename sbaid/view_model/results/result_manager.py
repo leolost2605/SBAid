@@ -46,6 +46,12 @@ class ResultManager(GObject.GObject):
     def __map_func(self, model_result: ModelResult) -> Result:
         return Result(model_result, self.available_tags)
 
+    async def load(self) -> None:
+        """
+        Loads the results and their metadata. Doesn't load the actual data yet.
+        """
+        await self.__result_manager.load_from_db()
+
     async def create_tag(self, name: str) -> int:
         """Creates a new tag for the result with a given name."""
         return await self.__result_manager.create_tag(name)

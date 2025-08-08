@@ -32,7 +32,7 @@ class ExportResultsDialog(Adw.Window):
 
     # pylint: disable=too-many-locals, too-many-statements
     def __init__(self, result: Result) -> None:
-        super().__init__()
+        super().__init__(default_width=700, default_height=700)
 
         self.__result = result
 
@@ -109,6 +109,8 @@ class ExportResultsDialog(Adw.Window):
 
         self.set_content(toolbar_view)
         self.set_title("Export " + result.name)
+
+        common.run_coro_in_background(result.load())
 
     def __setup_cross_section_row(self, factory: Gtk.SignalListItemFactory,
                                   obj: GObject.Object) -> None:

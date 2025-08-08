@@ -72,6 +72,9 @@ class Result(GObject.GObject):
 
     async def load(self) -> None:
         """Handles the logic for loading snapshots."""
+        if self.__snapshots.get_n_items():  # We are already loaded
+            return
+
         db_snapshots = await self.__global_db.get_all_snapshots(self.id)
 
         for snapshot in db_snapshots:
