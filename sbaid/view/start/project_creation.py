@@ -4,7 +4,6 @@ from typing import cast
 
 import gi
 
-import sbaid.common
 from sbaid import common
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.view_model.context import Context
@@ -115,4 +114,4 @@ class ProjectCreation(Adw.NavigationPage):
             self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
 
     def __on_enter(self, widget: Gtk.Widget) -> None:
-        sbaid.common.run_coro_in_background(self.__create_project_coro())
+        common.run_coro_in_background(self.__create_project_coro())
