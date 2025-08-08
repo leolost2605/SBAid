@@ -15,7 +15,7 @@ class CsvParameterParserTest(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
         parser = CSVParameterParser()
-        self.assertEqual(parser.can_handle
+        self.assertEqual(parser.can_handle_file
                          ("./tests/model/algorithm_configuration/valid_parameter_config.csv"),
                          True)
 
