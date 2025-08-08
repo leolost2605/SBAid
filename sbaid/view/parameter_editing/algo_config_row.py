@@ -47,7 +47,7 @@ class AlgoConfigRow(Adw.Bin):
     def __on_clicked(self, click: Gtk.GestureClick, n_press: int, x: float, y: float) -> None:
         event = click.get_current_event()
 
-        if event.triggers_context_menu():
+        if event and event.triggers_context_menu():
             click.set_state(Gtk.EventSequenceState.CLAIMED)
             click.reset()
 
