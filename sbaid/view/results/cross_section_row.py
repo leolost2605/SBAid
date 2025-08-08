@@ -6,7 +6,7 @@ import sys
 
 import gi
 
-from sbaid.view_model.network.cross_section import CrossSection
+from sbaid.view_model.results.result import CrossSectionSnapshotWrapper
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -31,14 +31,11 @@ class CrossSectionRow(Adw.Bin):
         self.__label = Gtk.Label()
         self.set_child(self.__label)
 
-    def bind(self, cross_section: CrossSection) -> None:
+    def bind(self, cross_section: CrossSectionSnapshotWrapper) -> None:
         """
         Binds the given cross section to this row. Replaces any other cross section that may
         have been previously bound.
         :param cross_section: the cross section to bind
         """
-        if self.__label_binding:
-            self.__label_binding.unbind()
 
-        self.__label_binding = cross_section.bind_property("name", self.__label, "label",
-                                                           GObject.BindingFlags.SYNC_CREATE)
+        self.__label.set_label(cross_section.cs_info[1])

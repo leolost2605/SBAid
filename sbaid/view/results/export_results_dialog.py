@@ -3,11 +3,11 @@ from typing import Any, cast
 
 import gi
 
+from sbaid import common
 from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
-from sbaid.common.image_format import ImageFormat
 from sbaid.view.results.cross_section_row import CrossSectionRow
-from sbaid.view_model.network.cross_section import CrossSection
+from sbaid.view_model.results.result import Result, CrossSectionSnapshotWrapper
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -19,9 +19,9 @@ except (ImportError, ValueError) as exc:
 
 
 class ExportResultsDialog(Adw.Window):
-    __result: Any
+    __result: Result
 
-    def __init__(self, result: Any) -> None:
+    def __init__(self, result: Result) -> None:
         super().__init__()
 
         self.__result = result
@@ -32,6 +32,7 @@ class ExportResultsDialog(Adw.Window):
 
         diagram_type_drop_down = Gtk.DropDown.new(result.diagram_types,
                                                   diagram_type_name_expression)
+        diagram_type_drop_down.bind_property("selected", result.diagram_types, "selected")
 
         cross_sections_check_button = Gtk.CheckButton.new_with_label("Cross Sections")
         cross_sections_check_button.set_halign(Gtk.Align.START)
@@ -41,10 +42,11 @@ class ExportResultsDialog(Adw.Window):
         cross_section_factory.connect("setup", self.__setup_cross_section_row)
         cross_section_factory.connect("bind", self.__bind_cross_section_row)
 
-        self.__cross_sections_list_view = Gtk.ListView.new(result.cross_sections,
+        self.__cross_sections_list_view = Gtk.ListView.new(result.cross_section,
                                                            cross_section_factory)
         self.__cross_sections_list_view.set_size_request(180, -1)
         self.__cross_sections_list_view.set_vexpand(True)
+        self.__cross_sections_list_view.set_enable_rubberband(True)
 
         cross_sections_scrolled = Gtk.ScrolledWindow(
             child=self.__cross_sections_list_view, propagate_natural_width=True,
@@ -64,15 +66,24 @@ class ExportResultsDialog(Adw.Window):
 
         preview_grid_view = Gtk.GridView.new(selection, preview_factory)
 
-        preview_frame = Gtk.Frame(child=preview_grid_view)
+        preview_scrolled = Gtk.ScrolledWindow(child=preview_grid_view, propagate_natural_width=True,
+                                              propagate_natural_height=True)
+
+        preview_frame = Gtk.Frame(child=preview_scrolled)
 
         image_format_name_expression = Gtk.PropertyExpression.new(Adw.EnumListItem, None, "name")
 
         image_format_drop_down = Gtk.DropDown.new(result.formats, image_format_name_expression)
+        image_format_drop_down.bind_property("selected", result.formats, "selected")
 
         export_button = Gtk.Button.new_with_label("Export")
         export_button.add_css_class("suggested-action")
         export_button.set_halign(Gtk.Align.END)
+        export_button.set_margin_bottom(6)
+        export_button.set_margin_end(6)
+        export_button.set_margin_top(6)
+        export_button.set_margin_start(6)
+        export_button.connect("clicked", self.__on_exported)
 
         # TODO: bind selected to the drop downs?
 
@@ -99,7 +110,7 @@ class ExportResultsDialog(Adw.Window):
     def __bind_cross_section_row(self, factory: Gtk.SignalListItemFactory,
                                  obj: GObject.Object) -> None:
         list_item = cast(Gtk.ListItem, obj)
-        item = cast(CrossSection, list_item.get_item())
+        item = cast(CrossSectionSnapshotWrapper, list_item.get_item())
         cell = cast(CrossSectionRow, list_item.get_child())
         cell.bind(item)
 
@@ -108,15 +119,33 @@ class ExportResultsDialog(Adw.Window):
             return
 
         if check_button.get_active():
-            self.__result.cross_sections.select_all()
+            self.__result.cross_section.select_all()
         else:
-            self.__result.cross_sections.unselect_all()
+            self.__result.cross_section.unselect_all()
 
     def __setup_preview(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
-        image = Gtk.Image()
+        image = Gtk.Picture(hexpand=True, vexpand=True, content_fit=Gtk.ContentFit.FILL,
+                            can_shrink=False)
         item.set_child(image)
 
     def __bind_preview(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
-        image = cast(Gtk.Image, item.get_child())
-        preview = cast(Image, item.get_child())
-        image.set_from_paintable(preview)
+        image = cast(Gtk.Picture, item.get_child())
+        preview = cast(Image, item.get_item())
+        image.set_paintable(preview)
+
+    def __on_exported(self, button: Gtk.Button) -> None:
+        common.run_coro_in_background(self.__export_diagrams())
+
+    async def __export_diagrams(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.select_folder(self)  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        self.__result.save_diagrams(file.get_path())
