@@ -1,16 +1,13 @@
 """This module contains the all projects page."""
 import sys
-# import datetime
 
-from typing import cast, Any, Callable
+from typing import cast
 
 import gi
 
-# from babel.dates import format_datetime
-import sbaid.common
+from sbaid import common
 from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
-
 
 from sbaid.view_model.project import Project
 
@@ -55,17 +52,13 @@ class _RenameDialog(Adw.Dialog):
         self.close()
 
 
-class _ProjectCell(Adw.Bin):
-    __project: Project
-
-
 class AllProjects(Adw.NavigationPage):
     """
     This class represents the all projects page, where
     all projects that are known to sbaid can be seen and edited.
     """
 
-    def __init__(self, context: Context) -> None:
+    def __init__(self, context: Context) -> None:  # pylint: disable=too-many-locals
         super().__init__()
         self.__context = context
 
@@ -126,11 +119,13 @@ class AllProjects(Adw.NavigationPage):
 
         self.install_action("project.rename", None, self.__on_rename_project)
 
-    def __on_factory_setup(self, factory: Gtk.SignalListItemFactory,
+    @staticmethod
+    def __on_factory_setup(factory: Gtk.SignalListItemFactory,
                            list_item: Gtk.ColumnViewCell, cell_type: ProjectCellType) -> None:
         list_item.set_child(ProjectCell(cell_type))
 
-    def __on_factory_bind(self, factory: Gtk.SignalListItemFactory,
+    @staticmethod
+    def __on_factory_bind(factory: Gtk.SignalListItemFactory,
                           list_item: Gtk.ColumnViewCell) -> None:
         project = cast(Project, list_item.get_item())
         cell = cast(ProjectCell, list_item.get_child())
@@ -146,7 +141,7 @@ class AllProjects(Adw.NavigationPage):
         await self.__context.delete_project(project.id)
 
     def __on_delete(self, widget: Gtk.Widget) -> None:
-        sbaid.common.run_coro_in_background(self.__delete_project(
+        common.run_coro_in_background(self.__delete_project(
             cast(Project, self.__selection.get_selected_item())))
 
     def __on_rename_project(self, widget: Gtk.Widget, action_name: str,

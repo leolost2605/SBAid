@@ -9,7 +9,7 @@ from sbaid.view_model.project import Project
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, Gtk, GObject
+    from gi.repository import Adw, Gtk, GObject, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -32,7 +32,7 @@ class ProjectCell(Adw.Bin):
     __type: ProjectCellType
     __label: Gtk.Label
 
-    __label_binding: GObject.Binding = None
+    __label_binding: GObject.Binding | None = None
 
     def __init__(self, cell_type: ProjectCellType) -> None:
         super().__init__()
@@ -53,6 +53,14 @@ class ProjectCell(Adw.Bin):
                 self.__label_binding = project.bind_property("name", self.__label, "label",
                                                              GObject.BindingFlags.SYNC_CREATE)
             case ProjectCellType.CREATED_AT:
-                self.__label.set_label(project.created_at.format("%x %X"))
+                self.__label_binding = project.bind_property(
+                    "created-at", self.__label, "label",
+                    GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
             case ProjectCellType.LAST_MODIFIED:
-                self.__label.set_label(project.last_modified.format("%x %X"))
+                self.__label_binding = project.bind_property(
+                    "last-modified", self.__label, "label",
+                    GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
+
+    @staticmethod
+    def __date_time_transform_func(binding: GObject.Binding, date_time: GLib.DateTime) -> str:
+        return date_time.format("%x %X")
