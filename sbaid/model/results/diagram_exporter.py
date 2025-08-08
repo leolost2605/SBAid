@@ -46,8 +46,8 @@ class DiagramExporter(GObject.GObject):
         for cs_gen in self.__cross_section_gens:
             gen_type_id = cs_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
-                return cs_gen.get_diagram(result, cross_section_ids[0], image_format)
-
+                if len(cross_section_ids) > 0:
+                    return cs_gen.get_diagram(result, cross_section_ids[0], image_format)
         return None
 
     def __add_available_types(self) -> None:
@@ -56,8 +56,6 @@ class DiagramExporter(GObject.GObject):
         self.__diagram_types.append(heatmap_gen.get_diagram_type())
         qv_gen = QVGenerator()
         self.__diagram_types.append(qv_gen.get_diagram_type())
-        # display_gen = DisplayGenerator()
-        # self.__diagram_types.append(display_gen.get_diagram_type())
         velocity_gen = VelocityGenerator()
         self.__diagram_types.append(velocity_gen.get_diagram_type())
 

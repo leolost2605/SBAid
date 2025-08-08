@@ -122,22 +122,34 @@ class Result(GObject.GObject):
                          new(self.__get_cross_section_selection(result)),
                          formats=Gtk.SingleSelection.new(self.__get_format_selection()))
 
+        self.formats.connect("selection-changed", self._on_selection_changed)
+        self.diagram_types.connect("selection-changed", self._on_selection_changed)
+        self.cross_section.connect("selection-changed", self._on_selection_changed)
+
     def save_diagrams(self, path: str) -> None:
-        """Saves one diagram to a file."""
-        for index, image in enumerate(self.__previews):
+        """Saves diagrams to a file."""
+        for image in self.__previews:
             assert isinstance(image, Image)
 
             selected_diagram = self.__available_diagram_types.get_item(
                 self.diagram_types.get_selected())
             assert isinstance(selected_diagram, DiagramType)
 
-
-            filename = selected_diagram.name + "_" + f"{index}"
+            filename = selected_diagram.name + "_" + self.__get_name_for_file()
 
             full_path = os.path.join(path, filename)
             image.save_to_file(full_path)
 
-        self.__previews.remove_all()
+    def __get_name_for_file(self) -> str:
+        name_list = []
+
+        for i in range(self.cross_section.get_n_items()):
+            if self.cross_section.is_selected(i):
+                wrapper = self.cross_section.get_item(i)
+                assert isinstance(wrapper, _CrossSectionSnapshotWrapper)
+                name_list.append(wrapper.cs_info[1])
+
+        return str(name_list)
 
     def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
@@ -170,6 +182,12 @@ class Result(GObject.GObject):
         for i in range(len(ImageFormat)):
             format_selections.append(_ImageFormatWrapper(ImageFormat(i)))
         return format_selections
+
+    def _on_selection_changed(self, selection_mode: Gtk.SelectionModel,
+                              position: int, n_items: int) -> None:
+        """"""
+        self.__previews.remove_all()
+        self.load_previews()
 
     def load_previews(self) -> None:
         """Loads previews from a file."""

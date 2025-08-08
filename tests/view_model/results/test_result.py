@@ -42,12 +42,10 @@ class ViewModelResultTestCase(unittest.TestCase):
 
         self.__vm_result.formats.select_item(0, True)
 
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
         self.__vm_result.formats.select_item(1, True)
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
     async def __test_qv_diagram(self):
         await self.__test_init()
@@ -58,12 +56,10 @@ class ViewModelResultTestCase(unittest.TestCase):
 
         self.__vm_result.formats.select_item(0, True)
 
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
         self.__vm_result.formats.select_item(1, True)
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
     async def __test_velocity_diagram(self):
         await self.__test_init()
@@ -74,13 +70,10 @@ class ViewModelResultTestCase(unittest.TestCase):
 
         self.__vm_result.formats.select_item(0, True)
 
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
         self.__vm_result.formats.select_item(1, True)
-        self.__vm_result.load_previews()
-        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs")
-
+        self.__vm_result.save_diagrams("./tests/model/results/generator_outputs/qv")
 
 
 
