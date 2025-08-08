@@ -8,6 +8,10 @@ from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.database.project_database import ProjectDatabase
 
 
+class FunctionalityNotAvailableException(Exception):
+    """Raised when trying to access a functionality that is not available."""
+
+
 class CrossSection(GObject.GObject):
     """This class defines a cross section in the network."""
 
@@ -143,8 +147,3 @@ class CrossSection(GObject.GObject):
 
     async def __update_cross_section_name(self, name: str) -> None:
         await self.__project_db.set_cross_section_name(self.id, name)
-
-
-class FunctionalityNotAvailableException(Exception):
-    """To be deleted :)"""
-    # TODO: delete when exception is in common
