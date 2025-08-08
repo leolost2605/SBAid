@@ -40,7 +40,7 @@ class CrossSectionMarker(Adw.Bin):
         self.__network = network
         self.__cross_section = cross_section
 
-        image = Gtk.Image.new_from_icon_name("my-icon")
+        image = Gtk.Image.new_from_icon_name("location-services-active")
         self.set_child(image)
 
         click = Gtk.GestureClick()
