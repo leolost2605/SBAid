@@ -75,7 +75,6 @@ class Simulator(GObject.GObject):
         Initialize the simulation object. Return the internal simulation start time
         and runtime.
         """
-        # TODO GLib.TimeSpan is an alias for int in PyGObject, is this a problem?
 
     async def continue_simulation(self, span: int) -> None:
         """
