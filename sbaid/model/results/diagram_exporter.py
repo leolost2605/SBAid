@@ -33,7 +33,7 @@ class DiagramExporter(GObject.GObject):
         self.__add_available_types()
 
     def get_diagram(self, result: Result, cross_section_ids: list[str],
-                    image_format: ImageFormat, diagram_type: DiagramType) -> Image | None:
+                    image_format: ImageFormat, diagram_type: DiagramType) -> list[Image]:
         """Attempts to generate a diagram based on the provided diagram type."""
 
         type_id = diagram_type.diagram_type_id
@@ -41,14 +41,16 @@ class DiagramExporter(GObject.GObject):
         for global_gen in self.__global_gens:
             gen_type_id = global_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
-                return global_gen.get_diagram(result, cross_section_ids, image_format)
+                return [global_gen.get_diagram(result, cross_section_ids, image_format)]
 
         for cs_gen in self.__cross_section_gens:
             gen_type_id = cs_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
-                if len(cross_section_ids) > 0:
-                    return cs_gen.get_diagram(result, cross_section_ids[0], image_format)
-        return None
+                image_list = []
+                for cross_section_id in cross_section_ids:
+                    image_list.append(cs_gen.get_diagram(result, cross_section_id, image_format))
+                return image_list
+        return []
 
     def __add_available_types(self) -> None:
         """Gets available diagram types and initialize references"""

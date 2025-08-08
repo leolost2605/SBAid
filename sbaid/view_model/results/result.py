@@ -5,6 +5,8 @@ import os
 from typing import Tuple
 import sys
 import gi
+
+from sbaid import common
 from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
@@ -15,23 +17,14 @@ from sbaid.model.results.snapshot import Snapshot
 
 try:
     gi.require_version('Gtk', '4.0')
-    from gi.repository import GObject, Gtk, Gio, GLib
+    gi.require_version('Adw', '1')
+    from gi.repository import GObject, Gtk, Gio, GLib, Adw
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
-class _ImageFormatWrapper(GObject.GObject):
-    """Wrapper class for the ImageFormat enum."""
-
-    image_format: ImageFormat
-
-    def __init__(self, image_format: ImageFormat):
-        super().__init__()
-        self.format = image_format
-
-
-class _CrossSectionSnapshotWrapper(GObject.GObject):
+class CrossSectionSnapshotWrapper(GObject.GObject):
     """Wrapper class containing cross-section snapshot information."""
 
     cs_info: Tuple[str, str]
@@ -120,7 +113,7 @@ class Result(GObject.GObject):
                          diagram_types=Gtk.SingleSelection.new(self.__available_diagram_types),
                          cross_section=Gtk.MultiSelection.
                          new(self.__get_cross_section_selection(result)),
-                         formats=Gtk.SingleSelection.new(self.__get_format_selection()))
+                         formats=Gtk.SingleSelection.new(Adw.EnumListModel.new(ImageFormat)))
 
         self.formats.connect("selection-changed", self._on_selection_changed)
         self.diagram_types.connect("selection-changed", self._on_selection_changed)
@@ -128,7 +121,7 @@ class Result(GObject.GObject):
 
     def save_diagrams(self, path: str) -> None:
         """Saves diagrams to a file."""
-        for image in self.__previews:
+        for image in common.list_model_iterator(self.__previews):
             assert isinstance(image, Image)
 
             selected_diagram = self.__available_diagram_types.get_item(
@@ -146,7 +139,7 @@ class Result(GObject.GObject):
         for i in range(self.cross_section.get_n_items()):
             if self.cross_section.is_selected(i):
                 wrapper = self.cross_section.get_item(i)
-                assert isinstance(wrapper, _CrossSectionSnapshotWrapper)
+                assert isinstance(wrapper, CrossSectionSnapshotWrapper)
                 name_list.append(wrapper.cs_info[1])
 
         return str(name_list)
@@ -161,31 +154,23 @@ class Result(GObject.GObject):
         for i in range(self.cross_section.get_n_items()):
             if self.cross_section.is_selected(i):
                 wrapper = self.cross_section.get_item(i)
-                assert isinstance(wrapper, _CrossSectionSnapshotWrapper)
+                assert isinstance(wrapper, CrossSectionSnapshotWrapper)
                 id_list.append(wrapper.cs_info[0])
 
         return id_list, image_format, diagram_type
 
     def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
         """Returns the cross-section information for """
-        cross_section_selections = Gio.ListStore.new(_CrossSectionSnapshotWrapper)
+        cross_section_selections = Gio.ListStore.new(CrossSectionSnapshotWrapper)
         snapshot = result.snapshots.get_item(0)
         assert isinstance(snapshot, Snapshot)
         for cross_section in snapshot.cross_section_snapshots:
             assert isinstance(cross_section, CrossSectionSnapshot)
-            cross_section_selections.append(_CrossSectionSnapshotWrapper(cross_section))
+            cross_section_selections.append(CrossSectionSnapshotWrapper(cross_section))
         return cross_section_selections
-
-    def __get_format_selection(self) -> Gio.ListModel:
-        """Returns the format options as a ListModel"""
-        format_selections = Gio.ListStore.new(_ImageFormatWrapper)
-        for i in range(len(ImageFormat)):
-            format_selections.append(_ImageFormatWrapper(ImageFormat(i)))
-        return format_selections
 
     def _on_selection_changed(self, selection_mode: Gtk.SelectionModel,
                               position: int, n_items: int) -> None:
-        """"""
         self.__previews.remove_all()
         self.load_previews()
 
@@ -193,8 +178,8 @@ class Result(GObject.GObject):
         """Loads previews from a file."""
         id_list, image_format, diagram_type = self.__get_selected_diagram_information()
 
-        image = self.__diagram_exporter.get_diagram(
+        images = self.__diagram_exporter.get_diagram(
             self.__result, id_list, image_format, diagram_type)
 
-        if image is not None:
+        for image in images:
             self.__previews.append(image)
