@@ -1,11 +1,13 @@
-"""todo"""
-from typing import Optional
-
+"""
+This module contains the parametertemplate class
+"""
 from gi.repository import GLib, GObject
 
 
 class ParameterTemplate(GObject.GObject):
-    """todo"""
+    """
+    This class defines a parameter template for an algorithm.
+    """
 
     # GObject.Property definitions
     name = GObject.Property(type=str,
@@ -24,5 +26,5 @@ class ParameterTemplate(GObject.GObject):
                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, name: str, value_type: GLib.VariantType,
-                 default_value: Optional[GLib.Variant]) -> None:
+                 default_value: GLib.Variant | None) -> None:
         super().__init__(name=name, value_type=value_type, default_value=default_value)

@@ -23,7 +23,7 @@ class _CrossSectionBuilder:
     __global_db: GlobalDatabase
 
     # added later
-    __cross_section_b_display: BDisplay | None
+    __cross_section_b_display: BDisplay
 
     def __init__(self, cs_name: str, snapshot_id: str, cross_section_id: str,
                  global_db: GlobalDatabase) -> None:
@@ -31,7 +31,7 @@ class _CrossSectionBuilder:
         self.__snapshot_id = snapshot_id
         self.__cross_section_id = cross_section_id
         self.__global_db = global_db
-        self.__cross_section_b_display = None
+        self.__cross_section_b_display = BDisplay.NOT_AVAILABLE
 
     def set_b_display(self, b_display: BDisplay) -> Self:
         """Setter for b_display"""
@@ -40,12 +40,12 @@ class _CrossSectionBuilder:
 
     def try_build(self) -> CrossSectionSnapshot | None:
         """Builds and returns cross-section snapshot if attributes complete, None otherwise"""
-        if self.__cross_section_b_display is not None:
-            return CrossSectionSnapshot(self.__snapshot_id, str(uuid.uuid4()),
-                                        self.__cross_section_name,
-                                        self.__cross_section_id,
-                                        self.__cross_section_b_display, self.__global_db)
-        return None
+
+        return CrossSectionSnapshot(self.__snapshot_id, str(uuid.uuid4()),
+                                    self.__cross_section_name,
+                                    self.__cross_section_id,
+                                    self.__cross_section_b_display,
+                                    self.__global_db)
 
 
 class _LaneBuilder:
@@ -57,7 +57,7 @@ class _LaneBuilder:
     # added later
     __average_speed: float | None
     __traffic_volume: int | None
-    __a_display: ADisplay | None
+    __a_display: ADisplay
 
     def __init__(self, lane_number: int, cross_section_id: str, global_db: GlobalDatabase) -> None:
         self.__lane_number = lane_number
@@ -65,7 +65,7 @@ class _LaneBuilder:
         self.__global_db = global_db
         self.__average_speed = None
         self.__traffic_volume = None
-        self.__a_display = None
+        self.__a_display = ADisplay.NOT_AVAILABLE
 
     def set_average_speed(self, average_speed: float) -> Self:
         """Setter for average_speed"""
@@ -85,7 +85,7 @@ class _LaneBuilder:
     def try_build(self) -> LaneSnapshot | None:
         """Builds and returns lane snapshot if attributes complete, None otherwise"""
         if (self.__average_speed is not None) and (self.__average_speed is not None) and (
-                self.__traffic_volume is not None) and (self.__a_display is not None):
+                self.__traffic_volume is not None):
             return LaneSnapshot(self.__cross_section_id,
                                 str(uuid.uuid4()),
                                 self.__lane_number,
@@ -183,6 +183,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
                                                          self.__current_snapshot.id,
                                                          cross_section_id,
                                                          self.__global_db)
+
+        self.__current_cross_section = self.__current_cs_builder.try_build()
 
     def add_b_display(self, b_display: BDisplay) -> None:
         """Sets b-display in the current cross-section builder to desired value."""
