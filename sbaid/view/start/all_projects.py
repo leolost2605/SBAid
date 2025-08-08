@@ -161,4 +161,4 @@ class AllProjects(Adw.NavigationPage):
                             parameter: GLib.Variant | None) -> None:
         project = cast(Project, self.selection.get_selected_item())
         if project:
-            _RenameDialog(project).present(self.get_root())
+            _RenameDialog(project).present(cast(Adw.Window, self.get_root()))
