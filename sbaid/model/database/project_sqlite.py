@@ -225,10 +225,8 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with (db.execute("""SELECT id FROM algorithm_configuration""")
                         as cursor):
-                res = await cursor.fetchall()
-                if res is None:
-                    return []
-                return res
+                result_list = await cursor.fetchall()
+                return list(map(lambda x: x[0], result_list))
 
     async def get_selected_algorithm_configuration_id(self) -> str | None:
         """Return the currently selected algorithm_configuration id."""
