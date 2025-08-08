@@ -95,7 +95,13 @@ class ResultsPage(Adw.NavigationPage):
         if self.__search_entry.get_text().strip() == "":
             return True
 
-        return self.__search_entry.get_text().strip() in result.name
+        tokens, ascii_tokens = GLib.str_tokenize_and_fold(self.__search_entry.get_text())
+
+        for token in tokens + ascii_tokens:
+            if token in result.name or token in result.creation_date_time.format("%x %X"):
+                return True
+
+        return False
 
     def __on_activate(self, column_view: Gtk.ColumnView, pos: int) -> None:
         model = column_view.get_model()
