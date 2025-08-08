@@ -58,7 +58,7 @@ class Network(GObject.Object):
         """Parses the given file and creates the cross sections defined in it."""
         factory = ParserFactory()
         parser_for_file = factory.get_parser(file)
-        if not parser_for_file:
+        if parser_for_file is None:
             raise NoSuitableParserException()
         return await (parser_for_file.
                       foreach_cross_section(file, self.__check_cross_section_creation_success))

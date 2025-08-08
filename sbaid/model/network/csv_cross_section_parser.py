@@ -15,7 +15,6 @@ class CSVCrossSectionParser(CrossSectionParser):
 
     def can_handle_file(self, file_path: str) -> bool:
         """Checks if the given file is a csv file."""
-        # TODO: Make platform independent
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
     async def foreach_cross_section(self, file: Gio.File,

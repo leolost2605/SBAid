@@ -31,7 +31,7 @@ class ParserFactory(metaclass=ParserFactoryMeta):
 
     def get_parser(self, file: Gio.File) -> CrossSectionParser | None:
         """Iterates the list of existing parsers and looks for one suitable to parse
-         the given file. Raises a NoSuitableParserException if no such parser if found."""
+         the given file. Returns None if none is found."""
         path = typing.cast(str, file.get_path())
         for parser in self.__parsers:
             if parser.can_handle_file(path):

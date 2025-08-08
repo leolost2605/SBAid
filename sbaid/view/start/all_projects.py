@@ -22,6 +22,38 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
+class _RenameDialog(Adw.Dialog):
+    __project: Project
+    __entry: Gtk.Entry
+
+    def __init__(self, project: Project) -> None:
+        super().__init__()
+
+        self.__project = project
+
+        header_bar = Adw.HeaderBar()
+
+        self.__entry = Gtk.Entry(text=project.name, margin_start=12, margin_top=12,
+                                 margin_bottom=12, margin_end=12, activates_default=True)
+
+        rename_button = Gtk.Button(label="Rename", margin_start=6, margin_top=6, margin_bottom=6,
+                                   margin_end=6, receives_default=True, halign=Gtk.Align.END)
+        rename_button.add_css_class("suggested-action")
+        rename_button.connect("clicked", self.__on_rename_clicked)
+
+        toolbar_view = Adw.ToolbarView(content=self.__entry)
+        toolbar_view.add_top_bar(header_bar)
+        toolbar_view.add_bottom_bar(rename_button)
+
+        self.set_child(toolbar_view)
+        self.set_title("Rename Project")
+        self.set_content_width(300)
+
+    def __on_rename_clicked(self, button: Gtk.Button) -> None:
+        self.__project.name = self.__entry.get_text()
+        self.close()
+
+
 class AllProjects(Adw.NavigationPage):
     """This class represents the all projects page, where
     all projects that are known to sbaid can be seen and edited."""
@@ -98,9 +130,12 @@ class AllProjects(Adw.NavigationPage):
             open_button.set_action_target_value(
                 GLib.Variant.new_string(project.id))  # type: ignore
 
+        rename_button = Gtk.Button(label="Rename", action_name="project.rename")
+
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         button_box.append(delete_button)
         button_box.append(open_button)
+        button_box.append(rename_button)
 
         header_bar = Adw.HeaderBar()
         main_view = Adw.ToolbarView()
@@ -113,9 +148,17 @@ class AllProjects(Adw.NavigationPage):
         self.set_child(main_view)
         self.set_title("All Projects")
 
+        self.install_action("project.rename", None, self.__on_rename_project)
+
     async def __delete_project(self, project: Project) -> None:
         await self.__context.delete_project(project.id)
 
     def __on_delete(self, widget: Gtk.Widget) -> None:
         sbaid.common.run_coro_in_background(self.__delete_project(
             cast(Project, self.selection.get_selected_item())))
+
+    def __on_rename_project(self, widget: Gtk.Widget, action_name: str,
+                            parameter: GLib.Variant | None) -> None:
+        project = cast(Project, self.selection.get_selected_item())
+        if project:
+            _RenameDialog(project).present(cast(Adw.Window, self.get_root()))

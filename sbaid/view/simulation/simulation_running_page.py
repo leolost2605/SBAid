@@ -73,7 +73,7 @@ class SimulationRunningPage(Adw.NavigationPage):
         open_result_button.add_css_class("suggested-action")
         open_result_button.add_css_class("pill")
         open_result_button.set_halign(Gtk.Align.CENTER)
-        open_result_button.set_action_name("win.open-result")
+        open_result_button.set_action_name("win.export-result")
         open_result_button.set_action_target_value(GLib.Variant.new_string(result_id))
 
         self.__status_page.set_title("Simulation Completed")
