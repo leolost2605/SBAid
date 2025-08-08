@@ -156,5 +156,5 @@ class Parameter(GObject.GObject):
         tags = await self.__db.get_all_tag_ids_for_parameter(self.__algo_config_id,
                                                              self.name, cs_id)
         for tag in tags:
-            # TODO: get tag name lol
-            self.__selected_tags.append(Tag(tag, "Name to do"))
+            name = await self.__db.get_tag_name(tag)
+            self.__selected_tags.append(Tag(tag, name))
