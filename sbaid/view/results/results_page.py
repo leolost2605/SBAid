@@ -3,7 +3,7 @@ import gi
 import sys
 from sbaid.view_model.context import Context
 
-#from sbaid.view_model.results.result
+#from sbaid.view_model.results.result import Result
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -17,6 +17,12 @@ except (ImportError, ValueError) as exc:
 class ResultsPage(Adw.NavigationPage):
     """This class contains the results page, containing the results to all
     simulations ran on SBAid."""
+
+    __search = Gtk.SearchEntry
+    __filter = Gtk.CustomFilter
+    __results_model = Gtk.FilterListModel
+
+    __result = Result
 
 
     def __init__(self, context: Context) -> None:
