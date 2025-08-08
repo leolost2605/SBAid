@@ -1,3 +1,4 @@
+import sys
 import unittest
 from unittest.mock import Mock, AsyncMock
 
@@ -47,6 +48,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(algo_config.evaluation_interval, 30)
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_can_handle_file(self) -> None:
         parser_factory = ParserFactory()
         file = Gio.File.new_for_path("./tests/model/algorithm_configuration/valid_parameter_config.csv")
