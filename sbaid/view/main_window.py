@@ -8,6 +8,7 @@ from typing import Any, cast
 import gi
 
 from sbaid import common
+from sbaid.view.cross_section_editing.cross_section_editing_page import CrossSectionEditingPage
 from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view.results.export_results_dialog import ExportResultsDialog
 from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
@@ -118,9 +119,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         for cs in common.list_model_iterator(project.network.cross_sections):
             if cs.id == cross_section_id:
-                # pylint: disable=undefined-variable
-                self.__nav_view.push(CrossSectionEditingPage(  # type: ignore # noqa
-                    project.algorithm_configuration_manager))
+                self.__nav_view.push(CrossSectionEditingPage(cs, project.network))
                 return
 
         raise CrossSectionNotFoundError(f"The cross_section with the id {cross_section_id} "

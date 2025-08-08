@@ -152,7 +152,7 @@ class DummySimulator(Simulator):
                             vehicle_type = vehicle["type"]
                             current_input.add_vehicle_info(str(cross_section), int(lane_id),
                                                            vehicle_type, float(vehicle["speed"]))
-                        max_lanes = max(max_lanes, int(lane_id))
+                        max_lanes = max(max_lanes, int(lane_id) + 1)
                     if not self.are_cs_set:
                         self._cross_sections.append(
                             DummyCrossSection(cross_section, cross_section,
