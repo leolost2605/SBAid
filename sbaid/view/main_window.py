@@ -46,7 +46,7 @@ class MainWindow(Adw.ApplicationWindow):
     __nav_view: Adw.NavigationView
 
     def __init__(self, context: Context, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, default_width=1294, default_height=800)
         self.__context = context
 
         welcome_page = WelcomePage(self.__context)
