@@ -110,6 +110,8 @@ class ExportResultsDialog(Adw.Window):
         self.set_content(toolbar_view)
         self.set_title("Export " + result.name)
 
+        common.run_coro_in_background(result.load())
+
     def __setup_cross_section_row(self, factory: Gtk.SignalListItemFactory,
                                   obj: GObject.Object) -> None:
         list_item = cast(Gtk.ListItem, obj)

@@ -111,13 +111,21 @@ class Result(GObject.GObject):
 
         super().__init__(selected_tags=Gtk.MultiSelection.new(available_tags),
                          diagram_types=Gtk.SingleSelection.new(self.__available_diagram_types),
-                         cross_section=Gtk.MultiSelection.
-                         new(self.__get_cross_section_selection(result)),
+                         cross_section=Gtk.MultiSelection(),
                          formats=Gtk.SingleSelection.new(Adw.EnumListModel.new(ImageFormat)))
 
         self.formats.connect("selection-changed", self._on_selection_changed)
         self.diagram_types.connect("selection-changed", self._on_selection_changed)
         self.cross_section.connect("selection-changed", self._on_selection_changed)
+
+    async def load(self) -> None:
+        """
+        Loads the actual data about for this result.
+        """
+        await self.__result.load()
+
+        # We have to wait for the loading before the cross sections are available
+        self.cross_section.set_model(self.__get_cross_section_selection())
 
     def save_diagrams(self, path: str) -> None:
         """Saves diagrams to a file."""
@@ -148,9 +156,9 @@ class Result(GObject.GObject):
 
         return id_list, image_format, diagram_type
 
-    def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
+    def __get_cross_section_selection(self) -> Gio.ListModel:
         cross_section_selections = Gio.ListStore.new(CrossSectionSnapshotWrapper)
-        snapshot = result.snapshots.get_item(0)
+        snapshot = self.__result.snapshots.get_item(0)
         assert isinstance(snapshot, Snapshot)
         for cross_section in snapshot.cross_section_snapshots:
             assert isinstance(cross_section, CrossSectionSnapshot)
