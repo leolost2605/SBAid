@@ -13,7 +13,7 @@ class CSVParameterParser(ParameterParser):
     """This class handles the parsing of CSV files containing global
     and cross section parameters."""
 
-    def can_handle(self, file_path: str) -> bool:
+    def can_handle_file(self, file_path: str) -> bool:
         """Checks if the given file is a csv file."""
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
