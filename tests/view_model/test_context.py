@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from gi.repository import Gio
 
 from sbaid.common.simulator_type import SimulatorType
+from sbaid.common.tag import Tag
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.project import Project as ModelProject
 from sbaid.view_model.context import Context
@@ -13,6 +14,8 @@ class ContextTestCase(unittest.TestCase):
     def test_simple(self):
         model_context = Mock()
         model_context.projects = Gio.ListStore.new(ModelProject)
+        model_context.result_manager.results = Gio.ListStore.new(Tag)
+        model_context.result_manager.available_tags = Gio.ListStore.new(Tag)
 
         global_mock_db = unittest.mock.AsyncMock()
         res_manager = ResultManager(global_mock_db)

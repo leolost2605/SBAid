@@ -121,28 +121,17 @@ class Result(GObject.GObject):
 
     def save_diagrams(self, path: str) -> None:
         """Saves diagrams to a file."""
-        for image in common.list_model_iterator(self.__previews):
+        for i, image in enumerate(common.list_model_iterator(self.__previews)):
             assert isinstance(image, Image)
 
             selected_diagram = self.__available_diagram_types.get_item(
                 self.diagram_types.get_selected())
             assert isinstance(selected_diagram, DiagramType)
 
-            filename = selected_diagram.name + "_" + self.__get_name_for_file()
+            filename = selected_diagram.name + "_" + str(i)
 
             full_path = os.path.join(path, filename)
             image.save_to_file(full_path)
-
-    def __get_name_for_file(self) -> str:
-        name_list = []
-
-        for i in range(self.cross_section.get_n_items()):
-            if self.cross_section.is_selected(i):
-                wrapper = self.cross_section.get_item(i)
-                assert isinstance(wrapper, CrossSectionSnapshotWrapper)
-                name_list.append(wrapper.cs_info[1])
-
-        return str(name_list)
 
     def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
@@ -160,7 +149,6 @@ class Result(GObject.GObject):
         return id_list, image_format, diagram_type
 
     def __get_cross_section_selection(self, result: ModelResult) -> Gio.ListModel:
-        """Returns the cross-section information for """
         cross_section_selections = Gio.ListStore.new(CrossSectionSnapshotWrapper)
         snapshot = result.snapshots.get_item(0)
         assert isinstance(snapshot, Snapshot)

@@ -3,7 +3,10 @@ This module contains the class that represents the result manager.
 """
 import sys
 import gi
+
 from sbaid.model.results.result_manager import ResultManager as ModelResultManager
+from sbaid.model.results.result import Result as ModelResult
+from sbaid.view_model.results.result import Result
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -28,15 +31,20 @@ class ResultManager(GObject.GObject):
     @results.getter  # type: ignore
     def results(self) -> Gio.ListModel:
         """ Returns the results. """
-        return self.__result_manager.results
+        return self.__results
 
     __result_manager: ModelResultManager
-    __results: Gio.ListStore
+    __results: Gtk.MapListModel
 
     def __init__(self, manager: ModelResultManager):
         self.__result_manager = manager
         super().__init__(available_tags=Gtk.MultiSelection.new(
             self.__result_manager.available_tags))
+
+        self.__results = Gtk.MapListModel.new(manager.results, self.__map_func)
+
+    def __map_func(self, model_result: ModelResult) -> Result:
+        return Result(model_result, self.available_tags)
 
     async def create_tag(self, name: str) -> int:
         """Creates a new tag for the result with a given name."""

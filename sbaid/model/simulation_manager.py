@@ -47,7 +47,13 @@ class SimulationManager(GObject.GObject):
     async def cancel(self) -> None:
         """Cancel the running simulation"""
         self.__simulation_task.cancel()
-        await self.__simulator.stop_simulation()
+
+        try:
+            await self.__simulator.stop_simulation()
+            self.__observer.failed(GLib.Error("Simulation was cancelled."))
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to stop simulation: ", e)
+            self.__observer.failed(GLib.Error("Failed to cancel simulation: " + str(e)))
 
     def start(self) -> None:
         """Start the simulation"""
@@ -60,6 +66,11 @@ class SimulationManager(GObject.GObject):
         except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to simulate: ", e)
             self.__observer.failed(GLib.Error("Failed to simulate: " + str(e)))
+
+        try:
+            await self.__simulator.stop_simulation()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to stop simulation: ", e)
 
     async def __run_simulation(self) -> None:
         simulation_start_time, simulation_duration = await self.__simulator.init_simulation()
@@ -92,8 +103,6 @@ class SimulationManager(GObject.GObject):
             self.__observer.update_progress(elapsed_time / simulation_duration)
 
             elapsed_time += eval_interval
-
-        await self.__simulator.stop_simulation()
 
         result = await self.__result_builder.end_result()
 
