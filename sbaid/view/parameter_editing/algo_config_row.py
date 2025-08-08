@@ -7,7 +7,6 @@ import sys
 import gi
 
 from sbaid.view_model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
-from sbaid.view_model.network.cross_section import CrossSection
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -60,7 +59,6 @@ class AlgoConfigRow(Adw.Bin):
 
             self.__menu.set_pointing_to(rect)
             self.__menu.popup()
-
 
     def bind(self, config: AlgorithmConfiguration) -> None:
         """
