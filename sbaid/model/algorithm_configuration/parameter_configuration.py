@@ -8,7 +8,7 @@ from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
-from sbaid.model.network.network import Network
+from sbaid.model.network.network import Network, NoSuitableParserException
 from sbaid.model.algorithm.algorithm import Algorithm
 
 try:
@@ -65,6 +65,8 @@ class ParameterConfiguration(GObject.GObject):
         :return: The number of valid parameters and the number of invalid parameters
         """
         parser = ParserFactory().get_parser(file)
+        if parser is None:
+            raise NoSuitableParserException()
         return await parser.for_each_parameter(file, self.__import_param_func)
 
     def __import_param_func(self, name: str, cross_section_id: str | None,
