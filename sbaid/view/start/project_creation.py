@@ -1,11 +1,13 @@
 """This module contains the project creation page."""
 import sys
+from typing import cast
 
 import gi
 
 import sbaid.common
+from sbaid import common
+from sbaid.common.simulator_type import SimulatorType
 from sbaid.view_model.context import Context
-from sbaid.view.start.simulator_entry_popover import SimulatorEntryPopover
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -20,17 +22,29 @@ class ProjectCreation(Adw.NavigationPage):
     """This class represents the project creation page, that is used to create new projects."""
     def __init__(self, context: Context):
         super().__init__()
-        self.__context = context
 
-        self.__sim_popover = SimulatorEntryPopover(self.__context)
+        self.__context = context
 
         self.__enter_name_row = Adw.EntryRow(title="Name")
 
-        enter_simulator_button = Gtk.MenuButton(label="Select", popover=self.__sim_popover)
-        enter_sim_row = Adw.ActionRow(title="Simulator")
-        enter_sim_row.add_suffix(enter_simulator_button)
+        self.__simulator_row = Adw.ComboRow(title="Simulator")
+        self.__simulator_row.set_expression(Gtk.PropertyExpression.new(
+            SimulatorType, None, "name"))
+        self.__simulator_row.set_model(context.simulator_types)
 
-        self.__project_path_row = Adw.EntryRow(title="Project Path")
+        select_simulation_path_button = Gtk.Button.new_with_label("Select...")
+        select_simulation_path_button.set_valign(Gtk.Align.CENTER)
+        select_simulation_path_button.connect("clicked", self.__on_simulation_path_clicked)
+
+        self.__simulation_path_row = Adw.ActionRow(title="Simulation File")
+        self.__simulation_path_row.add_suffix(select_simulation_path_button)
+
+        select_project_path_button = Gtk.Button.new_with_label("Select...")
+        select_project_path_button.set_valign(Gtk.Align.CENTER)
+        select_project_path_button.connect("clicked", self.__on_project_path_clicked)
+
+        self.__project_path_row = Adw.ActionRow(title="Project Folder")
+        self.__project_path_row.add_suffix(select_project_path_button)
 
         enter_button = Gtk.Button(label="Create", margin_top=12)
         enter_button.add_css_class("suggested-action")
@@ -40,7 +54,8 @@ class ProjectCreation(Adw.NavigationPage):
             margin_end=12, margin_top=12, margin_bottom=12, margin_start=12,
             valign=Gtk.Align.CENTER)
         preferences_group.add(self.__enter_name_row)
-        preferences_group.add(enter_sim_row)
+        preferences_group.add(self.__simulator_row)
+        preferences_group.add(self.__simulation_path_row)
         preferences_group.add(self.__project_path_row)
         preferences_group.add(enter_button)
 
@@ -55,11 +70,45 @@ class ProjectCreation(Adw.NavigationPage):
         self.set_child(main_view)
         self.set_title("Project Creation")
 
+    def __on_simulation_path_clicked(self, button: Gtk.Button) -> None:
+        common.run_coro_in_background(self.__collect_simulation_path())
+
+    async def __collect_simulation_path(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.open(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        self.__simulation_path_row.set_subtitle(file.get_path())
+
+    def __on_project_path_clicked(self, button: Gtk.Button) -> None:
+        common.run_coro_in_background(self.__collect_project_folder())
+
+    async def __collect_project_folder(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.select_folder(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        self.__project_path_row.set_subtitle(file.get_path())
+
     async def __create_project_coro(self) -> None:
         name = self.__enter_name_row.get_text()
-        sim_path = self.__sim_popover.path
-        sim_type = self.__sim_popover.type
-        proj_path = self.__project_path_row.get_text()
+        sim_type = cast(SimulatorType, self.__simulator_row.get_selected_item())
+        sim_path = self.__simulation_path_row.get_subtitle()
+        proj_path = self.__project_path_row.get_subtitle()
 
         if name and sim_type and proj_path and sim_path:
             proj_id = await self.__context.create_project(name, sim_type, sim_path, proj_path)
