@@ -55,7 +55,7 @@ class ParamCell(Adw.Bin):
 
             case ParamCellType.VALUE:
                 self.__entry = child = Gtk.Entry(
-                    secondary_icon_name="confirm", secondary_icon_activatable=True)
+                    secondary_icon_name="selection-mode-symbolic", secondary_icon_activatable=True)
                 self.__entry.connect("icon-release", self.__on_entry_icon_release)
                 self.__entry.connect("activate", self.__update_value)
 
@@ -69,9 +69,9 @@ class ParamCell(Adw.Bin):
         if self.__parameter is None:
             return
 
-        if self.__parameter.inconsistent:
+        if self.__parameter.value is None:
             self.__entry.set_text("")
-        elif self.__parameter.value is not None:
+        else:
             self.__entry.set_text(self.__parameter.value.print_(True))
 
     def __on_entry_icon_release(self, entry: Gtk.Entry, pos: Gtk.EntryIconPosition) -> None:
