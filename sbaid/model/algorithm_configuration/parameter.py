@@ -157,4 +157,8 @@ class Parameter(GObject.GObject):
                                                              self.name, cs_id)
         for tag in tags:
             name = await self.__db.get_tag_name(tag)
-            self.__selected_tags.append(Tag(tag, name))
+
+            if name:
+                self.__selected_tags.append(Tag(tag, name))
+            else:
+                self.__selected_tags.append(Tag(tag, "Unknown Tag"))
