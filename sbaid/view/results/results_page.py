@@ -1,30 +1,134 @@
 """This module contains the results page."""
 import gi
 import sys
-from sbaid.view_model.context import Context
+from typing import cast
 
-#from sbaid.view_model.results.result import Result
+from sbaid.view.results.result_cell import ResultCell, ResultCellType
+
+from sbaid.view_model.results.result import Result
+from sbaid.view_model.results.result_manager import ResultManager
 
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, GLib
+    from gi.repository import Gtk, Adw, GLib, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
 class ResultsPage(Adw.NavigationPage):
-    """This class contains the results page, containing the results to all
-    simulations ran on SBAid."""
+    """
+    This class contains the results page, showing the results from all
+    simulations ran on SBAid.
+    """
 
-    __search = Gtk.SearchEntry
-    __filter = Gtk.CustomFilter
-    __results_model = Gtk.FilterListModel
+    __search_entry: Gtk.SearchEntry
+    __filter: Gtk.CustomFilter
 
-    __result = Result
-
-
-    def __init__(self, context: Context) -> None:
+    def __init__(self, result_manager: ResultManager) -> None:
         super().__init__()
-        self.__context = context
+
+        self.__search_entry = Gtk.SearchEntry(placeholder_text="Search Results")
+        self.__search_entry.connect("search-changed", self.__on_search_entry_changed)
+
+        header_bar = Adw.HeaderBar()
+        header_bar.pack_end(self.__search_entry)
+
+        self.__filter = Gtk.CustomFilter.new(self.__filter_func)
+
+        filter_model = Gtk.FilterListModel.new(result_manager.results, self.__filter)
+
+        selection_model = Gtk.NoSelection.new(filter_model)
+
+        name_factory = Gtk.SignalListItemFactory()
+        name_factory.connect("setup", self.__setup_result_name_cell)
+        name_factory.connect("bind", self.__bind_cell)
+
+        name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
+        name_column.set_expand(True)
+
+        project_name_factory = Gtk.SignalListItemFactory()
+        project_name_factory.connect("setup", self.__setup_project_name_cell)
+        project_name_factory.connect("bind", self.__bind_cell)
+
+        project_name_column = Gtk.ColumnViewColumn.new("Project Name", project_name_factory)
+
+        date_factory = Gtk.SignalListItemFactory()
+        date_factory.connect("setup", self.__setup_date_cell)
+        date_factory.connect("bind", self.__bind_cell)
+
+        date_column = Gtk.ColumnViewColumn.new("Date", date_factory)
+
+        tag_factory = Gtk.SignalListItemFactory()
+        tag_factory.connect("setup", self.__setup_tags_cell)
+        tag_factory.connect("bind", self.__bind_cell)
+
+        tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
+
+        column_view = Gtk.ColumnView.new(selection_model)
+        column_view.set_single_click_activate(True)
+        column_view.set_hexpand(True)
+        column_view.set_vexpand(True)
+        column_view.append_column(name_column)
+        column_view.append_column(project_name_column)
+        column_view.append_column(date_column)
+        column_view.append_column(tag_column)
+        column_view.connect("activate", self.__on_activate)
+
+        column_view_scrolled = Gtk.ScrolledWindow(child=column_view, propagate_natural_width=True,
+                                                  propagate_natural_height=True)
+
+        column_view_frame = Gtk.Frame(child=column_view_scrolled, margin_top=12, margin_bottom=12,
+                                      margin_end=12, margin_start=12)
+
+        toolbar_view = Adw.ToolbarView(content=column_view_frame)
+        toolbar_view.add_top_bar(header_bar)
+
+        self.set_child(toolbar_view)
+        self.set_title("Results")
+
+    def __on_search_entry_changed(self, entry: Gtk.SearchEntry) -> None:
+        self.__filter.changed(Gtk.FilterChange.DIFFERENT)
+
+    def __filter_func(self, result: Result) -> bool:
+        if self.__search_entry.get_text().strip() == "":
+            return True
+
+        return self.__search_entry.get_text().strip() in result.name
+
+    def __on_activate(self, column_view: Gtk.ColumnView, pos: int) -> None:
+        model = column_view.get_model()
+
+        if not model:
+            return
+
+        result = cast(Result, model.get_item(pos))  # type: ignore
+        self.activate_action("win.export-result", GLib.Variant.new_string(result.id))
+
+    @staticmethod
+    def __setup_result_name_cell(factory: Gtk.SignalListItemFactory,
+                                 list_item: Gtk.ListItem) -> None:
+        list_item.set_child(ResultCell(ResultCellType.RESULT_NAME))
+
+    @staticmethod
+    def __setup_project_name_cell(factory: Gtk.SignalListItemFactory,
+                                  list_item: Gtk.ListItem) -> None:
+        list_item.set_child(ResultCell(ResultCellType.PROJECT_NAME))
+
+    @staticmethod
+    def __setup_date_cell(factory: Gtk.SignalListItemFactory,
+                          list_item: Gtk.ListItem) -> None:
+        list_item.set_child(ResultCell(ResultCellType.DATE))
+
+    @staticmethod
+    def __setup_tags_cell(factory: Gtk.SignalListItemFactory,
+                          list_item: Gtk.ListItem) -> None:
+        list_item.set_child(ResultCell(ResultCellType.TAGS))
+
+    @staticmethod
+    def __bind_cell(factory: Gtk.SignalListItemFactory,
+                    list_item: Gtk.ListItem) -> None:
+        item = cast(Result, list_item.get_item())
+        cell = cast(ResultCell, list_item.get_child())
+        cell.bind(item)

@@ -11,6 +11,7 @@ from sbaid import common
 from sbaid.view.cross_section_editing.cross_section_editing_page import CrossSectionEditingPage
 from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view.results.export_results_dialog import ExportResultsDialog
+from sbaid.view.results.results_page import ResultsPage
 from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
 from sbaid.view.parameter_editing.algo_configs_dialog import AlgoConfigsDialog
 from sbaid.view_model.context import Context
@@ -18,7 +19,6 @@ from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
 from sbaid.view.start.all_projects import AllProjects
 from sbaid.view.start.project_creation import ProjectCreation
-from sbaid.view.start.results import Results
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -141,7 +141,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.__nav_view.push(AllProjects(self.__context))
 
     def __on_results(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
-        self.__nav_view.push(Results())
+        self.__nav_view.push(ResultsPage(self.__context.result_manager))
 
     def __on_export_result(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         result_id = param.get_string()
