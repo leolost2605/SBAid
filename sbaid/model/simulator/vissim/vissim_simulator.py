@@ -13,7 +13,7 @@ from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
 class VissimSimulator(Simulator):
-    """TODO"""
+    """This class implements the Simulator class, using Vissim as a Simulator."""
 
     __type: SimulatorType
     __route: Gio.ListStore
