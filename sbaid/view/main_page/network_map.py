@@ -16,7 +16,7 @@ try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
     gi.require_version('Shumate', '1.0')
-    from gi.repository import Adw, Gio, Shumate
+    from gi.repository import Adw, Gio, Shumate, Gdk
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -53,6 +53,9 @@ class NetworkMap(Adw.Bin):
         self.__map.get_map().connect("animation-completed", self.__on_animation_completed)
 
         self.__path_layer = Shumate.PathLayer.new(self.__map.get_viewport())
+        self.__path_layer.set_stroke_color(Gdk.RGBA(0.023529411764705882, 0.054901960784313725,
+                                                    0.5019607843137255, 1.0))
+        self.__path_layer.set_stroke_width(5)
         self.__cross_sections_layer = Shumate.MarkerLayer.new(self.__map.get_viewport())
 
         self.__map.add_overlay_layer(self.__path_layer)
