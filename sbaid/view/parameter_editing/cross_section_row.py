@@ -28,7 +28,8 @@ class CrossSectionRow(Adw.Bin):
     def __init__(self) -> None:
         super().__init__()
 
-        self.__label = Gtk.Label()
+        self.__label = Gtk.Label(xalign=0, margin_top=6, margin_bottom=6, margin_end=12,
+                                 margin_start=6)
         self.set_child(self.__label)
 
     def bind(self, cross_section: CrossSection) -> None:

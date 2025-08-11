@@ -40,8 +40,20 @@ class CrossSectionMarker(Adw.Bin):
         self.__network = network
         self.__cross_section = cross_section
 
-        image = Gtk.Image.new_from_icon_name("location-services-active")
-        self.set_child(image)
+        self.__image = Gtk.Image.new_from_icon_name("location-services-active")
+        self.__image.set_icon_size(Gtk.IconSize.LARGE)
+
+        bottom_widget = Adw.Bin()
+
+        size_group = Gtk.SizeGroup.new(Gtk.SizeGroupMode.BOTH)
+        size_group.add_widget(self.__image)
+        size_group.add_widget(bottom_widget)
+
+        box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        box.append(self.__image)
+        box.append(bottom_widget)
+
+        self.set_child(box)
 
         click = Gtk.GestureClick()
         click.connect("released", self.__on_clicked)
@@ -54,7 +66,7 @@ class CrossSectionMarker(Adw.Bin):
         if self.__popover is None:
             self.__popover = CrossSectionDetailsPopover(self.__project_id, self.__network,
                                                         self.__cross_section)
-            self.__popover.set_parent(self)
+            self.__popover.set_parent(self.__image)
 
         self.__popover.popup()
 

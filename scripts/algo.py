@@ -1,6 +1,7 @@
 from gi.repository import Gio, GObject, GLib
 from typing_extensions import override
 
+from sbaid.common.a_display import ADisplay
 from sbaid.model.algorithm.algorithm import Algorithm
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.simulation.parameter_configuration_state import ParameterConfigurationState
@@ -24,7 +25,11 @@ class AlgorithmImpl(Algorithm):
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
              network_state: NetworkState) -> None:
-        pass
+        self.__network_state = network_state
 
     def calculate_display(self, algorithm_input: Input) -> Display:
-        return Display()  # Everything is OFF :)
+        display = Display()
+        for cs_state in self.__network_state.cross_section_states:
+            for lane in range(cs_state.lanes):
+                display.set_a_display(cs_state.id, lane, ADisplay.SPEED_LIMIT_130)
+        return display
