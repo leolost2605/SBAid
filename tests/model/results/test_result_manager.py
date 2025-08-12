@@ -6,15 +6,12 @@ from gi.repository import GLib, Gio
 from sbaid.model.results.result_manager import ResultManager
 from sbaid.model.results.result import Result
 
-class ResultManagerTest(unittest.TestCase):
+class ResultManagerTest(unittest.IsolatedAsyncioTestCase):
     """This class tests the ResultManager class. """
     __global_db = unittest.mock.AsyncMock()
     result_manager = ResultManager(__global_db)
 
-    def test_add_and_remove_tag(self):
-        asyncio.run(self.__test_add_and_remove_tag())
-
-    async def __test_add_and_remove_tag(self):
+    async def test_add_and_remove_tag(self):
         """Test creating and removing tags to the list of available tags."""
 
         # create two tags
@@ -39,11 +36,7 @@ class ResultManagerTest(unittest.TestCase):
         self.assertNotIn(available_tag_one, self.result_manager.available_tags)
         self.assertIn(available_tag_two, self.result_manager.available_tags)
 
-    def test_add_and_remove_result(self):
-        """Test creating and removing results to the list of results."""
-        asyncio.run(self.__test_add_and_remove_result())
-
-    async def __test_add_and_remove_result(self):
+    async def test_add_and_remove_result(self):
         """Test creating and removing results to the list of results."""
 
         # init result

@@ -6,7 +6,7 @@ from sbaid.model.results.diagram_exporter import DiagramExporter
 from sbaid.model.results.result import Result
 from tests import result_testing_utils
 
-class DiagramExporterTest(unittest.TestCase):
+class DiagramExporterTest(unittest.IsolatedAsyncioTestCase):
     exporter = DiagramExporter()
 
     def test_initialize(self):
@@ -15,10 +15,7 @@ class DiagramExporterTest(unittest.TestCase):
         self.assertEqual(self.exporter.available_diagram_types[1].name, "QV-Diagram")
         self.assertEqual(self.exporter.available_diagram_types[2].name, "Velocity-Diagram")
 
-    def test_create_diagram(self):
-        asyncio.run(self.__test_create_diagram())
-
-    async def __test_create_diagram(self):
+    async def test_create_diagram(self):
         result = await result_testing_utils.generate_result(200, 10, 2)
         test_id= random.choice(list(random.choice(list(result.snapshots)).cross_section_snapshots)).cross_section_id
 

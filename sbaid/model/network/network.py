@@ -1,9 +1,10 @@
 """This module contains the Network class and exceptions related to cross section importing."""
 
 import sys
-import asyncio
 import typing
 import gi
+
+import sbaid.common
 from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulator.simulator import Simulator
@@ -38,14 +39,12 @@ class Network(GObject.Object):
                                     GObject.ParamFlags.WRITABLE |
                                     GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    __background_tasks: set[asyncio.Task[None]]
     __cross_sections: Gtk.MapListModel
 
     def __init__(self, simulator: Simulator, project_db: ProjectDatabase) -> None:
         """Constructs a Network."""
         self.__simulator = simulator
         self.__project_db = project_db
-        self.__background_tasks = set()
         self.__cross_sections = Gtk.MapListModel.new(None, self.__map_func)
         super().__init__(route=Route(simulator.route_points))
 
@@ -142,9 +141,7 @@ class Network(GObject.Object):
         to be mapped to the given simulator cross section in the MapListModel.
         Starts the loading of cross section metadata form the database."""
         model_cross_section = CrossSection(sim_cross_section, self.__project_db)
-        task = asyncio.create_task(model_cross_section.load_from_db())
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        sbaid.common.run_coro_in_background(model_cross_section.load_from_db())
         return model_cross_section
 
 

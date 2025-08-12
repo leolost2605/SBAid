@@ -1,25 +1,11 @@
-import asyncio
 import unittest
-from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio, GLib
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
 
-class ContextTestCase(unittest.TestCase):
-    def test(self):
-        self.assertTrue(True)
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(ContextTestCase().start())
-        loop.run_until_complete(task)
-        loop.close()
-        asyncio.set_event_loop_policy(None)
+class ContextTestCase(unittest.IsolatedAsyncioTestCase):
 
-    async def start(self) -> None:
-        await self.load()
-        await self.projects()
-
-    async def load(self):
+    async def test_load(self):
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
 
         context1 = Context()
@@ -42,9 +28,9 @@ class ContextTestCase(unittest.TestCase):
         self.assertEqual(context2.projects.get_item(0).id, proj_id)
         self.assertEqual(context2.projects.get_n_items(), 1)
 
-        await global_file.delete_async(0, None)
+        global_file.delete_async(0, None)
 
-    async def projects(self):
+    async def test_projects(self):
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
 
         context = Context()
@@ -65,4 +51,4 @@ class ContextTestCase(unittest.TestCase):
         self.assertEqual(context.projects.get_item(0).id, proj_id_2)
         self.assertEqual(context.projects.get_n_items(), 1)
 
-        await global_file.delete_async(0, None)
+        global_file.delete_async(0, None)

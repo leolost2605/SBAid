@@ -15,15 +15,12 @@ from sbaid.model.results.snapshot import Snapshot
 from tests import result_testing_utils
 
 
-class ResultBuilderTest(unittest.TestCase):
+class ResultBuilderTest(unittest.IsolatedAsyncioTestCase):
 
     __gio_file = Gio.File.new_for_path("placeholder_path.db")
     __global_mock_db = unittest.mock.AsyncMock()
 
-    def test_build_with_random_values(self):
-        asyncio.run(self.__test_build_with_random_values())
-
-    async def __test_build_with_random_values(self):
+    async def test_build_with_random_values(self):
         """Tests the result builder by calling the methods in the right order with random values."""
         snapshot_amount = 100
         cs_amount = 30
@@ -43,11 +40,11 @@ class ResultBuilderTest(unittest.TestCase):
         self.assertEqual(len(random_cs_snapshot.lane_snapshots), lane_amount)
 
 
-    def test_build_in_wrong_order(self):
+    async def test_build_in_wrong_order(self):
         """Tests if the internal logic is robust enough to catch errors in the false building order."""
         with self.assertRaises(WrongOrderException):
-            asyncio.run(self.__build_incomplete_cross_section())
-            asyncio.run(self.__build_incomplete_lane())
+            await self.__build_incomplete_cross_section()
+            await self.__build_incomplete_lane()
 
     async def __build_incomplete_cross_section(self):
         """Starts building the result but does not add required values for the cross-section"""

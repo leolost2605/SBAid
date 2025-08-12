@@ -24,7 +24,7 @@ class VehicleInfo(GObject.GObject):
     def __eq__(self, other: Any) -> bool:
         """Override."""
         return (isinstance(other, VehicleInfo) and other.speed == self.speed
-                and other.speed == self.speed)
+                and other.vehicle_type == self.vehicle_type)
 
     def __hash__(self) -> int:
         """Override."""
