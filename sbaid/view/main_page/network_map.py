@@ -52,6 +52,8 @@ class NetworkMap(Adw.Bin):
             r"https://tile.openstreetmap.org/{z}/{x}/{y}.png"))
         self.__map.get_map().connect("animation-completed", self.__on_animation_completed)
 
+        self.__map.get_map().go_to_full_with_duration(0, 0, 1.6, 0)
+
         self.__path_layer = Shumate.PathLayer.new(self.__map.get_viewport())
         self.__path_layer.set_stroke_color(Gdk.RGBA(0.023529411764705882, 0.054901960784313725,
                                                     0.5019607843137255, 1.0))
