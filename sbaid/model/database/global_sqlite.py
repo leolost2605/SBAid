@@ -54,7 +54,7 @@ class GlobalSQLite(GlobalDatabase):
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
             await make_directory_with_parents_async(self._file.get_parent())
-            await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
+            self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
                                           GLib.PRIORITY_DEFAULT)
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:

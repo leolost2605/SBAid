@@ -1,37 +1,14 @@
-import asyncio
+from sqlite3 import IntegrityError
 import unittest
 
 from gi.repository import GLib
 from gi.repository import Gio
-from gi.events import GLibEventLoopPolicy
 
-from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.model.database.project_sqlite import ProjectSQLite
 
 
-class ProjectSQLiteTest(unittest.TestCase):
-
-    def setUp(self):
-        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(ProjectSQLiteTest().test())
-        loop.run_until_complete(task)
-        asyncio.set_event_loop_policy(None)
-
-    async def test(self) -> None:
-        await self.meta_data()
-        await self.algorithm_configuration()
-        await self.parameters()
-        await self.cross_section()
-        await self.tag_and_parameter_tag()
-
-    def on_delete_async(self, file, result, user_data):
-        try:
-            file.delete_finish(result)
-        except GLib.Error as e:
-            raise e
-
-    async def meta_data(self) -> None:
+class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
+    async def test_meta_data(self) -> None:
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
@@ -53,7 +30,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         file.delete_async(0, None)
 
-    async def algorithm_configuration(self):
+    async def test_algorithm_configuration(self):
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
@@ -81,7 +58,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         file.delete_async(0, None)
 
-    async def parameters(self):
+    async def test_parameters(self):
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
@@ -107,7 +84,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         file.delete_async(0, None)
 
 
-    async def cross_section(self):
+    async def test_cross_section(self):
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
@@ -136,7 +113,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         file.delete_async(0, None)
 
 
-    async def tag_and_parameter_tag(self):
+    async def test_tag_and_parameter_tag(self):
         file = Gio.File.new_for_path("./recursive/directories/test/apparently/successful/test.db")
         db = ProjectSQLite(file)
         await db.open()
@@ -160,7 +137,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         updated_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
         # print(await db.get_all_tags())
         # print(updated_parameter_tags)
-        # self.assertEqual(len(updated_parameter_tags), 0) TODO: cascading deletion
+        self.assertEqual(len(updated_parameter_tags), 0)
 
         await db.add_tag("my_tag_id", "my_tag_name")
         await db.add_parameter_tag("my_parameter_tag_id", "my_parameter_name",  # parameter_tag.id
@@ -177,28 +154,18 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         file.delete_async(0, None)
 
-    async def foreign_key_error(self):
+    async def test_foreign_key_error(self):
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
         await db.open()
-        async with ProjectSQLite(file) as db:
-            try:
-                await db.add_parameter("my_nonexistent_algorithm_configuration_d",
-                                       "my_parameter_name", None, GLib.Variant.new_boolean(True))
-            except ForeignKeyError:
-                self.assertTrue(True)
-            try:
-                await db.add_algorithm_configuration("my_algorithm_configuration_id",
-                                                     "my_algorithm_configuration_name",
-                                                     0, 0, "my_path")
-                await db.add_parameter_tag("my_nonexistent_parameter_tag_id", "my_parameter_name",
-                                           "my_algorithm_configuration_name",
-                                           "my_nonexistent_cross_section_id", "my_tag_id")
-            except ForeignKeyError:
-                self.assertTrue(True)
-
-                file.delete_async(0, None)
-                return
-
-            self.assertTrue(False)
+        with self.assertRaises(IntegrityError):
+            await db.add_parameter("my_nonexistent_algorithm_configuration_d",
+                                   "my_parameter_name", None, GLib.Variant.new_boolean(True))
+        with self.assertRaises(IntegrityError):
+            await db.add_algorithm_configuration("my_algorithm_configuration_id",
+                                                 "my_algorithm_configuration_name",
+                                                 0, 0, "my_path")
+            await db.add_parameter_tag("my_nonexistent_parameter_tag_id", "my_parameter_name",
+                                       "my_algorithm_configuration_name",
+                                       "my_nonexistent_cross_section_id", "my_tag_id")
         file.delete_async(0, None)

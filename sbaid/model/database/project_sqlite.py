@@ -374,6 +374,7 @@ class ProjectSQLite(ProjectDatabase):
                                           script_path: str, is_selected: bool = True) -> None:
         """Add a new algorithm configuration to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys = ON""")
             if is_selected:
                 await db.execute("""UPDATE algorithm_configuration
                 SET is_selected = 0""")
@@ -399,13 +400,11 @@ class ProjectSQLite(ProjectDatabase):
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
-                name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                                 (algorithm_configuration_id, name, value.print_(True)))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute("""PRAGMA foreign_keys = ON""")
+            await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
+            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
+                             (algorithm_configuration_id, name, value.print_(True)))
+            await db.commit()
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
@@ -452,14 +451,12 @@ class ProjectSQLite(ProjectDatabase):
         """Add a new parameter tag entry which represents a tag
         belonging to the given parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            # try:
+            await db.execute("""PRAGMA foreign_keys = ON""")
             await db.execute("""INSERT INTO parameter_tag (id, parameter_name,
             algorithm_configuration_id, cross_section_id, tag_id)
             VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
                                         algorithm_configuration_id, cross_section_id, tag_id))
             await db.commit()
-            # except sqlite3.IntegrityError as e:
-            #     raise ForeignKeyError(e) from e
 
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
