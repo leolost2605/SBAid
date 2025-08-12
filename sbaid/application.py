@@ -20,6 +20,10 @@ except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
+import tracemalloc
+
+tracemalloc.start()
+
 
 class Application(Adw.Application):
     """
@@ -51,3 +55,8 @@ class Application(Adw.Application):
             self.__window = MainWindow(self.__view_model_context, application=self)
 
         self.__window.present()
+
+    def do_shutdown(self):
+        del self.__window
+        del self.__view_model_context
+        del self

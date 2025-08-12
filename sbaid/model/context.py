@@ -16,7 +16,7 @@ class Context(GObject.GObject):
     """This class defines the Context class. The root class that is created at startup.
     Manages the projects and holds a reference to the ResultManager."""
 
-    __global_db: GlobalDatabase
+    __global_db: GlobalDatabase | None
     __projects: Gio.ListStore
 
     result_manager: ResultManager = GObject.Property(type=ResultManager,  # type: ignore
@@ -37,6 +37,14 @@ class Context(GObject.GObject):
         self.__global_db = GlobalSQLite(db_file)
         super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
+
+    def __delete__(self) -> None:
+        print("deleted global db")
+        del self.__global_db
+
+    def __del__(self) -> None:
+        print("deleted global db del")
+        del self.__global_db
 
     async def load(self) -> None:
         """Loads the projects and the results."""

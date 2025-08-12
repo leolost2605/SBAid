@@ -115,6 +115,12 @@ class Project(GObject.GObject):
 
         self.__name = "Unknown Project Name"
 
+    def __del__(self) -> None:
+        del self.__project_db
+
+    def __delete__(self) -> None:
+        del self.__project_db
+
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
         await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
