@@ -458,7 +458,7 @@ class ProjectSQLite(ProjectDatabase):
                         return []
                     return list(result)
             else:
-                async with db.execute("""SELECT tag_id FROM parameter_tag
+                async with self._connection.execute("""SELECT tag_id FROM parameter_tag
                     WHERE algorithm_configuration_id = ? AND parameter_name = ?
                     AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
                                                   cross_section_id)) as cursor:
