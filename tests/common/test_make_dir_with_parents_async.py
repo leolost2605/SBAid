@@ -1,4 +1,3 @@
-import asyncio
 import unittest
 
 from gi.repository import Gio

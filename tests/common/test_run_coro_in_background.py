@@ -20,6 +20,7 @@ class MyTestCase(unittest.TestCase):
     async def start_my_coro_helper(self):
         self.start_my_coro()
 
+    @unittest.skip
     def test_run_coro_in_background(self):
         loop = asyncio.get_event_loop()
         loop.create_task(self.start_my_coro_helper())

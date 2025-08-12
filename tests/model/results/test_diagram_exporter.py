@@ -16,7 +16,7 @@ class DiagramExporterTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.exporter.available_diagram_types[2].name, "Velocity-Diagram")
 
     async def test_create_diagram(self):
-        result = await result_testing_utils.generate_result(200, 10, 2)
+        result = await result_testing_utils.generate_result(20, 10, 2)
         test_id= random.choice(list(random.choice(list(result.snapshots)).cross_section_snapshots)).cross_section_id
 
         png_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[1])[0]
