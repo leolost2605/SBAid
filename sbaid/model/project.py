@@ -90,6 +90,9 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    def close(self):
+        self.__project_db.close()
+
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str, result_manager: ResultManager) -> None:
         """Creates a new project. The network and algorithm configuration manager
@@ -165,5 +168,6 @@ class Project(GObject.GObject):
     async def delete(self) -> None:
         """Deletes the project database file."""
         # TODO: Delete whole folder
+        self.close()
         file = Gio.File.new_for_path(self.project_file_path).get_child("db")
         await file.delete_async(0, None)  # type: ignore

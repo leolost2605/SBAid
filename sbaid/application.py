@@ -15,7 +15,7 @@ from sbaid.view.main_window import MainWindow
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw
+    from gi.repository import Gtk, Adw, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -51,3 +51,6 @@ class Application(Adw.Application):
             self.__window = MainWindow(self.__view_model_context, application=self)
 
         self.__window.present()
+
+    def do_shutdown(self, *args: Any, **kwargs: Any) -> None:
+        self.__view_model_context.close()

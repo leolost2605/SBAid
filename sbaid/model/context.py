@@ -38,13 +38,8 @@ class Context(GObject.GObject):
         super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
 
-    def __delete__(self) -> None:
-        print("deleted global db")
-        del self.__global_db
-
-    def __del__(self) -> None:
-        print("deleted global db del")
-        del self.__global_db
+    def close(self) -> None:
+        self.__global_db.close()
 
     async def load(self) -> None:
         """Loads the projects and the results."""

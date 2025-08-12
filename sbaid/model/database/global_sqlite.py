@@ -39,7 +39,7 @@ class GlobalSQLite(GlobalDatabase):
         self._file = file
         self._connection = None
 
-    def __del__(self) -> None:
+    def close(self) -> None:
         sbaid.common.run_coro_in_background(self._connection.close())
 
     async def open(self) -> None:

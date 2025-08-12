@@ -6,6 +6,7 @@ import sys
 
 import gi
 
+import sbaid.common
 from sbaid.model.simulator.simulator_factory import SimulatorFactory
 from sbaid.common.simulator_type import SimulatorType
 # from sbaid.view_model.results import ResultManager
@@ -63,6 +64,11 @@ class Context(GObject.Object):
         """
 
         await self.__context.load()
+
+    def close(self):
+        self.__context.close()
+        for project in sbaid.common.list_model_iterator(self.__context.projects):
+            project.close()
 
     async def create_project(
         self, name: str, sim_type: SimulatorType,

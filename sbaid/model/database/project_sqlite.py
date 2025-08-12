@@ -27,7 +27,7 @@ class ProjectSQLite(ProjectDatabase):
         self._creation_time = cast(GLib.DateTime, GLib.DateTime.new_now_local())
         self._connection = None
 
-    def __del__(self) -> None:
+    def close(self) -> None:
         sbaid.common.run_coro_in_background(self._connection.close())
 
     async def open(self) -> None:
