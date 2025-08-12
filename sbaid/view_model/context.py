@@ -65,7 +65,7 @@ class Context(GObject.Object):
 
         await self.__context.load()
 
-    def close(self):
+    def close(self) -> None:
         self.__context.close()
         for project in sbaid.common.list_model_iterator(self.__context.projects):
             project.close()

@@ -15,7 +15,7 @@ from sbaid.view.main_window import MainWindow
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, GLib
+    from gi.repository import Gtk, Adw
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)

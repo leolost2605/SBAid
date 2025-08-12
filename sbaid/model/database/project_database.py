@@ -12,7 +12,7 @@ class ProjectDatabase(ABC):
         """Opens the file for the database."""
 
     @abstractmethod
-    def close(self):
+    def close(self) -> None:
         """Closes this database."""
 
     @abstractmethod
@@ -66,7 +66,7 @@ class ProjectDatabase(ABC):
         """Update the name of the algorithm_configuration with the given id."""
 
     @abstractmethod
-    async def get_last_modified(self) -> GLib.DateTime:
+    async def get_last_modified(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was last modified."""
 
     @abstractmethod

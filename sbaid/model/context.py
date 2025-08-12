@@ -16,7 +16,7 @@ class Context(GObject.GObject):
     """This class defines the Context class. The root class that is created at startup.
     Manages the projects and holds a reference to the ResultManager."""
 
-    __global_db: GlobalDatabase | None
+    __global_db: GlobalDatabase
     __projects: Gio.ListStore
 
     result_manager: ResultManager = GObject.Property(type=ResultManager,  # type: ignore
@@ -39,6 +39,7 @@ class Context(GObject.GObject):
         self.__projects = Gio.ListStore.new(Project)
 
     def close(self) -> None:
+        """Closes the Context."""
         self.__global_db.close()
 
     async def load(self) -> None:

@@ -90,7 +90,8 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def close(self):
+    def close(self) -> None:
+        """Closes the Context."""
         self.__project_db.close()
 
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
@@ -117,12 +118,6 @@ class Project(GObject.GObject):
                          result_manager=result_manager)
 
         self.__name = "Unknown Project Name"
-
-    def __del__(self) -> None:
-        del self.__project_db
-
-    def __delete__(self) -> None:
-        del self.__project_db
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
