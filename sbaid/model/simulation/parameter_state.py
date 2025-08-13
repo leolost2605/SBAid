@@ -1,5 +1,4 @@
 """This module contains the ParameterState class."""
-from typing import Optional
 from gi.repository import GObject
 from gi.repository import GLib
 
@@ -20,6 +19,6 @@ class ParameterState(GObject.GObject):
         flags=GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def __init__(self, name: str, value: GLib.Variant, cross_section_id: Optional[str]) -> None:
+    def __init__(self, name: str, value: GLib.Variant, cross_section_id: str | None) -> None:
         """Constructs a ParameterState object."""
         super().__init__(name=name, value=value, cross_section_id=cross_section_id)
