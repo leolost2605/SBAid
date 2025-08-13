@@ -19,7 +19,7 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class ParameterConfiguration(GObject.GObject):
+class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-instance-attributes
     """
     This class manages the parameters for an algorithm configuration. It automatically
     maps the template taken from the algorithm to actual parameters. If a parameter template
