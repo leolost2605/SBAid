@@ -22,6 +22,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
     the tags that can be given to parameters across the algorithm configurations.
     """
 
+    __loaded: bool = False
     __db: ProjectDatabase
     __network: Network
 
@@ -70,6 +71,11 @@ class AlgorithmConfigurationManager(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the algorithm configurations from the database."""
+
+        if self.__loaded:
+            return
+
+        self.__loaded = True
 
         algo_config_ids = await self.__db.get_all_algorithm_configuration_ids()
 

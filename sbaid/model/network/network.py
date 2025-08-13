@@ -52,7 +52,8 @@ class Network(GObject.Object):
     async def load(self) -> None:
         """Sets the model for this network's MapListModel of simulator and model cross sections,
          triggering the loading of cross section metadata from the database in the __map_func."""
-        self.__cross_sections.set_model(self.__simulator.cross_sections)
+        if self.__cross_sections.get_model() is None:
+            self.__cross_sections.set_model(self.__simulator.cross_sections)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
         """Parses the given file and creates the cross sections defined in it."""

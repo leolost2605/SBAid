@@ -27,6 +27,7 @@ class Project(GObject.GObject):
     as well as references to the individual parts that make up the project. In addition, this
     class is the entry point for a simulation."""
 
+    __loaded: bool = False
     __project_db: ProjectDatabase
     __simulator: Simulator
     __name: str
@@ -117,6 +118,12 @@ class Project(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
+
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
         await self.network.load()
         await self.algorithm_configuration_manager.load()
