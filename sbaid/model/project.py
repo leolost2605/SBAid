@@ -70,7 +70,7 @@ class Project(GObject.GObject):
                                                  flags=GObject.ParamFlags.READABLE |
                                                  GObject.ParamFlags.WRITABLE)
 
-    last_modified: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
+    last_opened: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
                                                     flags=GObject.ParamFlags.READABLE |
                                                     GObject.ParamFlags.WRITABLE)
 
@@ -108,7 +108,7 @@ class Project(GObject.GObject):
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
                          created_at=GLib.DateTime.new_now_local(),
-                         last_modified=GLib.DateTime.new_now_local(),  # TODO: QS
+                         last_opened=GLib.DateTime.new_now_local(),  # TODO: QS
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
@@ -152,9 +152,9 @@ class Project(GObject.GObject):
         created_at = await self.__project_db.get_created_at()
         if created_at is not None:
             self.created_at = created_at
-        last_modified = await self.__project_db.get_last_modified()
-        if last_modified is not None:
-            self.last_modified = last_modified  # TODO: QS
+        last_opened = await self.__project_db.get_last_opened()
+        if last_opened is not None:
+            self.last_opened = last_opened  # TODO: QS
 
     async def delete(self) -> None:
         """Deletes the project database file."""

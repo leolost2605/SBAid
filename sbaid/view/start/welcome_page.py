@@ -65,7 +65,7 @@ class WelcomePage(Adw.NavigationPage):
         self.set_child(main_view)
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
-        return project_two.last_modified.compare(project_one.last_modified)
+        return project_two.last_opened.compare(project_one.last_opened)
 
     def __create_last_project_button(self, proj: Project) -> Gtk.Button:
         button = Gtk.Button()

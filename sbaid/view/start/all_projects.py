@@ -71,24 +71,24 @@ class AllProjects(Adw.NavigationPage):
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
 
-        last_modified_factory = Gtk.SignalListItemFactory()
-        last_modified_factory.connect("setup", self.__on_factory_setup,
-                                      ProjectCellType.LAST_MODIFIED)
-        last_modified_factory.connect("bind", self.__on_factory_bind)
+        last_opened_factory = Gtk.SignalListItemFactory()
+        last_opened_factory.connect("setup", self.__on_factory_setup,
+                                      ProjectCellType.last_opened)
+        last_opened_factory.connect("bind", self.__on_factory_bind)
 
-        last_modified_column = Gtk.ColumnViewColumn.new("Created at", last_modified_factory)
+        last_opened_column = Gtk.ColumnViewColumn.new("Created at", last_opened_factory)
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
-        last_modified_factory.connect("bind", self.__on_factory_bind)
+        last_opened_factory.connect("bind", self.__on_factory_bind)
 
-        created_at_column = Gtk.ColumnViewColumn.new("Last Modified", last_modified_factory)
+        created_at_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
 
         self.__selection = Gtk.SingleSelection.new(self.__context.projects)
 
         column_view = Gtk.ColumnView.new(self.__selection)
         column_view.append_column(name_column)
-        column_view.append_column(last_modified_column)
+        column_view.append_column(last_opened_column)
         column_view.append_column(created_at_column)
         column_view.connect("activate", self.__on_activate)
 

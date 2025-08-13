@@ -21,7 +21,7 @@ class ProjectCellType(Enum):
     """
     NAME = 0
     CREATED_AT = 1
-    LAST_MODIFIED = 2
+    last_opened = 2
 
 
 class ProjectCell(Adw.Bin):
@@ -56,9 +56,9 @@ class ProjectCell(Adw.Bin):
                 self.__label_binding = project.bind_property(
                     "created-at", self.__label, "label",
                     GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
-            case ProjectCellType.LAST_MODIFIED:
+            case ProjectCellType.last_opened:
                 self.__label_binding = project.bind_property(
-                    "last-modified", self.__label, "label",
+                    "last-opened", self.__label, "label",
                     GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
 
     @staticmethod
