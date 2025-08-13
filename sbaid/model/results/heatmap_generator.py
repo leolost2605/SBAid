@@ -1,5 +1,4 @@
 """This module contains the HeatMapGenerator class."""
-import random
 from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +13,6 @@ from sbaid.model.results.result import Result
 from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.seaborn_image import SeabornImage
 from sbaid.common import list_model_iterator
-from sbaid.model.results.snapshot import Snapshot
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
@@ -56,7 +54,6 @@ class HeatmapGenerator(GlobalDiagramGenerator):
                         cross_section_names.append(cs_snapshot.cross_section_name)
             diagram_data.append(average_speeds)
         return diagram_data, cross_section_names, timestamps
-
 
     def __generate_diagram(self, result_name: str, project_name: str,
                            data: tuple[list[float], list[str], list[str]],

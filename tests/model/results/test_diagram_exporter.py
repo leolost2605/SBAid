@@ -24,29 +24,29 @@ class DiagramExporterTest(unittest.TestCase):
 
         png_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[1])[0]
         self.assertIsNotNone(png_qv)
-        png_qv.save_to_file("./generator_outputs/qv")
+        png_qv.save_to_file("./tests/model/results/generator_outputs/qv")
 
         svg_qv = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[1])[0]
         self.assertIsNotNone(svg_qv)
-        svg_qv.save_to_file("./generator_outputs/qv")
+        svg_qv.save_to_file("./tests/model/results/generator_outputs/qv")
 
         png_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.PNG, self.exporter.available_diagram_types[2])[0]
         self.assertIsNotNone(png_velocity)
-        png_velocity.save_to_file("./generator_outputs/velocity")
+        png_velocity.save_to_file("./tests/model/results/generator_outputs/velocity")
 
         svg_velocity = self.exporter.get_diagram(result, [test_id], ImageFormat.SVG, self.exporter.available_diagram_types[2])[0]
         self.assertIsNotNone(svg_velocity)
-        svg_velocity.save_to_file("./generator_outputs/velocity")
+        svg_velocity.save_to_file("./tests/model/results/generator_outputs/velocity")
 
         png_heatmap = self.exporter.get_diagram(result, self.__get_result_cross_section_ids(result),
                                                  ImageFormat.PNG, self.exporter.available_diagram_types[0])[0]
         self.assertIsNotNone(png_heatmap)
-        png_heatmap.save_to_file("./generator_outputs/heatmap")
+        png_heatmap.save_to_file("./tests/model/results/generator_outputs/heatmap.png")
 
         svg_heatmap = self.exporter.get_diagram(result, self.__get_result_cross_section_ids(result),
                                                  ImageFormat.SVG, self.exporter.available_diagram_types[0])[0]
         self.assertIsNotNone(svg_heatmap)
-        svg_heatmap.save_to_file("./generator_outputs/heatmap")
+        svg_heatmap.save_to_file("./tests/model/results/generator_outputs/heatmap.svg")
 
     def __get_result_cross_section_ids(self, result: Result) -> list[str]:
         random_snapshot_cross_section_snapshots = list(random.choice(list(result.snapshots))
