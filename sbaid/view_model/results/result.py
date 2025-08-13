@@ -2,7 +2,6 @@
 This module contains the class that represents the result of simulation.
 """
 import os
-from typing import Tuple
 import sys
 import gi
 
@@ -27,7 +26,7 @@ except (ImportError, ValueError) as exc:
 class CrossSectionSnapshotWrapper(GObject.GObject):
     """Wrapper class containing cross-section snapshot information."""
 
-    cs_info: Tuple[str, str]
+    cs_info: tuple[str, str]
 
     def __init__(self, cs_snapshot: CrossSectionSnapshot):
         super().__init__()
@@ -141,7 +140,7 @@ class Result(GObject.GObject):
             full_path = os.path.join(path, filename)
             image.save_to_file(full_path)
 
-    def __get_selected_diagram_information(self) -> Tuple[list[str], ImageFormat, DiagramType]:
+    def __get_selected_diagram_information(self) -> tuple[list[str], ImageFormat, DiagramType]:
         image_format = ImageFormat(self.formats.get_selected())
         diagram_type = self.__available_diagram_types.get_item(self.diagram_types.get_selected())
         assert isinstance(diagram_type, DiagramType)
