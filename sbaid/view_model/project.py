@@ -50,7 +50,7 @@ class Project(GObject.Object):
         return self.__project.simulator_type
 
     last_opened: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
-                                                    flags=GObject.ParamFlags.READABLE)
+                                                  flags=GObject.ParamFlags.READABLE)
 
     @last_opened.getter  # type: ignore
     def last_opened(self) -> GLib.DateTime:

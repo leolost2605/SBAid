@@ -73,7 +73,7 @@ class AllProjects(Adw.NavigationPage):
 
         last_opened_factory = Gtk.SignalListItemFactory()
         last_opened_factory.connect("setup", self.__on_factory_setup,
-                                      ProjectCellType.last_opened)
+                                    ProjectCellType.LAST_OPENED)
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
         last_opened_column = Gtk.ColumnViewColumn.new("Created at", last_opened_factory)

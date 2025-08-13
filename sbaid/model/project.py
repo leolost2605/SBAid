@@ -71,8 +71,8 @@ class Project(GObject.GObject):
                                                  GObject.ParamFlags.WRITABLE)
 
     last_opened: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
-                                                    flags=GObject.ParamFlags.READABLE |
-                                                    GObject.ParamFlags.WRITABLE)
+                                                  flags=GObject.ParamFlags.READABLE |
+                                                  GObject.ParamFlags.WRITABLE)
 
     network: Network = GObject.Property(type=Network,  # type: ignore
                                         flags=GObject.ParamFlags.READABLE |
