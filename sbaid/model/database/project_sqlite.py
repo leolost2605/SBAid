@@ -30,7 +30,7 @@ def db_action(func: F) -> F:
     """DB action decorator that checks for the connection to exist. """
     @functools.wraps(func)
     async def wrapper(self: Any, *args: Any) -> Any:
-        if self._connection is None:
+        if self.__connection is None:
             raise NotOpenedException("The database is not open.")
         return await func(self, *args)
     return wrapper
@@ -41,29 +41,29 @@ class ProjectSQLite(ProjectDatabase):
     project specific data to be stored."""
     _file: Gio.File
     _creation_time: GLib.DateTime
-    _connection: aiosqlite.Connection | None
+    __connection: aiosqlite.Connection | None
 
     def __init__(self, file: Gio.File) -> None:
         self._file = file
         self._creation_time = cast(GLib.DateTime, GLib.DateTime.new_now_local())
-        self._connection = None
+        self.__connection = None
 
         app = Gio.Application.get_default()  # pylint: disable=no-value-for-parameter
         if app:
             app.connect("shutdown", self.__on_app_shutdown)
 
     def __on_app_shutdown(self, app: Gio.Application) -> None:
-        if self._connection is None:
+        if self.__connection is None:
             return
-        sbaid.common.run_coro_in_background(self._connection.close())
+        sbaid.common.run_coro_in_background(self.__connection.close())
 
     async def open(self) -> None:
         """Loads the database's schema."""
         already_existed = self._file.query_exists()
         is_valid = True
-        if self._connection is None:
-            self._connection = await aiosqlite.connect(str(self._file.get_path()))
-            async with self._connection.execute("""PRAGMA integrity_check""") as cursor:
+        if self.__connection is None:
+            self.__connection = await aiosqlite.connect(str(self._file.get_path()))
+            async with self.__connection.execute("""PRAGMA integrity_check""") as cursor:
                 res = await cursor.fetchone()
                 assert res is not None
                 is_valid = res[0] == 'ok'
@@ -75,7 +75,7 @@ class ProjectSQLite(ProjectDatabase):
                 await async_path.mkdir(parents=True)
 
         if not already_existed:
-            await self._connection.executescript("""
+            await self.__connection.executescript("""
             PRAGMA foreign_keys = ON;
             CREATE TABLE meta_information(
                 name TEXT,
@@ -121,17 +121,17 @@ class ProjectSQLite(ProjectDatabase):
                         ON DELETE CASCADE,
                 FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
             );""")
-            await self._connection.execute("""
+            await self.__connection.execute("""
             INSERT INTO meta_information (name, created_at, last_modified) VALUES
             (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
                            GLib.DateTime.format_iso8601(  # pylint: disable=no-member
                                GLib.DateTime.new_now_local())))  # type: ignore
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_created_at(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was created."""
-        async with (self._connection.execute("""SELECT created_at FROM meta_information""")
+        async with (self.__connection.execute("""SELECT created_at FROM meta_information""")
                     as cursor):
             date = await cursor.fetchone()
             if date is None:
@@ -141,7 +141,7 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def get_last_modified(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was last modified."""
-        async with (self._connection.execute("""SELECT last_modified FROM meta_information""")
+        async with (self.__connection.execute("""SELECT last_modified FROM meta_information""")
                     as cursor):
             date = await cursor.fetchone()
             if date is None:
@@ -151,14 +151,14 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
         """Update the GLib.DateTime when the project was last modified."""
-        await self._connection.execute("""UPDATE meta_information SET last_modified = ?""",
+        await self.__connection.execute("""UPDATE meta_information SET last_modified = ?""",
                                        [new_last_modified.format_iso8601()])
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_project_name(self) -> str | None:
         """Return the name of the project."""
-        async with self._connection.execute("""SELECT name FROM meta_information""") as cursor:
+        async with self.__connection.execute("""SELECT name FROM meta_information""") as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
                 return None
@@ -167,13 +167,13 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_project_name(self, name: str) -> None:
         """Update the name of the project."""
-        await self._connection.execute("""UPDATE meta_information SET name = ?""", [name])
-        await self._connection.commit()
+        await self.__connection.execute("""UPDATE meta_information SET name = ?""", [name])
+        await self.__connection.commit()
 
     @db_action
     async def get_cross_section_name(self, cross_section_id: str) -> str | None:
         """Return the name of the cross_section with the given id."""
-        async with self._connection.execute("""SELECT name FROM cross_section WHERE id = ?""",
+        async with self.__connection.execute("""SELECT name FROM cross_section WHERE id = ?""",
                                             [cross_section_id]) as cursor:
             result = await cursor.fetchone()
             if result is None:
@@ -183,14 +183,14 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
         """Update the name of the cross_section with the given id."""
-        await self._connection.execute("""UPDATE cross_section SET name = ?
+        await self.__connection.execute("""UPDATE cross_section SET name = ?
         WHERE id = ?""", (name, cross_section_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_cross_section_hard_shoulder_active(self, cross_section_id: str) -> bool | None:
         """Return whether the hard should is active for the given cross section."""
-        async with self._connection.execute(
+        async with self.__connection.execute(
                 """SELECT hard_shoulder_active FROM cross_section WHERE id = ?""",
                 [cross_section_id]) as cursor:
             result = await cursor.fetchone()
@@ -202,14 +202,14 @@ class ProjectSQLite(ProjectDatabase):
     async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
                                                      status: bool) -> None:
         """Update the hard_shoulder_active value of the cross_section with the given id."""
-        await self._connection.execute("""UPDATE cross_section SET hard_shoulder_active = ?
+        await self.__connection.execute("""UPDATE cross_section SET hard_shoulder_active = ?
         WHERE id = ?""", (status, cross_section_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_cross_section_b_display_active(self, cross_section_id: str) -> bool | None:
         """Return whether the hard should is active for the given cross section."""
-        async with self._connection.execute(
+        async with self.__connection.execute(
                 """SELECT b_display_active FROM cross_section WHERE id = ?""",
                 [cross_section_id]) as cursor:
             result = await cursor.fetchone()
@@ -220,14 +220,14 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
         """Update the b_display_active value of the cross_section with the given id."""
-        await self._connection.execute("""UPDATE cross_section SET b_display_active = ?
+        await self.__connection.execute("""UPDATE cross_section SET b_display_active = ?
         WHERE id = ?""", (value, cross_section_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_algorithm_configuration_name(self, algorithm_configuration_id: str) -> str | None:
         """Return the name of the algorithm_configuration with the given id."""
-        async with self._connection.execute("""SELECT name FROM algorithm_configuration
+        async with self.__connection.execute("""SELECT name FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
@@ -238,15 +238,15 @@ class ProjectSQLite(ProjectDatabase):
     async def set_algorithm_configuration_name(self, algorithm_configuration_id: str,
                                                name: str) -> None:
         """Update the name of the algorithm_configuration with the given id."""
-        await self._connection.execute("""UPDATE algorithm_configuration SET name = ?
+        await self.__connection.execute("""UPDATE algorithm_configuration SET name = ?
         WHERE id = ?""", (name, algorithm_configuration_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_algorithm_configuration(self, algorithm_configuration_id: str)\
             -> tuple[str, str, int, int, str, bool]:
         """Return the algorithm_configuration with the given id."""
-        async with self._connection.execute("""SELECT * FROM algorithm_configuration
+        async with self.__connection.execute("""SELECT * FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
@@ -256,7 +256,7 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def get_all_algorithm_configuration_ids(self) -> list[str]:
         """Return all algorithm_configuration ids."""
-        async with (self._connection.execute("""SELECT id FROM algorithm_configuration""")
+        async with (self.__connection.execute("""SELECT id FROM algorithm_configuration""")
                     as cursor):
             result_list = await cursor.fetchall()
             return list(map(lambda x: x[0], result_list))
@@ -264,7 +264,7 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def get_selected_algorithm_configuration_id(self) -> str | None:
         """Return the currently selected algorithm_configuration id."""
-        async with self._connection.execute("""SELECT id FROM algorithm_configuration
+        async with self.__connection.execute("""SELECT id FROM algorithm_configuration
         WHERE is_selected = 1""") as cursor:
             result = await cursor.fetchone()
             if result is None:
@@ -274,15 +274,15 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_selected_algorithm_configuration_id(self, configuration_id: str) -> None:
         """Update the currently selected algorithm_configuration id."""
-        await self._connection.execute("""UPDATE algorithm_configuration SET is_selected = 0""")
-        await self._connection.execute("""UPDATE algorithm_configuration SET is_selected = 1
+        await self.__connection.execute("""UPDATE algorithm_configuration SET is_selected = 0""")
+        await self.__connection.execute("""UPDATE algorithm_configuration SET is_selected = 1
         WHERE id = ?""", [configuration_id])
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_display_interval(self, algorithm_configuration_id: str) -> int | None:
         """Return the display interval of the given algorithm_configuration id."""
-        async with self._connection.execute("""SELECT display_interval FROM algorithm_configuration
+        async with self.__connection.execute("""SELECT display_interval FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
@@ -292,14 +292,14 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_display_interval(self, algorithm_configuration_id: str, interval: int) -> None:
         """Update the display interval of the given algorithm_configuration id."""
-        await self._connection.execute("""UPDATE algorithm_configuration SET display_interval = ?
+        await self.__connection.execute("""UPDATE algorithm_configuration SET display_interval = ?
         WHERE id = ?""", (interval, algorithm_configuration_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_evaluation_interval(self, algorithm_configuration_id: str) -> int | None:
         """Return the evaluation interval of the given algorithm_configuration id."""
-        async with self._connection.execute("""SELECT evaluation_interval
+        async with self.__connection.execute("""SELECT evaluation_interval
         FROM algorithm_configuration WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
@@ -310,14 +310,14 @@ class ProjectSQLite(ProjectDatabase):
     async def set_evaluation_interval(self, algorithm_configuration_id: str,
                                       interval: int) -> None:
         """Update the evaluation interval of the given algorithm_configuration id."""
-        await self._connection.execute("""UPDATE algorithm_configuration
+        await self.__connection.execute("""UPDATE algorithm_configuration
         SET evaluation_interval = ? WHERE id = ?""", (interval, algorithm_configuration_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_script_path(self, algorithm_configuration_id: str) -> str | None:
         """Return the scrip path of the given algorithm_configuration id."""
-        async with self._connection.execute("""SELECT script_path FROM algorithm_configuration
+        async with self.__connection.execute("""SELECT script_path FROM algorithm_configuration
         WHERE id = ?""", [algorithm_configuration_id]) as cursor:
             result_list = await cursor.fetchone()
             if result_list is None:
@@ -327,14 +327,14 @@ class ProjectSQLite(ProjectDatabase):
     @db_action
     async def set_script_path(self, algorithm_configuration_id: str, path: str) -> None:
         """Update the script path of the given algorithm_configuration id."""
-        await self._connection.execute("""UPDATE algorithm_configuration SET script_path = ?
+        await self.__connection.execute("""UPDATE algorithm_configuration SET script_path = ?
         WHERE id = ?""", (path, algorithm_configuration_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_all_parameters(self, algorithm_configuration_id: str) -> list[tuple[str, str]]:
         """Return all parameters of the given algorithm_configuration id."""
-        async with self._connection.execute("""SELECT parameter_name,
+        async with self.__connection.execute("""SELECT parameter_name,
         cross_section_id FROM parameter WHERE algorithm_configuration_id = ?""",
                                             [algorithm_configuration_id]) as cursor:
             result = await cursor.fetchall()
@@ -348,7 +348,7 @@ class ProjectSQLite(ProjectDatabase):
         """Return the value of the parameter of the given algorithm configuration
         and parameter and possibly cross section."""
         if cross_section_id is None:
-            async with self._connection.execute("""SELECT value FROM parameter
+            async with self.__connection.execute("""SELECT value FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
                                                 (algorithm_configuration_id, parameter_name)
                                                 ) as cursor:
@@ -357,7 +357,7 @@ class ProjectSQLite(ProjectDatabase):
                     return None
                 return GLib.Variant.parse(None, list(result)[0])
         else:
-            async with self._connection.execute("""SELECT value FROM parameter
+            async with self.__connection.execute("""SELECT value FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
                                                 (algorithm_configuration_id, parameter_name,
                                                  cross_section_id)) as cursor:
@@ -373,72 +373,72 @@ class ProjectSQLite(ProjectDatabase):
         """Update the value of the parameter of the given algorithm configuration,
         parameter name and cross section."""
         if cross_section_id is None:
-            await self._connection.execute("""UPDATE parameter SET value = ?
+            await self.__connection.execute("""UPDATE parameter SET value = ?
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
                                            (parameter_value.print_(True),
                                             algorithm_configuration_id, parameter_name))
         else:
-            await self._connection.execute("""UPDATE parameter SET value = ?
+            await self.__connection.execute("""UPDATE parameter SET value = ?
                         WHERE algorithm_configuration_id = ? AND name = ?
                         AND cross_section_id = ?""", (parameter_value.print_(True),
                                                       algorithm_configuration_id,
                                                       parameter_name, cross_section_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def add_cross_section(self, cross_section_id: str, name: str,
                                 hard_shoulder_active: bool, b_display_active: bool) -> None:
         """Add a new cross section with an id, a name and whether the hard shoulder
         or b display are active."""
-        await self._connection.execute("""
+        await self.__connection.execute("""
         INSERT INTO cross_section (id, name, hard_shoulder_active, b_display_active)
         VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active,
                                  b_display_active))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Remove a cross section from the database."""
-        await self._connection.execute("""DELETE FROM cross_section WHERE id = ?""",
+        await self.__connection.execute("""DELETE FROM cross_section WHERE id = ?""",
                                        [cross_section_id])
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def add_algorithm_configuration(self, algorithm_configuration_id: str, name: str,
                                           evaluation_interval: int, display_interval: int,
                                           script_path: str, is_selected: bool = True) -> None:
         """Add a new algorithm configuration to the database."""
-        await self._connection.execute("""PRAGMA foreign_keys = ON""")
+        await self.__connection.execute("""PRAGMA foreign_keys = ON""")
         if is_selected:
-            await self._connection.execute("""UPDATE algorithm_configuration
+            await self.__connection.execute("""UPDATE algorithm_configuration
             SET is_selected = 0""")
-            await self._connection.commit()
+            await self.__connection.commit()
 
-        await self._connection.execute("""
+        await self.__connection.execute("""
         INSERT INTO algorithm_configuration (id, name, evaluation_interval, display_interval,
         script_path, is_selected) VALUES (?, ?, ?, ?, ?, ?)""",
                                        (algorithm_configuration_id, name,
                                         evaluation_interval,
                                         display_interval,
                                         script_path, is_selected))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def remove_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
         """Remove a algorithm configuration from the database."""
-        await self._connection.execute("""DELETE FROM algorithm_configuration WHERE id = ?""",
+        await self.__connection.execute("""DELETE FROM algorithm_configuration WHERE id = ?""",
                                        [algorithm_configuration_id])
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
-        await self._connection.execute("""PRAGMA foreign_keys = ON""")
-        await self._connection.execute("""INSERT INTO parameter (algorithm_configuration_id,
+        await self.__connection.execute("""PRAGMA foreign_keys = ON""")
+        await self.__connection.execute("""INSERT INTO parameter (algorithm_configuration_id,
         name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
                                        (algorithm_configuration_id, name, value.print_(True)))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
@@ -446,33 +446,33 @@ class ProjectSQLite(ProjectDatabase):
         """Remove a parameter with the given algorithm configuration and parameter name
         and possibly cross section."""
         if cross_section_id is None:
-            await self._connection.execute("""DELETE FROM parameter
+            await self.__connection.execute("""DELETE FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
                                            (algorithm_configuration_id, name))
         else:
-            await self._connection.execute("""DELETE FROM parameter
+            await self.__connection.execute("""DELETE FROM parameter
                         WHERE algorithm_configuration_id = ? AND name = ?
                         AND cross_section_id = ?""", (algorithm_configuration_id,
                                                       name, cross_section_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def add_tag(self, tag_id: str, name: str) -> None:
         """Add a new tag to the database."""
-        await self._connection.execute("""INSERT INTO tag (id, name) VALUES (?, ?)""",
+        await self.__connection.execute("""INSERT INTO tag (id, name) VALUES (?, ?)""",
                                        (tag_id, name))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def remove_tag(self, tag_id: str) -> None:
         """Remove a tag from the database."""
-        await self._connection.execute("""DELETE FROM tag WHERE id = ?""", [tag_id])
-        await self._connection.commit()
+        await self.__connection.execute("""DELETE FROM tag WHERE id = ?""", [tag_id])
+        await self.__connection.commit()
 
     @db_action
     async def get_tag_name(self, tag_id: str) -> str | None:
         """Return the name of the given tag_id."""
-        async with self._connection.execute("""
+        async with self.__connection.execute("""
         SELECT name FROM tag WHERE id = ?""", [tag_id]) as cursor:
             result = list(await cursor.fetchall())
             if result is None:
@@ -485,24 +485,24 @@ class ProjectSQLite(ProjectDatabase):
                                 cross_section_id: str | None, tag_id: str) -> None:
         """Add a new parameter tag entry which represents a tag
         belonging to the given parameter."""
-        await self._connection.execute("""PRAGMA foreign_keys = ON""")
-        await self._connection.execute("""INSERT INTO parameter_tag (id, parameter_name,
+        await self.__connection.execute("""PRAGMA foreign_keys = ON""")
+        await self.__connection.execute("""INSERT INTO parameter_tag (id, parameter_name,
         algorithm_configuration_id, cross_section_id, tag_id)
         VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
                                     algorithm_configuration_id, cross_section_id, tag_id))
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
-        await self._connection.execute("""DELETE FROM parameter_tag WHERE id = ?""",
+        await self.__connection.execute("""DELETE FROM parameter_tag WHERE id = ?""",
                                        [parameter_tag_id])
-        await self._connection.commit()
+        await self.__connection.commit()
 
     @db_action
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """Return the id and name for all tags in this project."""
-        async with self._connection.execute("""
+        async with self.__connection.execute("""
         SELECT * FROM tag""") as cursor:
             res = await cursor.fetchall()
             if res is None:
@@ -516,7 +516,7 @@ class ProjectSQLite(ProjectDatabase):
         """Return all tag ids belonging to the given parameter."""
         try:
             if cross_section_id is None:
-                async with self._connection.execute("""SELECT tag_id FROM parameter_tag
+                async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
                     WHERE parameter_name = ? AND algorithm_configuration_id = ?
                     AND cross_section_id IS NULL""", (parameter_name,
                                                       algorithm_configuration_id)) as cursor:
@@ -526,7 +526,7 @@ class ProjectSQLite(ProjectDatabase):
                         return []
                     return list(result)
             else:
-                async with self._connection.execute("""SELECT tag_id FROM parameter_tag
+                async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
                     WHERE algorithm_configuration_id = ? AND parameter_name = ?
                     AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
                                                   cross_section_id)) as cursor:
