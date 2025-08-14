@@ -96,7 +96,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_vehicle_infos(self):
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
