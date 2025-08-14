@@ -1,9 +1,9 @@
 """This module represents the interface ParameterParser"""
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Tuple
+from typing import Callable
 from gi.repository import Gio, GLib
 
-ParameterParserForeachFunc = Callable[[str, Optional[str], GLib.Variant], bool]
+ParameterParserForeachFunc = Callable[[str, str | None, GLib.Variant], bool]
 
 
 class ParameterParser(ABC):
@@ -21,7 +21,7 @@ class ParameterParser(ABC):
 
     @abstractmethod
     async def for_each_parameter(self, file: Gio.File,
-                                 foreach_func: ParameterParserForeachFunc) -> Tuple[int, int]:
+                                 foreach_func: ParameterParserForeachFunc) -> tuple[int, int]:
         """
         Parses the given file and runs the foreach func for each parameter found in the file.
         Should only be called after can_handle_file returned true for the file.

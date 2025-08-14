@@ -73,6 +73,7 @@ class ProjectSQLite(ProjectDatabase):
             async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
             if not await async_path.exists():
                 await async_path.mkdir(parents=True)
+
         if not already_existed:
             await self._connection.executescript("""
             PRAGMA foreign_keys = ON;

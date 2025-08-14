@@ -16,8 +16,8 @@ class ProjectDatabase(ABC):
         """Return the GLib.DateTime when the project was created."""
 
     @abstractmethod
-    async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
-        """Update the GLib.DateTime when the project was last modified."""
+    async def set_last_opened(self, new_last_opened: GLib.DateTime) -> None:
+        """Update the GLib.DateTime when the project was last opened."""
 
     @abstractmethod
     async def get_project_name(self) -> str | None:
@@ -62,6 +62,7 @@ class ProjectDatabase(ABC):
         """Update the name of the algorithm_configuration with the given id."""
 
     @abstractmethod
+
     async def get_last_modified(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was last modified."""
 
