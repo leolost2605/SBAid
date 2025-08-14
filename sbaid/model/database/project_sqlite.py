@@ -1,4 +1,5 @@
 """This module contains the ProjectSQLite class."""
+import sqlite3
 from typing import cast
 
 import aiosqlite
@@ -41,10 +42,11 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:
                 await db.executescript("""
+                PRAGMA foreign_keys = ON;
                 CREATE TABLE meta_information(
                     name TEXT,
                     created_at TEXT,
-                    last_modified TEXT
+                    last_opened TEXT
                 );
                 CREATE TABLE algorithm_configuration (
                     id TEXT PRIMARY KEY,
@@ -86,7 +88,7 @@ class ProjectSQLite(ProjectDatabase):
                     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
                 );""")
                 await db.execute("""
-                INSERT INTO meta_information (name, created_at, last_modified) VALUES
+                INSERT INTO meta_information (name, created_at, last_opened) VALUES
                 (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
                                GLib.DateTime.format_iso8601(  # pylint: disable=no-member
                                    GLib.DateTime.new_now_local())))  # type: ignore
@@ -102,21 +104,21 @@ class ProjectSQLite(ProjectDatabase):
                     return None
                 return GLib.DateTime.new_from_iso8601(date[0])    # pylint: disable=no-member
 
-    async def get_last_modified(self) -> GLib.DateTime | None:
-        """Return the GLib.DateTime when the project was last modified."""
+    async def get_last_opened(self) -> GLib.DateTime | None:
+        """Return the GLib.DateTime when the project was last opened."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            async with (db.execute("""SELECT last_modified FROM meta_information""")
+            async with (db.execute("""SELECT last_opened FROM meta_information""")
                         as cursor):
                 date = await cursor.fetchone()
                 if date is None:
                     return None
                 return GLib.DateTime.new_from_iso8601(date[0])  # pylint: disable=no-member
 
-    async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
-        """Update the GLib.DateTime when the project was last modified."""
+    async def set_last_opened(self, new_last_opened: GLib.DateTime) -> None:
+        """Update the GLib.DateTime when the project was last opened."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""UPDATE meta_information SET last_modified = ?""",
-                             [new_last_modified.format_iso8601()])
+            await db.execute("""UPDATE meta_information SET last_opened = ?""",
+                             [new_last_opened.format_iso8601()])
             await db.commit()
 
     async def get_project_name(self) -> str | None:

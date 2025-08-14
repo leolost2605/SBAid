@@ -1,7 +1,6 @@
 """This module contains unittests for the NetworkState class."""
 
 import unittest
-from typing import List
 
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
@@ -20,7 +19,7 @@ class NetworkStateTest(unittest.TestCase):
 
     def test_route(self):
         """Test a network state """
-        route: List[Location] = [Location(0, 0), Location(0, 1), Location(1, 0),
+        route: list[Location] = [Location(0, 0), Location(0, 1), Location(1, 0),
                                  Location(1, 1)]
         network_state = NetworkState(route, [])
         self.assertEqual(network_state.route.get_n_items(), 4)
