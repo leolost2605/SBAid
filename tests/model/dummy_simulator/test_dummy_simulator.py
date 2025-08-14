@@ -1,6 +1,8 @@
 """This module contains unittests for the Display class."""
+import asyncio
 import unittest
 
+from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio
 
 from sbaid.common.location import Location
@@ -12,11 +14,12 @@ from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
 class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
     """This class tests the display using pythons unittest."""
+
     async def test_simple(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
@@ -35,7 +38,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
@@ -62,7 +65,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
 
         with self.assertRaises(FileNotFoundError):
@@ -74,7 +77,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         await sim.continue_simulation(10)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
-        other_file = Gio.File.new_for_path("test2.json")
+        other_file = Gio.File.new_for_path("tests/model/dummy_simulator/test2.json")
 
         with self.assertRaises(RuntimeError):
             await sim.load_file(other_file)
@@ -83,7 +86,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(True)
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
@@ -93,15 +96,15 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_vehicle_infos(self):
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("test.json")
+        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
-        veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
-        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs2", 0)
-        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 1)
+        veh_infos_cs1_lane1 = fetched_input.get_traffic_volume("cs1", 1)
+        veh_infos_cs2_lane0 = fetched_input.get_traffic_volume("cs2", 0)
+        veh_infos_cs2_lane1 = fetched_input.get_traffic_volume("cs2", 1)
 
         self.assertEqual(veh_infos_cs1_lane0, [VehicleInfo(VehicleType.CAR, 130.2),
                                                VehicleInfo(VehicleType.CAR, 124.7),
@@ -114,13 +117,12 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(veh_infos_cs2_lane1, [VehicleInfo(VehicleType.CAR, 163.3),
                                                VehicleInfo(VehicleType.LORRY, 120.9)])
 
-        await sim.continue_simulation(10)
-        fetched_input = await sim.measure()
+        await sim.continue_simulation(1)
 
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
-        veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
-        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs2", 0)
-        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 1)
+        veh_infos_cs1_lane1 = fetched_input.get_traffic_volume("cs1", 1)
+        veh_infos_cs2_lane0 = fetched_input.get_traffic_volume("cs2", 0)
+        veh_infos_cs2_lane1 = fetched_input.get_traffic_volume("cs2", 1)
 
         self.assertEqual(veh_infos_cs1_lane0, [VehicleInfo(VehicleType.CAR, 130.2),
                                                VehicleInfo(VehicleType.CAR, 124.7)])
@@ -130,6 +132,3 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
                                                VehicleInfo(VehicleType.CAR, 140.1)])
         self.assertEqual(veh_infos_cs2_lane1, [VehicleInfo(VehicleType.CAR, 163.3),
                                                VehicleInfo(VehicleType.LORRY, 120.9)])
-
-
-

@@ -160,4 +160,10 @@ class Project(GObject.GObject):
         """Deletes the project database file."""
         # TODO: Delete whole folder
         file = Gio.File.new_for_path(self.project_file_path).get_child("db")
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, None, self.__on_delete)
+
+    def __on_delete(self, source_object, result, user_data):
+        try:
+            source_object.delete_finish()
+        except GLib.GError as e:
+            raise e

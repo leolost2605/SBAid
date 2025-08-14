@@ -28,7 +28,7 @@ class ContextTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(context2.projects.get_item(0).id, proj_id)
         self.assertEqual(context2.projects.get_n_items(), 1)
 
-        global_file.delete_async(0, None)
+        global_file.delete_async(GLib.PRIORITY_DEFAULT, None, self.__on_delete)
 
     async def test_projects(self):
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
@@ -51,4 +51,10 @@ class ContextTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(context.projects.get_item(0).id, proj_id_2)
         self.assertEqual(context.projects.get_n_items(), 1)
 
-        global_file.delete_async(0, None)
+        global_file.delete_async(GLib.PRIORITY_DEFAULT, None, self.__on_delete)
+
+    def __on_delete(self, source_object, result, user_data):
+        try:
+            source_object.delete_finish()
+        except GLib.GError as e:
+            raise e

@@ -8,6 +8,13 @@ from sbaid.model.database.project_sqlite import ProjectSQLite
 
 
 class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
+    __cancellable = Gio.Cancellable()
+
+    def __on_delete(self, source_object, result, user_data):
+        try:
+            source_object.delete_finish()
+        finally:
+            self.__cancellable.reset()
     async def test_meta_data(self) -> None:
         file = Gio.File.new_for_path("test.db")
         db = ProjectSQLite(file)
@@ -28,7 +35,7 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
         new_last_opened = await db.get_last_opened()
         self.assertTrue(GLib.DateTime.compare(new_last_opened, created_at) == 1)
 
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
 
     async def test_algorithm_configuration(self):
         file = Gio.File.new_for_path("test.db")
@@ -56,7 +63,7 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(await db.get_selected_algorithm_configuration_id(), "my_algorithm_configuration_id")
 
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
 
     async def test_parameters(self):
         file = Gio.File.new_for_path("test.db")
@@ -81,7 +88,7 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(new_value, await db.get_parameter_value("my_algorithm_configuration_id", "my_parameter_name", None))
 
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
 
 
     async def test_cross_section(self):
@@ -110,7 +117,7 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(await db.get_cross_section_name("my_cross_section_id_2"), None)
 
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
 
 
     async def test_tag_and_parameter_tag(self):
@@ -150,7 +157,7 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
         all_parameter_tag_ids = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
         self.assertEqual(len(all_parameter_tag_ids), 0)
 
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
 
     async def test_foreign_key_error(self):
         file = Gio.File.new_for_path("test.db")
@@ -166,4 +173,4 @@ class ProjectSQLiteTest(unittest.IsolatedAsyncioTestCase):
             await db.add_parameter_tag("my_nonexistent_parameter_tag_id", "my_parameter_name",
                                        "my_algorithm_configuration_name",
                                        "my_nonexistent_cross_section_id", "my_tag_id")
-        file.delete_async(0, None)
+        file.delete_async(GLib.PRIORITY_DEFAULT, self.__cancellable, self.__on_delete)
