@@ -1,5 +1,4 @@
 """This module contains the ProjectSQLite class."""
-import sqlite3
 from typing import cast
 
 import aiosqlite
