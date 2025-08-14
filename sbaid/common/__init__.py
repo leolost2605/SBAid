@@ -24,7 +24,7 @@ async def make_directory_with_parents_async(directory: Gio.File | None) -> None:
 
     await make_directory_with_parents_async(directory.get_parent())
 
-    directory.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore[func-returns-value]
+    await directory.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore[func-returns-value]
 
 
 _background_tasks: set[asyncio.Task[None]] = set()
