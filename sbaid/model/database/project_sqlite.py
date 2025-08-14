@@ -80,7 +80,7 @@ class ProjectSQLite(ProjectDatabase):
             CREATE TABLE meta_information(
                 name TEXT,
                 created_at TEXT,
-                last_modified TEXT
+                last_opened TEXT
             );
             CREATE TABLE algorithm_configuration (
                 id TEXT PRIMARY KEY,
@@ -122,7 +122,7 @@ class ProjectSQLite(ProjectDatabase):
                 FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
             );""")
             await self.__connection.execute("""
-            INSERT INTO meta_information (name, created_at, last_modified) VALUES
+            INSERT INTO meta_information (name, created_at, last_opened) VALUES
             (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
                            GLib.DateTime.format_iso8601(  # pylint: disable=no-member
                                GLib.DateTime.new_now_local())))  # type: ignore
@@ -139,9 +139,9 @@ class ProjectSQLite(ProjectDatabase):
             return GLib.DateTime.new_from_iso8601(date[0])    # pylint: disable=no-member
 
     @db_action
-    async def get_last_modified(self) -> GLib.DateTime | None:
+    async def get_last_opened(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was last modified."""
-        async with (self.__connection.execute("""SELECT last_modified FROM meta_information""")
+        async with (self.__connection.execute("""SELECT last_opened FROM meta_information""")
                     as cursor):
             date = await cursor.fetchone()
             if date is None:
@@ -149,10 +149,10 @@ class ProjectSQLite(ProjectDatabase):
             return GLib.DateTime.new_from_iso8601(date[0])  # pylint: disable=no-member
 
     @db_action
-    async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
-        """Update the GLib.DateTime when the project was last modified."""
-        await self.__connection.execute("""UPDATE meta_information SET last_modified = ?""",
-                                       [new_last_modified.format_iso8601()])
+    async def set_last_opened(self, new_last_opened: GLib.DateTime) -> None:
+        """Update the GLib.DateTime when the project was last opened."""
+        await self.__connection.execute("""UPDATE meta_information SET last_opened = ?""",
+                                       [new_last_opened.format_iso8601()])
         await self.__connection.commit()
 
     @db_action
