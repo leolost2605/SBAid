@@ -96,15 +96,15 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_vehicle_infos(self):
         sim = DummySimulator()
 
-        cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
+        cur_file = Gio.File.new_for_path("test.json")
 
         await sim.init_simulation()
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
         veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
-        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
-        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
+        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs2", 0)
+        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 1)
 
         self.assertEqual(veh_infos_cs1_lane0, [VehicleInfo(VehicleType.CAR, 130.2),
                                                VehicleInfo(VehicleType.CAR, 124.7),
@@ -118,11 +118,12 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
                                                VehicleInfo(VehicleType.LORRY, 120.9)])
 
         await sim.continue_simulation(10)
+        fetched_input = await sim.measure()
 
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
         veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
-        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
-        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
+        veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs2", 0)
+        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 1)
 
         self.assertEqual(veh_infos_cs1_lane0, [VehicleInfo(VehicleType.CAR, 130.2),
                                                VehicleInfo(VehicleType.CAR, 124.7)])
