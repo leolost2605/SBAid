@@ -2,6 +2,7 @@
 from typing import TypeVar
 
 import aiosqlite
+import aiopathlib
 
 from gi.repository import GLib, Gio
 
