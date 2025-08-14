@@ -36,7 +36,7 @@ class ProjectSQLite(ProjectDatabase):
         """DB action decorator that checks for the connection to exist. """
         @functools.wraps(func)  # pylint: disable=no-self-argument
         async def wrapper(self: Any, *args: Any) -> Any:
-            if self.__connection is None:
+            if self.__connection is None:  # pylint: disable=protected-access
                 raise NotOpenedException("The database is not open.")
             return await func(self, *args)
 
