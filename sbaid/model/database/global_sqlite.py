@@ -42,8 +42,9 @@ F = TypeVar('F', bound=Callable[..., Any])
 
 
 def db_action(func: F) -> F:
+    """DB action decorator that checks for the connection to exist. """
     @functools.wraps(func)
-    async def wrapper(self, *args) -> None:
+    async def wrapper(self: Any, *args: Any) -> Any:
         if self._connection is None:
             raise NotOpenedException("The database is not open.")
         return await func(self, *args)

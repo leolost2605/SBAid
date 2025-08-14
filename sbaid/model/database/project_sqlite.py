@@ -3,7 +3,7 @@
 """This module contains the ProjectSQLite class."""
 import functools
 import sqlite3
-from typing import cast, TypeVar, Callable, Any
+from typing import cast, TypeVar, Callable, Any, Awaitable
 
 import aiosqlite
 import aiopathlib
@@ -23,12 +23,13 @@ class NotOpenedException(Exception):
     but the database was not opened."""
 
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar('F', bound=Callable[..., Awaitable[Any]])
 
 
 def db_action(func: F) -> F:
+    """DB action decorator that checks for the connection to exist. """
     @functools.wraps(func)
-    async def wrapper(self, *args) -> F:
+    async def wrapper(self: Any, *args: Any) -> Any:
         if self._connection is None:
             raise NotOpenedException("The database is not open.")
         return await func(self, *args)
@@ -150,7 +151,7 @@ class ProjectSQLite(ProjectDatabase):
     async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
         """Update the GLib.DateTime when the project was last modified."""
         await self._connection.execute("""UPDATE meta_information SET last_modified = ?""",
-                         [new_last_modified.format_iso8601()])
+                                       [new_last_modified.format_iso8601()])
         await self._connection.commit()
 
     @db_action
@@ -172,7 +173,7 @@ class ProjectSQLite(ProjectDatabase):
     async def get_cross_section_name(self, cross_section_id: str) -> str | None:
         """Return the name of the cross_section with the given id."""
         async with self._connection.execute("""SELECT name FROM cross_section WHERE id = ?""",
-                              [cross_section_id]) as cursor:
+                                            [cross_section_id]) as cursor:
             result = await cursor.fetchone()
             if result is None:
                 return None
@@ -334,7 +335,7 @@ class ProjectSQLite(ProjectDatabase):
         """Return all parameters of the given algorithm_configuration id."""
         async with self._connection.execute("""SELECT parameter_name,
         cross_section_id FROM parameter WHERE algorithm_configuration_id = ?""",
-                              [algorithm_configuration_id]) as cursor:
+                                            [algorithm_configuration_id]) as cursor:
             result = await cursor.fetchall()
             if result is None:
                 return []
@@ -348,7 +349,8 @@ class ProjectSQLite(ProjectDatabase):
         if cross_section_id is None:
             async with self._connection.execute("""SELECT value FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
-                                  (algorithm_configuration_id, parameter_name)) as cursor:
+                                                (algorithm_configuration_id, parameter_name)
+                                                ) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
                     return None
@@ -356,8 +358,8 @@ class ProjectSQLite(ProjectDatabase):
         else:
             async with self._connection.execute("""SELECT value FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
-                                  (algorithm_configuration_id, parameter_name,
-                                   cross_section_id)) as cursor:
+                                                (algorithm_configuration_id, parameter_name,
+                                                 cross_section_id)) as cursor:
                 result = await cursor.fetchone()
                 if result is None:
                     return None
@@ -372,8 +374,8 @@ class ProjectSQLite(ProjectDatabase):
         if cross_section_id is None:
             await self._connection.execute("""UPDATE parameter SET value = ?
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                             (parameter_value.print_(True),
-                              algorithm_configuration_id, parameter_name))
+                                           (parameter_value.print_(True),
+                                            algorithm_configuration_id, parameter_name))
         else:
             await self._connection.execute("""UPDATE parameter SET value = ?
                         WHERE algorithm_configuration_id = ? AND name = ?
@@ -397,7 +399,7 @@ class ProjectSQLite(ProjectDatabase):
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Remove a cross section from the database."""
         await self._connection.execute("""DELETE FROM cross_section WHERE id = ?""",
-                         [cross_section_id])
+                                       [cross_section_id])
         await self._connection.commit()
 
     @db_action
@@ -414,17 +416,17 @@ class ProjectSQLite(ProjectDatabase):
         await self._connection.execute("""
         INSERT INTO algorithm_configuration (id, name, evaluation_interval, display_interval,
         script_path, is_selected) VALUES (?, ?, ?, ?, ?, ?)""",
-                         (algorithm_configuration_id, name,
-                          evaluation_interval,
-                          display_interval,
-                          script_path, is_selected))
+                                       (algorithm_configuration_id, name,
+                                        evaluation_interval,
+                                        display_interval,
+                                        script_path, is_selected))
         await self._connection.commit()
 
     @db_action
     async def remove_algorithm_configuration(self, algorithm_configuration_id: str) -> None:
         """Remove a algorithm configuration from the database."""
         await self._connection.execute("""DELETE FROM algorithm_configuration WHERE id = ?""",
-                         [algorithm_configuration_id])
+                                       [algorithm_configuration_id])
         await self._connection.commit()
 
     @db_action
@@ -434,7 +436,7 @@ class ProjectSQLite(ProjectDatabase):
         await self._connection.execute("""PRAGMA foreign_keys = ON""")
         await self._connection.execute("""INSERT INTO parameter (algorithm_configuration_id,
         name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                         (algorithm_configuration_id, name, value.print_(True)))
+                                       (algorithm_configuration_id, name, value.print_(True)))
         await self._connection.commit()
 
     @db_action
@@ -445,7 +447,7 @@ class ProjectSQLite(ProjectDatabase):
         if cross_section_id is None:
             await self._connection.execute("""DELETE FROM parameter
             WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                             (algorithm_configuration_id, name))
+                                           (algorithm_configuration_id, name))
         else:
             await self._connection.execute("""DELETE FROM parameter
                         WHERE algorithm_configuration_id = ? AND name = ?
@@ -457,7 +459,7 @@ class ProjectSQLite(ProjectDatabase):
     async def add_tag(self, tag_id: str, name: str) -> None:
         """Add a new tag to the database."""
         await self._connection.execute("""INSERT INTO tag (id, name) VALUES (?, ?)""",
-                         (tag_id, name))
+                                       (tag_id, name))
         await self._connection.commit()
 
     @db_action
@@ -493,7 +495,7 @@ class ProjectSQLite(ProjectDatabase):
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
         await self._connection.execute("""DELETE FROM parameter_tag WHERE id = ?""",
-                         [parameter_tag_id])
+                                       [parameter_tag_id])
         await self._connection.commit()
 
     @db_action

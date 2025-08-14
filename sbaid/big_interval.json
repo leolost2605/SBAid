@@ -1,0 +1,262 @@
+{
+  "cross_section_locations": {
+    "cs_main_street": {
+      "x": 1.23,
+      "y": 1.23
+    },
+    "cs_highway_entrance": {
+      "x": 2.34,
+      "y": 2.34
+    },
+    "cs_downtown_junction": {
+      "x": 3.45,
+      "y": 3.45
+    },
+    "cs_industrial_road": {
+      "x": 4.56,
+      "y": 4.56
+    }
+  },
+  "vehicle_infos": {
+    "0": {
+      "cs_main_street": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 42.3
+          },
+          {
+            "type": 0,
+            "speed": 38.7
+          },
+          {
+            "type": 1,
+            "speed": 55.2
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 45.1
+          },
+          {
+            "type": 0,
+            "speed": 41.8
+          }
+        ],
+        "2": [
+          {
+            "type": 0,
+            "speed": 48.9
+          }
+        ]
+      },
+      "cs_highway_entrance": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 67.4
+          },
+          {
+            "type": 1,
+            "speed": 72.1
+          },
+          {
+            "type": 0,
+            "speed": 64.8
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 71.2
+          },
+          {
+            "type": 0,
+            "speed": 68.5
+          }
+        ],
+        "2": [
+          {
+            "type": 1,
+            "speed": 75.3
+          },
+          {
+            "type": 0,
+            "speed": 69.7
+          }
+        ]
+      },
+      "cs_downtown_junction": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 32.1
+          },
+          {
+            "type": 0,
+            "speed": 28.9
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 35.4
+          },
+          {
+            "type": 1,
+            "speed": 41.2
+          },
+          {
+            "type": 0,
+            "speed": 33.7
+          }
+        ]
+      },
+      "cs_industrial_road": {
+        "0": [
+          {
+            "type": 1,
+            "speed": 58.3
+          },
+          {
+            "type": 1,
+            "speed": 62.7
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 54.9
+          },
+          {
+            "type": 1,
+            "speed": 59.1
+          }
+        ]
+      }
+    },
+    "10000": {
+      "cs_main_street": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 44.2
+          },
+          {
+            "type": 0,
+            "speed": 39.8
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 43.7
+          },
+          {
+            "type": 1,
+            "speed": 52.3
+          },
+          {
+            "type": 0,
+            "speed": 46.5
+          }
+        ],
+        "2": [
+          {
+            "type": 0,
+            "speed": 47.1
+          }
+        ]
+      },
+      "cs_highway_entrance": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 65.9
+          },
+          {
+            "type": 0,
+            "speed": 71.8
+          },
+          {
+            "type": 1,
+            "speed": 73.2
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 67.4
+          },
+          {
+            "type": 0,
+            "speed": 69.1
+          }
+        ],
+        "2": [
+          {
+            "type": 0,
+            "speed": 72.6
+          },
+          {
+            "type": 1,
+            "speed": 74.8
+          }
+        ]
+      },
+      "cs_downtown_junction": {
+        "0": [
+          {
+            "type": 0,
+            "speed": 31.5
+          },
+          {
+            "type": 0,
+            "speed": 34.2
+          }
+        ],
+        "1": [
+          {
+            "type": 0,
+            "speed": 36.8
+          },
+          {
+            "type": 0,
+            "speed": 32.4
+          },
+          {
+            "type": 0,
+            "speed": 29.7
+          }
+        ]
+      },
+      "cs_industrial_road": {
+        "0": [
+          {
+            "type": 1,
+            "speed": 61.4
+          },
+          {
+            "type": 0,
+            "speed": 56.7
+          },
+          {
+            "type": 1,
+            "speed": 58.9
+          }
+        ],
+        "1": [
+          {
+            "type": 1,
+            "speed": 63.2
+          },
+          {
+            "type": 0,
+            "speed": 53.8
+          }
+        ]
+      }
+    }
+  }
+}
