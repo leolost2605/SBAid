@@ -26,22 +26,23 @@ class NotOpenedException(Exception):
 F = TypeVar('F', bound=Callable[..., Awaitable[Any]])
 
 
-def db_action(func: F) -> F:
-    """DB action decorator that checks for the connection to exist. """
-    @functools.wraps(func)
-    async def wrapper(self: Any, *args: Any) -> Any:
-        if self.__connection is None:
-            raise NotOpenedException("The database is not open.")
-        return await func(self, *args)
-    return wrapper
-
-
 class ProjectSQLite(ProjectDatabase):
     """This class implements the ProjectDatabase interface which allows for the
     project specific data to be stored."""
     _file: Gio.File
     _creation_time: GLib.DateTime
     __connection: aiosqlite.Connection | None
+
+    def db_action(func: F) -> F:
+        """DB action decorator that checks for the connection to exist. """
+
+        @functools.wraps(func)
+        async def wrapper(self: Any, *args: Any) -> Any:
+            if self.__connection is None:
+                raise NotOpenedException("The database is not open.")
+            return await func(self, *args)
+
+        return wrapper
 
     def __init__(self, file: Gio.File) -> None:
         self._file = file
@@ -514,26 +515,23 @@ class ProjectSQLite(ProjectDatabase):
                                             parameter_name: str,
                                             cross_section_id: str | None) -> list[str]:
         """Return all tag ids belonging to the given parameter."""
-        try:
-            if cross_section_id is None:
-                async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
-                    WHERE parameter_name = ? AND algorithm_configuration_id = ?
-                    AND cross_section_id IS NULL""", (parameter_name,
-                                                      algorithm_configuration_id)) as cursor:
-                    result_cursor = await cursor.fetchall()
-                    result = map(lambda x: x[0], result_cursor)
-                    if result is None:
-                        return []
-                    return list(result)
-            else:
-                async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
-                    WHERE algorithm_configuration_id = ? AND parameter_name = ?
-                    AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
-                                                  cross_section_id)) as cursor:
-                    result_cursor = await cursor.fetchall()
-                    result = map(lambda x: x[0], result_cursor)
-                    if result is None:
-                        return []
-                    return list(result)
-        except sqlite3.IntegrityError as e:
-            raise ForeignKeyError("Foreign key does not exist!") from e
+        if cross_section_id is None:
+            async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
+                WHERE parameter_name = ? AND algorithm_configuration_id = ?
+                AND cross_section_id IS NULL""", (parameter_name,
+                                                  algorithm_configuration_id)) as cursor:
+                result_cursor = await cursor.fetchall()
+                result = map(lambda x: x[0], result_cursor)
+                if result is None:
+                    return []
+                return list(result)
+        else:
+            async with self.__connection.execute("""SELECT tag_id FROM parameter_tag
+                WHERE algorithm_configuration_id = ? AND parameter_name = ?
+                AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
+                                              cross_section_id)) as cursor:
+                result_cursor = await cursor.fetchall()
+                result = map(lambda x: x[0], result_cursor)
+                if result is None:
+                    return []
+                return list(result)
