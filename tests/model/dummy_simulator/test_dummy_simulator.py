@@ -117,7 +117,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(veh_infos_cs2_lane1, [VehicleInfo(VehicleType.CAR, 163.3),
                                                VehicleInfo(VehicleType.LORRY, 120.9)])
 
-        await sim.continue_simulation(1)
+        await sim.continue_simulation(10)
 
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
         veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
