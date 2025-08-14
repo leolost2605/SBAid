@@ -2,7 +2,6 @@
 # connections are checked for None in the db_action decorator
 """This module contains the GLobalSQLite class."""
 import functools
-import sqlite3
 from typing import TypeVar, Callable, Any
 
 import aiosqlite
@@ -11,7 +10,6 @@ from gi.repository import GLib, Gio
 
 import sbaid.common
 from sbaid.model.database.date_format_error import DateFormatError
-from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -41,15 +39,13 @@ class NotOpenedException(Exception):
 F = TypeVar('F', bound=Callable[..., Any])
 
 
-
-
-
 class GlobalSQLite(GlobalDatabase):
     """This class implements the GlobalDatabase interface which allows for the all results
     and project metadata to be stored."""
     _file: Gio.File
     __connection: aiosqlite.Connection | None
 
+    @staticmethod
     def db_action(func: F) -> F:
         """DB action decorator that checks for the connection to exist. """
         @functools.wraps(func)
@@ -254,7 +250,7 @@ class GlobalSQLite(GlobalDatabase):
 
         await self.__connection.execute("""
         INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
-                                       (result_tag_id, result_id, tag_id))
+                                        (result_tag_id, result_id, tag_id))
         await self.__connection.commit()
 
     @db_action
@@ -295,7 +291,7 @@ class GlobalSQLite(GlobalDatabase):
         """Return all cross section snapshots from a given snapshot."""
         async with self.__connection.execute("""
         SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""",
-                                            [snapshot_id]) as cursor:
+                                             [snapshot_id]) as cursor:
             return await cursor.fetchall()
 
     @db_action
