@@ -1,5 +1,6 @@
 # pylint: disable=too-many-instance-attributes
 """This module defines the Project class."""
+from typing import Any
 
 from gi.repository import GObject, GLib, Gio
 
@@ -162,8 +163,6 @@ class Project(GObject.GObject):
         file = Gio.File.new_for_path(self.project_file_path).get_child("db")
         file.delete_async(GLib.PRIORITY_DEFAULT, None, self.__on_delete)
 
-    def __on_delete(self, source_object, result, user_data):
-        try:
-            source_object.delete_finish()
-        except GLib.GError as e:
-            raise e
+    def __on_delete(self, source_object: Gio.File, result: Gio.AsyncResult, user_data: Any) -> None:
+        """File deletion callback."""
+        source_object.delete_finish(result)
