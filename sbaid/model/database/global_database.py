@@ -14,10 +14,6 @@ class GlobalDatabase(ABC):
     the global database functionality."""
 
     @abstractmethod
-    def close(self) -> None:
-        """Closes this database."""
-
-    @abstractmethod
     async def open(self) -> None:
         """Opens the file for the database."""
 

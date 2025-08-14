@@ -90,10 +90,6 @@ class Project(GObject.GObject):
                                                      GObject.ParamFlags.WRITABLE |
                                                      GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    def close(self) -> None:
-        """Closes the Context."""
-        self.__project_db.close()
-
     def __init__(self, project_id: str, sim_type: SimulatorType, simulation_file_path: str,
                  project_file_path: str, result_manager: ResultManager) -> None:
         """Creates a new project. The network and algorithm configuration manager

@@ -47,7 +47,11 @@ class ProjectSQLite(ProjectDatabase):
         self._creation_time = cast(GLib.DateTime, GLib.DateTime.new_now_local())
         self._connection = None
 
-    def close(self) -> None:
+        app = Gio.Application.get_default()  # pylint: disable=no-value-for-parameter
+        if app:
+            app.connect("shutdown", self.__on_app_shutdown)
+
+    def __on_app_shutdown(self, app: Gio.Application) -> None:
         if self._connection is None:
             return
         sbaid.common.run_coro_in_background(self._connection.close())

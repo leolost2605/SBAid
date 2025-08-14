@@ -51,6 +51,3 @@ class Application(Adw.Application):
             self.__window = MainWindow(self.__view_model_context, application=self)
 
         self.__window.present()
-
-    def do_shutdown(self, *args: Any, **kwargs: Any) -> None:
-        self.__view_model_context.close()

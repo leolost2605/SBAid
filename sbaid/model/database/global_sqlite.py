@@ -60,7 +60,11 @@ class GlobalSQLite(GlobalDatabase):
         self._file = file
         self._connection = None
 
-    def close(self) -> None:
+        app = Gio.Application.get_default()  # pylint: disable=no-value-for-parameter
+        if app:
+            app.connect("shutdown", self.__on_app_shutdown)
+
+    def __on_app_shutdown(self, app: Gio.Application) -> None:
         sbaid.common.run_coro_in_background(self._connection.close())
 
     async def open(self) -> None:

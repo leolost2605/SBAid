@@ -38,10 +38,6 @@ class Context(GObject.GObject):
         super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
 
-    def close(self) -> None:
-        """Closes the Context."""
-        self.__global_db.close()
-
     async def load(self) -> None:
         """Loads the projects and the results."""
         await self.__global_db.open()

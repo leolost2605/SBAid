@@ -12,10 +12,6 @@ class ProjectDatabase(ABC):
         """Opens the file for the database."""
 
     @abstractmethod
-    def close(self) -> None:
-        """Closes this database."""
-
-    @abstractmethod
     async def get_created_at(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was created."""
 
