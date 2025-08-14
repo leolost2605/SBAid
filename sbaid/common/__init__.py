@@ -24,7 +24,7 @@ async def make_directory_with_parents_async(directory: Gio.File | None) -> None:
 
     await make_directory_with_parents_async(directory.get_parent())
 
-    await directory.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore[func-returns-value]
+    directory.make_directory_async(GLib.PRIORITY_DEFAULT, None, __on_make_directory)  # type: ignore[func-returns-value]
 
 
 _background_tasks: set[asyncio.Task[None]] = set()
@@ -39,3 +39,9 @@ def run_coro_in_background(coro: Coroutine[Any, Any, None]) -> None:
     task = asyncio.create_task(coro)
     _background_tasks.add(task)
     task.add_done_callback(_discard_task)
+
+def __on_make_directory(source_object, result, user_data) -> None:
+    try:
+        source_object.make_directory_finish(result)
+    except GLib.GError as e:
+        raise e
