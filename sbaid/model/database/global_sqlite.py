@@ -160,8 +160,8 @@ class GlobalSQLite(GlobalDatabase):
                 VALUES (?, ?, ?, ?);
                 """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
                 await db.commit()
-            except IntegrityError:
-                raise IntegrityError("integrity error at add result")
+            except IntegrityError as exc:
+                raise IntegrityError("integrity error at add result") from exc
 
     async def delete_result(self, result_id: str) -> None:
         """Remove a result and all sub-results from the database."""
@@ -264,8 +264,8 @@ class GlobalSQLite(GlobalDatabase):
                                 VALUES (?, ?, ?);
                                 """, (snapshot_id, result_id, time_string))
                 await db.commit()
-            except IntegrityError:
-                raise IntegrityError("integrity error at add snapshot")
+            except IntegrityError as exc:
+                raise IntegrityError("integrity error at add snapshot") from exc
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, str, str, BDisplay]]:
@@ -284,14 +284,15 @@ class GlobalSQLite(GlobalDatabase):
             try:
                 await db.execute("""PRAGMA foreign_keys=ON;""")
                 await db.execute("""
-                                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                                INSERT INTO cross_section_snapshot
+                                (id, snapshot_id, cross_section_id,
                                 cross_section_name, b_display)
                                 VALUES (?, ?, ?, ?, ?);
                                 """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
                                       cross_section_name, b_display.value))
                 await db.commit()
-            except IntegrityError:
-                raise IntegrityError("integrity error at add cross section snapshot")
+            except IntegrityError as exc:
+                raise IntegrityError("integrity error at add cross section snapshot") from exc
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
                                      tuple[str, int, float, int, ADisplay]]:
@@ -316,8 +317,8 @@ class GlobalSQLite(GlobalDatabase):
                 """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
                       traffic_volume, a_display.value))
                 await db.commit()
-            except IntegrityError:
-                raise IntegrityError("integrity error at add lane snapshot")
+            except IntegrityError as exc:
+                raise IntegrityError("integrity error at add lane snapshot") from exc
 
     async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) \
             -> list[tuple[VehicleType, float]]:
@@ -338,5 +339,5 @@ class GlobalSQLite(GlobalDatabase):
                 INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
                 """, (lane_snapshot_id, vehicle_type.value, speed))
                 await db.commit()
-            except IntegrityError:
-                raise IntegrityError("integrity error at add vehicle snapshot")
+            except IntegrityError as exc:
+                raise IntegrityError("integrity error at add vehicle snapshot") from exc

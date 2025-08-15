@@ -110,9 +110,7 @@ class ResultManager(GObject.GObject):
                                           result.creation_date_time)
         await self.__add_all_snapshots_to_database(result)
 
-
     async def __add_all_snapshots_to_database(self, result: Result) -> None:
-
         for snapshot in result.snapshots:
             assert isinstance(snapshot, Snapshot)
 
