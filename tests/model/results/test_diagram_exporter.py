@@ -41,7 +41,7 @@ class DiagramExporterTest(unittest.TestCase):
         png_heatmap = self.exporter.get_diagram(result, self.__get_result_cross_section_ids(result),
                                                  ImageFormat.PNG, self.exporter.available_diagram_types[0])[0]
         self.assertIsNotNone(png_heatmap)
-        png_velocity.save_to_file("./tests/model/results/generator_outputs/heatmap.png")
+        png_heatmap.save_to_file("./tests/model/results/generator_outputs/heatmap.png")
 
         svg_heatmap = self.exporter.get_diagram(result, self.__get_result_cross_section_ids(result),
                                                  ImageFormat.SVG, self.exporter.available_diagram_types[0])[0]

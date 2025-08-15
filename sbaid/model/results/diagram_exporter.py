@@ -41,11 +41,13 @@ class DiagramExporter(GObject.GObject):
         for global_gen in self.__global_gens:
             gen_type_id = global_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
+                print("type: heatmap", diagram_type.diagram_type_id)
                 return [global_gen.get_diagram(result, cross_section_ids, image_format)]
 
         for cs_gen in self.__cross_section_gens:
             gen_type_id = cs_gen.get_diagram_type().diagram_type_id
             if type_id == gen_type_id:
+                print("type:", diagram_type.diagram_type_id)
                 image_list = []
                 for cross_section_id in cross_section_ids:
                     image_list.append(cs_gen.get_diagram(result, cross_section_id, image_format))
