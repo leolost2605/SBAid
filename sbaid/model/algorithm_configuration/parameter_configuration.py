@@ -19,13 +19,14 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class ParameterConfiguration(GObject.GObject):
+class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-instance-attributes
     """
     This class manages the parameters for an algorithm configuration. It automatically
     maps the template taken from the algorithm to actual parameters. If a parameter template
     is per cross section it builds a parameter for each cross section currently in the network.
     """
 
+    __loaded: bool = False
     __network: Network
     __db: ProjectDatabase
     __algo_config_id: str
@@ -82,6 +83,11 @@ class ParameterConfiguration(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         for param in common.list_model_iterator(self.__parameters):
             await param.load_from_db()
 

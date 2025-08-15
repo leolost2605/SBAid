@@ -27,6 +27,7 @@ class Project(GObject.GObject):
     as well as references to the individual parts that make up the project. In addition, this
     class is the entry point for a simulation."""
 
+    __loaded: bool = False
     __project_db: ProjectDatabase
     __simulator: Simulator
     __name: str
@@ -70,9 +71,9 @@ class Project(GObject.GObject):
                                                  flags=GObject.ParamFlags.READABLE |
                                                  GObject.ParamFlags.WRITABLE)
 
-    last_modified: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
-                                                    flags=GObject.ParamFlags.READABLE |
-                                                    GObject.ParamFlags.WRITABLE)
+    last_opened: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
+                                                  flags=GObject.ParamFlags.READABLE |
+                                                  GObject.ParamFlags.WRITABLE)
 
     network: Network = GObject.Property(type=Network,  # type: ignore
                                         flags=GObject.ParamFlags.READABLE |
@@ -108,7 +109,7 @@ class Project(GObject.GObject):
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
                          created_at=GLib.DateTime.new_now_local(),
-                         last_modified=GLib.DateTime.new_now_local(),  # TODO: QS
+                         last_opened=GLib.DateTime.new_now_local(),  # TODO: QS
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
@@ -117,6 +118,12 @@ class Project(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
+
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
         await self.network.load()
         await self.algorithm_configuration_manager.load()
@@ -152,9 +159,9 @@ class Project(GObject.GObject):
         created_at = await self.__project_db.get_created_at()
         if created_at is not None:
             self.created_at = created_at
-        last_modified = await self.__project_db.get_last_modified()
-        if last_modified is not None:
-            self.last_modified = last_modified  # TODO: QS
+        last_opened = await self.__project_db.get_last_opened()
+        if last_opened is not None:
+            self.last_opened = last_opened  # TODO: QS
 
     async def delete(self) -> None:
         """Deletes the project database file."""

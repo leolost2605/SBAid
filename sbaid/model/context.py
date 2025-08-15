@@ -16,6 +16,7 @@ class Context(GObject.GObject):
     """This class defines the Context class. The root class that is created at startup.
     Manages the projects and holds a reference to the ResultManager."""
 
+    __loaded: bool = False
     __global_db: GlobalDatabase
     __projects: Gio.ListStore
 
@@ -40,6 +41,11 @@ class Context(GObject.GObject):
 
     async def load(self) -> None:
         """Loads the projects and the results."""
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()
