@@ -46,7 +46,10 @@ class AlgoConfigRow(Adw.Bin):
     def __on_clicked(self, click: Gtk.GestureClick, n_press: int, x: float, y: float) -> None:
         event = click.get_current_event()
 
-        if event and event.triggers_context_menu():
+        if not event:
+            return
+
+        if event.triggers_context_menu():
             click.set_state(Gtk.EventSequenceState.CLAIMED)
             click.reset()
 
@@ -59,6 +62,8 @@ class AlgoConfigRow(Adw.Bin):
 
             self.__menu.set_pointing_to(rect)
             self.__menu.popup()
+        else:
+            self.activate_action("navigation.push", GLib.Variant.new_string("algo_config_view"))
 
     def bind(self, config: AlgorithmConfiguration) -> None:
         """

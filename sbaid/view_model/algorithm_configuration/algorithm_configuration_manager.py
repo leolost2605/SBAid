@@ -3,6 +3,8 @@ This module contains the algorithm configuration manager class.
 """
 
 import sys
+from typing import cast
+
 import gi
 
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import (
@@ -50,9 +52,24 @@ class AlgorithmConfigurationManager(GObject.Object):
         super().__init__(available_tags=manager.available_tags,
                          algorithm_configurations=Gtk.SingleSelection.new(algo_configs))
 
+        manager.bind_property(
+            "selected-algorithm-configuration-id", self.algorithm_configurations,
+            "selected", GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+            self.__selected_id_to_pos, self.__selected_pos_to_id)
+
     def __algo_config_map_func(self, algorithm_configuration:
                                ModelAlgorithmConfiguration) -> AlgorithmConfiguration:
         return AlgorithmConfiguration(algorithm_configuration, self.__network, self.available_tags)
+
+    def __selected_id_to_pos(self, binding: GObject.Binding, selected_id: str) -> int:
+        for i, obj in enumerate(self.algorithm_configurations):
+            config = cast(AlgorithmConfiguration, obj)
+            if config.id == selected_id:
+                return i
+        return Gtk.INVALID_LIST_POSITION
+
+    def __selected_pos_to_id(self, binding: GObject.Binding, selected_pos: int) -> str:
+        return cast(AlgorithmConfiguration, self.algorithm_configurations.get_selected_item()).id
 
     async def create_algorithm_configuration(self) -> int:
         """

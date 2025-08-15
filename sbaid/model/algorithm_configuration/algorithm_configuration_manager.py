@@ -86,6 +86,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
             await algo_config.load_from_db()
 
         self.__selected_algo_config = await self.__db.get_selected_algorithm_configuration_id()
+        self.notify("selected-algorithm-configuration-id")
 
         tags = await self.__db.get_all_tags()
         for tag_id, tag_name in tags:
@@ -104,8 +105,9 @@ class AlgorithmConfigurationManager(GObject.GObject):
             algo_config.id, algo_config.name, algo_config.evaluation_interval,
             algo_config.display_interval, algo_config.script_path, True)
 
-        self.__selected_algo_config = algo_config.id
         self.__algorithm_configurations.append(algo_config)
+
+        self.selected_algorithm_configuration_id = algo_config.id
 
         return self.__algorithm_configurations.get_n_items() - 1
 
