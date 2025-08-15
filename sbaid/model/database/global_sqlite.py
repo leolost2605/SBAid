@@ -1,4 +1,5 @@
 """This module contains the GLobalSQLite class."""
+from sqlite3 import IntegrityError
 from typing import TypeVar
 
 import aiosqlite
@@ -152,12 +153,15 @@ class GlobalSQLite(GlobalDatabase):
                          creation_date_time: GLib.DateTime) -> None:
         """Add a result to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-            INSERT INTO result (id, name, project_name, date)
-            VALUES (?, ?, ?, ?);
-            """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
-            await db.commit()
+            try:
+                await db.execute("""PRAGMA foreign_keys=ON;""")
+                await db.execute("""
+                INSERT INTO result (id, name, project_name, date)
+                VALUES (?, ?, ?, ?);
+                """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
+                await db.commit()
+            except IntegrityError:
+                raise IntegrityError("integrity error at add result")
 
     async def delete_result(self, result_id: str) -> None:
         """Remove a result and all sub-results from the database."""
@@ -252,13 +256,16 @@ class GlobalSQLite(GlobalDatabase):
     async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
         """Add a snapshot to a given result."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            time_string = time.format_iso8601()
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-                            INSERT INTO snapshot (id, result_id, date)
-                            VALUES (?, ?, ?);
-                            """, (snapshot_id, result_id, time_string))
-            await db.commit()
+            try:
+                time_string = time.format_iso8601()
+                await db.execute("""PRAGMA foreign_keys=ON;""")
+                await db.execute("""
+                                INSERT INTO snapshot (id, result_id, date)
+                                VALUES (?, ?, ?);
+                                """, (snapshot_id, result_id, time_string))
+                await db.commit()
+            except IntegrityError:
+                raise IntegrityError("integrity error at add snapshot")
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, str, str, BDisplay]]:
@@ -274,14 +281,17 @@ class GlobalSQLite(GlobalDatabase):
                                          b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-                            INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
-                            cross_section_name, b_display)
-                            VALUES (?, ?, ?, ?, ?);
-                            """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
-                                  cross_section_name, b_display.value))
-            await db.commit()
+            try:
+                await db.execute("""PRAGMA foreign_keys=ON;""")
+                await db.execute("""
+                                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                                cross_section_name, b_display)
+                                VALUES (?, ?, ?, ?, ?);
+                                """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
+                                      cross_section_name, b_display.value))
+                await db.commit()
+            except IntegrityError:
+                raise IntegrityError("integrity error at add cross section snapshot")
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
                                      tuple[str, int, float, int, ADisplay]]:
@@ -298,13 +308,16 @@ class GlobalSQLite(GlobalDatabase):
                                 a_display: ADisplay) -> None:
         """Add a lane snapshot to a given cross section snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-            INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
-            average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
-            """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
-                  traffic_volume, a_display.value))
-            await db.commit()
+            try:
+                await db.execute("""PRAGMA foreign_keys=ON;""")
+                await db.execute("""
+                INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
+                average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
+                """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
+                      traffic_volume, a_display.value))
+                await db.commit()
+            except IntegrityError:
+                raise IntegrityError("integrity error at add lane snapshot")
 
     async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) \
             -> list[tuple[VehicleType, float]]:
@@ -319,8 +332,11 @@ class GlobalSQLite(GlobalDatabase):
                                    VehicleType, speed: float) -> None:
         """Add a venicle snapshot to a given lane snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-            INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
-            """, (lane_snapshot_id, vehicle_type.value, speed))
-            await db.commit()
+            try:
+                await db.execute("""PRAGMA foreign_keys=ON;""")
+                await db.execute("""
+                INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
+                """, (lane_snapshot_id, vehicle_type.value, speed))
+                await db.commit()
+            except IntegrityError:
+                raise IntegrityError("integrity error at add vehicle snapshot")
