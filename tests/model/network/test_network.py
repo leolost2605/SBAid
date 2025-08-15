@@ -13,7 +13,7 @@ from tests.mock_cross_section import MockCrossSection
 from tests.mock_simulator import MockSimulator
 
 
-class NetworkTest(unittest.IsolatedAsyncioTestCase):
+class NetworkTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
     __network = Network(__mock_simulator, unittest.mock.Mock())
 
@@ -22,7 +22,11 @@ class NetworkTest(unittest.IsolatedAsyncioTestCase):
         second_instance = ParserFactory()
         self.assertEqual(first_instance, second_instance)
 
-    async def test_load(self):
+    def test_load(self):
+        """Uses async method to test loading of the network from the database."""
+        asyncio.run(self._test_load())
+
+    async def _test_load(self):
         """Tests the network's load method.
         Expected behavior: All model cross sections are created from simulator cross sections and
         their metadata loaded from the database."""
@@ -32,7 +36,10 @@ class NetworkTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.__network.cross_sections.get_item(1).name, "cross_section_1")
 
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
-    async def test_import_from_file(self):
+    def test_import_from_file(self):
+        asyncio.run(self._test_import_from_file())
+
+    async def _test_import_from_file(self):
         """Mocks a Gio file to import cross sections from; or use one of the test ones (parsing
          has been tested; only relevant testing here is the actual method import_from_file).
          Expected output:
@@ -42,7 +49,11 @@ class NetworkTest(unittest.IsolatedAsyncioTestCase):
         await self.__network.load()
         self.assertEqual(await self.__network.import_from_file(file), (20, 0))
 
-    async def test_load_from_db(self):
+
+    def test_load_from_db(self):
+        asyncio.run(self._test_load_from_db())
+
+    async def _test_load_from_db(self):
         """Expected behavior:
         cross section has value for hard shoulder active, b display active
         (simulator, name and id all come from simulator cross section)"""

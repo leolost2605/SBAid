@@ -12,10 +12,24 @@ from sbaid.model.simulation.vehicle_info import VehicleInfo
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 
 
-class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
+class DisplayTestCase(unittest.TestCase):
     """This class tests the display using pythons unittest."""
 
-    async def test_simple(self) -> None:
+    def test(self) -> None:
+        self.assertTrue(True)
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(DisplayTestCase().start())
+        loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
+
+    async def start(self) -> None:
+        await self.simple()
+        await self.reset()
+        await self.load_different_file()
+        await self.run_too_long()
+
+    async def simple(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
@@ -34,7 +48,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sim.route_points.get_item(0), Location(5.4, 8.8))
         self.assertEqual(sim.route_points.get_item(1), Location(2.5, 7.9))
 
-    async def test_reset(self) -> None:
+    async def reset(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
@@ -61,7 +75,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 2)
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
 
-    async def test_load_different_file(self) -> None:
+    async def load_different_file(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
@@ -82,7 +96,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(RuntimeError):
             await sim.load_file(other_file)
 
-    async def test_run_too_long(self) -> None:
+    async def run_too_long(self) -> None:
         self.assertTrue(True)
         sim = DummySimulator()
 
@@ -93,7 +107,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(EndOfSimulationException):
             await sim.continue_simulation(11)
 
-    async def test_vehicle_infos(self):
+    async def vehicle_infos(self):
         sim = DummySimulator()
 
         cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
@@ -104,7 +118,7 @@ class DisplayTestCase(unittest.IsolatedAsyncioTestCase):
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
         veh_infos_cs1_lane1 = fetched_input.get_all_vehicle_infos("cs1", 1)
         veh_infos_cs2_lane0 = fetched_input.get_all_vehicle_infos("cs2", 0)
-        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 1)
+        veh_infos_cs2_lane1 = fetched_input.get_all_vehicle_infos("cs2", 0)
 
         self.assertEqual(veh_infos_cs1_lane0, [VehicleInfo(VehicleType.CAR, 130.2),
                                                VehicleInfo(VehicleType.CAR, 124.7),

@@ -8,8 +8,9 @@ from sbaid.model.algorithm_configuration.csv_parameter_parser import CSVParamete
 from sbaid.model.network.csv_cross_section_parser import InvalidFileFormattingException
 
 
-class CsvParameterParserTest(unittest.IsolatedAsyncioTestCase):
+class CsvParameterParserTest(unittest.TestCase):
     """This class tests the csv parser using pythons unittest."""
+    __background_tasks = set()
 
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_file_type_guesser(self):
@@ -40,9 +41,11 @@ class CsvParameterParserTest(unittest.IsolatedAsyncioTestCase):
             return False
         return True
 
-    async def test_valid_parsing(self) -> None:
-        self.assertEqual(await self._testing_callback_func(
-            "./tests/model/algorithm_configuration/valid_parameter_config.csv"), (24, 4))
+    def test_valid_parsing(self):
+        asyncio.run(self._test_valid_parsing())
+
+    async def _test_valid_parsing(self) -> None:
+        self.assertEqual(await self._testing_callback_func("./tests/model/algorithm_configuration/valid_parameter_config.csv"), (24, 4))
 
     def test_invalid_parsing(self):
         with self.assertRaises(InvalidFileFormattingException):

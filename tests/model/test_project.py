@@ -1,8 +1,10 @@
+import asyncio
 import unittest
 from unittest import skipIf
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
 
-from gi.repository import Gio
+from gi.events import GLibEventLoopPolicy
+from gi.repository import Gio, GLib
 
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context
@@ -10,9 +12,21 @@ from sbaid.model.project import Project
 from sbaid.model.results.result_manager import ResultManager
 
 
-class ProjectTestCase(unittest.IsolatedAsyncioTestCase):
-    @skipIf(True, "skip project create via context test")
-    async def test_create_via_context(self) -> None:
+class ProjectTestCase(unittest.TestCase):
+    @skipIf(True, "skip test")
+    def test(self):
+        self.assertTrue(True)
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(ProjectTestCase().start())
+        loop.run_until_complete(task)
+        asyncio.set_event_loop_policy(None)
+
+    async def start(self) -> None:
+        await self.create_via_context()
+        await self.start_simulation()
+
+    async def create_via_context(self) -> None:
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
 
         context = Context()
@@ -46,8 +60,7 @@ class ProjectTestCase(unittest.IsolatedAsyncioTestCase):
 
         await Gio.File.new_for_path("global_db").delete_async(0)
 
-    @skipIf(True, "skip project start simulation test")
-    async def test_start_simulation(self):
+    async def start_simulation(self):
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
 
         project = Project("myid", sim_type, "sim_file_path", "proj_file_path", ResultManager())
