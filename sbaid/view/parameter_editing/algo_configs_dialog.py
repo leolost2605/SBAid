@@ -306,6 +306,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         await self.__algo_config.parameter_configuration.import_parameter_values(file)
 
+
 class AlgoConfigsDialog(Adw.Window):
     """
     Represents a dialog shown to the user to allow configuring the algorithm configurations
