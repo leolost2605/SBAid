@@ -76,6 +76,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         fig, ax = plt.subplots()
         sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
                     square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
+        ax.invert_yaxis()
         ax.set_title(result_name + " from project " + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
         ax.tick_params(left=False)
