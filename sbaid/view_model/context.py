@@ -8,7 +8,6 @@ import gi
 
 from sbaid.model.simulator.simulator_factory import SimulatorFactory
 from sbaid.common.simulator_type import SimulatorType
-# from sbaid.view_model.results import ResultManager
 from sbaid.model.context import Context as ModelContext
 from sbaid.model.project import Project as ModelProject
 from sbaid.view_model.project import Project
