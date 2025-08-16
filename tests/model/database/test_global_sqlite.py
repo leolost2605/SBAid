@@ -1,7 +1,6 @@
 import asyncio
 import unittest
 
-from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
@@ -31,7 +30,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.lane_snapshot()
         await self.times()
         await self.tags()
-        await self.foreign_key_error()
+        # await self.foreign_key_error()
         await self.multiple_dbs()
 
 
@@ -190,7 +189,6 @@ class GlobalSQLiteTest(unittest.TestCase):
         await file.delete_async(0, None)
 
     async def foreign_key_error(self):
-        self.skipTest("IDK")
         file = Gio.File.new_for_path("test.db")
         db = GlobalSQLite(file)
         await db.open()
