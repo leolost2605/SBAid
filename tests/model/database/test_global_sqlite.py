@@ -95,7 +95,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await db.add_snapshot("my_snapshot_id", "my_result_id",
          DateTime.new_now(TimeZone.new_utc()))
 
-        self.assertEqual(len(await db.get_all_snapshots("my_snapshot_id")), 1)
+        self.assertEqual(len(await db.get_all_snapshots("my_result_id")), 1)
 
         await file.delete_async(0, None)
 
