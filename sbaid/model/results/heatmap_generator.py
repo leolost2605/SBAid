@@ -59,7 +59,8 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         cross_section_names = []
         assert isinstance(random_snapshot, Snapshot)
         for snapshot in list_model_iterator(random_snapshot.cross_section_snapshots):
-            if snapshot.cross_section_id in ids and snapshot.cross_section_name not in cross_section_names:
+            if (snapshot.cross_section_id in ids
+                    and snapshot.cross_section_name not in cross_section_names):
                 cross_section_names.append(snapshot.cross_section_name)
 
         return cross_section_names
