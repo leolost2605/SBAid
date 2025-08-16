@@ -1,6 +1,5 @@
 """This module contains the cross section class."""
 
-import asyncio
 from gi.repository import GObject
 
 import sbaid.common
