@@ -247,7 +247,8 @@ class GlobalSQLite(GlobalDatabase):
     async def get_all_snapshots(self, result_id: str) -> list[tuple[str, GLib.DateTime]]:
         """Return all snapshots from a given result."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            async with db.execute("""SELECT id, date FROM snapshot;""") as cursor:
+            async with db.execute("""SELECT id, date FROM snapshot
+            WHERE result_id = ?;""", [result_id]) as cursor:
                 res = await cursor.fetchall()
                 if not res:
                     return []

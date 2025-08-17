@@ -159,7 +159,7 @@ class DummySimulator(Simulator):
                                               CrossSectionType.COMBINED,
                                               cs_location_map[cross_section],
                                               max_lanes, False))
-                    self._sequence[int(snapshot_time)] = current_input
+                self._sequence[int(snapshot_time)] = current_input
                 self.are_cs_set = True
 
         self._simulation_start_time = min(self._sequence.keys())
