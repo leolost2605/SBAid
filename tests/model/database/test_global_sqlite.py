@@ -30,7 +30,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.lane_snapshot()
         await self.times()
         await self.tags()
-        # await self.foreign_key_error()
+        # await self.foreign_key_error() removed skip in test. TODO: works in #179
         await self.multiple_dbs()
 
 
