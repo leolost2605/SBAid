@@ -1,7 +1,6 @@
 import asyncio
 import unittest
 
-from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository.GLib import DateTime, TimeZone
 from gi.events import GLibEventLoopPolicy
@@ -31,7 +30,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await self.lane_snapshot()
         await self.times()
         await self.tags()
-        await self.foreign_key_error()
+        # await self.foreign_key_error() removed skip in test. TODO: works in #179
         await self.multiple_dbs()
 
 
@@ -96,7 +95,7 @@ class GlobalSQLiteTest(unittest.TestCase):
         await db.add_snapshot("my_snapshot_id", "my_result_id",
          DateTime.new_now(TimeZone.new_utc()))
 
-        self.assertEqual(len(await db.get_all_snapshots("my_snapshot_id")), 1)
+        self.assertEqual(len(await db.get_all_snapshots("my_result_id")), 1)
 
         await file.delete_async(0, None)
 
@@ -190,7 +189,6 @@ class GlobalSQLiteTest(unittest.TestCase):
         await file.delete_async(0, None)
 
     async def foreign_key_error(self):
-        self.skipTest("IDK")
         file = Gio.File.new_for_path("test.db")
         db = GlobalSQLite(file)
         await db.open()
