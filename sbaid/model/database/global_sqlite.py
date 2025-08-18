@@ -228,8 +228,8 @@ class GlobalSQLite(GlobalDatabase):
                 INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
                                  (result_tag_id, result_id, tag_id))
                 await db.commit()
-            except sqlite3.IntegrityError:
-                raise InvalidDatabaseError("Result id is invalid")
+            except sqlite3.IntegrityError as exc:
+                raise InvalidDatabaseError("Result id is invalid") from exc
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """Return all tags in the database."""
