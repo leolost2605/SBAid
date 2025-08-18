@@ -3,12 +3,12 @@ import sqlite3
 from typing import TypeVar
 
 import aiosqlite
+import aiopathlib
 
 from gi.repository import GLib, Gio
 
 from sbaid.model.database.date_format_error import DateFormatError
 from sbaid.model.database.foreign_key_error import ForeignKeyError
-from sbaid.common import make_directory_with_parents_async
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
