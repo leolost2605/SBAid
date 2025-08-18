@@ -59,7 +59,8 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         cross_section_names = []
         assert isinstance(random_snapshot, Snapshot)
         for snapshot in list_model_iterator(random_snapshot.cross_section_snapshots):
-            if snapshot.cross_section_id in ids and snapshot.cross_section_name not in ids:
+            if (snapshot.cross_section_id in ids
+                    and snapshot.cross_section_name not in cross_section_names):
                 cross_section_names.append(snapshot.cross_section_name)
 
         return cross_section_names
@@ -76,6 +77,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         fig, ax = plt.subplots()
         sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
                     square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
+        ax.invert_yaxis()
         ax.set_title(result_name + " from project " + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
         ax.tick_params(left=False)
