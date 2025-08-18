@@ -270,7 +270,8 @@ class GlobalSQLite(GlobalDatabase):
                                          b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute(""" INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+            await db.execute(""" INSERT INTO cross_section_snapshot
+            (id, snapshot_id, cross_section_id,
             cross_section_name, b_display)
             VALUES (?, ?, ?, ?, ?);
             """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
