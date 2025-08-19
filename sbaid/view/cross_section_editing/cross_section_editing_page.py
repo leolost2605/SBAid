@@ -6,8 +6,8 @@ import sys
 
 import gi
 
-from sbaid import common
 from sbaid.common.location import Location
+from sbaid.view import utils
 from sbaid.view_model.network.network import Network
 from sbaid.view_model.network.cross_section import CrossSection
 
@@ -111,7 +111,7 @@ class CrossSectionEditingPage(Adw.NavigationPage):
         self.set_title(cross_section.name)
 
     def __on_move(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__move_cs())
+        utils.run_coro_with_error_reporting(self.__move_cs())
 
     async def __move_cs(self) -> None:
         new_x = float(self.__x_entry.get_text())

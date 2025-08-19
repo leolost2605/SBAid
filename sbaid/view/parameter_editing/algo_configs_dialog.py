@@ -7,7 +7,7 @@ from typing import cast
 
 import gi
 
-from sbaid import common
+from sbaid.view import utils
 from sbaid.view.parameter_editing.algo_config_row import AlgoConfigRow
 from sbaid.view.parameter_editing.cross_section_row import CrossSectionRow
 from sbaid.view.parameter_editing.param_cell import ParamCell, ParamCellType
@@ -258,7 +258,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         cell.bind(item)
 
     def __on_script_path_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__collect_script_path())
+        utils.run_coro_with_error_reporting(self.__collect_script_path())
 
     async def __collect_script_path(self) -> None:
         if self.__algo_config is None:
@@ -287,7 +287,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             self.__algo_config.parameter_configuration.selected_cross_sections.unselect_all()
 
     def __on_import_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__collect_import_file())
+        utils.run_coro_with_error_reporting(self.__collect_import_file())
 
     async def __collect_import_file(self) -> None:
         if self.__algo_config is None:
@@ -385,7 +385,7 @@ class AlgoConfigsDialog(Adw.Window):
         row.bind(config)
 
     def __on_add_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__add_algo_config())
+        utils.run_coro_with_error_reporting(self.__add_algo_config())
 
     async def __add_algo_config(self) -> None:
         await self.__manager.create_algorithm_configuration()
@@ -396,7 +396,7 @@ class AlgoConfigsDialog(Adw.Window):
             return
 
         algo_id = parameter.get_string()
-        common.run_coro_in_background(self.__delete_algo_config(algo_id))
+        utils.run_coro_with_error_reporting(self.__delete_algo_config(algo_id))
 
     async def __delete_algo_config(self, config_id: str) -> None:
         await self.__manager.delete_algorithm_configuration(config_id)
