@@ -119,8 +119,13 @@ class Project(GObject.GObject):
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
 
-        self.last_opened = GLib.DateTime.new_now_local()
-        await self.__project_db.set_last_opened(self.last_opened)
+        new_last_opened = GLib.DateTime.new_now_local()
+
+        if new_last_opened:
+            self.last_opened = new_last_opened
+            await self.__project_db.set_last_opened(self.last_opened)
+        else:
+            print("Failed to get current time, last opened will be wrong")
 
         if self.__loaded:
             return
