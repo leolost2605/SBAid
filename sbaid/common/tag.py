@@ -3,7 +3,7 @@ from gi.repository import GObject
 
 
 class Tag(GObject.GObject):
-    """TODO"""
+    """This class represents a tag."""
 
     # GObject property definition
     tag_id = GObject.Property(
@@ -19,7 +19,7 @@ class Tag(GObject.GObject):
     )
 
     def __init__(self, tag_id: str, name: str) -> None:
-        """TODO"""
+        """Constructs a new tag with its id and name."""
         super().__init__(tag_id=tag_id, name=name)
 
     def __eq__(self, other: object) -> bool:

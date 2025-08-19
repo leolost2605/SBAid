@@ -19,22 +19,22 @@ class Result(GObject.GObject):
     """
 
     # GObject.Property definitions
-    id = GObject.Property(
+    id: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    result_name = GObject.Property(
+    result_name: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
-    project_name = GObject.Property(
+    project_name: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    creation_date_time = GObject.Property(
+    creation_date_time: GLib.DateTime = GObject.Property(   # type: ignore
         type=GLib.DateTime,
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
@@ -72,6 +72,9 @@ class Result(GObject.GObject):
 
     async def load(self) -> None:
         """Handles the logic for loading snapshots."""
+        if self.__snapshots.get_n_items():  # We are already loaded
+            return
+
         db_snapshots = await self.__global_db.get_all_snapshots(self.id)
 
         for snapshot in db_snapshots:
@@ -91,7 +94,12 @@ class Result(GObject.GObject):
 
     async def load_from_db(self) -> None:
         """Loads metainformation about the result name and tags, and saves them in the class."""
-        self.result_name = await self.__global_db.get_result_name(self.id)
+        name_from_db = await self.__global_db.get_result_name(self.id)
+        if name_from_db is not None:
+            self.result_name = name_from_db
+        else:
+            self.result_name = self.project_name + "_" + str(self.creation_date_time.format("%F"))
+
         tag_ids = await self.__global_db.get_result_tag_ids(self.id)
 
         for tag_id in tag_ids:

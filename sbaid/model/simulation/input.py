@@ -1,5 +1,4 @@
 """This module contains the Input class."""
-from typing import Optional, List
 from gi.repository import GObject
 from sbaid.model.simulation.vehicle_info import VehicleInfo
 from sbaid.common.vehicle_type import VehicleType
@@ -19,7 +18,7 @@ class Input(GObject.GObject):
         self._average_speeds = {}
         self._traffic_volumes = {}
 
-    def get_average_speed(self, cross_section_id: str, lane_number: int) -> Optional[float]:
+    def get_average_speed(self, cross_section_id: str, lane_number: int) -> float | None:
         """Return the average speed of all vehicles at the given cross-section and lane."""
         if not self._all_vehicle_infos:
             if (cross_section_id in self._average_speeds
@@ -36,7 +35,7 @@ class Input(GObject.GObject):
                                      .get(cross_section_id, {}).get(lane_number, []))))
         return result
 
-    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> Optional[int]:
+    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> int | None:
         """Return the amount of vehicles at the given cross-section and lane.
         Return None if there is no vehicle."""
         if not self._all_vehicle_infos:
@@ -50,7 +49,7 @@ class Input(GObject.GObject):
             return None
         return volume
 
-    def get_all_vehicle_infos(self, cross_section_id: str, lane_number: int) -> List[VehicleInfo]:
+    def get_all_vehicle_infos(self, cross_section_id: str, lane_number: int) -> list[VehicleInfo]:
         """Return a list of all vehicle information at the given cross-section and lane."""
         return self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, []).copy()
 

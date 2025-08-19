@@ -13,7 +13,7 @@ from sbaid.model.simulator.vissim.vissim_cross_section import VissimCrossSection
 
 
 class VissimSimulator(Simulator):
-    """TODO"""
+    """This class implements the Simulator class, using Vissim as a Simulator."""
 
     __type: SimulatorType
     __route: Gio.ListStore
@@ -48,6 +48,9 @@ class VissimSimulator(Simulator):
         self.__route = Gio.ListStore.new(Location)
         self.__cross_sections = Gio.ListStore.new(VissimCrossSection)
         self.__connector = VissimConnector()
+
+    def __del__(self) -> None:
+        common.run_coro_in_background(self.__connector.shutdown())
 
     async def load_file(self, file: Gio.File) -> None:
         path = file.get_path()

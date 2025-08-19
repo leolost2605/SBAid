@@ -16,6 +16,7 @@ class Context(GObject.GObject):
     """This class defines the Context class. The root class that is created at startup.
     Manages the projects and holds a reference to the ResultManager."""
 
+    __loaded: bool = False
     __global_db: GlobalDatabase
     __projects: Gio.ListStore
 
@@ -32,21 +33,19 @@ class Context(GObject.GObject):
         return self.__projects
 
     def __init__(self) -> None:
-        db_file = Gio.File.new_for_path("global_db")
+        # pylint: disable=no-value-for-parameter
+        db_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
         self.__global_db = GlobalSQLite(db_file)
         super().__init__(result_manager=ResultManager(self.__global_db))
         self.__projects = Gio.ListStore.new(Project)
 
     async def load(self) -> None:
         """Loads the projects and the results."""
-        # pylint: disable=no-value-for-parameter
-        # user_data_file = Gio.File.new_for_path(GLib.get_user_data_dir())  TODO activate
-        # user_data_file = Gio.File.new_for_path("global_database")
-        # sbaid_folder = user_data_file.get_child("sbaid")
-        # if not sbaid_folder.query_exists():
-        #     await sbaid_folder.make_directory_async(GLib.PRIORITY_DEFAULT)  # type: ignore
-        #
-        # db_file = sbaid_folder.get_child("global_database")
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         await self.__global_db.open()
 
         projects = await self.__global_db.get_all_projects()

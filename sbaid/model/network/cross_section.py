@@ -1,18 +1,22 @@
 """This module contains the cross section class."""
 
-import asyncio
 from gi.repository import GObject
+
+import sbaid.common
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.database.project_database import ProjectDatabase
 
 
+class FunctionalityNotAvailableException(Exception):
+    """Raised when trying to access a functionality that is not available."""
+
+
 class CrossSection(GObject.GObject):
     """This class defines a cross section in the network."""
 
     __cross_section: SimulatorCrossSection
-    __background_tasks: set[asyncio.Task[None]]
     __name: str | None
     __b_display_active: bool
     __hard_shoulder_active: bool
@@ -39,9 +43,7 @@ class CrossSection(GObject.GObject):
     @name.setter  # type: ignore
     def name(self, value: str) -> None:  # pylint: disable=function-redefined
         self.__name = value
-        task = asyncio.create_task(self.__update_cross_section_name(value))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        sbaid.common.run_coro_in_background(self.__update_cross_section_name(value))
 
     location: Location = GObject.Property(type=Location)  # type: ignore
 
@@ -79,9 +81,7 @@ class CrossSection(GObject.GObject):
     def b_display_active(self, value: bool) -> None:  # pylint: disable=function-redefined
         """Sets the simulator cross section's b display status."""
         self.__b_display_active = value
-        task = asyncio.create_task(self.__update_b_display_active(value))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        sbaid.common.run_coro_in_background(self.__update_b_display_active(value))
 
     hard_shoulder_available: bool = GObject.Property(type=bool, default=False)  # type: ignore
 
@@ -106,16 +106,13 @@ class CrossSection(GObject.GObject):
         if not self.hard_shoulder_available:
             raise FunctionalityNotAvailableException("Hard shoulder is not available.")
         self.__hard_shoulder_active = value
-        task = asyncio.create_task(self.__update_hard_shoulder_active(value))
-        self.__background_tasks.add(task)
-        task.add_done_callback(self.__background_tasks.discard)
+        sbaid.common.run_coro_in_background(self.__update_hard_shoulder_active(value))
 
     def __init__(self, simulator_cross_section: SimulatorCrossSection,
                  project_db: ProjectDatabase) -> None:
         """Constructs a new cross section with the given simulator cross section data."""
         self.__cross_section = simulator_cross_section
         self.__project_db = project_db
-        self.__background_tasks = set()
         self.__b_display_active = False
         self.__hard_shoulder_active = False
         self.__name = self.__cross_section.name
@@ -143,8 +140,3 @@ class CrossSection(GObject.GObject):
 
     async def __update_cross_section_name(self, name: str) -> None:
         await self.__project_db.set_cross_section_name(self.id, name)
-
-
-class FunctionalityNotAvailableException(Exception):
-    """To be deleted :)"""
-    # TODO: delete when exception is in common

@@ -22,6 +22,7 @@ class AlgorithmConfigurationManager(GObject.GObject):
     the tags that can be given to parameters across the algorithm configurations.
     """
 
+    __loaded: bool = False
     __db: ProjectDatabase
     __network: Network
 
@@ -71,6 +72,11 @@ class AlgorithmConfigurationManager(GObject.GObject):
     async def load(self) -> None:
         """Loads the algorithm configurations from the database."""
 
+        if self.__loaded:
+            return
+
+        self.__loaded = True
+
         algo_config_ids = await self.__db.get_all_algorithm_configuration_ids()
 
         for algo_config_id in algo_config_ids:
@@ -80,8 +86,11 @@ class AlgorithmConfigurationManager(GObject.GObject):
             await algo_config.load_from_db()
 
         self.__selected_algo_config = await self.__db.get_selected_algorithm_configuration_id()
+        self.notify("selected-algorithm-configuration-id")
 
-        # TODO: Get tags
+        tags = await self.__db.get_all_tags()
+        for tag_id, tag_name in tags:
+            self.__available_tags.append(Tag(tag_id, tag_name))
 
     async def create_algorithm_configuration(self) -> int:
         """
@@ -96,8 +105,9 @@ class AlgorithmConfigurationManager(GObject.GObject):
             algo_config.id, algo_config.name, algo_config.evaluation_interval,
             algo_config.display_interval, algo_config.script_path, True)
 
-        self.__selected_algo_config = algo_config.id
         self.__algorithm_configurations.append(algo_config)
+
+        self.selected_algorithm_configuration_id = algo_config.id
 
         return self.__algorithm_configurations.get_n_items() - 1
 

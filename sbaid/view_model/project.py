@@ -28,7 +28,8 @@ class Project(GObject.Object):
         """Returns the id of this project"""
         return self.__project.id
 
-    name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)  # type: ignore
+    name: str = GObject.Property(type=str, flags=GObject.ParamFlags.READABLE |  # type: ignore
+                                 GObject.ParamFlags.WRITABLE)
 
     @name.getter  # type: ignore
     def name(self) -> str:
@@ -48,13 +49,13 @@ class Project(GObject.Object):
         """Returns the simulator type of this project"""
         return self.__project.simulator_type
 
-    last_modified: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
-                                                    flags=GObject.ParamFlags.READABLE)
+    last_opened: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
+                                                  flags=GObject.ParamFlags.READABLE)
 
-    @last_modified.getter  # type: ignore
-    def last_modified(self) -> GLib.DateTime:
-        """Returns the last modified date of this project"""
-        return self.__project.last_modified
+    @last_opened.getter  # type: ignore
+    def last_opened(self) -> GLib.DateTime:
+        """Returns the last opened date of this project"""
+        return self.__project.last_opened
 
     created_at: GLib.DateTime = GObject.Property(type=GLib.DateTime,  # type: ignore
                                                  flags=GObject.ParamFlags.READABLE)

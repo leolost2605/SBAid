@@ -8,7 +8,10 @@ from typing import Any, cast
 import gi
 
 from sbaid import common
+from sbaid.view.cross_section_editing.cross_section_editing_page import CrossSectionEditingPage
 from sbaid.view.main_page.project_main_page import ProjectMainPage
+from sbaid.view.results.export_results_dialog import ExportResultsDialog
+from sbaid.view.results.results_page import ResultsPage
 from sbaid.view.simulation.simulation_running_page import SimulationRunningPage
 from sbaid.view.parameter_editing.algo_configs_dialog import AlgoConfigsDialog
 from sbaid.view_model.context import Context
@@ -16,7 +19,6 @@ from sbaid.view_model.project import Project
 from sbaid.view.start.welcome_page import WelcomePage
 from sbaid.view.start.all_projects import AllProjects
 from sbaid.view.start.project_creation import ProjectCreation
-from sbaid.view.start.results import Results
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -44,7 +46,7 @@ class MainWindow(Adw.ApplicationWindow):
     __nav_view: Adw.NavigationView
 
     def __init__(self, context: Context, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, default_width=1294, default_height=800)
         self.__context = context
 
         welcome_page = WelcomePage(self.__context)
@@ -78,6 +80,9 @@ class MainWindow(Adw.ApplicationWindow):
         results_action = Gio.SimpleAction.new("results")
         results_action.connect("activate", self.__on_results)
 
+        export_result_action = Gio.SimpleAction.new("export-result", GLib.VariantType.new("s"))
+        export_result_action.connect("activate", self.__on_export_result)
+
         self.add_action(open_project_action)
         self.add_action(edit_algo_configs_action)
         self.add_action(edit_cross_section_action)
@@ -85,6 +90,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.add_action(create_project_action)
         self.add_action(all_projects_action)
         self.add_action(results_action)
+        self.add_action(export_result_action)
 
     def __get_project_by_id(self, project_id: str) -> Project:
         for project in common.list_model_iterator(self.__context.projects):
@@ -113,9 +119,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         for cs in common.list_model_iterator(project.network.cross_sections):
             if cs.id == cross_section_id:
-                # pylint: disable=undefined-variable
-                self.__nav_view.push(CrossSectionEditingPage(  # type: ignore # noqa
-                    project.algorithm_configuration_manager))
+                self.__nav_view.push(CrossSectionEditingPage(cs, project.network))
                 return
 
         raise CrossSectionNotFoundError(f"The cross_section with the id {cross_section_id} "
@@ -137,4 +141,13 @@ class MainWindow(Adw.ApplicationWindow):
         self.__nav_view.push(AllProjects(self.__context))
 
     def __on_results(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
-        self.__nav_view.push(Results())
+        self.__nav_view.push(ResultsPage(self.__context.result_manager))
+
+    def __on_export_result(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
+        result_id = param.get_string()
+        for result in common.list_model_iterator(self.__context.result_manager.results):
+            if result.id == result_id:
+                dialog = ExportResultsDialog(result)
+                dialog.set_transient_for(self)
+                dialog.set_modal(True)
+                dialog.present()

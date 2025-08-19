@@ -3,7 +3,10 @@ from gi.repository import GObject
 
 
 class SimulatorType(GObject.GObject):
-    """TODO"""
+    """
+    The type of a simulator. This has to be given by a simulator implementation.
+    """
+
     id = GObject.Property(
         type=str,
         flags=GObject.ParamFlags.READABLE |
@@ -16,5 +19,4 @@ class SimulatorType(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
-        """TODO"""
         super().__init__(id=simulator_type_id, name=name)
