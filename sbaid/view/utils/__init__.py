@@ -2,22 +2,13 @@
 This module contains utils for the view.
 """
 
-import sys
-from typing import Any, cast, Coroutine, Callable
-
-import gi
+from typing import Any, Coroutine, Callable
 
 from sbaid import common
 
-try:
-    gi.require_version('Gtk', '4.0')
-    gi.require_version('Adw', '1')
-    from gi.repository import Gtk
-except (ImportError, ValueError) as exc:
-    print('Error: Dependencies not met.', exc)
-    sys.exit(1)
 
 error_reporters: list[Callable[[Exception], None]] = []
+
 
 def register_error_reporter(error_reporter: Callable[[Exception], None]) -> None:
     """
@@ -26,6 +17,7 @@ def register_error_reporter(error_reporter: Callable[[Exception], None]) -> None
     """
     error_reporters.append(error_reporter)
 
+
 def run_coro_with_error_reporting(coro: Coroutine[Any, Any, None]) -> None:
     """
     Runs the given coro in the background. If an exception occurs, calls every
@@ -33,6 +25,7 @@ def run_coro_with_error_reporting(coro: Coroutine[Any, Any, None]) -> None:
     :param coro: the coro to run
     """
     common.run_coro_in_background(__coro_runner(coro))
+
 
 async def __coro_runner(coro: Coroutine[Any, Any, None]) -> None:
     try:
