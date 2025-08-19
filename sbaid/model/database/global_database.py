@@ -112,3 +112,7 @@ class GlobalDatabase(ABC):
     async def add_vehicle_snapshot(self, lane_snapshot_id: str,
                                    vehicle_type: VehicleType, speed: float) -> None:
         """Add a venicle snapshot to a given lane snapshot."""
+
+    @abstractmethod
+    async def add_entire_result(self, result_id, result_name, project_name, creation_date_time, snapshot_data) -> None:
+        """Add a result to the database."""
