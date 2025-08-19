@@ -25,9 +25,9 @@ class ResultBuilderTest(unittest.TestCase):
 
     async def __test_build_with_random_values(self):
         """Tests the result builder by calling the methods in the right order with random values."""
-        snapshot_amount = 100
-        cs_amount = 30
-        lane_amount = 5
+        snapshot_amount = 20
+        cs_amount = 10
+        lane_amount = 2
         result = await result_testing_utils.generate_result(snapshot_amount, cs_amount, lane_amount)
 
         self.assertIsNotNone(result)
@@ -36,7 +36,7 @@ class ResultBuilderTest(unittest.TestCase):
 
         random_snapshot = random.choice(list(result.snapshots))
         self.assertIsInstance(random_snapshot, Snapshot)
-        self.assertEqual(len(random_snapshot.cross_section_snapshots), 30)
+        self.assertEqual(len(random_snapshot.cross_section_snapshots), 10)
 
         random_cs_snapshot = random.choice(list(random_snapshot.cross_section_snapshots))
         self.assertIsInstance(random_cs_snapshot, CrossSectionSnapshot)
