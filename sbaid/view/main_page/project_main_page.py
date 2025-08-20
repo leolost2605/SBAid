@@ -7,7 +7,7 @@ import sys
 
 import gi
 
-from sbaid import common
+from sbaid.view import utils
 from sbaid.view.main_page.add_new_cross_section_list_popover import AddNewCrossSectionListPopover
 from sbaid.view.main_page.network_map import NetworkMap
 from sbaid.view_model.network.cross_section import CrossSection
@@ -88,7 +88,7 @@ class ProjectMainPage(Adw.NavigationPage):
         self.set_child(main_view)
         self.set_title(project.name)
 
-        common.run_coro_in_background(project.load())
+        utils.run_coro_with_error_reporting(project.load())
 
     def __create_cs_row(self, cross_section: CrossSection) -> Gtk.Widget:
         label = Gtk.Label(xalign=0, margin_top=6, margin_bottom=6, margin_end=12, margin_start=6)
