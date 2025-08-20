@@ -140,7 +140,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         header_label_box.append(parameter_header_label)
         header_label_box.append(parameter_description_label)
 
-        import_button = Gtk.Button.new_with_label("Import...")
+        import_button = Gtk.Button.new_with_label("Import values...")
         import_button.set_halign(Gtk.Align.END)
         import_button.set_valign(Gtk.Align.CENTER)
         import_button.connect("clicked", self.__on_import_clicked)
