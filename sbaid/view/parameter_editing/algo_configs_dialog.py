@@ -126,6 +126,46 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         preferences_group.add(self.__display_interval_row)
         preferences_group.add(self.__script_path_row)
 
+        parameter_header_label = Gtk.Label.new("Parameters")
+        parameter_header_label.set_hexpand(True)
+        parameter_header_label.set_xalign(0)
+        parameter_header_label.add_css_class("heading")
+
+        parameter_description_label = Gtk.Label.new("Configure the parameters of the algorithm.")
+        parameter_description_label.set_wrap(True)
+        parameter_description_label.set_xalign(0)
+        parameter_description_label.add_css_class("dimmed")
+
+        header_label_box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        header_label_box.append(parameter_header_label)
+        header_label_box.append(parameter_description_label)
+
+        import_button = Gtk.Button.new_with_label("Import...")
+        import_button.set_halign(Gtk.Align.END)
+        import_button.set_valign(Gtk.Align.CENTER)
+        import_button.connect("clicked", self.__on_import_clicked)
+
+        header_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+        header_box.append(header_label_box)
+        header_box.append(import_button)
+
+        explanation_label = Gtk.Label()
+        explanation_label.set_markup(
+            "Selecting no cross section will allow to change the global parameters, selecting "
+            "at least one cross section will allow to change the parameter values for the selected "
+            "cross sections. Refer to the "
+            "<a href=\"https://api.pygobject.gnome.org/GLib-2.0/structure-VariantType.html\">"
+            "documentation</a> for a detailed explanation of the value types"
+        )
+        explanation_label.set_wrap(True)
+
+        clamp = Adw.Clamp(child=explanation_label, maximum_size=300)
+
+        explanation_popover = Gtk.Popover(child=clamp)
+
+        info_button = Gtk.MenuButton(icon_name="dialog-information-symbolic",
+                                     popover=explanation_popover, halign=Gtk.Align.START)
+
         self.__search_entry = Gtk.SearchEntry()
         self.__search_entry.connect("search-changed", self.__on_search_entry_changed)
 
@@ -195,17 +235,15 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         cross_sections_frame = Gtk.Frame(child=cross_sections_box)
 
-        import_button = Gtk.Button.new_with_label("Import")
-        import_button.connect("clicked", self.__on_import_clicked)
-
         grid = Gtk.Grid(margin_end=12, margin_top=12, margin_bottom=12, margin_start=12)
         grid.set_column_spacing(12)
         grid.set_row_spacing(12)
-        grid.attach(preferences_group, 0, 1, 1, 1)
-        grid.attach(self.__search_entry, 1, 0, 1, 1)
-        grid.attach(column_view_frame, 1, 1, 1, 1)
-        grid.attach(cross_sections_frame, 2, 1, 1, 1)
-        grid.attach(import_button, 2, 2, 1, 1)
+        grid.attach(preferences_group, 0, 0, 2, 1)
+        grid.attach(header_box, 0, 1, 2, 1)
+        grid.attach(info_button, 0, 2, 1, 1)
+        grid.attach(self.__search_entry, 1, 2, 1, 1)
+        grid.attach(cross_sections_frame, 0, 3, 1, 1)
+        grid.attach(column_view_frame, 1, 3, 1, 1)
 
         self.set_child(grid)
 
@@ -318,7 +356,7 @@ class AlgoConfigsDialog(Adw.Window):
     __split_view: Adw.NavigationSplitView
 
     def __init__(self, algo_config_manager: AlgorithmConfigurationManager):
-        super().__init__(default_width=809, default_height=500)
+        super().__init__()
 
         self.install_action("algo-config.delete", "s", self.__on_delete)
 
