@@ -37,6 +37,11 @@ class ProjectMainPage(Adw.NavigationPage):
 
         self.__project = project
 
+        self.__placeholder = Adw.StatusPage(title="Loading...")
+
+        placeholder_view = Adw.ToolbarView(content=self.__placeholder)
+        placeholder_view.add_top_bar(Adw.HeaderBar())
+
         start_button = Gtk.Button.new_with_label("Start Simulating")
         start_button.add_css_class("suggested-action")
         start_button.set_action_name("win.run-simulation")
@@ -85,10 +90,14 @@ class ProjectMainPage(Adw.NavigationPage):
         main_view.add_top_bar(header_bar)
         main_view.set_content(split_view)
 
-        self.set_child(main_view)
+        self.__stack = Gtk.Stack()
+        self.__stack.add_child(placeholder_view)
+        self.__stack.add_named(main_view, "main-view")
+
+        self.set_child(self.__stack)
         self.set_title(project.name)
 
-        utils.run_coro_with_error_reporting(project.load())
+        utils.run_coro_with_error_reporting(self.__load())
 
     def __create_cs_row(self, cross_section: CrossSection) -> Gtk.Widget:
         label = Gtk.Label(xalign=0, margin_top=6, margin_bottom=6, margin_end=12, margin_start=6)
@@ -100,3 +109,11 @@ class ProjectMainPage(Adw.NavigationPage):
         index = row.get_index()
         cross_section = cast(CrossSection, self.__project.network.cross_sections.get_item(index))
         self.__network_map.show_cross_section_details(cross_section)
+
+    async def __load(self) -> None:
+        try:
+            await self.__project.load()
+            self.__stack.set_visible_child_name("main-view")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.__placeholder.set_title("Failed to load project")
+            self.__placeholder.set_description(str(e))

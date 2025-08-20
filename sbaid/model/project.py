@@ -132,9 +132,13 @@ class Project(GObject.GObject):
 
         self.__loaded = True
 
-        await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
-        await self.network.load()
-        await self.algorithm_configuration_manager.load()
+        try:
+            await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
+            await self.network.load()
+            await self.algorithm_configuration_manager.load()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.__loaded = False  # If loading fails make sure we can try again
+            raise e
 
     async def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """Starts a simulation with the currently selected algorithm configuration.
