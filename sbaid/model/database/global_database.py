@@ -114,5 +114,13 @@ class GlobalDatabase(ABC):
         """Add a venicle snapshot to a given lane snapshot."""
 
     @abstractmethod
-    async def add_entire_result(self, result_id, result_name, project_name, creation_date_time, snapshot_data) -> None:
+    async def add_entire_result(self, result_id: str, result_name: str, project_name: str,
+                                creation_date_time: GLib.DateTime,
+                                snapshot_data:
+                                list[tuple[str, str, str,
+                                           list[tuple[str, str, str, str, int,
+                                                      list[tuple[str, str, int, float,
+                                                                 int, int,
+                                                                 list[tuple[str, int, float]]]]]]]]
+                                ) -> None:
         """Add a result to the database."""

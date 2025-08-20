@@ -336,7 +336,14 @@ class GlobalSQLite(GlobalDatabase):
             except sqlite3.IntegrityError as e:
                 raise ForeignKeyError("Foreign key does not exist!") from e
 
-    async def add_entire_result(self, result_id, result_name, project_name, creation_date_time, snapshot_data) -> None:
+    async def add_entire_result(self, result_id: str, result_name: str, project_name: str,
+                                creation_date_time: GLib.DateTime,
+                                snapshot_data:
+                                list[tuple[str, str, str,
+                                           list[tuple[str, str, str, str, int,
+                                                      list[tuple[str, str, int, float, int, int,
+                                                                 list[tuple[str, int, float]]]]]]]]
+                                ) -> None:
         """Add a result to the database."""
         db = await aiosqlite.connect(str(self._file.get_path()))
         await db.execute("""
@@ -361,7 +368,7 @@ class GlobalSQLite(GlobalDatabase):
                     INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
                     average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
                     """, (lane_snapshot[0], lane_snapshot[1], lane_snapshot[2],
-                      lane_snapshot[3], lane_snapshot[4], lane_snapshot[5]))
+                          lane_snapshot[3], lane_snapshot[4], lane_snapshot[5]))
                     for vehicle_snapshot in lane_snapshot[6]:
                         await db.execute("""
                         INSERT INTO vehicle_snapshot VALUES (?, ?, ?);

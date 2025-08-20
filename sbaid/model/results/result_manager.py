@@ -1,14 +1,12 @@
 """This module defines the ResultManager class."""
 import uuid
+
 from gi.repository import Gio, GObject
+
 from sbaid.model.database.global_database import GlobalDatabase
-from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
-from sbaid.model.results.lane_snapshot import LaneSnapshot
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
 from sbaid.common import list_model_iterator
-from sbaid.model.results.snapshot import Snapshot
-from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 
 
 class ResultManager(GObject.GObject):
@@ -104,20 +102,31 @@ class ResultManager(GObject.GObject):
         """Appends a result to the existing list of results in the result manager.
         Also registers result and all snapshots to the database"""
         self.__results.append(result)
-        snapshot_data: list[tuple[str, str, str, list[tuple[str, str, str, str, int, list[tuple[str, str, int, float, int, int, list[tuple[str, int, float]]]]]]]] = []
-        result_data = [result.id, result.result_name, result.project_name, result.creation_date_time.format_iso8601(), snapshot_data]
+        snapshot_data: list[tuple[str, str, str,
+                                  list[tuple[str, str, str, str, int,
+                                             list[tuple[str, str, int, float, int, int,
+                                                        list[tuple[str, int, float]]]]]]]] = []
         for snapshot in result.snapshots:
-            cs_sn_data: list[tuple[str, str, str, str, int, list[tuple[str, str, int, float, int, int, list[tuple[str, int, float]]]]]] = []
-            for cs_sn in snapshot.cross_section_snapshots:
-                lane_sn_data: list[tuple[str, str, int, float, int, int, list[tuple[str, int, float]]]] = []
+            cs_sn_data: list[tuple[str, str, str, str, int,
+                                   list[tuple[str, str, int, float, int, int,
+                                              list[tuple[str, int, float]]]]]] = []
+            for cs_sn in snapshot.cross_section_snapshots:  # type: ignore
+                lane_sn_data: list[tuple[str, str, int, float, int, int,
+                                         list[tuple[str, int, float]]]] = []
                 for lane_sn in cs_sn.lane_snapshots:
                     veh_sn_data: list[tuple[str, int, float]] = []
                     for veh_sn in lane_sn.vehicle_snapshots:
-                        veh_sn_data.append((veh_sn.lane_snapshot_id, veh_sn.vehicle_type.value, veh_sn.speed))
-                    lane_sn_data.append((lane_sn.id, lane_sn.cross_section_snapshot_id, lane_sn.lane,
-                                         lane_sn.average_speed, lane_sn.traffic_volume, lane_sn.a_display.value,
+                        veh_sn_data.append((veh_sn.lane_snapshot_id,
+                                            veh_sn.vehicle_type.value, veh_sn.speed))
+                    lane_sn_data.append((lane_sn.id, lane_sn.cross_section_snapshot_id,
+                                         lane_sn.lane, lane_sn.average_speed,
+                                         lane_sn.traffic_volume, lane_sn.a_display.value,
                                          veh_sn_data))
-                cs_sn_data.append((cs_sn.cs_snapshot_id, cs_sn.snapshot_id, cs_sn.cross_section_id, cs_sn.cross_section_name,
+                cs_sn_data.append((cs_sn.cs_snapshot_id, cs_sn.snapshot_id, cs_sn.cross_section_id,
+                                   cs_sn.cross_section_name,
                                    cs_sn.b_display.value, lane_sn_data))
-            snapshot_data.append((str(snapshot.id), result.id, str(snapshot.capture_timestamp.format_iso8601()), cs_sn_data))
-        await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name, result.creation_date_time, snapshot_data)
+            snapshot_data.append((str(snapshot.id), result.id,  # type: ignore
+                                  str(snapshot.capture_timestamp.format_iso8601()),  # type: ignore
+                                  cs_sn_data))
+        await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name,
+                                                 result.creation_date_time, snapshot_data)
