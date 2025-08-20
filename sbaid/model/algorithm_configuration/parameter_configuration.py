@@ -1,13 +1,8 @@
 """This module defines the ParameterConfiguration class."""
-import os
-import csv
 import sys
-
-import aiofiles
 import gi
 
 from sbaid import common
-from sbaid.common import list_model_iterator
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
@@ -84,35 +79,6 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
                 return True
 
         return False
-
-    async def export_to_csv(self, path: str):
-        """Creates a csv file with this parameter configuration."""
-        data = await self.__format_parameters()
-        filename = "parameter_configuration.csv"
-        full_path = os.path.join(path, filename)
-
-        async with aiofiles.open(full_path, "w") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerows(data)
-
-
-    async def __format_parameters(self) -> list[list[str]]:
-        params = []
-        params[0] = ["cs_id"]
-        for param in list_model_iterator(self.__parameters):
-            ids = [row[0] for row in params]
-            try:
-                cs_id_index = ids.index(param.cross_section.id)
-            except ValueError:
-                params[0][len(ids)] = param.cross_section.id
-                cs_id_index = len(ids) - 1
-            try:
-                params[cs_id_index][params[0].index(param.name)]
-            except ValueError:
-                params[0].append(param.name)
-                params[cs_id_index][len(params[0]) - 1] = param.value
-        return params
-
 
 
     async def load(self) -> None:
