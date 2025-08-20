@@ -62,7 +62,7 @@ class ProjectDatabase(ABC):
         """Update the name of the algorithm_configuration with the given id."""
 
     @abstractmethod
-    async def get_last_opened(self) -> GLib.DateTime:
+    async def get_last_opened(self) -> GLib.DateTime | None:
         """Return the GLib.DateTime when the project was last opened."""
 
     @abstractmethod
