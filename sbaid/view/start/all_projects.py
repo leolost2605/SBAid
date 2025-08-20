@@ -1,7 +1,7 @@
 """This module contains the all projects page."""
 import sys
 
-from typing import cast
+from typing import cast, Any
 
 import gi
 
@@ -64,12 +64,18 @@ class AllProjects(Adw.NavigationPage):
 
         header_bar = Adw.HeaderBar()
 
+        column_view = Gtk.ColumnView()
+        sorter = column_view.get_sorter()
+        sort_model = Gtk.SortListModel.new(self.__context.projects, sorter)
+
         name_factory = Gtk.SignalListItemFactory()
         name_factory.connect("setup", self.__on_factory_setup, ProjectCellType.NAME)
         name_factory.connect("bind", self.__on_factory_bind)
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
+        name_sorter = Gtk.CustomSorter.new(self.__name_sort_func)
+        name_column.set_sorter(name_sorter)
 
         last_opened_factory = Gtk.SignalListItemFactory()
         last_opened_factory.connect("setup", self.__on_factory_setup,
@@ -77,16 +83,20 @@ class AllProjects(Adw.NavigationPage):
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
         last_opened_column = Gtk.ColumnViewColumn.new("Created at", last_opened_factory)
+        last_opened_sorter = Gtk.CustomSorter.new(self.__last_opened_sort_func)
+        last_opened_column.set_sorter(last_opened_sorter)
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
+        created_at_sorter = Gtk.CustomSorter.new(self.__created_at_sort_func)
+        created_at_column.set_sorter(created_at_sorter)
 
-        self.__selection = Gtk.SingleSelection.new(self.__context.projects)
+        self.__selection = Gtk.SingleSelection.new(sort_model)
 
-        column_view = Gtk.ColumnView.new(self.__selection)
+        column_view.set_model(self.__selection)
         column_view.append_column(name_column)
         column_view.append_column(last_opened_column)
         column_view.append_column(created_at_column)
@@ -149,3 +159,16 @@ class AllProjects(Adw.NavigationPage):
         project = cast(Project, self.__selection.get_selected_item())
         if project:
             _RenameDialog(project).present(cast(Adw.Window, self.get_root()))
+
+    def __name_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
+        if project1.name < project2.name:
+            return 1
+        if project1.name > project2.name:
+            return -1
+        return 0
+
+    def __created_at_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
+        return project1.created_at.compare(project2.created_at)
+
+    def __last_opened_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
+        return project1.last_opened.compare(project2.last_opened)

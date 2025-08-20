@@ -3,7 +3,7 @@ This module contains the algo configs dialog.
 """
 
 import sys
-from typing import cast
+from typing import cast, Any
 
 import gi
 
@@ -133,7 +133,10 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         self.__parameter_model = Gtk.FilterListModel.new(None, self.__filter)
 
-        selection_model = Gtk.MultiSelection.new(self.__parameter_model)
+        column_view = Gtk.ColumnView()
+        sorter = column_view.get_sorter()
+        sort_model = Gtk.SortListModel.new(self.__parameter_model, sorter)
+        selection_model = Gtk.MultiSelection.new(sort_model)
 
         name_factory = Gtk.SignalListItemFactory()
         name_factory.connect("setup", self.__setup_param_name_cell)
@@ -141,12 +144,16 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
+        name_sorter = Gtk.CustomSorter.new(self.__name_sort_func)
+        name_column.set_sorter(name_sorter)
 
         value_type_factory = Gtk.SignalListItemFactory()
         value_type_factory.connect("setup", self.__setup_param_value_type_cell)
         value_type_factory.connect("bind", self.__bind_param_cell)
 
         value_type_column = Gtk.ColumnViewColumn.new("Value Type", value_type_factory)
+        value_type_sorter = Gtk.CustomSorter.new(self.__value_type_sort_func)
+        value_type_column.set_sorter(value_type_sorter)
 
         value_factory = Gtk.SignalListItemFactory()
         value_factory.connect("setup", self.__setup_param_value_cell)
@@ -160,7 +167,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
 
-        column_view = Gtk.ColumnView.new(selection_model)
+        column_view.set_model(selection_model)
         column_view.set_hexpand(True)
         column_view.set_vexpand(True)
         column_view.append_column(name_column)
@@ -305,6 +312,21 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             return
 
         await self.__algo_config.parameter_configuration.import_parameter_values(file)
+
+    def __name_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any) -> int:
+        if parameter1.name > parameter2.name:
+            return -1
+        if parameter2.name < parameter2.name:
+            return 1
+        return 0
+
+    def __value_type_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any)\
+            -> int:
+        if str(parameter1.value_type) > str(parameter2.value_type):
+            return -1
+        if str(parameter1.value_type) < str(parameter2.value_type):
+            return 1
+        return 0
 
 
 class AlgoConfigsDialog(Adw.Window):

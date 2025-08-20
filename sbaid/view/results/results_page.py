@@ -1,6 +1,6 @@
 """This module contains the results page."""
 import sys
-from typing import cast
+from typing import cast, Any
 
 import gi
 
@@ -26,6 +26,7 @@ class ResultsPage(Adw.NavigationPage):
     __search_entry: Gtk.SearchEntry
     __filter: Gtk.CustomFilter
 
+    # pylint: disable=too-many-statements
     def __init__(self, result_manager: ResultManager) -> None:  # pylint: disable=too-many-locals
         super().__init__()
 
@@ -39,7 +40,10 @@ class ResultsPage(Adw.NavigationPage):
 
         filter_model = Gtk.FilterListModel.new(result_manager.results, self.__filter)
 
-        selection_model = Gtk.NoSelection.new(filter_model)
+        column_view = Gtk.ColumnView()
+        sorter = column_view.get_sorter()
+        sort_model = Gtk.SortListModel.new(filter_model, sorter)
+        selection_model = Gtk.NoSelection.new(sort_model)
 
         name_factory = Gtk.SignalListItemFactory()
         name_factory.connect("setup", self.__setup_result_name_cell)
@@ -47,18 +51,24 @@ class ResultsPage(Adw.NavigationPage):
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
+        name_sorter = Gtk.CustomSorter.new(self.__string_sort_func)
+        name_column.set_sorter(name_sorter)
 
         project_name_factory = Gtk.SignalListItemFactory()
         project_name_factory.connect("setup", self.__setup_project_name_cell)
         project_name_factory.connect("bind", self.__bind_cell)
 
         project_name_column = Gtk.ColumnViewColumn.new("Project Name", project_name_factory)
+        project_name_sorter = Gtk.CustomSorter.new(self.__string_sort_func)
+        project_name_column.set_sorter(project_name_sorter)
 
         date_factory = Gtk.SignalListItemFactory()
         date_factory.connect("setup", self.__setup_date_cell)
         date_factory.connect("bind", self.__bind_cell)
 
         date_column = Gtk.ColumnViewColumn.new("Date", date_factory)
+        date_sorter = Gtk.CustomSorter.new(self.__date_sort_func)
+        date_column.set_sorter(date_sorter)
 
         tag_factory = Gtk.SignalListItemFactory()
         tag_factory.connect("setup", self.__setup_tags_cell)
@@ -66,7 +76,7 @@ class ResultsPage(Adw.NavigationPage):
 
         tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
 
-        column_view = Gtk.ColumnView.new(selection_model)
+        column_view.set_model(selection_model)
         column_view.set_single_click_activate(True)
         column_view.set_hexpand(True)
         column_view.set_vexpand(True)
@@ -87,6 +97,16 @@ class ResultsPage(Adw.NavigationPage):
 
         self.set_child(toolbar_view)
         self.set_title("Results")
+
+    def __string_sort_func(self, result1: Result, result2: Result, data: Any) -> int:
+        if result1.name > result2.name:
+            return -1
+        if result1.name < result2.name:
+            return 1
+        return 0
+
+    def __date_sort_func(self, result1: Result, result2: Result, data: Any) -> int:
+        return result1.creation_date_time.compare(result2.creation_date_time)
 
     def __on_search_entry_changed(self, entry: Gtk.SearchEntry) -> None:
         self.__filter.changed(Gtk.FilterChange.DIFFERENT)
