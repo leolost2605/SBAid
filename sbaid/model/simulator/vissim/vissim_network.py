@@ -86,7 +86,7 @@ class _Link:
                 self.__successor_nos.append(connector_no)
 
         for point in vissim_link.LinkPolyPts.GetAll():
-            self.__points.append(Location(point.AttValue("LatWGS84"), point.AttValue("LongWGS84")))
+            self.__points.append(Location(point.AttValue("LongWGS84"), point.AttValue("LatWGS84")))
 
     def add_cross_section(self, pos: float, cross_section_id: str) -> None:
         """Adds the cross section with the given position to this link."""

@@ -6,9 +6,9 @@ import sys
 
 import gi
 
-from sbaid import common
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
+from sbaid.view import utils
 from sbaid.view_model.network.network import Network
 
 try:
@@ -73,7 +73,7 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
 
     def __on_import_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
-        common.run_coro_in_background(self.__collect_import_file())
+        utils.run_coro_with_error_reporting(self.__collect_import_file())
 
     async def __collect_import_file(self) -> None:
         dialog = Gtk.FileDialog()
@@ -91,7 +91,7 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
 
     def __on_done_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
-        common.run_coro_in_background(self.__add_cross_section())
+        utils.run_coro_with_error_reporting(self.__add_cross_section())
 
     async def __add_cross_section(self) -> None:
         name = self.__name_entry.get_text()
