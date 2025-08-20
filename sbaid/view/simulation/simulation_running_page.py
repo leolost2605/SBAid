@@ -6,7 +6,7 @@ import sys
 
 import gi
 
-from sbaid import common
+from sbaid.view import utils
 from sbaid.view_model.simulation import Simulation
 
 try:
@@ -92,5 +92,5 @@ class SimulationRunningPage(Adw.NavigationPage):
         self.set_can_pop(True)
 
         button.set_sensitive(False)
-        common.run_coro_in_background(self.__simulation.cancel())
+        utils.run_coro_with_error_reporting(self.__simulation.cancel())
         # TODO: Auto navigate back?
