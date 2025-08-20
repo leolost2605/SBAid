@@ -1,5 +1,4 @@
 """This module contains the GLobalSQLite class."""
-import sqlite3
 from typing import TypeVar
 
 import aiosqlite
@@ -7,7 +6,6 @@ import aiosqlite
 from gi.repository import GLib, Gio
 
 from sbaid.model.database.date_format_error import DateFormatError
-from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
@@ -207,27 +205,24 @@ class GlobalSQLite(GlobalDatabase):
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                async with db.execute("""
-                SELECT * FROM tag WHERE id = ?;""", (tag_id,)) as cursor:
-                    tags = list(await cursor.fetchall())
+            async with db.execute("""
+            SELECT * FROM tag WHERE id = ?;""", (tag_id,)) as cursor:
+                tags = list(await cursor.fetchall())
 
-                if len(tags) == 0:
-                    raise KeyError("Tag id is invalid")
+            if len(tags) == 0:
+                raise KeyError("Tag id is invalid")
 
-                async with db.execute("""
-                SELECT * FROM result WHERE id = ?;""", (result_id,)) as cursor:
-                    results = list(await cursor.fetchall())
+            async with db.execute("""
+            SELECT * FROM result WHERE id = ?;""", (result_id,)) as cursor:
+                results = list(await cursor.fetchall())
 
-                if len(results) == 0:
-                    raise KeyError("Result id is invalid")
+            if len(results) == 0:
+                raise KeyError("Result id is invalid")
 
-                await db.execute("""
-                INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
-                                 (result_tag_id, result_id, tag_id))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Result id is invalid") from e
+            await db.execute("""
+            INSERT INTO result_tag (id, result_id, tag_id) VALUES (?, ?, ?);""",
+                             (result_tag_id, result_id, tag_id))
+            await db.commit()
 
     async def get_all_tags(self) -> list[tuple[str, str]]:
         """Return all tags in the database."""
@@ -256,14 +251,10 @@ class GlobalSQLite(GlobalDatabase):
         """Add a snapshot to a given result."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             time_string = time.format_iso8601()
-            try:
-                await db.execute("""
-                INSERT INTO snapshot (id, result_id, date)
-                VALUES (?, ?, ?);
-                """, (snapshot_id, result_id, time_string))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute("""
+            INSERT INTO snapshot (id, result_id, date)
+            VALUES (?, ?, ?);""", (snapshot_id, result_id, time_string))
+            await db.commit()
 
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, str, str, BDisplay]]:
@@ -279,16 +270,13 @@ class GlobalSQLite(GlobalDatabase):
                                          b_display: BDisplay) -> None:
         """Add a cross section snapshot to a given snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""
-                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
-                cross_section_name, b_display)
-                VALUES (?, ?, ?, ?, ?);
-                """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
-                      cross_section_name, b_display.value))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute(""" INSERT INTO cross_section_snapshot
+            (id, snapshot_id, cross_section_id,
+            cross_section_name, b_display)
+            VALUES (?, ?, ?, ?, ?);
+            """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
+                  cross_section_name, b_display.value))
+            await db.commit()
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
                                      tuple[str, int, float, int, ADisplay]]:
@@ -305,15 +293,12 @@ class GlobalSQLite(GlobalDatabase):
                                 a_display: ADisplay) -> None:
         """Add a lane snapshot to a given cross section snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""
-                INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
-                average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
-                """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
-                      traffic_volume, a_display.value))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute("""
+            INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
+            average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
+            """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
+                  traffic_volume, a_display.value))
+            await db.commit()
 
     async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) \
             -> list[tuple[VehicleType, float]]:
@@ -328,10 +313,7 @@ class GlobalSQLite(GlobalDatabase):
                                    VehicleType, speed: float) -> None:
         """Add a venicle snapshot to a given lane snapshot."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""
-                INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
-                """, (lane_snapshot_id, vehicle_type.value, speed))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute("""
+            INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
+            """, (lane_snapshot_id, vehicle_type.value, speed))
+            await db.commit()
