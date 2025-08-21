@@ -84,9 +84,10 @@ class AllProjects(Adw.NavigationPage):
 
         created_at_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
 
-        self.__selection = Gtk.SingleSelection.new(self.__context.projects)
+        selection = Gtk.NoSelection.new(self.__context.projects)
 
-        column_view = Gtk.ColumnView.new(self.__selection)
+        column_view = Gtk.ColumnView.new(selection)
+        column_view.set_single_click_activate(True)
         column_view.append_column(name_column)
         column_view.append_column(last_opened_column)
         column_view.append_column(created_at_column)
@@ -98,26 +99,15 @@ class AllProjects(Adw.NavigationPage):
         column_view_frame = Gtk.Frame(child=column_view_scrolled, margin_top=12, margin_bottom=12,
                                       margin_end=12, margin_start=12)
 
-        delete_button = Gtk.Button(label="Delete")
-        delete_button.connect("clicked", self.__on_delete)
-
-        rename_button = Gtk.Button(label="Rename", action_name="project.rename")
-
-        button_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
-        button_box.set_margin_start(12)
-        button_box.set_margin_bottom(12)
-        button_box.append(delete_button)
-        button_box.append(rename_button)
-
         main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
         main_view.set_content(column_view_frame)
-        main_view.add_bottom_bar(button_box)
 
         self.set_child(main_view)
         self.set_title("All Projects")
 
-        self.install_action("project.rename", None, self.__on_rename_project)
+        self.install_action("project.delete", "s", self.__on_delete)
+        self.install_action("project.rename", "s", self.__on_rename_project)
 
     @staticmethod
     def __on_factory_setup(factory: Gtk.SignalListItemFactory,
@@ -137,15 +127,30 @@ class AllProjects(Adw.NavigationPage):
             project = cast(Project, model.get_item(pos))  # type: ignore
             self.activate_action("win.open-project", GLib.Variant.new_string(project.id))
 
-    async def __delete_project(self, project: Project) -> None:
-        await self.__context.delete_project(project.id)
+    def __get_project_from_param(self, parameter: GLib.Variant | None) -> Project | None:
+        if not parameter:
+            return None
 
-    def __on_delete(self, widget: Gtk.Widget) -> None:
-        utils.run_coro_with_error_reporting(self.__delete_project(
-            cast(Project, self.__selection.get_selected_item())))
+        project_id = parameter.get_string()
+
+        if not project_id:
+            return None
+
+        for p in self.__context.projects:
+            project = cast(Project, p)
+            if project.id == project_id:
+                return project
+
+        return None
+
+    def __on_delete(self, widget: Gtk.Widget, action_name: str,
+                    parameter: GLib.Variant | None) -> None:
+        project = self.__get_project_from_param(parameter)
+        if project:
+            utils.run_coro_with_error_reporting(self.__context.delete_project(project.id))
 
     def __on_rename_project(self, widget: Gtk.Widget, action_name: str,
                             parameter: GLib.Variant | None) -> None:
-        project = cast(Project, self.__selection.get_selected_item())
+        project = self.__get_project_from_param(parameter)
         if project:
             _RenameDialog(project).present(cast(Adw.Window, self.get_root()))
