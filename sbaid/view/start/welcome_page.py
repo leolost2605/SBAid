@@ -33,8 +33,8 @@ class WelcomePage(Adw.NavigationPage):
         self.__create_project_button = Gtk.Button(label="Create Project")
         self.__create_project_button.set_action_name("win.create-project-page")
 
-        time_sorter = Gtk.CustomSorter.new(self.__sort_func)
-        sort_model = Gtk.SortListModel.new(self.__context.projects, time_sorter)
+        self.__time_sorter = Gtk.CustomSorter.new(self.__sort_func)
+        sort_model = Gtk.SortListModel.new(self.__context.projects, self.__time_sorter)
 
         recent_projects_slice = Gtk.SliceListModel.new(sort_model, 0, 3)
 
@@ -67,6 +67,7 @@ class WelcomePage(Adw.NavigationPage):
 
         self.set_title("SBAid")
         self.set_child(main_view)
+        self.connect("map", self.__on_map)
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
         return project_two.last_opened.compare(project_one.last_opened)
@@ -77,3 +78,6 @@ class WelcomePage(Adw.NavigationPage):
         button.set_action_target_value(GLib.Variant.new_string(proj.id))
         proj.bind_property("name", button, "label", GObject.BindingFlags.SYNC_CREATE)
         return Gtk.ListBoxRow(child=button, focusable=False)
+
+    def __on_map(self, widget: Gtk.Widget) -> None:
+        self.__time_sorter.changed(Gtk.SorterChange.DIFFERENT)
