@@ -1,5 +1,4 @@
 """This module contains the HeatMapGenerator class."""
-import random
 from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +13,6 @@ from sbaid.model.results.result import Result
 from sbaid.common.diagram_type import DiagramType
 from sbaid.model.results.seaborn_image import SeabornImage
 from sbaid.common import list_model_iterator
-from sbaid.model.results.snapshot import Snapshot
 
 
 class HeatmapGenerator(GlobalDiagramGenerator):
@@ -40,7 +38,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
             -> tuple[list[float], list[str], list[str]]:
         diagram_data = []
         timestamps = []
-        cross_section_names = self.__get_cross_section_names_from_ids(result, cross_section_ids)
+        cross_section_names = []
         for snapshot in list_model_iterator(result.snapshots):
             timestamp = snapshot.capture_timestamp
             if timestamp.get_minute() == 0 and timestamp.get_second() == 0:
@@ -51,19 +49,10 @@ class HeatmapGenerator(GlobalDiagramGenerator):
             for cs_snapshot in snapshot.cross_section_snapshots:
                 if cs_snapshot.cross_section_id in cross_section_ids:
                     average_speeds.append(cs_snapshot.calculate_cs_average_speed())
+                    if cs_snapshot.cross_section_name not in cross_section_names:
+                        cross_section_names.append(cs_snapshot.cross_section_name)
             diagram_data.append(average_speeds)
         return diagram_data, cross_section_names, timestamps
-
-    def __get_cross_section_names_from_ids(self, result: Result, ids: list[str]) -> list[str]:
-        random_snapshot = random.choice(list(result.snapshots))
-        cross_section_names = []
-        assert isinstance(random_snapshot, Snapshot)
-        for snapshot in list_model_iterator(random_snapshot.cross_section_snapshots):
-            if (snapshot.cross_section_id in ids
-                    and snapshot.cross_section_name not in cross_section_names):
-                cross_section_names.append(snapshot.cross_section_name)
-
-        return cross_section_names
 
     def __generate_diagram(self, result_name: str, project_name: str,
                            data: tuple[list[float], list[str], list[str]],

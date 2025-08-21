@@ -5,7 +5,7 @@ from typing import cast
 
 import gi
 
-from sbaid import common
+from sbaid.view import utils
 from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
 
@@ -141,7 +141,7 @@ class AllProjects(Adw.NavigationPage):
         await self.__context.delete_project(project.id)
 
     def __on_delete(self, widget: Gtk.Widget) -> None:
-        common.run_coro_in_background(self.__delete_project(
+        utils.run_coro_with_error_reporting(self.__delete_project(
             cast(Project, self.__selection.get_selected_item())))
 
     def __on_rename_project(self, widget: Gtk.Widget, action_name: str,
