@@ -4,6 +4,7 @@ import gi
 
 from sbaid import common
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
+from sbaid.model.algorithm_configuration.exporter_factory import ExporterFactory
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
@@ -80,6 +81,11 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
         return False
 
+    async def export_parameter_configuration(self, path: str, export_format: str):
+        file = Gio.File.new_for_path(path)
+        factory = ExporterFactory()
+        exporter = factory.get_exporter(export_format)
+        await exporter.for_each_parameter(file, self.__parameters)
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""

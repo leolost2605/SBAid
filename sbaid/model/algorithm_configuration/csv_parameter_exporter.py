@@ -1,59 +1,77 @@
-from typing import Iterable
-
 import aiofiles
 import csv
+import io
 
 from gi.repository import Gio
 
-from sbaid.model.algorithm_configuration.parameter_exporter import (ParameterExporter,
-                                                                    ParameterExporterForeachFunc)
+from sbaid.model.algorithm_configuration.parameter_exporter import ParameterExporter
 from sbaid.common import list_model_iterator
 from sbaid.model.algorithm_configuration.parameter import Parameter
+
 
 class CSVParameterExporter(ParameterExporter):
 
     def can_handle_format(self, export_format: str) -> bool:
         return export_format == "csv"
 
-    async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel,
-                                 foreach_func: ParameterExporterForeachFunc):
-        params = self.__populate_data(list_model_iterator(parameters))
-        params[0] = ["cs_id"]
+    async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel):
+        params = self.__populate_data(parameters)
+        params[0][0] = "cs_id"
+        cs_ids = ["cs_id"]
+        found_params = ["cs_id"]
         for param in list_model_iterator(parameters):
-            for entry in await self.__format_parameters(param, [row[0] for row
-                                                                in list_model_iterator(parameters)],
-                                                        params[0]):
-                cs_index, param_index, value = entry
-                params[cs_index][param_index] = value
+            for cs_index, param_index, value in await self.__format_parameter(param, cs_ids,
+                                                                              found_params):
+                params[cs_index][param_index] = str(value)
+            if param.cross_section.id not in cs_ids:
+                cs_ids.append(param.cross_section.id)
+            if param.name not in found_params:
+                found_params.append(param.name)
 
-        async with aiofiles.open(file.get_path(), "w") as csvfile:
-            writer = csv.writer(csvfile)
+        async with aiofiles.open(file.get_path(), "w", newline = "") as csvfile:
+            buffer = io.StringIO()
+            writer = csv.writer(buffer)
             writer.writerows(params)
 
-    def __populate_data(self, parameters: Iterable[Parameter]) -> list[list[str]]:
+            await csvfile.write(buffer.getvalue())
+
+    def __populate_data(self, parameters: Gio.ListModel) -> list[list[str]]:
+        """Finds all unique parameter names and cross sections and builds a 2d-list
+        with x rows (amount of cross sections + 1)
+        and y columns (amount of distinct parameters + 1).
+         Also populates all cells with an empty string."""
         param_names = []
         cross_sections = []
         data = []
-        for i, param in enumerate(parameters):
-            if param.cross_section not in cross_sections:
-                cross_sections.append(param.cross_section)
-                data.append([])
+
+        for param in list_model_iterator(parameters):
             if param.name not in param_names:
                 param_names.append(param.name)
-                data[i].append(i)
+            if param.cross_section.id not in cross_sections:
+                cross_sections.append(param.cross_section.id)
+
+        for i in range(len(cross_sections) + 1):
+            data.append([])
+            for j in range(len(param_names)+1):
+                data[i].append("")
         return data
 
-    async def __format_parameters(self, parameter: Parameter, ids: list[str], header: list[str])\
+    async def __format_parameter(self, parameter: Parameter, ids: list[str], header: list[str]) \
             -> list[tuple[int, int, str]]:
         entries = []
-        try:
+
+        try:  # try to find the cs id in the ids list
             cs_id_index = ids.index(parameter.cross_section.id)
         except ValueError:
-            cs_id_index = len(ids) - 1
-            entries.append(tuple[0, len(ids), parameter.cross_section.id])
+            cs_id_index = len(ids)
+            entries.append((cs_id_index, 0, parameter.cross_section.id))
+
         try:
-            entries.append(tuple[cs_id_index, header[0].index(parameter.name)])
+            param_index = header.index(parameter.name)
+            entries.append((cs_id_index, param_index, parameter.value))
         except ValueError:
-            entries.append(tuple[0, len(header), parameter.name])
-            entries.append(tuple[cs_id_index, len(header), parameter.value])
+            param_index = len(header)
+            entries.append((0, len(header), parameter.name))
+            entries.append((cs_id_index, param_index, parameter.value))
+
         return entries
