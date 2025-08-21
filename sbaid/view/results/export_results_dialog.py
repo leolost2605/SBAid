@@ -7,9 +7,9 @@ from typing import cast
 
 import gi
 
-from sbaid import common
 from sbaid.common.diagram_type import DiagramType
 from sbaid.common.image import Image
+from sbaid.view import utils
 from sbaid.view.results.cross_section_row import CrossSectionRow
 from sbaid.view_model.results.result import Result, CrossSectionSnapshotWrapper
 
@@ -110,7 +110,7 @@ class ExportResultsDialog(Adw.Window):
         self.set_content(toolbar_view)
         self.set_title("Export " + result.name)
 
-        common.run_coro_in_background(result.load())
+        utils.run_coro_with_error_reporting(result.load())
 
     def __setup_cross_section_row(self, factory: Gtk.SignalListItemFactory,
                                   obj: GObject.Object) -> None:
@@ -144,7 +144,7 @@ class ExportResultsDialog(Adw.Window):
         image.set_paintable(preview)
 
     def __on_exported(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__export_diagrams())
+        utils.run_coro_with_error_reporting(self.__export_diagrams())
 
     async def __export_diagrams(self) -> None:
         dialog = Gtk.FileDialog()
