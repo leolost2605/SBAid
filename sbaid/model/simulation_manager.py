@@ -73,10 +73,12 @@ class SimulationManager(GObject.GObject):
             print("Failed to stop simulation: ", e)
 
     async def __run_simulation(self) -> None:
-        simulation_start_time, simulation_duration = await self.__simulator.init_simulation()
+        eval_interval = self.__algorithm_configuration.evaluation_interval
+
+        simulation_start_time, simulation_duration = \
+            await self.__simulator.init_simulation(eval_interval)
 
         algorithm = self.__algorithm_configuration.algorithm
-        eval_interval = self.__algorithm_configuration.evaluation_interval
         display_interval = self.__algorithm_configuration.display_interval
 
         param_config_state = self.__build_parameter_configuration_state()
