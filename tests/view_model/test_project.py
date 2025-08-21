@@ -17,4 +17,4 @@ class ProjectTestCase(unittest.TestCase):
         self.assertEqual("my_project_id", project.id)
         self.assertEqual("Unknown Project Name", project.name)
         self.assertEqual("dummy_json", project.simulator_type.id)
-        # last modified and created at are loaded from the database
+        # last opened and created at are loaded from the database

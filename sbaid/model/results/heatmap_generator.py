@@ -21,7 +21,6 @@ class HeatmapGenerator(GlobalDiagramGenerator):
 
     def get_diagram(self, result: Result, cross_section_ids: list[str],
                     image_format: ImageFormat) -> Image:
-        print("getting a heatmap")
         data = self.__filter_result_data(result, cross_section_ids)
         fig = self.__generate_diagram(result.result_name, result.project_name,
                                       data, result.creation_date_time)
@@ -65,9 +64,9 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         timestamps = data[2]
         formatted_date = datetime.format("%F")
         fig, ax = plt.subplots()
-        print("generating heatmap")
         sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
                     square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
+        ax.invert_yaxis()
         ax.set_title(result_name + " from project " + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
         ax.tick_params(left=False)

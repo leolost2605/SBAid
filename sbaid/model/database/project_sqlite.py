@@ -1,12 +1,10 @@
 """This module contains the ProjectSQLite class."""
-import sqlite3
 from typing import cast
 
 import aiosqlite
 import aiopathlib
 from gi.repository import GLib, Gio
 
-from sbaid.model.database.foreign_key_error import ForeignKeyError
 from sbaid.model.database.project_database import ProjectDatabase
 
 
@@ -47,7 +45,7 @@ class ProjectSQLite(ProjectDatabase):
                 CREATE TABLE meta_information(
                     name TEXT,
                     created_at TEXT,
-                    last_modified TEXT
+                    last_opened TEXT
                 );
                 CREATE TABLE algorithm_configuration (
                     id TEXT PRIMARY KEY,
@@ -89,7 +87,7 @@ class ProjectSQLite(ProjectDatabase):
                     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
                 );""")
                 await db.execute("""
-                INSERT INTO meta_information (name, created_at, last_modified) VALUES
+                INSERT INTO meta_information (name, created_at, last_opened) VALUES
                 (?, ?, ?)""", ("", GLib.DateTime.format_iso8601(self._creation_time),
                                GLib.DateTime.format_iso8601(  # pylint: disable=no-member
                                    GLib.DateTime.new_now_local())))  # type: ignore
@@ -105,21 +103,21 @@ class ProjectSQLite(ProjectDatabase):
                     return None
                 return GLib.DateTime.new_from_iso8601(date[0])    # pylint: disable=no-member
 
-    async def get_last_modified(self) -> GLib.DateTime:
-        """Return the GLib.DateTime when the project was last modified."""
+    async def get_last_opened(self) -> GLib.DateTime:
+        """Return the GLib.DateTime when the project was last opened."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            async with (db.execute("""SELECT last_modified FROM meta_information""")
+            async with (db.execute("""SELECT last_opened FROM meta_information""")
                         as cursor):
                 date = await cursor.fetchone()
                 if date is None:
                     return None
                 return GLib.DateTime.new_from_iso8601(date[0])  # pylint: disable=no-member
 
-    async def set_last_modified(self, new_last_modified: GLib.DateTime) -> None:
-        """Update the GLib.DateTime when the project was last modified."""
+    async def set_last_opened(self, new_last_opened: GLib.DateTime) -> None:
+        """Update the GLib.DateTime when the project was last opened."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""UPDATE meta_information SET last_modified = ?""",
-                             [new_last_modified.format_iso8601()])
+            await db.execute("""UPDATE meta_information SET last_opened = ?""",
+                             [new_last_opened.format_iso8601()])
             await db.commit()
 
     async def get_project_name(self) -> str | None:
@@ -399,13 +397,10 @@ class ProjectSQLite(ProjectDatabase):
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
-                name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                                 (algorithm_configuration_id, name, value.print_(True)))
-                await db.commit()
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
+            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
+                             (algorithm_configuration_id, name, value.print_(True)))
+            await db.commit()
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:
@@ -452,14 +447,11 @@ class ProjectSQLite(ProjectDatabase):
         """Add a new parameter tag entry which represents a tag
         belonging to the given parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            # try:
             await db.execute("""INSERT INTO parameter_tag (id, parameter_name,
             algorithm_configuration_id, cross_section_id, tag_id)
             VALUES (?, ?, ?, ?, ?)""", (parameter_tag_id, parameter_name,
                                         algorithm_configuration_id, cross_section_id, tag_id))
             await db.commit()
-            # except sqlite3.IntegrityError as e:
-            #     raise ForeignKeyError(e) from e
 
     async def remove_parameter_tag(self, parameter_tag_id: str) -> None:
         """Remove a parameter tag entry."""
@@ -483,26 +475,23 @@ class ProjectSQLite(ProjectDatabase):
                                             cross_section_id: str | None) -> list[str]:
         """Return all tag ids belonging to the given parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            try:
-                if cross_section_id is None:
-                    async with db.execute("""SELECT tag_id FROM parameter_tag
-                        WHERE parameter_name = ? AND algorithm_configuration_id = ?
-                        AND cross_section_id IS NULL""", (parameter_name,
-                                                          algorithm_configuration_id)) as cursor:
-                        result_cursor = await cursor.fetchall()
-                        result = map(lambda x: x[0], result_cursor)
-                        if result is None:
-                            return []
-                        return list(result)
-                else:
-                    async with db.execute("""SELECT tag_id FROM parameter_tag
-                        WHERE algorithm_configuration_id = ? AND parameter_name = ?
-                        AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
-                                                      cross_section_id)) as cursor:
-                        result_cursor = await cursor.fetchall()
-                        result = map(lambda x: x[0], result_cursor)
-                        if result is None:
-                            return []
-                        return list(result)
-            except sqlite3.IntegrityError as e:
-                raise ForeignKeyError("Foreign key does not exist!") from e
+            if cross_section_id is None:
+                async with db.execute("""SELECT tag_id FROM parameter_tag
+                    WHERE parameter_name = ? AND algorithm_configuration_id = ?
+                    AND cross_section_id IS NULL""", (parameter_name,
+                                                      algorithm_configuration_id)) as cursor:
+                    result_cursor = await cursor.fetchall()
+                    result = map(lambda x: x[0], result_cursor)
+                    if result is None:
+                        return []
+                    return list(result)
+            else:
+                async with db.execute("""SELECT tag_id FROM parameter_tag
+                    WHERE algorithm_configuration_id = ? AND parameter_name = ?
+                    AND cross_section_id = ?""", (algorithm_configuration_id, parameter_name,
+                                                  cross_section_id)) as cursor:
+                    result_cursor = await cursor.fetchall()
+                    result = map(lambda x: x[0], result_cursor)
+                    if result is None:
+                        return []
+                    return list(result)

@@ -33,12 +33,14 @@ class WelcomePage(Adw.NavigationPage):
         self.__create_project_button = Gtk.Button(label="Create Project")
         self.__create_project_button.set_action_name("win.create-project-page")
 
-        time_sorter = Gtk.CustomSorter.new(self.__sort_func)
-        sort_model = Gtk.SortListModel.new(self.__context.projects, time_sorter)
+        self.__time_sorter = Gtk.CustomSorter.new(self.__sort_func)
+        sort_model = Gtk.SortListModel.new(self.__context.projects, self.__time_sorter)
 
         recent_projects_slice = Gtk.SliceListModel.new(sort_model, 0, 3)
 
         self.__last_projects_box = Gtk.ListBox()
+        self.__last_projects_box.add_css_class("background")
+        self.__last_projects_box.set_placeholder(Gtk.Label.new("No recently opened projects"))
         self.__last_projects_box.bind_model(
             recent_projects_slice, self.__create_last_project_button)
 
@@ -51,7 +53,9 @@ class WelcomePage(Adw.NavigationPage):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, valign=Gtk.Align.CENTER,
                       halign=Gtk.Align.CENTER)
         box.append(self.__create_project_button)
+        box.append(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL))
         box.append(self.__last_projects_box)
+        box.append(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL))
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
 
@@ -63,13 +67,17 @@ class WelcomePage(Adw.NavigationPage):
 
         self.set_title("SBAid")
         self.set_child(main_view)
+        self.connect("map", self.__on_map)
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
-        return project_two.last_modified.compare(project_one.last_modified)
+        return project_two.last_opened.compare(project_one.last_opened)
 
-    def __create_last_project_button(self, proj: Project) -> Gtk.Button:
+    def __create_last_project_button(self, proj: Project) -> Gtk.ListBoxRow:
         button = Gtk.Button()
         button.set_action_name("win.open-project")
         button.set_action_target_value(GLib.Variant.new_string(proj.id))
         proj.bind_property("name", button, "label", GObject.BindingFlags.SYNC_CREATE)
-        return button
+        return Gtk.ListBoxRow(child=button, focusable=False)
+
+    def __on_map(self, widget: Gtk.Widget) -> None:
+        self.__time_sorter.changed(Gtk.SorterChange.DIFFERENT)

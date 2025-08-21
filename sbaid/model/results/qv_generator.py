@@ -80,7 +80,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
 
         sns.set_theme(style="whitegrid")
         fig, ax = plt.subplots()
-        ax.set_xlabel("Q_pkv [Pkv/min]")
+        ax.set_xlabel("Q_pkw [Pkw/min]")
         ax.set_ylabel("V[km/h]")
 
         sns.scatterplot(data=data, x="volume", y="speed", hue="display",
