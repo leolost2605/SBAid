@@ -119,14 +119,26 @@ class Project(GObject.GObject):
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
 
+        new_last_opened = GLib.DateTime.new_now_local()
+
+        if new_last_opened:
+            self.last_opened = new_last_opened
+            await self.__project_db.set_last_opened(self.last_opened)
+        else:
+            print("Failed to get current time, last opened will be wrong")
+
         if self.__loaded:
             return
 
         self.__loaded = True
 
-        await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
-        await self.network.load()
-        await self.algorithm_configuration_manager.load()
+        try:
+            await self.__simulator.load_file(Gio.File.new_for_path(self.simulation_file_path))
+            await self.network.load()
+            await self.algorithm_configuration_manager.load()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.__loaded = False  # If loading fails make sure we can try again
+            raise e
 
     async def start_simulation(self, observer: SimulationObserver) -> SimulationManager:
         """Starts a simulation with the currently selected algorithm configuration.
@@ -161,7 +173,7 @@ class Project(GObject.GObject):
             self.created_at = created_at
         last_opened = await self.__project_db.get_last_opened()
         if last_opened is not None:
-            self.last_opened = last_opened  # TODO: QS
+            self.last_opened = last_opened
 
     async def delete(self) -> None:
         """Deletes the project database file."""
