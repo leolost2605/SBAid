@@ -1,11 +1,11 @@
 """This module contains the GLobalSQLite class."""
+from sbaid.model.database.foreign_key_error import ForeignKeyError
 from typing import TypeVar
 
 import aiosqlite
 
 from gi.repository import GLib, Gio
 
-from sbaid.model.database.date_format_error import DateFormatError
 from sbaid.common import make_directory_with_parents_async
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.date_format_error import DateFormatError
