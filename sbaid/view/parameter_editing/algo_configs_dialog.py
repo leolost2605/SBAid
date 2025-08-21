@@ -316,15 +316,15 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     def __name_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any) -> int:
         if parameter1.name > parameter2.name:
             return -1
-        if parameter2.name < parameter2.name:
+        if parameter1.name < parameter2.name:
             return 1
         return 0
 
     def __value_type_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any)\
             -> int:
-        if str(parameter1.value_type) > str(parameter2.value_type):
+        if parameter1.value_type.dup_string() > parameter2.value_type.dup_string():
             return -1
-        if str(parameter1.value_type) < str(parameter2.value_type):
+        if parameter1.value_type.dup_string() < parameter2.value_type.dup_string():
             return 1
         return 0
 
