@@ -6,8 +6,8 @@ import sys
 
 import gi
 
-from sbaid import common
 from sbaid.common.location import Location
+from sbaid.view import utils
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
 
@@ -87,4 +87,5 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         return str(loc.y)
 
     def __on_delete_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__network.delete_cross_section(self.__cross_section.id))
+        utils.run_coro_with_error_reporting(
+            self.__network.delete_cross_section(self.__cross_section.id))

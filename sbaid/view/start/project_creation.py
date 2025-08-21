@@ -4,8 +4,8 @@ from typing import cast
 
 import gi
 
-from sbaid import common
 from sbaid.common.simulator_type import SimulatorType
+from sbaid.view import utils
 from sbaid.view_model.context import Context
 
 try:
@@ -70,7 +70,7 @@ class ProjectCreation(Adw.NavigationPage):
         self.set_title("Project Creation")
 
     def __on_simulation_path_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__collect_simulation_path())
+        utils.run_coro_with_error_reporting(self.__collect_simulation_path())
 
     async def __collect_simulation_path(self) -> None:
         dialog = Gtk.FileDialog()
@@ -87,7 +87,7 @@ class ProjectCreation(Adw.NavigationPage):
         self.__simulation_path_row.set_subtitle(file.get_path())
 
     def __on_project_path_clicked(self, button: Gtk.Button) -> None:
-        common.run_coro_in_background(self.__collect_project_folder())
+        utils.run_coro_with_error_reporting(self.__collect_project_folder())
 
     async def __collect_project_folder(self) -> None:
         dialog = Gtk.FileDialog()
@@ -114,4 +114,4 @@ class ProjectCreation(Adw.NavigationPage):
             self.activate_action("win.open-project", GLib.Variant.new_string(proj_id))
 
     def __on_enter(self, widget: Gtk.Widget) -> None:
-        common.run_coro_in_background(self.__create_project_coro())
+        utils.run_coro_with_error_reporting(self.__create_project_coro())
