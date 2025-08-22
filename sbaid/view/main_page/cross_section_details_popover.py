@@ -66,6 +66,15 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         edit_button.set_action_name("win.edit-cross-section")
         edit_button.set_action_target_value(target)
 
+        move_button = Gtk.Button.new_with_label("Move")
+        move_button.set_action_name("cross-section.move")
+        move_button.set_action_target_value(GLib.Variant.new_string(cross_section.id))
+
+        button_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 3)
+        button_box.append(delete_button)
+        button_box.append(edit_button)
+        button_box.append(move_button)
+
         grid = Gtk.Grid(row_spacing=6, column_spacing=6, column_homogeneous=True)
         grid.attach(name_label, 0, 0, 2, 1)
         grid.attach(x_label, 0, 1, 1, 1)
@@ -73,8 +82,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         grid.attach(y_label, 0, 2, 1, 1)
         grid.attach(y_value_label, 1, 2, 1, 1)
         grid.attach(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL), 0, 3, 2, 1)
-        grid.attach(delete_button, 0, 4, 1, 1)
-        grid.attach(edit_button, 1, 4, 1, 1)
+        grid.attach(button_box, 0, 4, 2, 1)
 
         self.set_child(grid)
 
