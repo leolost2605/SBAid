@@ -31,13 +31,14 @@ class Result(GObject.GObject):
 
     @result_name.getter  # type: ignore
     def result_name(self) -> str:
+        """Gets the name of this result"""
         return self.__name
 
     @result_name.setter  # type: ignore
     def result_name(self, new_name: str) -> None:
+        """Sets the name of this result"""
         self.__name = new_name
 
-        print("set name ", new_name)
         common.run_coro_in_background(self.__global_db.set_result_name(self.id, new_name))
 
     project_name: str = GObject.Property(   # type: ignore

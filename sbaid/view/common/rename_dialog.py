@@ -4,23 +4,25 @@ from typing import Callable, Any
 
 import gi
 
-from sbaid.view_model.project import Project
-
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Gtk, Adw, GLib
+    from gi.repository import Gtk, Adw
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
 
 class RenameDialog(Adw.Dialog):
+    """
+    This class represents a dialog shown to the user which allows to rename anything.
+    """
     __renamable: Any
     __rename_func: Callable[[Any, str], None]
     __entry: Gtk.Entry
 
-    def __init__(self, old_name: str, renamable: Any, rename_func: Callable[[Any, str], None]) -> None:
+    def __init__(self, old_name: str, renamable: Any,
+                 rename_func: Callable[[Any, str], None]) -> None:
         super().__init__()
 
         self.__renamable = renamable
@@ -41,7 +43,7 @@ class RenameDialog(Adw.Dialog):
         toolbar_view.add_bottom_bar(rename_button)
 
         self.set_child(toolbar_view)
-        self.set_title("Rename Project")
+        self.set_title("Rename")
         self.set_content_width(300)
         self.set_default_widget(rename_button)
 
