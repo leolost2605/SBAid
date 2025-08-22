@@ -46,7 +46,10 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
     def __on_manual_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
         dialog = AddNewCrossSectionDialog(self.__network)
-        dialog.present(cast(Gtk.Window, self.get_parent().get_root()))
+
+        parent = self.get_parent()
+        assert parent
+        dialog.present(cast(Gtk.Window, parent.get_root()))
 
     def __on_import_clicked(self, button: Gtk.Button) -> None:
         self.popdown()

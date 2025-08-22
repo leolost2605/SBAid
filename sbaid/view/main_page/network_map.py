@@ -27,7 +27,7 @@ class CrossSectionNotFoundError(Exception):
     """Raised when it was tried to go to a cross section that doesn't exist."""
 
 
-class NetworkMap(Adw.Bin):
+class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     """
     Displays the world map with the route and cross sections on it.
     """
