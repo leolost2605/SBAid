@@ -53,7 +53,7 @@ class Parameter(GObject.GObject):
 
     @value.setter  # type: ignore[no-redef]
     def value(self, value: GLib.Variant | None) -> None:
-        if not value:
+        if value is None:
             self.__value = None
             return
 
