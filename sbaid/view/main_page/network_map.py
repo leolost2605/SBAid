@@ -8,6 +8,7 @@ from typing import cast
 import gi
 
 from sbaid import common
+from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSectionDialog
 from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
@@ -16,7 +17,7 @@ try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
     gi.require_version('Shumate', '1.0')
-    from gi.repository import Adw, Gio, Shumate, Gdk
+    from gi.repository import Adw, Gio, Shumate, Gdk, Gtk, GLib
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -61,13 +62,25 @@ class NetworkMap(Adw.Bin):
         self.__map.add_overlay_layer(self.__path_layer)
         self.__map.add_overlay_layer(self.__cross_sections_layer)
 
+        self.__menu_model = Gio.Menu()
+
+        self.__menu = Gtk.PopoverMenu.new_from_model(self.__menu_model)
+        self.__menu.set_has_arrow(False)
+        self.__menu.set_halign(Gtk.Align.START)
+
+        gesture_click = Gtk.GestureClick(button=0, exclusive=True)
+        gesture_click.connect("pressed", self.__on_clicked)
+
         self.set_child(self.__map)
+        self.add_controller(gesture_click)
 
         self.__on_route_changed(network.route_points, 0, 0,
                                 network.route_points.get_n_items())
 
         self.__on_cross_sections_changed(network.cross_sections, 0, 0,
                                          network.cross_sections.get_n_items())
+
+        self.install_action("cross-section.add", "(dd)", self.__on_add_cross_section)
 
     def __on_route_changed(self, model: Gio.ListModel, pos: int, removed: int, added: int) -> None:
         self.__path_layer.remove_all()
@@ -106,3 +119,50 @@ class NetworkMap(Adw.Bin):
         if self.__show_details_after_animation is not None:
             self.__show_details_after_animation.show_details()
             self.__show_details_after_animation = None
+
+    def __on_clicked(self, click: Gtk.GestureClick, n_press: int, x: float, y: float) -> None:
+        event = click.get_current_event()
+
+        if not event:
+            return
+
+        if event.triggers_context_menu():
+            click.set_state(Gtk.EventSequenceState.CLAIMED)
+            click.reset()
+
+            rect = Gdk.Rectangle()
+            rect.x = int(x)
+            rect.y = int(y)
+
+            builder = GLib.VariantBuilder(GLib.VariantType("(dd)"))
+            builder.add_value(GLib.Variant.new_double(x))
+            builder.add_value(GLib.Variant.new_double(y))
+            target = builder.end()
+
+            self.__menu_model.remove_all()
+            self.__menu_model.append("Add new cross section", Gio.Action.print_detailed_name(
+                "cross-section.add", target))
+
+            if not self.__menu.get_parent():
+                self.__menu.set_parent(self)
+
+            self.__menu.set_pointing_to(rect)
+            self.__menu.popup()
+
+    def __on_add_cross_section(self, widget: Gtk.Widget, action_name: str,
+                               parameter: GLib.Variant | None) -> None:
+        if parameter is None:
+            return
+
+        if not parameter.get_type_string() == "(dd)":
+            return
+
+        x = parameter.get_child_value(0).get_double()
+        y = parameter.get_child_value(1).get_double()
+
+        viewport = self.__map.get_viewport()
+
+        lat, long = viewport.widget_coords_to_location(self.__map, x, y)
+
+        AddNewCrossSectionDialog(self.__network, lat, long).present(cast(Gtk.Window,
+                                                                         self.get_root()))

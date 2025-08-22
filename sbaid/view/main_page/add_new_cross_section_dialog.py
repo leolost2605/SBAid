@@ -28,7 +28,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
     __network: Network
 
-    def __init__(self, network: Network) -> None:
+    def __init__(self, network: Network, x: float | None = None, y: float | None = None) -> None:
         super().__init__()
         self.__network = network
 
@@ -38,9 +38,17 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
         self.__x_row = Adw.SpinRow.new_with_range(0, 180, 0.5)
         self.__x_row.set_title("X")
+        self.__x_row.set_digits(6)
+
+        if x is not None:
+            self.__x_row.set_value(x)
 
         self.__y_row = Adw.SpinRow.new_with_range(0, 90, 0.5)
         self.__y_row.set_title("Y")
+        self.__y_row.set_digits(6)
+
+        if y is not None:
+            self.__y_row.set_value(y)
 
         types = Adw.EnumListModel.new(CrossSectionType)
         expression = Gtk.PropertyExpression.new(Adw.EnumListItem, None, "name")
