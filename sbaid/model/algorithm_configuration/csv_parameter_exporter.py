@@ -1,6 +1,9 @@
-import aiofiles
+"""This module contains an exporter class that allows exporting a parameter configuration
+to a csv file."""
+
 import csv
 import io
+import aiofiles
 
 from gi.repository import Gio
 
@@ -10,11 +13,12 @@ from sbaid.model.algorithm_configuration.parameter import Parameter
 
 
 class CSVParameterExporter(ParameterExporter):
+    """This class exports a parameter configuration to a csv file."""
 
     def can_handle_format(self, export_format: str) -> bool:
         return export_format == "csv"
 
-    async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel):
+    async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel) -> None:
         params = self.__populate_data(parameters)
         params[0][0] = "cs_id"
         cs_ids = ["cs_id"]
@@ -28,7 +32,9 @@ class CSVParameterExporter(ParameterExporter):
             if param.name not in found_params:
                 found_params.append(param.name)
 
-        async with aiofiles.open(file.get_path(), "w", newline = "") as csvfile:
+        path = file.get_path()
+        assert isinstance(path, str)
+        async with aiofiles.open(path, "w") as csvfile:
             buffer = io.StringIO()
             writer = csv.writer(buffer)
             writer.writerows(params)
@@ -40,9 +46,9 @@ class CSVParameterExporter(ParameterExporter):
         with x rows (amount of cross sections + 1)
         and y columns (amount of distinct parameters + 1).
          Also populates all cells with an empty string."""
-        param_names = []
-        cross_sections = []
-        data = []
+        param_names: list[str] = []
+        cross_sections: list[str] = []
+        data: list[list[str]] = []
 
         for param in list_model_iterator(parameters):
             if param.name not in param_names:
@@ -52,15 +58,19 @@ class CSVParameterExporter(ParameterExporter):
 
         for i in range(len(cross_sections) + 1):
             data.append([])
-            for j in range(len(param_names)+1):
+            for j in range(len(param_names)+1):  # pylint: disable=unused-variable
                 data[i].append("")
         return data
 
     async def __format_parameter(self, parameter: Parameter, ids: list[str], header: list[str]) \
             -> list[tuple[int, int, str]]:
         entries = []
+        value = ""
 
-        try:  # try to find the cs id in the ids list
+        if parameter.value is not None:
+            value = parameter.value.print_(True)
+
+        try:
             cs_id_index = ids.index(parameter.cross_section.id)
         except ValueError:
             cs_id_index = len(ids)
@@ -68,10 +78,10 @@ class CSVParameterExporter(ParameterExporter):
 
         try:
             param_index = header.index(parameter.name)
-            entries.append((cs_id_index, param_index, parameter.value))
+            entries.append((cs_id_index, param_index, value))
         except ValueError:
             param_index = len(header)
             entries.append((0, len(header), parameter.name))
-            entries.append((cs_id_index, param_index, parameter.value))
+            entries.append((cs_id_index, param_index, value))
 
         return entries

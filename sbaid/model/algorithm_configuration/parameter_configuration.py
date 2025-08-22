@@ -81,11 +81,16 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
         return False
 
-    async def export_parameter_configuration(self, path: str, export_format: str):
+    async def export_parameter_configuration(self, path: str, export_format: str) -> bool:
+        """Saves this parameter configuration, exported to a csv file,
+         to a path given by the user."""
         file = Gio.File.new_for_path(path)
-        factory = ExporterFactory()
+        factory: ExporterFactory = ExporterFactory()
         exporter = factory.get_exporter(export_format)
+        if exporter is None:
+            return False
         await exporter.for_each_parameter(file, self.__parameters)
+        return True
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""
