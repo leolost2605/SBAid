@@ -177,6 +177,12 @@ class GlobalSQLite(GlobalDatabase):
                     return None
                 return str(list(res)[0][0])
 
+    async def set_result_name(self, result_id: str, new_name: str) -> str | None:
+        """Sets the name of the given result_id in the database."""
+        async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""UPDATE result SET name = ? WHERE id = ?;""", [new_name, result_id])
+            await db.commit()
+
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:

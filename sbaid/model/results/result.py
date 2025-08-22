@@ -34,10 +34,11 @@ class Result(GObject.GObject):
         return self.__name
 
     @result_name.setter  # type: ignore
-    def result_name(self, value: str) -> None:
-        self.__name = value
+    def result_name(self, new_name: str) -> None:
+        self.__name = new_name
 
-        # TODO: Set result name
+        print("set name ", new_name)
+        common.run_coro_in_background(self.__global_db.set_result_name(self.id, new_name))
 
     project_name: str = GObject.Property(   # type: ignore
         type=str,
@@ -108,6 +109,7 @@ class Result(GObject.GObject):
         name_from_db = await self.__global_db.get_result_name(self.id)
         if name_from_db is not None:
             self.__name = name_from_db
+            self.notify("result-name")
 
         tag_ids = await self.__global_db.get_result_tag_ids(self.id)
 
