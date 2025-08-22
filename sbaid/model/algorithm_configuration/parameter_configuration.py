@@ -58,6 +58,8 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         global_and_cs_list_store.append(cs_params_flatten_model)
         self.__parameters = Gtk.FlattenListModel.new(global_and_cs_list_store)
 
+        network.cross_sections.connect("items-changed", self.__on_cross_section_changed)
+
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
         """
         Imports parameter values from the given file. If the file or no parser for the file type
@@ -112,3 +114,8 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         return Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
+
+    def __on_cross_section_changed(self, model: Gio.ListModel,
+                                   pos: int, removed: int, added: int) -> None:
+        backing_model = self.__cs_params_map_model.get_model()
+        backing_model.emit("items-changed", 0, len(backing_model), len(backing_model))
