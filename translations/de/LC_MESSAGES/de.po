@@ -3,7 +3,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: POEditor.com\n"
 "Project-Id-Version: SBAid\n"
 "Language: de\n"
 
@@ -15,7 +14,7 @@ msgstr "Projekt Erstellen"
 
 # test
 msgid "All Projects"
-msgstr "Alle Projekten"
+msgstr "Alle Projekte"
 
 # test
 msgid "Results"
