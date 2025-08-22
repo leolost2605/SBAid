@@ -6,8 +6,10 @@ from typing import Any
 
 import gi
 
+import sbaid.view.i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
+from sbaid.view.i18n import LanguageWrapper
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -24,11 +26,22 @@ class WelcomePage(Adw.NavigationPage):
     It welcomes the user and provides a list of recently used project as well
     as allowing to view all projects and the result view.
     """
+    translator = sbaid.view.i18n.get_language_translator(language_code='en') # get default
+    print("testing bcs i suck at pyhton apparently")
+
     def __init__(self, context: Context) -> None:
         super().__init__()
         self.__context = context
 
         header_bar = Adw.HeaderBar()
+
+        available_languages = Gtk.SingleSelection.new(sbaid.view.i18n.get_available_languages())
+        self.__language_selection = Gtk.DropDown.new(available_languages)
+        self.__language_selection.bind_property("selected", available_languages, "selected")
+        self.__language_selection.set_expression(Gtk.PropertyExpression.new(LanguageWrapper,
+                                                                            None, "language"))
+
+        available_languages.connect("notify::selected-item", self.__on_language_changed)
 
         self.__create_project_button = Gtk.Button(label="Create Project")
         self.__create_project_button.set_action_name("win.create-project-page")
@@ -44,7 +57,7 @@ class WelcomePage(Adw.NavigationPage):
         self.__last_projects_box.bind_model(
             recent_projects_slice, self.__create_last_project_button)
 
-        self.__all_projects_button = Gtk.Button(label="All Projects")
+        self.__all_projects_button = Gtk.Button(label=self.translator("All Projects"))
         self.__all_projects_button.set_action_name("win.all-projects")
 
         self.__results_button = Gtk.Button(label="Results")
@@ -58,6 +71,7 @@ class WelcomePage(Adw.NavigationPage):
         box.append(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL))
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
+        box.append(self.__language_selection)
 
         status_page = Adw.StatusPage(child=box)
 
@@ -68,6 +82,11 @@ class WelcomePage(Adw.NavigationPage):
         self.set_title("SBAid")
         self.set_child(main_view)
         self.connect("map", self.__on_map)
+
+    def __reset_labels(self):
+        self.__all_projects_button.set_label(self.translator("All Projects"))
+
+
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
         return project_two.last_opened.compare(project_one.last_opened)
@@ -81,3 +100,13 @@ class WelcomePage(Adw.NavigationPage):
 
     def __on_map(self, widget: Gtk.Widget) -> None:
         self.__time_sorter.changed(Gtk.SorterChange.DIFFERENT)
+
+    def __on_language_changed(self, selection: Gtk.SingleSelection, pspec) -> None:
+        item = selection.get_selected_item()
+        assert isinstance(item, LanguageWrapper)
+        if item is not None:
+            assert isinstance(item.language, str)
+            self.translator = sbaid.view.i18n.get_language_translator(item.language)
+            print(item.language + " i was here ")
+            print(self.translator("All Projects"))
+            self.__reset_labels()
