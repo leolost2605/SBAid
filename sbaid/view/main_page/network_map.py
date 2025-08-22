@@ -28,7 +28,7 @@ class CrossSectionNotFoundError(Exception):
     """Raised when it was tried to go to a cross section that doesn't exist."""
 
 
-class NetworkMap(Adw.Bin):
+class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     """
     Displays the world map with the route and cross sections on it.
     """
@@ -170,6 +170,9 @@ class NetworkMap(Adw.Bin):
         self.__cancel_move_button.set_visible(True)
 
     def __end_move(self, commit: bool) -> None:
+        if not self.__moving_cross_section:
+            return
+
         self.__move_icon.set_visible(False)
         self.__move_button.set_visible(False)
         self.__cancel_move_button.set_visible(False)
