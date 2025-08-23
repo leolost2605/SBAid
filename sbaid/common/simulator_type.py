@@ -4,7 +4,7 @@ from gi.repository import GObject
 
 class SimulatorType(GObject.GObject):
     """
-    The type of a simulator. This has to be given by a simulator implementation.
+    The type of simulator. This has to be given by a simulator implementation.
     """
 
     id = GObject.Property(
@@ -19,4 +19,5 @@ class SimulatorType(GObject.GObject):
         GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, simulator_type_id: str, name: str) -> None:
+        """Constructs the simulator type."""
         super().__init__(id=simulator_type_id, name=name)
