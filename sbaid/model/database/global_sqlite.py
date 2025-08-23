@@ -6,12 +6,7 @@ import aiopathlib
 
 from gi.repository import GLib, Gio
 
-<<<<<<< HEAD
-from sbaid.common import make_directory_with_parents_async
 from sbaid.common.vehicle_type import VehicleType
-=======
-from sbaid.model.database.date_format_error import DateFormatError
->>>>>>> main
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
