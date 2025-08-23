@@ -2,11 +2,16 @@
 from typing import TypeVar
 
 import aiosqlite
+import aiopathlib
 
 from gi.repository import GLib, Gio
 
+<<<<<<< HEAD
 from sbaid.common import make_directory_with_parents_async
 from sbaid.common.vehicle_type import VehicleType
+=======
+from sbaid.model.database.date_format_error import DateFormatError
+>>>>>>> main
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
@@ -52,9 +57,9 @@ class GlobalSQLite(GlobalDatabase):
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
-            await make_directory_with_parents_async(self._file.get_parent())
-            await self._file.create_async(Gio.FileCreateFlags.NONE,  # type: ignore
-                                          GLib.PRIORITY_DEFAULT)
+            async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
+            if not await async_path.exists():
+                await async_path.mkdir(parents=True)
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:
                 await db.executescript("""
