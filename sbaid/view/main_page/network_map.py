@@ -117,9 +117,11 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             cross_section = cast(CrossSection, c)
             marker = Shumate.Marker()
             marker.set_child(CrossSectionMarker(self.__project_id, self.__network, cross_section))
-            cross_section.bind_property("location", marker, "latitude", GObject.BindingFlags.SYNC_CREATE,
+            cross_section.bind_property("location", marker, "latitude",
+                                        GObject.BindingFlags.SYNC_CREATE,
                                         lambda binding, loc: loc.y)
-            cross_section.bind_property("location", marker, "longitude", GObject.BindingFlags.SYNC_CREATE,
+            cross_section.bind_property("location", marker, "longitude",
+                                        GObject.BindingFlags.SYNC_CREATE,
                                         lambda binding, loc: loc.x)
             self.__cross_sections_layer.add_marker(marker)
 
