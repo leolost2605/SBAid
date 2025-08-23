@@ -10,6 +10,7 @@ import gi
 from sbaid import common
 from sbaid.common.location import Location
 from sbaid.view import utils
+from sbaid.view.main_page.cross_section_icon import CrossSectionIcon
 from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
@@ -18,7 +19,7 @@ try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
     gi.require_version('Shumate', '1.0')
-    from gi.repository import Adw, Gio, Shumate, Gdk, Gtk, GLib
+    from gi.repository import Adw, Gio, Shumate, Gdk, Gtk, GLib, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -64,8 +65,7 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         self.__map.add_overlay_layer(self.__path_layer)
         self.__map.add_overlay_layer(self.__cross_sections_layer)
 
-        self.__move_icon = Gtk.Image.new_from_icon_name("location-services-active")
-        self.__move_icon.set_icon_size(Gtk.IconSize.LARGE)
+        self.__move_icon = CrossSectionIcon()
         self.__move_icon.set_halign(Gtk.Align.CENTER)
         self.__move_icon.set_valign(Gtk.Align.CENTER)
         self.__move_icon.set_visible(False)
@@ -113,11 +113,14 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
                                     removed: int, added: int) -> None:
         self.__cross_sections_layer.remove_all()
 
-        for cross_section in common.list_model_iterator(self.__network.cross_sections):
-            loc = cross_section.location
+        for c in common.list_model_iterator(self.__network.cross_sections):
+            cross_section = cast(CrossSection, c)
             marker = Shumate.Marker()
             marker.set_child(CrossSectionMarker(self.__project_id, self.__network, cross_section))
-            marker.set_location(loc.y, loc.x)
+            cross_section.bind_property("location", marker, "latitude", GObject.BindingFlags.SYNC_CREATE,
+                                        lambda binding, loc: loc.y)
+            cross_section.bind_property("location", marker, "longitude", GObject.BindingFlags.SYNC_CREATE,
+                                        lambda binding, loc: loc.x)
             self.__cross_sections_layer.add_marker(marker)
 
     def __get_marker_for_cross_section(self, cross_section: CrossSection) -> CrossSectionMarker:
