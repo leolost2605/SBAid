@@ -181,8 +181,8 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             cs_id = self.__moving_cross_section.id
 
             viewport = self.__map.get_viewport()
-            x = viewport.get_latitude()
-            y = viewport.get_longitude()
+            x = viewport.get_longitude()
+            y = viewport.get_latitude()
             new_location = Location(x, y)
 
             utils.run_coro_with_error_reporting(
