@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: SBAid\n"
+"Language: de\n"
+
+# START PAGE
+
+# start/welcome_page
+msgid "Create Project"
+msgstr "Projekt Erstellen"
+
+# test
+msgid "All Projects"
+msgstr "Alle Projekte"
+
+# test
+msgid "Results"
+msgstr "Ergebnisse"
+
+

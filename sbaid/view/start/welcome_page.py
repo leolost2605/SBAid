@@ -2,12 +2,14 @@
 This module contains the welcome page.
 """
 import sys
-from typing import Any
+from typing import Any, Callable
 
 import gi
 
+import sbaid.view.i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
+from sbaid.view.i18n import LanguageWrapper
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -18,17 +20,27 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class WelcomePage(Adw.NavigationPage):
+class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attributes
     """
     This page is the first page displayed when opening sbaid.
     It welcomes the user and provides a list of recently used project as well
     as allowing to view all projects and the result view.
     """
+    translator: Callable[[str], str]
+
     def __init__(self, context: Context) -> None:
         super().__init__()
         self.__context = context
 
         header_bar = Adw.HeaderBar()
+
+        available_languages = Gtk.SingleSelection.new(sbaid.view.i18n.get_available_languages())
+        self.__language_selection = Gtk.DropDown.new(available_languages)
+        self.__language_selection.bind_property("selected", available_languages, "selected")
+        self.__language_selection.set_expression(Gtk.PropertyExpression.new(LanguageWrapper,
+                                                                            None, "language_code"))
+
+        available_languages.connect("notify::selected-item", self.__on_language_changed)
 
         self.__create_project_button = Gtk.Button(label="Create Project")
         self.__create_project_button.set_action_name("win.create-project-page")
@@ -58,6 +70,7 @@ class WelcomePage(Adw.NavigationPage):
         box.append(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL))
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
+        box.append(self.__language_selection)
 
         status_page = Adw.StatusPage(child=box)
 
@@ -68,6 +81,11 @@ class WelcomePage(Adw.NavigationPage):
         self.set_title("SBAid")
         self.set_child(main_view)
         self.connect("map", self.__on_map)
+
+    def __reset_labels(self) -> None:
+        self.__all_projects_button.set_label(self.translator("All Projects"))
+        self.__create_project_button.set_label(self.translator("Create Project"))
+        self.__results_button.set_label(self.translator("Results"))
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
         return project_two.last_opened.compare(project_one.last_opened)
@@ -81,3 +99,12 @@ class WelcomePage(Adw.NavigationPage):
 
     def __on_map(self, widget: Gtk.Widget) -> None:
         self.__time_sorter.changed(Gtk.SorterChange.DIFFERENT)
+
+    def __on_language_changed(self, selection: Gtk.SingleSelection,
+                              pspec: GObject.ParamSpec) -> None:
+        item = selection.get_selected_item()
+        assert isinstance(item, LanguageWrapper)
+        if item is not None:
+            assert isinstance(item.language_code, str)
+            self.translator = sbaid.view.i18n.get_language_translator(item.language_code)
+            self.__reset_labels()
