@@ -164,5 +164,5 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         lat, long = viewport.widget_coords_to_location(self.__map, x, y)
 
-        AddNewCrossSectionDialog(self.__network, lat, long).present(cast(Gtk.Window,
+        AddNewCrossSectionDialog(self.__network, long, lat).present(cast(Gtk.Window,
                                                                          self.get_root()))
