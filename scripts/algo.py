@@ -13,15 +13,16 @@ from sbaid.model.simulation.network_state import NetworkState
 class AlgorithmImpl(Algorithm):
     def get_global_parameter_template(self) -> Gio.ListModel:
         store = Gio.ListStore.new(ParameterTemplate)
-        store.append(ParameterTemplate("my param", GLib.VariantType.new("s"), None))
-        store.append(ParameterTemplate("my other param", GLib.VariantType.new("d"), None))
+        store.append(ParameterTemplate("My global param", GLib.VariantType.new("s"), None))
+        store.append(ParameterTemplate("My other global param", GLib.VariantType.new("d"), None))
         return store
 
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
         store = Gio.ListStore.new(ParameterTemplate)
-        store.append(ParameterTemplate("My cs Param", GLib.VariantType.new("s"), None))
-        store.append(ParameterTemplate("My other cs Param", GLib.VariantType.new("d"), None))
-        return Gio.ListStore.new(ParameterTemplate)
+        store.append(ParameterTemplate("My cross section param with default value",
+                                       GLib.VariantType.new("s"), GLib.Variant.new_string("hi")))
+        store.append(ParameterTemplate("My other cross section param", GLib.VariantType.new("d"), None))
+        return store
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
              network_state: NetworkState) -> None:

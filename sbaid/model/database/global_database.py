@@ -48,6 +48,10 @@ class GlobalDatabase(ABC):
         """Return the name of the given result_id from the database."""
 
     @abstractmethod
+    async def set_result_name(self, result_id: str, new_name: str) -> None:
+        """Sets the name of the given result_id."""
+
+    @abstractmethod
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
 

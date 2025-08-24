@@ -4,6 +4,8 @@ from typing import cast
 
 import gi
 
+from sbaid.view import utils
+from sbaid.view.common.rename_dialog import RenameDialog
 from sbaid.view.results.result_cell import ResultCell, ResultCellType
 from sbaid.view_model.results.result import Result
 from sbaid.view_model.results.result_manager import ResultManager
@@ -23,11 +25,14 @@ class ResultsPage(Adw.NavigationPage):
     simulations ran on SBAid.
     """
 
+    __manager: ResultManager
     __search_entry: Gtk.SearchEntry
     __filter: Gtk.CustomFilter
 
     def __init__(self, result_manager: ResultManager) -> None:  # pylint: disable=too-many-locals
         super().__init__()
+
+        self.__manager = result_manager
 
         self.__search_entry = Gtk.SearchEntry(placeholder_text="Search Results")
         self.__search_entry.connect("search-changed", self.__on_search_entry_changed)
@@ -88,6 +93,9 @@ class ResultsPage(Adw.NavigationPage):
         self.set_child(toolbar_view)
         self.set_title("Results")
 
+        self.install_action("result.rename", "s", self.__on_rename_result)
+        self.install_action("result.delete", "s", self.__on_delete_result)
+
     def __on_search_entry_changed(self, entry: Gtk.SearchEntry) -> None:
         self.__filter.changed(Gtk.FilterChange.DIFFERENT)
 
@@ -140,3 +148,37 @@ class ResultsPage(Adw.NavigationPage):
         item = cast(Result, list_item.get_item())
         cell = cast(ResultCell, list_item.get_child())
         cell.bind(item)
+
+    def __get_result_from_param(self, parameter: GLib.Variant | None) -> Result | None:
+        if not parameter:
+            return None
+
+        result_id = parameter.get_string()
+
+        if not result_id:
+            return None
+
+        for r in self.__manager.results:
+            result = cast(Result, r)
+            if result.id == result_id:
+                return result
+
+        return None
+
+    def __on_delete_result(self, widget: Gtk.Widget, action_name: str,
+                           parameter: GLib.Variant | None) -> None:
+        result = self.__get_result_from_param(parameter)
+        if result:
+            utils.run_coro_with_error_reporting(self.__manager.delete_result(result.id))
+
+    def __on_rename_result(self, widget: Gtk.Widget, action_name: str,
+                           parameter: GLib.Variant | None) -> None:
+        result = self.__get_result_from_param(parameter)
+
+        if result:
+            RenameDialog(result.name, result, self.__result_rename_func).present(
+                cast(Adw.Window, self.get_root()))
+
+    @staticmethod
+    def __result_rename_func(result: Result, new_name: str) -> None:
+        result.name = new_name

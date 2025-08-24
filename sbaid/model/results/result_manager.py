@@ -52,25 +52,15 @@ class ResultManager(GObject.GObject):
         result_information = await self.__global_db.get_all_results()
         for results in result_information:
             result = Result(results[0], results[2], results[3], self.__global_db)
-            result.result_name = results[1]
-
-            tag_information = await self.__global_db.get_all_tags()
-
-            for tag in tag_information:
-                new_tag = Tag(tag[0], tag[1])
-                result.add_tag(new_tag)
-                if not self.__is_tag_already_loaded(tag[0]):
-                    self.__available_tags.append(new_tag)
+            await result.load_from_db()
 
             self.__results.append(result)
 
-    def __is_tag_already_loaded(self, tag_id: str) -> bool:
-        """Checks if a tag is already loaded."""
-        for tag in self.__available_tags:
-            assert isinstance(tag, Tag)
-            if tag_id == tag.tag_id:
-                return True
-        return False
+        tag_information = await self.__global_db.get_all_tags()
+
+        for tag in tag_information:
+            new_tag = Tag(tag[0], tag[1])
+            self.__available_tags.append(new_tag)
 
     async def create_tag(self, name: str) -> int:
         """Creates a new tag with the given name and adds it to the list of available tags."""
