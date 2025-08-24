@@ -108,7 +108,6 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         return Parameter(template.name, template.value_type, template.default_value,
                          cross_section, self.__db, self.__algo_config_id, self.__available_tags)
 
-
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         return Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
