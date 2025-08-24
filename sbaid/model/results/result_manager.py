@@ -1,8 +1,13 @@
 """This module defines the ResultManager class."""
 import uuid
+from typing import cast
 
 from gi.repository import Gio, GObject
 
+from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
+from sbaid.model.results.lane_snapshot import LaneSnapshot
+from sbaid.model.results.snapshot import Snapshot
+from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
@@ -107,15 +112,23 @@ class ResultManager(GObject.GObject):
                                              list[tuple[str, str, int, float, int, int,
                                                         list[tuple[str, int, float]]]]]]]] = []
         for snapshot in result.snapshots:
+            cast(Snapshot, snapshot)
+            assert (isinstance(snapshot, Snapshot))
             cs_sn_data: list[tuple[str, str, str, str, int,
                                    list[tuple[str, str, int, float, int, int,
                                               list[tuple[str, int, float]]]]]] = []
-            for cs_sn in snapshot.cross_section_snapshots:  # type: ignore
+            for cs_sn in snapshot.cross_section_snapshots:
+                cast(CrossSectionSnapshot, cs_sn)
+                assert (isinstance(cs_sn, CrossSectionSnapshot))
                 lane_sn_data: list[tuple[str, str, int, float, int, int,
                                          list[tuple[str, int, float]]]] = []
                 for lane_sn in cs_sn.lane_snapshots:
+                    cast(LaneSnapshot, lane_sn)
+                    assert (isinstance(lane_sn, LaneSnapshot))
                     veh_sn_data: list[tuple[str, int, float]] = []
                     for veh_sn in lane_sn.vehicle_snapshots:
+                        cast(VehicleSnapshot, veh_sn)
+                        assert (isinstance(veh_sn, VehicleSnapshot))
                         veh_sn_data.append((veh_sn.lane_snapshot_id,
                                             veh_sn.vehicle_type.value, veh_sn.speed))
                     lane_sn_data.append((lane_sn.id, lane_sn.cross_section_snapshot_id,
@@ -125,8 +138,8 @@ class ResultManager(GObject.GObject):
                 cs_sn_data.append((cs_sn.cs_snapshot_id, cs_sn.snapshot_id, cs_sn.cross_section_id,
                                    cs_sn.cross_section_name,
                                    cs_sn.b_display.value, lane_sn_data))
-            snapshot_data.append((str(snapshot.id), result.id,  # type: ignore
-                                  str(snapshot.capture_timestamp.format_iso8601()),  # type: ignore
+            snapshot_data.append((str(snapshot.id), result.id,
+                                  str(snapshot.capture_timestamp.format_iso8601()),
                                   cs_sn_data))
         await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name,
                                                  result.creation_date_time, snapshot_data)
