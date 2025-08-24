@@ -94,10 +94,10 @@ class ProjectCell(Adw.Bin):
                     GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
 
         self.__menu_model.remove_all()
-        self.__menu_model.append("Delete", Gio.Action.print_detailed_name(
-            "project.delete", GLib.Variant.new_string(project.id)))
         self.__menu_model.append("Rename", Gio.Action.print_detailed_name(
             "project.rename", GLib.Variant.new_string(project.id)))
+        self.__menu_model.append("Delete", Gio.Action.print_detailed_name(
+            "project.delete", GLib.Variant.new_string(project.id)))
 
     @staticmethod
     def __date_time_transform_func(binding: GObject.Binding, date_time: GLib.DateTime) -> str:
