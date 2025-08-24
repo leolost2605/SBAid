@@ -72,6 +72,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         move_button.set_action_target_value(GLib.Variant.new_string(cross_section.id))
 
         button_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 3)
+        button_box.set_halign(Gtk.Align.END)
         button_box.append(delete_button)
         button_box.append(edit_button)
         button_box.append(move_button)
