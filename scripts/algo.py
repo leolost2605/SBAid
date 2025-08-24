@@ -21,7 +21,7 @@ class AlgorithmImpl(Algorithm):
         store = Gio.ListStore.new(ParameterTemplate)
         store.append(ParameterTemplate("My cs Param", GLib.VariantType.new("s"), None))
         store.append(ParameterTemplate("My other cs Param", GLib.VariantType.new("d"), None))
-        return Gio.ListStore.new(ParameterTemplate)
+        return store
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
              network_state: NetworkState) -> None:
