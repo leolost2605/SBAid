@@ -472,6 +472,8 @@ class VissimConnector:
 
         self.__cross_sections_by_id[cross_section.id] = cross_section
 
+        self.__vissim.SaveNet()
+
         return cross_section.state
 
     async def remove_cross_section(self, cs_id: str) -> None:
@@ -486,6 +488,8 @@ class VissimConnector:
 
         cross_section = self.__cross_sections_by_id.pop(cs_id)
         self.__remove_cs_from_vissim(cross_section)
+
+        self.__vissim.SaveNet()
 
     async def move_cross_section(self, cs_id: str,
                                  new_location: Location) -> VissimConnectorCrossSectionState:
@@ -514,6 +518,8 @@ class VissimConnector:
 
         # If this doesn't hold we get a bunch of problems so better assert it
         assert cross_section.id == cs_id
+
+        self.__vissim.SaveNet()
 
         return cross_section.state
 
