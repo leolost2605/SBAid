@@ -1,5 +1,4 @@
 """This module contains the GLobalSQLite class."""
-import sqlite3
 from typing import TypeVar
 
 import aiosqlite
@@ -289,37 +288,32 @@ class GlobalSQLite(GlobalDatabase):
                                                                  list[tuple[str, int, float]]]]]]]]
                                 ) -> None:
         """Add a result to the database."""
-        db = await aiosqlite.connect(str(self._file.get_path()))
-        await db.execute("""PRAGMA foreign_keys=ON;""")
-        await db.execute("""
-        INSERT INTO result (id, name, project_name, date)
-        VALUES (?, ?, ?, ?);
-        """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
-        for snapshot in snapshot_data:
+        async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             await db.execute("""
-            INSERT INTO snapshot (id, result_id, date)
-            VALUES (?, ?, ?);
-            """, (snapshot[0], snapshot[1], snapshot[2]))
-
-            for cs_snapshot in snapshot[3]:
+            INSERT INTO result (id, name, project_name, date)
+            VALUES (?, ?, ?, ?);
+            """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
+            for snapshot in snapshot_data:
                 await db.execute("""
-                INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
-                cross_section_name, b_display)
-                VALUES (?, ?, ?, ?, ?);
-                """, (cs_snapshot[0], cs_snapshot[1], cs_snapshot[2],
-                      cs_snapshot[3], cs_snapshot[4]))
-                for lane_snapshot in cs_snapshot[5]:
+                INSERT INTO snapshot (id, result_id, date)
+                VALUES (?, ?, ?);
+                """, (snapshot[0], snapshot[1], snapshot[2]))
+
+                for cs_snapshot in snapshot[3]:
                     await db.execute("""
-                    INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
-                    average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
-                    """, (lane_snapshot[0], lane_snapshot[1], lane_snapshot[2],
-                          lane_snapshot[3], lane_snapshot[4], lane_snapshot[5]))
-                    for vehicle_snapshot in lane_snapshot[6]:
+                    INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                    cross_section_name, b_display)
+                    VALUES (?, ?, ?, ?, ?);
+                    """, (cs_snapshot[0], cs_snapshot[1], cs_snapshot[2],
+                          cs_snapshot[3], cs_snapshot[4]))
+                    for lane_snapshot in cs_snapshot[5]:
                         await db.execute("""
-                        INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
-                        """, (vehicle_snapshot[0], vehicle_snapshot[1], vehicle_snapshot[2]))
-        try:
-            await db.commit()
-        except sqlite3.IntegrityError as e:
-            print("db failed", e)
-        await db.close()
+                        INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
+                        average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
+                        """, (lane_snapshot[0], lane_snapshot[1], lane_snapshot[2],
+                              lane_snapshot[3], lane_snapshot[4], lane_snapshot[5]))
+                        for vehicle_snapshot in lane_snapshot[6]:
+                            await db.execute("""
+                            INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
+                            """, (vehicle_snapshot[0], vehicle_snapshot[1], vehicle_snapshot[2]))
