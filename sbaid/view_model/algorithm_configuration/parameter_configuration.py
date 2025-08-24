@@ -61,8 +61,16 @@ class ParameterConfiguration(GObject.Object):
 
         map_model = Gtk.MapListModel.new(filter_model, self.__map_func)
 
+        selection_filter = Gtk.CustomFilter.new(self.__selection_filter_func)
+
+        selection_filter_model = Gtk.FilterListModel.new(map_model, selection_filter)
+
         super().__init__(selected_cross_sections=Gtk.MultiSelection.new(network.cross_sections),
-                         parameters=map_model)
+                         parameters=selection_filter_model)
+
+        self.selected_cross_sections.connect(
+            "selection-changed",
+            lambda model, pos, n_items: selection_filter.changed(Gtk.FilterChange.DIFFERENT))
 
     async def load(self) -> None:
         """
@@ -125,3 +133,9 @@ class ParameterConfiguration(GObject.Object):
             start, end = self.__sort_model.get_section(position)
             slice_model.set_offset(start)
             slice_model.set_size(end - start)
+
+    def __selection_filter_func(self, param: Parameter) -> bool:
+        if self.selected_cross_sections.get_selection().is_empty():
+            return isinstance(param, GlobalParameter)
+
+        return isinstance(param, CrossSectionParameter)
