@@ -50,14 +50,20 @@ class ParameterConfigurationTestCase(unittest.TestCase):
 
         network_mock = Mock()
         network_mock.cross_sections = Gio.ListStore.new(CrossSection)
+        network_mock.cross_sections.append(CrossSection(model_cross_section_one))
+        network_mock.cross_sections.append(CrossSection(model_cross_section_two))
 
         tags = Gio.ListStore.new(Tag)
 
         config = ParameterConfiguration(model_config, network_mock, tags)
 
-        self.assertEqual(config.parameters.get_n_items(), 2)
+        self.assertEqual(config.parameters.get_n_items(), 1)
         self.assertIsInstance(config.parameters.get_item(0), GlobalParameter)
-        self.assertIsInstance(config.parameters.get_item(1), CrossSectionParameter)
+
+        config.selected_cross_sections.select_item(0, False)
+
+        self.assertEqual(config.parameters.get_n_items(), 1)
+        self.assertIsInstance(config.parameters.get_item(0), CrossSectionParameter)
 
 
 if __name__ == '__main__':

@@ -100,6 +100,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         self.__parameter_model.set_model(param_config.parameters)
         self.__cross_sections_list_view.set_model(param_config.selected_cross_sections)
 
+        utils.run_coro_with_error_reporting(param_config.load())
+
     def __init__(self) -> None:  # pylint: disable=too-many-locals, too-many-statements
         super().__init__()
 
