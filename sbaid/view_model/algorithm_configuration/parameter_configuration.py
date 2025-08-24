@@ -98,7 +98,14 @@ class ParameterConfiguration(GObject.Object):
         if model_parameter.cross_section is None:
             return GlobalParameter(model_parameter, self.__available_tags)
 
-        slice_model = Gtk.SliceListModel.new(self.__sort_model, 0, 0)
+        pos = Gtk.INVALID_LIST_POSITION
+        for i, param in enumerate(self.__sort_model):
+            if param == model_parameter:
+                pos = i
+
+        start, end = self.__sort_model.get_section(pos)
+
+        slice_model = Gtk.SliceListModel.new(self.__sort_model, start, end - start)
         self.__slice_models_by_parameters[model_parameter.name] = slice_model
         return CrossSectionParameter(slice_model, self.selected_cross_sections,
                                      self.__available_tags)
