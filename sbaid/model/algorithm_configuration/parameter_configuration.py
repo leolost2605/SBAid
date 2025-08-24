@@ -8,6 +8,7 @@ from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
+from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network, NoSuitableParserException
 from sbaid.model.algorithm.algorithm import Algorithm
 
@@ -58,8 +59,6 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         global_and_cs_list_store.append(cs_params_flatten_model)
         self.__parameters = Gtk.FlattenListModel.new(global_and_cs_list_store)
 
-        network.cross_sections.connect("items-changed", self.__on_cross_section_changed)
-
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
         """
         Imports parameter values from the given file. If the file or no parser for the file type
@@ -102,20 +101,14 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         self.__cs_params_map_model.set_model(algorithm.get_cross_section_parameter_template())
 
     def __map_cs_params(self, template: ParameterTemplate) -> GObject.Object:
-        list_store = Gio.ListStore.new(Parameter)
+        return Gtk.MapListModel.new(self.__network.cross_sections, self.__map_cs_param, template)
 
-        for cs in common.list_model_iterator(self.__network.cross_sections):
-            list_store.append(Parameter(template.name, template.value_type, template.default_value,
-                                        cs, self.__db, self.__algo_config_id,
-                                        self.__available_tags))
+    def __map_cs_param(self, cross_section: CrossSection,
+                       template: ParameterTemplate) -> Parameter:
+        return Parameter(template.name, template.value_type, template.default_value,
+                         cross_section, self.__db, self.__algo_config_id, self.__available_tags)
 
-        return list_store
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         return Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
-
-    def __on_cross_section_changed(self, model: Gio.ListModel,
-                                   pos: int, removed: int, added: int) -> None:
-        backing_model = self.__cs_params_map_model.get_model()
-        backing_model.emit("items-changed", 0, len(backing_model), len(backing_model))
