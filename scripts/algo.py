@@ -19,7 +19,7 @@ class AlgorithmImpl(Algorithm):
 
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
         store = Gio.ListStore.new(ParameterTemplate)
-        store.append(ParameterTemplate("My cs Param", GLib.VariantType.new("s"), None))
+        store.append(ParameterTemplate("My cs Param", GLib.VariantType.new("s"), GLib.Variant.new_string("hi")))
         store.append(ParameterTemplate("My other cs Param", GLib.VariantType.new("d"), None))
         return store
 
