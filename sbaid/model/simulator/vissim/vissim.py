@@ -588,6 +588,7 @@ class VissimConnector:
         self.__vissim.Net.Evaluation.SetAttValue("DataCollToTime", sim_duration)
 
         self.__vissim.Simulation.SetAttValue('UseMaxSimSpeed', True)
+        self.__vissim.Simulation.SetAttValue('SimBreakAt', 0)
         self.__vissim.Simulation.RunSingleStep()  # Actually starts the simulation
         return sim_start_time, sim_duration
 
