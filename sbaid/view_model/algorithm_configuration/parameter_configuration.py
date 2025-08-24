@@ -59,7 +59,9 @@ class ParameterConfiguration(GObject.Object):
         filter_model = Gtk.FilterListModel.new(self.__sort_model,
                                                Gtk.CustomFilter.new(self.__filter_func))
 
-        map_model = Gtk.MapListModel.new(filter_model, self.__map_func)
+        # We can only start mapping after super().__init__() because we need selected cs
+        # so keep model as None for now
+        map_model = Gtk.MapListModel.new(None, self.__map_func)
 
         selection_filter = Gtk.CustomFilter.new(self.__selection_filter_func)
 
@@ -67,6 +69,8 @@ class ParameterConfiguration(GObject.Object):
 
         super().__init__(selected_cross_sections=Gtk.MultiSelection.new(network.cross_sections),
                          parameters=selection_filter_model)
+
+        map_model.set_model(filter_model)
 
         self.selected_cross_sections.connect(
             "selection-changed",
