@@ -13,7 +13,7 @@ from sbaid.view_model.algorithm_configuration.parameter import Parameter
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib, Gtk
+    from gi.repository import Adw, GLib, Gtk, GObject
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -39,6 +39,7 @@ class ParamCell(Adw.Bin):
     __entry: Gtk.Entry
 
     __parameter: Parameter | None = None
+    __value_binding: GObject.Binding | None = None
 
     def __init__(self, cell_type: ParamCellType) -> None:
         super().__init__()
@@ -65,15 +66,6 @@ class ParamCell(Adw.Bin):
         if child:
             self.set_child(child)
 
-    def __set_entry_text(self) -> None:
-        if self.__parameter is None:
-            return
-
-        if self.__parameter.value is None:
-            self.__entry.set_text("")
-        else:
-            self.__entry.set_text(self.__parameter.value.print_(True))
-
     def __on_entry_icon_release(self, entry: Gtk.Entry, pos: Gtk.EntryIconPosition) -> None:
         self.__update_value(entry)
 
@@ -83,17 +75,20 @@ class ParamCell(Adw.Bin):
 
         try:
             variant = GLib.Variant.parse(None, entry.get_text())
-            self.__parameter.value = variant
+            self.__parameter.update_value(variant)
         except Exception as e:  # pylint: disable=broad-exception-caught
             print("Invalid value given", e)
-
-        self.__set_entry_text()
+            self.__parameter.notify("value")  # Retrigger the binding
 
     def bind(self, param: Parameter) -> None:
         """
         Binds the given param to this cell
         :param param: the param to display in this cell
         """
+        if self.__value_binding:
+            self.__value_binding.unbind()
+            self.__value_binding = None
+
         self.__parameter = param
 
         match self.__type:
@@ -104,7 +99,16 @@ class ParamCell(Adw.Bin):
                 self.__label.set_label(param.value_type.dup_string())
 
             case ParamCellType.VALUE:
-                self.__set_entry_text()
+                self.__value_binding = param.bind_property(
+                    "value", self.__entry, "text",
+                    GObject.BindingFlags.SYNC_CREATE, self.__value_transform_func)
 
             case ParamCellType.TAGS:
                 self.__label.set_label("tags")
+
+    @staticmethod
+    def __value_transform_func(binding: GObject.Binding, value: GLib.Variant | None) -> str:
+        if value is None:
+            return ""
+
+        return value.print_(True)

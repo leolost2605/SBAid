@@ -8,6 +8,7 @@ from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
+from sbaid.model.network.cross_section import CrossSection
 from sbaid.model.network.network import Network, NoSuitableParserException
 from sbaid.model.algorithm.algorithm import Algorithm
 
@@ -100,14 +101,12 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         self.__cs_params_map_model.set_model(algorithm.get_cross_section_parameter_template())
 
     def __map_cs_params(self, template: ParameterTemplate) -> GObject.Object:
-        list_store = Gio.ListStore.new(Parameter)
+        return Gtk.MapListModel.new(self.__network.cross_sections, self.__map_cs_param, template)
 
-        for cs in common.list_model_iterator(self.__network.cross_sections):
-            list_store.append(Parameter(template.name, template.value_type, template.default_value,
-                                        cs, self.__db, self.__algo_config_id,
-                                        self.__available_tags))
-
-        return list_store
+    def __map_cs_param(self, cross_section: CrossSection,
+                       template: ParameterTemplate) -> Parameter:
+        return Parameter(template.name, template.value_type, template.default_value,
+                         cross_section, self.__db, self.__algo_config_id, self.__available_tags)
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         return Parameter(template.name, template.value_type, template.default_value,

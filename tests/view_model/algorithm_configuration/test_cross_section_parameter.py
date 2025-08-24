@@ -79,8 +79,10 @@ class CrossSectionParameterTestCase(unittest.TestCase):
         self.assertEqual(param.inconsistent, True)
         self.assertEqual(param.value, None)
 
-        param.value = GLib.Variant.new_string("My new value")
-        param.value = GLib.Variant.new_boolean(False)  # Should get rejected
+        param.update_value(GLib.Variant.new_string("My new value"))
+
+        with self.assertRaises(ValueError):
+            param.update_value(GLib.Variant.new_boolean(False))
 
         self.assertEqual(param.value.get_string(), "My new value")
         self.assertEqual(param.inconsistent, False)
