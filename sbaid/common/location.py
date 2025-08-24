@@ -46,10 +46,13 @@ class Location(GObject.GObject):
         return distance
 
     def __eq__(self, other: object) -> bool:
+        """Verify if this location already exists."""
         return isinstance(other, Location) and self.x == other.x and self.y == other.y
 
     def __hash__(self) -> int:
+        """Returns a hash value for the Location object."""
         return hash((self.x, self.y))
 
     def __repr__(self) -> str:
+        """Returns the string representation of the location's information."""
         return f"Location({self.x}, {self.y})"
