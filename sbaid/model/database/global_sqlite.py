@@ -317,3 +317,4 @@ class GlobalSQLite(GlobalDatabase):
                             await db.execute("""
                             INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
                             """, (vehicle_snapshot[0], vehicle_snapshot[1], vehicle_snapshot[2]))
+            await db.commit()
