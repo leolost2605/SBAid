@@ -102,23 +102,19 @@ class ResultManager(GObject.GObject):
                                              list[tuple[str, str, int, float, int, int,
                                                         list[tuple[str, int, float]]]]]]]] = []
         for snapshot in result.snapshots:
-            cast(Snapshot, snapshot)
-            assert isinstance(snapshot, Snapshot)
+            snapshot = cast(Snapshot, snapshot)
             cs_sn_data: list[tuple[str, str, str, str, int,
                                    list[tuple[str, str, int, float, int, int,
                                               list[tuple[str, int, float]]]]]] = []
             for cs_sn in snapshot.cross_section_snapshots:
-                cast(CrossSectionSnapshot, cs_sn)
-                assert isinstance(cs_sn, CrossSectionSnapshot)
+                cs_sn = cast(CrossSectionSnapshot, cs_sn)
                 lane_sn_data: list[tuple[str, str, int, float, int, int,
                                          list[tuple[str, int, float]]]] = []
                 for lane_sn in cs_sn.lane_snapshots:
-                    cast(LaneSnapshot, lane_sn)
-                    assert isinstance(lane_sn, LaneSnapshot)
+                    lane_sn = cast(LaneSnapshot, lane_sn)
                     veh_sn_data: list[tuple[str, int, float]] = []
                     for veh_sn in lane_sn.vehicle_snapshots:
-                        cast(VehicleSnapshot, veh_sn)
-                        assert isinstance(veh_sn, VehicleSnapshot)
+                        veh_sn = cast(VehicleSnapshot, veh_sn)
                         veh_sn_data.append((veh_sn.lane_snapshot_id,
                                             veh_sn.vehicle_type.value, veh_sn.speed))
                     lane_sn_data.append((lane_sn.id, lane_sn.cross_section_snapshot_id,
