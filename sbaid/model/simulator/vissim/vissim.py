@@ -24,7 +24,7 @@ from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
-from sbaid.model.simulator.vissim.vissim_network import VissimNetwork
+from sbaid.model.simulator.vissim.vissim_network import VissimNetwork, InvalidLocationException
 
 
 class VissimNotFoundException(Exception):
@@ -505,6 +505,9 @@ class VissimConnector:
     def __move_cross_section(self, cs_id: str,
                              new_location: Location) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
+
+        if not self.__network.contains_point(new_location):
+            raise InvalidLocationException("The given location is not in the network.")
 
         cross_section = self.__cross_sections_by_id[cs_id]
 
