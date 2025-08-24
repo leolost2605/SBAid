@@ -1,14 +1,17 @@
 """This module defines the ResultManager class."""
 import uuid
+from typing import cast
+
 from gi.repository import Gio, GObject
-from sbaid.model.database.global_database import GlobalDatabase
+
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
 from sbaid.model.results.lane_snapshot import LaneSnapshot
+from sbaid.model.results.snapshot import Snapshot
+from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
+from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.result import Result
 from sbaid.common.tag import Tag
 from sbaid.common import list_model_iterator
-from sbaid.model.results.snapshot import Snapshot
-from sbaid.model.results.vehicle_snapshot import VehicleSnapshot
 
 
 class ResultManager(GObject.GObject):
@@ -94,43 +97,35 @@ class ResultManager(GObject.GObject):
         """Appends a result to the existing list of results in the result manager.
         Also registers result and all snapshots to the database"""
         self.__results.append(result)
-        await self.__global_db.add_result(result.id,
-                                          result.result_name,
-                                          result.project_name,
-                                          result.creation_date_time)
-        await self.__add_all_snapshots_to_database(result)
-
-    async def __add_all_snapshots_to_database(self, result: Result) -> None:
-
+        snapshot_data: list[tuple[str, str, str,
+                                  list[tuple[str, str, str, str, int,
+                                             list[tuple[str, str, int, float, int, int,
+                                                        list[tuple[str, int, float]]]]]]]] = []
         for snapshot in result.snapshots:
-            assert isinstance(snapshot, Snapshot)
-
-            await self.__global_db.add_snapshot(snapshot.id,
-                                                result.id,
-                                                snapshot.capture_timestamp)
-            for cs_snapshot in snapshot.cross_section_snapshots:
-                assert isinstance(cs_snapshot, CrossSectionSnapshot)
-
-                await self.__global_db.add_cross_section_snapshot(cs_snapshot.cs_snapshot_id,
-                                                                  cs_snapshot.snapshot_id,
-                                                                  cs_snapshot.cross_section_id,
-                                                                  cs_snapshot.cross_section_name,
-                                                                  cs_snapshot.b_display)
-
-                for lane_snapshot in cs_snapshot.lane_snapshots:
-                    assert isinstance(lane_snapshot, LaneSnapshot)
-
-                    await self.__global_db.add_lane_snapshot(lane_snapshot.id,
-                                                             lane_snapshot.
-                                                             cross_section_snapshot_id,
-                                                             lane_snapshot.lane,
-                                                             lane_snapshot.average_speed,
-                                                             lane_snapshot.traffic_volume,
-                                                             lane_snapshot.a_display)
-
-                    for vehicle_snapshot in lane_snapshot.vehicle_snapshots:
-                        assert isinstance(vehicle_snapshot, VehicleSnapshot)
-                        await self.__global_db.add_vehicle_snapshot(vehicle_snapshot.
-                                                                    lane_snapshot_id,
-                                                                    vehicle_snapshot.vehicle_type,
-                                                                    vehicle_snapshot.speed)
+            snapshot = cast(Snapshot, snapshot)
+            cs_sn_data: list[tuple[str, str, str, str, int,
+                                   list[tuple[str, str, int, float, int, int,
+                                              list[tuple[str, int, float]]]]]] = []
+            for cs_sn in snapshot.cross_section_snapshots:
+                cs_sn = cast(CrossSectionSnapshot, cs_sn)
+                lane_sn_data: list[tuple[str, str, int, float, int, int,
+                                         list[tuple[str, int, float]]]] = []
+                for lane_sn in cs_sn.lane_snapshots:
+                    lane_sn = cast(LaneSnapshot, lane_sn)
+                    veh_sn_data: list[tuple[str, int, float]] = []
+                    for veh_sn in lane_sn.vehicle_snapshots:
+                        veh_sn = cast(VehicleSnapshot, veh_sn)
+                        veh_sn_data.append((veh_sn.lane_snapshot_id,
+                                            veh_sn.vehicle_type.value, veh_sn.speed))
+                    lane_sn_data.append((lane_sn.id, lane_sn.cross_section_snapshot_id,
+                                         lane_sn.lane, lane_sn.average_speed,
+                                         lane_sn.traffic_volume, lane_sn.a_display.value,
+                                         veh_sn_data))
+                cs_sn_data.append((cs_sn.cs_snapshot_id, cs_sn.snapshot_id, cs_sn.cross_section_id,
+                                   cs_sn.cross_section_name,
+                                   cs_sn.b_display.value, lane_sn_data))
+            snapshot_data.append((str(snapshot.id), result.id,
+                                  str(snapshot.capture_timestamp.format_iso8601()),
+                                  cs_sn_data))
+        await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name,
+                                                 result.creation_date_time, snapshot_data)
