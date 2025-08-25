@@ -90,6 +90,13 @@ class ParameterConfiguration(GObject.Object):
         """
         return await self.__configuration.import_from_file(file)
 
+    async def export_parameter_values(self, file: Gio.File) -> None:
+        """Exports the parameter configuration to a given file.
+        :param file: the file to export values to
+        """
+        export_file = Gio.File.get_child(file, "param_config.csv")
+        await self.__configuration.export_parameter_configuration(export_file)
+
     def __sort_func(self, first: ModelParameter, second: ModelParameter, data: Any) -> int:
         if first.cross_section is None and second.cross_section is not None:
             return -1
