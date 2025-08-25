@@ -27,7 +27,7 @@ class CsvParameterParserTest(unittest.TestCase):
     def foreach_func_callback_func(self, param_name: str, cs_id: str,
                                    variant: GLib.Variant) -> bool:
         cs_ids = ["AQ_00_KA", "AQ_01_KA", "AQ_02_KA", "AQ_03_KA", "AQ_04_KA",
-                  "AQ_05_KA", "AQ_06_KA", "AQ_07_KA"]
+                  "AQ_05_KA", "AQ_06_KA", "AQ_07_KA", ""]
         params_dict = {
             "param_1" : GLib.VariantType.new("i"),
             "param_2" : GLib.VariantType.new("b"),
