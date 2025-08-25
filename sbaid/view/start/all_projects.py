@@ -41,17 +41,16 @@ class AllProjects(Adw.NavigationPage):
         name_column.set_expand(True)
 
         last_opened_factory = Gtk.SignalListItemFactory()
-        last_opened_factory.connect("setup", self.__on_factory_setup,
-                                    ProjectCellType.LAST_OPENED)
+        last_opened_factory.connect("setup", self.__on_factory_setup, ProjectCellType.LAST_OPENED)
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
-        last_opened_column = Gtk.ColumnViewColumn.new("Created at", last_opened_factory)
+        last_opened_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
-        last_opened_factory.connect("bind", self.__on_factory_bind)
+        created_at_factory.connect("bind", self.__on_factory_bind)
 
-        created_at_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
+        created_at_column = Gtk.ColumnViewColumn.new("Created at", created_at_factory)
 
         selection = Gtk.NoSelection.new(self.__context.projects)
 
