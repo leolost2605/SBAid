@@ -231,6 +231,16 @@ class VissimNetwork:
 
         raise InvalidLocationException("No link with the given location found")
 
+    def contains_point(self, location: Location) -> bool:
+        """
+        Returns whether the given location is in the network.
+        """
+        for link in self.__links_by_no.values():
+            if link.contains_point(location)[0]:
+                return True
+
+        return False
+
     def get_main_route(self, starting_link_no:
                        int | None = None) -> tuple[list[Location], list[str]]:
         """

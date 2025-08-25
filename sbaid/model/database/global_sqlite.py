@@ -6,11 +6,12 @@ import aiopathlib
 
 from gi.repository import GLib, Gio
 
-from sbaid.model.database.date_format_error import DateFormatError
+from sbaid.common.vehicle_type import VehicleType
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
 from sbaid.common.simulator_type import SimulatorType
-from sbaid.common.vehicle_type import VehicleType
+
+from sbaid.model.database.date_format_error import DateFormatError
 from sbaid.model.database.global_database import GlobalDatabase
 
 
@@ -57,7 +58,6 @@ class GlobalSQLite(GlobalDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if not already_existed:
                 await db.executescript("""
-                PRAGMA foreign_keys = ON;
                 CREATE TABLE project (
                     id TEXT PRIMARY KEY,
                     simulator_type_id TEXT,
@@ -118,6 +118,7 @@ class GlobalSQLite(GlobalDatabase):
                           simulator_file_path: str, project_file_path: str) -> None:
         """Add a project to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             await db.execute("""
             INSERT INTO project (id, simulator_type_id, simulator_type_name,
             simulator_file_path, project_file_path)
@@ -152,6 +153,7 @@ class GlobalSQLite(GlobalDatabase):
                          creation_date_time: GLib.DateTime) -> None:
         """Add a result to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             await db.execute("""
             INSERT INTO result (id, name, project_name, date)
             VALUES (?, ?, ?, ?);
@@ -177,9 +179,16 @@ class GlobalSQLite(GlobalDatabase):
                     return None
                 return str(list(res)[0][0])
 
+    async def set_result_name(self, result_id: str, new_name: str) -> None:
+        """Sets the name of the given result_id in the database."""
+        async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""UPDATE result SET name = ? WHERE id = ?;""", [new_name, result_id])
+            await db.commit()
+
     async def add_tag(self, tag_id: str, tag_name: str) -> None:
         """Add a tag to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             await db.execute("""
             INSERT INTO tag (id, name) VALUES (?, ?)""", (tag_id, tag_name))
             await db.commit()
@@ -205,6 +214,7 @@ class GlobalSQLite(GlobalDatabase):
     async def add_result_tag(self, result_tag_id: str, result_id: str, tag_id: str) -> None:
         """Add a tag to a result."""""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             async with db.execute("""
             SELECT * FROM tag WHERE id = ?;""", (tag_id,)) as cursor:
                 tags = list(await cursor.fetchall())
@@ -247,15 +257,6 @@ class GlobalSQLite(GlobalDatabase):
                     return []
                 return list(map(lambda x: (str(x[0]), get_date_time(x[1])), res))
 
-    async def add_snapshot(self, snapshot_id: str, result_id: str, time: GLib.DateTime) -> None:
-        """Add a snapshot to a given result."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            time_string = time.format_iso8601()
-            await db.execute("""
-            INSERT INTO snapshot (id, result_id, date)
-            VALUES (?, ?, ?);""", (snapshot_id, result_id, time_string))
-            await db.commit()
-
     async def get_all_cross_section_snapshots(self, snapshot_id: str) \
             -> list[tuple[str, str, str, str, BDisplay]]:
         """Return all cross section snapshots from a given snapshot."""
@@ -264,19 +265,6 @@ class GlobalSQLite(GlobalDatabase):
             SELECT * FROM cross_section_snapshot WHERE snapshot_id = ?;""",
                                   [snapshot_id]) as cursor:
                 return await cursor.fetchall()
-
-    async def add_cross_section_snapshot(self, cross_section_snapshot_id: str, snapshot_id: str,
-                                         cross_section_id: str, cross_section_name: str,
-                                         b_display: BDisplay) -> None:
-        """Add a cross section snapshot to a given snapshot."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute(""" INSERT INTO cross_section_snapshot
-            (id, snapshot_id, cross_section_id,
-            cross_section_name, b_display)
-            VALUES (?, ?, ?, ?, ?);
-            """, (cross_section_snapshot_id, snapshot_id, cross_section_id,
-                  cross_section_name, b_display.value))
-            await db.commit()
 
     async def get_all_lane_snapshots(self, cross_section_snapshot_id: str) -> list[
                                      tuple[str, int, float, int, ADisplay]]:
@@ -288,18 +276,6 @@ class GlobalSQLite(GlobalDatabase):
             """, (cross_section_snapshot_id,)) as cursor:
                 return await cursor.fetchall()
 
-    async def add_lane_snapshot(self, lane_snapshot_id: str, cross_section_snapshot_id: str,
-                                lane: int, average_speed: float, traffic_volume: int,
-                                a_display: ADisplay) -> None:
-        """Add a lane snapshot to a given cross section snapshot."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""
-            INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
-            average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
-            """, (lane_snapshot_id, cross_section_snapshot_id, lane, average_speed,
-                  traffic_volume, a_display.value))
-            await db.commit()
-
     async def get_all_vehicle_snapshots(self, lane_snapshot_id: str) \
             -> list[tuple[VehicleType, float]]:
         """Return all vehicle snapshots from a given lane snapshot."""
@@ -309,11 +285,42 @@ class GlobalSQLite(GlobalDatabase):
             """, (lane_snapshot_id,)) as cursor:
                 return await cursor.fetchall()
 
-    async def add_vehicle_snapshot(self, lane_snapshot_id: str, vehicle_type:
-                                   VehicleType, speed: float) -> None:
-        """Add a venicle snapshot to a given lane snapshot."""
+    async def add_entire_result(self, result_id: str, result_name: str, project_name: str,
+                                creation_date_time: GLib.DateTime,
+                                snapshot_data:
+                                list[tuple[str, str, str,
+                                           list[tuple[str, str, str, str, int,
+                                                      list[tuple[str, str, int, float, int, int,
+                                                                 list[tuple[str, int, float]]]]]]]]
+                                ) -> None:
+        """Add a result to the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
+            await db.execute("""PRAGMA foreign_keys=ON;""")
             await db.execute("""
-            INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
-            """, (lane_snapshot_id, vehicle_type.value, speed))
+            INSERT INTO result (id, name, project_name, date)
+            VALUES (?, ?, ?, ?);
+            """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
+            for snapshot in snapshot_data:
+                await db.execute("""
+                INSERT INTO snapshot (id, result_id, date)
+                VALUES (?, ?, ?);
+                """, (snapshot[0], snapshot[1], snapshot[2]))
+
+                for cs_snapshot in snapshot[3]:
+                    await db.execute("""
+                    INSERT INTO cross_section_snapshot (id, snapshot_id, cross_section_id,
+                    cross_section_name, b_display)
+                    VALUES (?, ?, ?, ?, ?);
+                    """, (cs_snapshot[0], cs_snapshot[1], cs_snapshot[2],
+                          cs_snapshot[3], cs_snapshot[4]))
+                    for lane_snapshot in cs_snapshot[5]:
+                        await db.execute("""
+                        INSERT INTO lane_snapshot (id, cross_section_snapshot_id, lane_number,
+                        average_speed, traffic_volume, a_display) VALUES (?, ?, ?, ?, ?, ?);
+                        """, (lane_snapshot[0], lane_snapshot[1], lane_snapshot[2],
+                              lane_snapshot[3], lane_snapshot[4], lane_snapshot[5]))
+                        for vehicle_snapshot in lane_snapshot[6]:
+                            await db.execute("""
+                            INSERT INTO vehicle_snapshot VALUES (?, ?, ?);
+                            """, (vehicle_snapshot[0], vehicle_snapshot[1], vehicle_snapshot[2]))
             await db.commit()
