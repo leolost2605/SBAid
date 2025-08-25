@@ -59,10 +59,22 @@ class ParameterConfiguration(GObject.Object):
         filter_model = Gtk.FilterListModel.new(self.__sort_model,
                                                Gtk.CustomFilter.new(self.__filter_func))
 
-        map_model = Gtk.MapListModel.new(filter_model, self.__map_func)
+        # We can only start mapping after super().__init__() because we need selected cs
+        # so keep model as None for now
+        map_model = Gtk.MapListModel.new(None, self.__map_func)
+
+        selection_filter = Gtk.CustomFilter.new(self.__selection_filter_func)
+
+        selection_filter_model = Gtk.FilterListModel.new(map_model, selection_filter)
 
         super().__init__(selected_cross_sections=Gtk.MultiSelection.new(network.cross_sections),
-                         parameters=map_model)
+                         parameters=selection_filter_model)
+
+        map_model.set_model(filter_model)
+
+        self.selected_cross_sections.connect(
+            "selection-changed",
+            lambda model, pos, n_items: selection_filter.changed(Gtk.FilterChange.DIFFERENT))
 
     async def load(self) -> None:
         """
@@ -98,7 +110,14 @@ class ParameterConfiguration(GObject.Object):
         if model_parameter.cross_section is None:
             return GlobalParameter(model_parameter, self.__available_tags)
 
-        slice_model = Gtk.SliceListModel.new(self.__sort_model, 0, 0)
+        pos = Gtk.INVALID_LIST_POSITION
+        for i, param in enumerate(self.__sort_model):
+            if param == model_parameter:
+                pos = i
+
+        start, end = self.__sort_model.get_section(pos)
+
+        slice_model = Gtk.SliceListModel.new(self.__sort_model, start, end - start)
         self.__slice_models_by_parameters[model_parameter.name] = slice_model
         return CrossSectionParameter(slice_model, self.selected_cross_sections,
                                      self.__available_tags)
@@ -118,3 +137,9 @@ class ParameterConfiguration(GObject.Object):
             start, end = self.__sort_model.get_section(position)
             slice_model.set_offset(start)
             slice_model.set_size(end - start)
+
+    def __selection_filter_func(self, param: Parameter) -> bool:
+        if self.selected_cross_sections.get_selection().is_empty():
+            return isinstance(param, GlobalParameter)
+
+        return isinstance(param, CrossSectionParameter)

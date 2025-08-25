@@ -9,6 +9,7 @@ import gi
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
 from sbaid.view.main_page.cross_section_details_popover import CrossSectionDetailsPopover
+from sbaid.view.main_page.cross_section_icon import CrossSectionIcon
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -26,6 +27,7 @@ class CrossSectionMarker(Adw.Bin):
     __project_id: str
     __network: Network
     __cross_section: CrossSection
+    __icon: CrossSectionIcon
     __popover: Gtk.Popover | None = None
 
     @property
@@ -40,20 +42,9 @@ class CrossSectionMarker(Adw.Bin):
         self.__network = network
         self.__cross_section = cross_section
 
-        self.__image = Gtk.Image.new_from_icon_name("location-services-active")
-        self.__image.set_icon_size(Gtk.IconSize.LARGE)
+        self.__icon = CrossSectionIcon()
 
-        bottom_widget = Adw.Bin()
-
-        size_group = Gtk.SizeGroup.new(Gtk.SizeGroupMode.BOTH)
-        size_group.add_widget(self.__image)
-        size_group.add_widget(bottom_widget)
-
-        box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
-        box.append(self.__image)
-        box.append(bottom_widget)
-
-        self.set_child(box)
+        self.set_child(self.__icon)
 
         click = Gtk.GestureClick()
         click.connect("released", self.__on_clicked)
@@ -66,7 +57,7 @@ class CrossSectionMarker(Adw.Bin):
         if self.__popover is None:
             self.__popover = CrossSectionDetailsPopover(self.__project_id, self.__network,
                                                         self.__cross_section)
-            self.__popover.set_parent(self.__image)
+            self.__icon.attach_popover(self.__popover)
 
         self.__popover.popup()
 

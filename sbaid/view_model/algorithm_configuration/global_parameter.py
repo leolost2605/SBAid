@@ -38,14 +38,6 @@ class GlobalParameter(Parameter):
         """Returns the value of the parameter."""
         return self.__parameter.value
 
-    def set_value(self, value: GLib.Variant) -> None:  # pylint: disable=invalid-overridden-method
-        """Sets the value of the parameter."""
-        if not value.is_of_type(self.value_type):
-            raise ValueError("Value must be of the correct type for the parameter. Got "
-                             f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
-
-        self.__parameter.value = value
-
     def get_inconsistent(self) -> bool:
         """Always returns false since global parameters can't be inconsistent."""
         return False
@@ -74,3 +66,12 @@ class GlobalParameter(Parameter):
                 self.__parameter.add_tag(tag)
             else:
                 self.__parameter.remove_tag(tag)
+
+    def update_value(self, value: GLib.Variant) -> None:
+        """Updates the value of the parameter."""
+        if not value.is_of_type(self.value_type):
+            raise ValueError("Value must be of the correct type for the parameter. Got "
+                             f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
+
+        self.__parameter.value = value
+        self.notify("value")
