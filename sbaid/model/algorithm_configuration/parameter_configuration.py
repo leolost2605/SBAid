@@ -1,10 +1,10 @@
 """This module defines the ParameterConfiguration class."""
 import sys
-
 import gi
 
 from sbaid import common
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
+from sbaid.model.algorithm_configuration.exporter_factory import ExporterFactory
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
@@ -81,6 +81,17 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
                 return True
 
         return False
+
+    async def export_parameter_configuration(self, path: str, export_format: str) -> bool:
+        """Saves this parameter configuration, exported to a csv file,
+         to a path given by the user."""
+        file = Gio.File.new_for_path(path)
+        factory: ExporterFactory = ExporterFactory()
+        exporter = factory.get_exporter(export_format)
+        if exporter is None:
+            return False
+        await exporter.for_each_parameter(file, self.__parameters)
+        return True
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""
