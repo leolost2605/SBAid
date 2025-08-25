@@ -3,10 +3,8 @@ This module contains the welcome page.
 """
 import sys
 from typing import Any, Callable
-
 import gi
-
-import sbaid.view.i18n
+import sbaid.view.i18n as i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 from sbaid.view.i18n import LanguageWrapper
@@ -26,7 +24,7 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
     It welcomes the user and provides a list of recently used project as well
     as allowing to view all projects and the result view.
     """
-    translator: Callable[[str], str]
+    __language_selection: Gtk.DropDown | None = None
 
     def __init__(self, context: Context) -> None:
         super().__init__()
@@ -34,15 +32,12 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
         header_bar = Adw.HeaderBar()
 
-        available_languages = Gtk.SingleSelection.new(sbaid.view.i18n.get_available_languages())
-        self.__language_selection = Gtk.DropDown.new(available_languages)
-        self.__language_selection.bind_property("selected", available_languages, "selected")
-        self.__language_selection.set_expression(Gtk.PropertyExpression.new(LanguageWrapper,
-                                                                            None, "language_code"))
+        self.__handle_language_dropdown()
+        header_bar.pack_start(self.__language_selection)
+        _ = self.__get_translator()
 
-        available_languages.connect("notify::selected-item", self.__on_language_changed)
 
-        self.__create_project_button = Gtk.Button(label="Create Project")
+        self.__create_project_button = Gtk.Button(label=_("Create Project"))
         self.__create_project_button.set_action_name("win.create-project-page")
 
         self.__time_sorter = Gtk.CustomSorter.new(self.__sort_func)
@@ -56,11 +51,12 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         self.__last_projects_box.bind_model(
             recent_projects_slice, self.__create_last_project_button)
 
-        self.__all_projects_button = Gtk.Button(label="All Projects")
+        self.__all_projects_button = Gtk.Button(label=_("All Projects"))
         self.__all_projects_button.set_action_name("win.all-projects")
 
-        self.__results_button = Gtk.Button(label="Results")
+        self.__results_button = Gtk.Button(label=_("Results"))
         self.__results_button.set_action_name("win.results")
+
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, valign=Gtk.Align.CENTER,
                       halign=Gtk.Align.CENTER)
@@ -70,7 +66,6 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         box.append(Gtk.Separator.new(Gtk.Orientation.HORIZONTAL))
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
-        box.append(self.__language_selection)
 
         status_page = Adw.StatusPage(child=box)
 
@@ -81,11 +76,6 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         self.set_title("SBAid")
         self.set_child(main_view)
         self.connect("map", self.__on_map)
-
-    def __reset_labels(self) -> None:
-        self.__all_projects_button.set_label(self.translator("All Projects"))
-        self.__create_project_button.set_label(self.translator("Create Project"))
-        self.__results_button.set_label(self.translator("Results"))
 
     def __sort_func(self, project_one: Project, project_two: Project, data: Any) -> int:
         return project_two.last_opened.compare(project_one.last_opened)
@@ -102,9 +92,22 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
     def __on_language_changed(self, selection: Gtk.SingleSelection,
                               pspec: GObject.ParamSpec) -> None:
-        item = selection.get_selected_item()
+        self.__init__(self.__context)
+
+    def __handle_language_dropdown(self):
+        """todo"""
+        if self.__language_selection is None:
+            available_languages = Gtk.SingleSelection.new(i18n.get_available_languages())
+            self.__language_selection = Gtk.DropDown.new(available_languages)
+            self.__language_selection.bind_property("selected", available_languages, "selected")
+            self.__language_selection.set_expression(Gtk.PropertyExpression.new(LanguageWrapper,
+                                                                                None,
+                                                                                "language_code"))
+            available_languages.connect("notify::selected-item", self.__on_language_changed)
+        else:
+            self.__language_selection.unparent()
+
+    def __get_translator(self) -> Callable[[str], str]:
+        item = self.__language_selection.get_selected_item()
         assert isinstance(item, LanguageWrapper)
-        if item is not None:
-            assert isinstance(item.language_code, str)
-            self.translator = sbaid.view.i18n.get_language_translator(item.language_code)
-            self.__reset_labels()
+        return item.translator

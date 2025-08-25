@@ -7,6 +7,12 @@ import os
 from typing import Callable
 from gi.repository import Gio, GObject
 
+def get_translator(language_code: str) -> Callable[[str], str]:
+
+    return gettext.translation(language_code,
+                            localedir="../translations",
+                            languages=["en", "de"],
+                            fallback=True).gettext
 
 class LanguageWrapper(GObject.GObject):
     """This class is a wrapper class for the languages"""
@@ -16,8 +22,14 @@ class LanguageWrapper(GObject.GObject):
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT)
 
+    translator: Callable[[str], str]
+
     def __init__(self, language: str):
         super().__init__(language_code=language)
+        self.translator = gettext.translation(language,
+                                         localedir="../translations",
+                                         languages=["en", "de"],
+                                         fallback=True).gettext
 
 
 def get_available_languages() -> Gio.ListModel:
@@ -30,22 +42,4 @@ def get_available_languages() -> Gio.ListModel:
     for directory in os.listdir("../translations"):
         if "." not in directory:
             available_languages.append(LanguageWrapper(directory))
-
     return available_languages
-
-
-def get_language_translator(language_code: str) -> Callable[[str], str]:
-    """Returns the Callable for the translation files."""
-    lang = gettext.translation(language_code,
-                               localedir="../translations",
-                               languages=["en", "de"],
-                               fallback=True)
-    return lang.gettext
-
-
-def __get_available_language_codes() -> list[str]:
-    language_codes = []
-    for language in get_available_languages():
-        assert isinstance(language, LanguageWrapper)
-        language_codes.append(language.language_code)
-    return language_codes
