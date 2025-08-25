@@ -58,7 +58,7 @@ class AllProjects(Adw.NavigationPage):
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
         created_at_factory.connect("bind", self.__on_factory_bind)
 
-        created_at_column = Gtk.ColumnViewColumn.new("Created at", last_opened_factory)
+        created_at_column = Gtk.ColumnViewColumn.new("Created at", created_at_factory)
         created_at_sorter = Gtk.CustomSorter.new(self.__created_at_sort_func)
         created_at_column.set_sorter(created_at_sorter)
 
