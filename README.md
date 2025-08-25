@@ -17,4 +17,4 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 
 [Cross section import](readmes/cross_section_import.md)
 
-[Parameter configuration import]()
+[Parameter configuration import](readmes/parameter_configuration_import.md)
