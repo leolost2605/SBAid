@@ -66,7 +66,7 @@ class ParameterExportTest(unittest.IsolatedAsyncioTestCase):
                               GLib.Variant.new_int32(316), None,
                               self.__db_mock, self.__ac_id, self.__tags)
         param_11 = Parameter("param_2", GLib.VariantType.new("b"),
-                            GLib.Variant.new_boolean(True), self.__cross_section_1,
+                            GLib.Variant.new_boolean(True), None,
                             self.__db_mock, self.__ac_id, self.__tags)
         param_12 = Parameter("param_3", GLib.VariantType.new("d"),
                             GLib.Variant.new_double(3.14), self.__cross_section_1,
@@ -97,7 +97,7 @@ class ParameterExportTest(unittest.IsolatedAsyncioTestCase):
                              GLib.Variant.new_boolean(False), self.__cross_section_4,
                              self.__db_mock, self.__ac_id, self.__tags)
         param_42 = Parameter("param_3", GLib.VariantType.new("d"),
-                            GLib.Variant.new_double(1.5), self.__cross_section_4,
+                            GLib.Variant.new_double(1.5), None,
                              self.__db_mock, self.__ac_id, self.__tags)
 
 

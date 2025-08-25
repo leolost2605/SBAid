@@ -28,7 +28,8 @@ class CSVParameterExporter(ParameterExporter):
                                                                               found_params):
                 params[cs_index][param_index] = str(value)
             if param.cross_section is None:
-                cs_ids.append("")
+                if "" not in cs_ids:
+                    cs_ids.append("")
             elif param.cross_section.id not in cs_ids:
                 cs_ids.append(param.cross_section.id)
             if param.name not in found_params:
@@ -83,6 +84,7 @@ class CSVParameterExporter(ParameterExporter):
         try:
             cs_id_index = ids.index(cross_section_id)
         except ValueError:
+
             cs_id_index = len(ids)
             entries.append((cs_id_index, 0, cross_section_id))
 
