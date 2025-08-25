@@ -8,7 +8,6 @@ from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
-from sbaid.model.algorithm_configuration.parameter import Parameter
 
 
 class MyTestCase(unittest.IsolatedAsyncioTestCase):
@@ -18,9 +17,6 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         self.__db_mock.get_all_tag_ids_for_parameter = AsyncMock()
         self.__ac_id = "acid"
         self.__algo_mock = Mock()
-        self.__tags = Gio.ListStore.new(Tag)
-        self.__tags.append(Tag("id1", "My Tag"))
-        self.__tags.append(Tag("id2", "My Tag 2"))
 
         global_store = Gio.ListStore.new(ParameterTemplate)
         global_store.append(ParameterTemplate("my global param", GLib.VariantType.new("s"), None))
@@ -40,6 +36,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(parameter_config.parameters.get_n_items (),
                          1 + network.cross_sections.get_n_items())
+
 
 if __name__ == '__main__':
     unittest.main()
