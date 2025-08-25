@@ -48,3 +48,8 @@ class VissimCrossSection(SimulatorCrossSection):
         self.__type = state.type
         self.__location = state.location
         self.__lanes = state.lanes
+        self.notify("id")
+        self.notify("name")
+        self.notify("type")
+        self.notify("location")
+        self.notify("lanes")
