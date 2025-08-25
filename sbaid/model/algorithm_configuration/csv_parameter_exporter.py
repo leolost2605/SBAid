@@ -27,14 +27,16 @@ class CSVParameterExporter(ParameterExporter):
             for cs_index, param_index, value in await self.__format_parameter(param, cs_ids,
                                                                               found_params):
                 params[cs_index][param_index] = str(value)
-            if param.cross_section.id not in cs_ids:
+            if param.cross_section is None:
+                cs_ids.append("")
+            elif param.cross_section.id not in cs_ids:
                 cs_ids.append(param.cross_section.id)
             if param.name not in found_params:
                 found_params.append(param.name)
 
         path = file.get_path()
         assert isinstance(path, str)
-        async with aiofiles.open(path, "w") as csvfile:
+        async with aiofiles.open(path, "w", newline="") as csvfile:
             buffer = io.StringIO()
             writer = csv.writer(buffer)
             writer.writerows(params)
@@ -51,10 +53,14 @@ class CSVParameterExporter(ParameterExporter):
         data: list[list[str]] = []
 
         for param in list_model_iterator(parameters):
+            cross_section_id = ""
+            if param.cross_section is not None:
+                cross_section_id = param.cross_section.id
+
             if param.name not in param_names:
                 param_names.append(param.name)
-            if param.cross_section.id not in cross_sections:
-                cross_sections.append(param.cross_section.id)
+            if cross_section_id not in cross_sections:
+                cross_sections.append(cross_section_id)
 
         for i in range(len(cross_sections) + 1):
             data.append([])
@@ -70,11 +76,15 @@ class CSVParameterExporter(ParameterExporter):
         if parameter.value is not None:
             value = parameter.value.print_(True)
 
+        cross_section_id = ""
+        if parameter.cross_section is not None:
+            cross_section_id = parameter.cross_section.id
+
         try:
-            cs_id_index = ids.index(parameter.cross_section.id)
+            cs_id_index = ids.index(cross_section_id)
         except ValueError:
             cs_id_index = len(ids)
-            entries.append((cs_id_index, 0, parameter.cross_section.id))
+            entries.append((cs_id_index, 0, cross_section_id))
 
         try:
             param_index = header.index(parameter.name)

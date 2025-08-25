@@ -1,5 +1,6 @@
-cs_id,param-1,param-2,param-3,param-4
-cs_id_1,'str-value',None,'str-value',2.1000000000000001
-cs_id_2,'str-value',true,'str-value',1.3999999999999999
-cs_id_3,'value-3',true,'value-3',1.5
-cs_id_4,'value-3',None,'value-3',5.2999999999999998
+cs_id,param_1,param_2,param_3
+,316,,
+AQ_00_KA,,true,3.1400000000000001
+AQ_01_KA,75,,1.51
+AQ_02_KA,91,,1.5
+AQ_03_KA,62,false,1.5

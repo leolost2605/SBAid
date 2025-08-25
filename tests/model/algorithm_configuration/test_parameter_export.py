@@ -63,7 +63,7 @@ class ParameterExportTest(unittest.IsolatedAsyncioTestCase):
     async def test_parameter_export(self):
 
         param_1 = Parameter("param_1", GLib.VariantType.new("i"),
-                              GLib.Variant.new_int32(316), self.__cross_section_1,
+                              GLib.Variant.new_int32(316), None,
                               self.__db_mock, self.__ac_id, self.__tags)
         param_11 = Parameter("param_2", GLib.VariantType.new("b"),
                             GLib.Variant.new_boolean(True), self.__cross_section_1,
@@ -114,8 +114,7 @@ class ParameterExportTest(unittest.IsolatedAsyncioTestCase):
         params.append(param_42)
         parameter_config = MockParameterConfiguration(params)
 
-        await parameter_config.export_parameter_configuration(
-            "./tests/model/algorithm_configuration/param-export.csv", "csv")
+        await parameter_config.export_parameter_configuration("param-export.csv", "csv")
 
 if __name__ == '__main__':
     unittest.main()
