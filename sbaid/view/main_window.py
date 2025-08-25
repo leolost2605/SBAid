@@ -156,5 +156,6 @@ class MainWindow(Adw.ApplicationWindow):
                 dialog.present()
 
     def __error_reporter(self, exception: Exception) -> None:
-        toast = Adw.Toast.new(str(exception))
+        escaped = GLib.markup_escape_text(str(exception))
+        toast = Adw.Toast.new(escaped)
         self.__toast_overlay.add_toast(toast)

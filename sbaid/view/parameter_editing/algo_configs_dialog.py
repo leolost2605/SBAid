@@ -100,6 +100,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         self.__parameter_model.set_model(param_config.parameters)
         self.__cross_sections_list_view.set_model(param_config.selected_cross_sections)
 
+        utils.run_coro_with_error_reporting(param_config.load())
+
     def __init__(self) -> None:  # pylint: disable=too-many-locals, too-many-statements
         super().__init__()
 
@@ -108,9 +110,11 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         self.__eval_interval_row = Adw.SpinRow.new_with_range(1, 9999999999, 10)
         self.__eval_interval_row.set_title("Evaluation Interval")
+        self.__eval_interval_row.set_subtitle("In seconds")
 
         self.__display_interval_row = Adw.SpinRow.new_with_range(1, 9999999999, 10)
         self.__display_interval_row.set_title("Display Interval")
+        self.__display_interval_row.set_subtitle("In seconds")
 
         script_path_button = Gtk.Button.new_with_label("Select...")
         script_path_button.set_valign(Gtk.Align.CENTER)

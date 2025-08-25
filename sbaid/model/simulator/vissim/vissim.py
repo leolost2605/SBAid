@@ -24,7 +24,7 @@ from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
-from sbaid.model.simulator.vissim.vissim_network import VissimNetwork
+from sbaid.model.simulator.vissim.vissim_network import VissimNetwork, InvalidLocationException
 
 
 class VissimNotFoundException(Exception):
@@ -472,6 +472,8 @@ class VissimConnector:
 
         self.__cross_sections_by_id[cross_section.id] = cross_section
 
+        self.__vissim.SaveNet()
+
         return cross_section.state
 
     async def remove_cross_section(self, cs_id: str) -> None:
@@ -486,6 +488,8 @@ class VissimConnector:
 
         cross_section = self.__cross_sections_by_id.pop(cs_id)
         self.__remove_cs_from_vissim(cross_section)
+
+        self.__vissim.SaveNet()
 
     async def move_cross_section(self, cs_id: str,
                                  new_location: Location) -> VissimConnectorCrossSectionState:
@@ -502,6 +506,9 @@ class VissimConnector:
                              new_location: Location) -> VissimConnectorCrossSectionState:
         assert threading.current_thread() == self.__thread
 
+        if not self.__network.contains_point(new_location):
+            raise InvalidLocationException("The given location is not in the network.")
+
         cross_section = self.__cross_sections_by_id[cs_id]
 
         # The properties are calculated automatically through the data points, so cache them
@@ -514,6 +521,8 @@ class VissimConnector:
 
         # If this doesn't hold we get a bunch of problems so better assert it
         assert cross_section.id == cs_id
+
+        self.__vissim.SaveNet()
 
         return cross_section.state
 
@@ -588,6 +597,7 @@ class VissimConnector:
         self.__vissim.Net.Evaluation.SetAttValue("DataCollToTime", sim_duration)
 
         self.__vissim.Simulation.SetAttValue('UseMaxSimSpeed', True)
+        self.__vissim.Simulation.SetAttValue('SimBreakAt', 0)
         self.__vissim.Simulation.RunSingleStep()  # Actually starts the simulation
         return sim_start_time, sim_duration
 

@@ -51,16 +51,6 @@ class CrossSectionParameter(Parameter):
 
         return None
 
-    def set_value(self, value: GLib.Variant) -> None:  # pylint: disable=invalid-overridden-method
-        """Sets the value for the selected cross sections."""
-        if not value.is_of_type(self.value_type):
-            raise ValueError("Value must be of the correct type for the parameter. Got "
-                             f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
-
-        for param in common.list_model_iterator(self.__parameters):
-            if self.__is_cross_section_selected(param.cross_section.id):
-                param.value = value
-
     def get_inconsistent(self) -> bool:
         """Returns whether the selected cross sections have different values."""
         common_value = None
@@ -84,6 +74,8 @@ class CrossSectionParameter(Parameter):
         self.__selected_cross_sections = selected_cross_sections
         self.__tags = Gtk.MultiSelection.new(available_tags)
 
+        selected_cross_sections.connect("selection-changed", self.__on_cs_selection_changed)
+
         # TODO: Qualitätssicherung: Tags synchronisieren wenn sie das nicht sind
         #  (sollte nie passieren)
         reference_param = cast(ModelParameter, self.__parameters.get_item(0))
@@ -94,6 +86,10 @@ class CrossSectionParameter(Parameter):
                     break
 
         self.__tags.connect("selection_changed", self.__on_selection_changed)
+
+    def __on_cs_selection_changed(self, model: Gio.ListModel, pos: int, n_items: int) -> None:
+        self.notify("inconsistent")
+        self.notify("value")
 
     def __on_selection_changed(self, pos: int, n_items: int) -> None:
         for i in range(pos, n_items):
@@ -118,3 +114,15 @@ class CrossSectionParameter(Parameter):
                 return self.__selected_cross_sections.is_selected(i)
 
         return False
+
+    def update_value(self, value: GLib.Variant) -> None:
+        """Updates the value for the selected cross sections."""
+        if not value.is_of_type(self.value_type):
+            raise ValueError("Value must be of the correct type for the parameter. Got "
+                             f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
+
+        for param in common.list_model_iterator(self.__parameters):
+            if self.__is_cross_section_selected(param.cross_section.id):
+                param.value = value
+
+        self.notify("value")

@@ -1,6 +1,8 @@
 """ This module represents the Result class."""
 
 from gi.repository import Gio, GLib, GObject
+
+from sbaid import common
 from sbaid.common.tag import Tag
 from sbaid.model.results.snapshot import Snapshot
 from sbaid.model.database.global_database import GlobalDatabase
@@ -24,11 +26,21 @@ class Result(GObject.GObject):
         flags=GObject.ParamFlags.READABLE |
         GObject.ParamFlags.WRITABLE |
         GObject.ParamFlags.CONSTRUCT_ONLY)
-    result_name: str = GObject.Property(   # type: ignore
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
+
+    result_name: str = GObject.Property(type=str)  # type: ignore
+
+    @result_name.getter  # type: ignore
+    def result_name(self) -> str:
+        """Gets the name of this result"""
+        return self.__name
+
+    @result_name.setter  # type: ignore
+    def result_name(self, new_name: str) -> None:
+        """Sets the name of this result"""
+        self.__name = new_name
+
+        common.run_coro_in_background(self.__global_db.set_result_name(self.id, new_name))
+
     project_name: str = GObject.Property(   # type: ignore
         type=str,
         flags=GObject.ParamFlags.READABLE |
@@ -54,6 +66,7 @@ class Result(GObject.GObject):
         """Getter for the snapshots."""
         return self.__snapshots
 
+    __name: str
     __snapshots: Gio.ListStore
     __selected_tags: Gio.ListStore
     __global_db: GlobalDatabase
@@ -63,9 +76,9 @@ class Result(GObject.GObject):
         """Initializes the Result class."""
         super().__init__(id=result_id,
                          project_name=project_name,
-                         creation_date_time=creation_date_time,
-                         result_name=project_name + "_" + str(creation_date_time.format("%F")))
+                         creation_date_time=creation_date_time)
 
+        self.__name = project_name + "_" + str(creation_date_time.format("%F"))
         self.__snapshots = Gio.ListStore.new(Snapshot)
         self.__selected_tags = Gio.ListStore.new(Tag)
         self.__global_db = global_db
@@ -96,9 +109,8 @@ class Result(GObject.GObject):
         """Loads metainformation about the result name and tags, and saves them in the class."""
         name_from_db = await self.__global_db.get_result_name(self.id)
         if name_from_db is not None:
-            self.result_name = name_from_db
-        else:
-            self.result_name = self.project_name + "_" + str(self.creation_date_time.format("%F"))
+            self.__name = name_from_db
+            self.notify("result-name")
 
         tag_ids = await self.__global_db.get_result_tag_ids(self.id)
 
