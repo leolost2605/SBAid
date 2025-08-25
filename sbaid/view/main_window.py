@@ -1,13 +1,13 @@
 """
 This module contains the main window of sbaid.
 """
-
 import sys
 from typing import Any, cast
 
 import gi
 
 from sbaid import common
+from sbaid.view import utils
 from sbaid.view.cross_section_editing.cross_section_editing_page import CrossSectionEditingPage
 from sbaid.view.main_page.project_main_page import ProjectMainPage
 from sbaid.view.results.export_results_dialog import ExportResultsDialog
@@ -54,7 +54,10 @@ class MainWindow(Adw.ApplicationWindow):
         self.__nav_view = Adw.NavigationView()
         self.__nav_view.add(welcome_page)
 
-        self.set_content(self.__nav_view)
+        self.__toast_overlay = Adw.ToastOverlay(child=self.__nav_view)
+        utils.register_error_reporter(self.__error_reporter)
+
+        self.set_content(self.__toast_overlay)
 
         # Add actions
         open_project_action = Gio.SimpleAction.new("open-project", GLib.VariantType.new("s"))
@@ -127,7 +130,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __on_run_simulation(self, action: Gio.SimpleAction, param: GLib.Variant) -> None:
         project = self.__get_project_by_id(param.get_string())
-        common.run_coro_in_background(self.__run_simulation(project))
+        utils.run_coro_with_error_reporting(self.__run_simulation(project))
 
     async def __run_simulation(self, project: Project) -> None:
         simulation = await project.start_simulation()
@@ -151,3 +154,8 @@ class MainWindow(Adw.ApplicationWindow):
                 dialog.set_transient_for(self)
                 dialog.set_modal(True)
                 dialog.present()
+
+    def __error_reporter(self, exception: Exception) -> None:
+        escaped = GLib.markup_escape_text(str(exception))
+        toast = Adw.Toast.new(escaped)
+        self.__toast_overlay.add_toast(toast)

@@ -35,8 +35,10 @@ class GlobalParameterTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             param.name = "My new name that shouldn't get set"
 
-        param.value = GLib.Variant.new_string("My new value")
-        param.value = GLib.Variant.new_boolean(False)  # Should get rejected
+        param.update_value(GLib.Variant.new_string("My new value"))
+
+        with self.assertRaises(ValueError):
+            param.update_value(GLib.Variant.new_boolean(False))
 
         self.assertEqual(param.name, "My Name")
         self.assertEqual(param.value.get_string(), "My new value")
