@@ -107,13 +107,13 @@ class VissimSimulator(Simulator):
 
         assert False
 
-    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
+    async def init_simulation(self, evaluation_interval: int) -> tuple[GLib.DateTime, int]:
         """
         Initializes the simulation.
         :return: the in simulation time of the simulation start and the simulation
         duration in seconds
         """
-        return await self.__connector.init_simulation(60)
+        return await self.__connector.init_simulation(evaluation_interval)
 
     async def continue_simulation(self, span: int) -> None:
         """
