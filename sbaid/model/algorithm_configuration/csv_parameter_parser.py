@@ -36,7 +36,10 @@ class CSVParameterParser(ParameterParser):
                 raise InvalidFileFormattingException()
             for row in csv_reader:
                 for i in range(len(row)-1):
-                    if row[i+1] != "" and foreach_func(header[i + 1], row[0],
+                    cs_id = row[0]
+                    if row[0] == "":
+                        cs_id = None
+                    if row[i+1] != "" and foreach_func(header[i + 1], cs_id,
                                                        GLib.Variant.parse(None, row[i+1])):
                         valid_parameters += 1
                     else:
