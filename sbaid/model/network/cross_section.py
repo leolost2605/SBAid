@@ -118,6 +118,8 @@ class CrossSection(GObject.GObject):
         self.__name = self.__cross_section.name
         super().__init__()
 
+        simulator_cross_section.connect("notify", lambda obj, pspec: self.notify(pspec.name))
+
     async def load_from_db(self) -> None:
         """Loads cross section details from the database."""
         db_name = await self.__project_db.get_cross_section_name(self.id)

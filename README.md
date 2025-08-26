@@ -12,3 +12,9 @@ Currently supported simulators are:
 
 SBAid ist written in python using GTK with libadwaita as its UI toolkit. We highly recommend
 taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation before getting started.
+
+## File import guidelines
+
+[Cross section import](readmes/cross_section_import.md)
+
+[Parameter configuration import](readmes/parameter_configuration_import.md)
