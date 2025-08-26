@@ -46,7 +46,7 @@ class Location(GObject.GObject):
         return distance
 
     def __eq__(self, other: object) -> bool:
-        """Verify if this location already exists."""
+        """Override Equals."""
         return isinstance(other, Location) and self.x == other.x and self.y == other.y
 
     def __hash__(self) -> int:

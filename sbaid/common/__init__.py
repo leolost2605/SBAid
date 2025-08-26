@@ -31,7 +31,6 @@ _background_tasks: set[asyncio.Task[None]] = set()
 
 
 def _discard_task(task: asyncio.Task[None]) -> None:
-    """Safely discard an asyncio Task."""
     _background_tasks.discard(task)
 
 
