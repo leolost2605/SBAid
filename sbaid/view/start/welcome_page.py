@@ -25,17 +25,19 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
     as allowing to view all projects and the result view.
     """
     __language_selection: Gtk.DropDown | None = None
+    __gsignals__ = {
+        'language_changed': (GObject.SIGNAL_RUN_LAST, None, ())
+    }
 
     def __init__(self, context: Context) -> None:
+        from sbaid.view.i18n import _
+        print(_)
         super().__init__()
         self.__context = context
-
         header_bar = Adw.HeaderBar()
 
         self.__handle_language_dropdown()
         header_bar.pack_start(self.__language_selection)
-        _ = self.__get_translator()
-
 
         self.__create_project_button = Gtk.Button(label=_("Create Project"))
         self.__create_project_button.set_action_name("win.create-project-page")
@@ -92,22 +94,21 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
     def __on_language_changed(self, selection: Gtk.SingleSelection,
                               pspec: GObject.ParamSpec) -> None:
+        self.emit("language_changed")
+        item = self.__language_selection.get_selected_item()
+        assert isinstance(item, Gtk.StringObject)
+        print(item.get_string())
+        i18n.i18n.set_active_language(item.get_string())
         self.__init__(self.__context)
 
     def __handle_language_dropdown(self):
         """todo"""
         if self.__language_selection is None:
-            available_languages = Gtk.SingleSelection.new(i18n.get_available_languages())
-            self.__language_selection = Gtk.DropDown.new(available_languages)
-            self.__language_selection.bind_property("selected", available_languages, "selected")
-            self.__language_selection.set_expression(Gtk.PropertyExpression.new(LanguageWrapper,
-                                                                                None,
-                                                                                "language_code"))
-            available_languages.connect("notify::selected-item", self.__on_language_changed)
+            self.__language_selection = Gtk.DropDown.new_from_strings(["en", "de"])
+            self.__language_selection.connect("notify::selected-item", self.__on_language_changed)
         else:
             self.__language_selection.unparent()
 
-    def __get_translator(self) -> Callable[[str], str]:
-        item = self.__language_selection.get_selected_item()
-        assert isinstance(item, LanguageWrapper)
-        return item.translator
+    def do_language_changed(self) -> None:
+        """todo"""
+        print("do language changed signal is working")
