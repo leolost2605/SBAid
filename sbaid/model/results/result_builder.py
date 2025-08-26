@@ -263,6 +263,9 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         if (self.__current_lane is None or self.__current_vehicle_builder is not None
                 or self.__current_cross_section is None):
+            print(self.__current_lane is None)
+            print(self.__current_vehicle_builder is not None)
+            print(self.__current_cross_section is None)
             raise WrongOrderException("Lane snapshot creation cannot successfully finish")
 
         self.__current_cross_section.add_lane_snapshot(self.__current_lane)
@@ -316,7 +319,7 @@ class WrongOrderException(Exception):
         self.message = message
 
 
-class GLibErrorException(Exception):
+class GLibErrorException(Exception):  #todo rename
     """Raised if GLib malfunctions."""
     def __init__(self, message: str) -> None:
         self.message = message
