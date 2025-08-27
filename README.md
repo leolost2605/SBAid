@@ -15,7 +15,7 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 
 ## File input
 
-SBAid needs file inputs for many of the app's main functionalities. Follow the given guidelines for a problem-free interaction with file inputting in SBAid:
+SBAid needs file inputs for many of the app's main functionalities. Follow the given guidelines for problem-free file input in SBAid:
 
 ### Algorithm writing guidelines
 
