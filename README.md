@@ -1,6 +1,6 @@
 # SBAid
 
-SBAid is a tool allowing for easy testing of dynamic freeway control systems (**S**trecken**b**eeinflussungs**a**nlagen in german) in a simulation.
+SBAid is a tool allowing for easy testing of dynamic freeway control systems (german: **S**trecken**b**eeinflussungs**a**nlagen) in a simulation.
 It can use existing simulators for the actual simulation and makes it easy to configure routes and 
 algorithms for testing with the simulators.
 
