@@ -15,6 +15,8 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 
 ## File import guidelines
 
-[Cross section import](readmes/cross_section_import.md)
+SBAid allows certain bulk import operations. In order to successfully use these features, it is recommended that the user follows the set guidelines:
 
-[Parameter configuration import](readmes/parameter_configuration_import.md)
+- [Guidelines for cross section import](readmes/cross_section_import.md)
+
+- [Guidelines for parameter configuration import](readmes/parameter_configuration_import.md)
