@@ -1,6 +1,6 @@
 # SBAid
 
-SBAid is a tool allowing for easy testing of Streckenbeeinflussungsanlagen in a simulation.
+SBAid is a tool allowing for easy testing of dynamic freeway control systems (**S**trecken**b**eeinflussungs**a**nlagen in german) in a simulation.
 It can use existing simulators for the actual simulation and makes it easy to configure routes and 
 algorithms for testing with the simulators.
 
@@ -13,7 +13,9 @@ Currently supported simulators are:
 SBAid ist written in python using GTK with libadwaita as its UI toolkit. We highly recommend
 taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation before getting started.
 
-## App inputs information
+## File input
+
+SBAid needs file inputs for many of the app's main functionalities. Follow the given guidelines for a problem-free interaction with file inputting in SBAid:
 
 ### Algorithm writing guidelines
 
@@ -22,11 +24,11 @@ For the implementation you will then need several auxiliary classes. See their f
 
 Currently the algorithm is based on a GObject. You shouldn't have to install anything, since everything needed to run the algorithm will be shipped with SBAid. However, if you'd like autocompletion or in general want to look into it, you will need pyGObject: https://pygobject.gnome.org/
 
-Instead of lists, listmodels are mostly used. If you need to create your own, use Gio.ListStore. Refer to https://api.pygobject.gnome.org/ for documentation about Gio.ListStore.
+Instead of python lists, Gio listmodels are mostly used. If you need to create your own, use Gio.ListStore. Refer to https://api.pygobject.gnome.org/ for documentation about Gio.ListStore.
 
 For the different value types for parameters, GLib.Variant and GLib.VariantType are used. Refer to https://api.pygobject.gnome.org/GLib-2.0/structure-VariantType.html and https://api.pygobject.gnome.org/GLib-2.0/structure-Variant.html for documentation about them.
 
-### File import guidelines
+### Bulk operations import guidelines
 
 SBAid allows certain bulk import operations. In order to successfully use these features, it is recommended that the user follows the set guidelines:
 
