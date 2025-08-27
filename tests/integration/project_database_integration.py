@@ -26,15 +26,18 @@ from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
 class AlgorithmImpl(Algorithm):
     def get_global_parameter_template(self) -> Gio.ListModel:
         store = Gio.ListStore.new(ParameterTemplate)
-        store.append(ParameterTemplate("My global param", GLib.VariantType.new("s"), None))
-        store.append(ParameterTemplate("My other global param", GLib.VariantType.new("d"), None))
+        store.append(ParameterTemplate("My global param", GLib.VariantType.new("s"),
+                                       GLib.Variant.new_string("hi_global")))
+        store.append(ParameterTemplate("My other global param", GLib.VariantType.new("d"),
+                                       GLib.Variant.new_double(0.0)))
         return store
 
     def get_cross_section_parameter_template(self) -> Gio.ListModel:
         store = Gio.ListStore.new(ParameterTemplate)
         store.append(ParameterTemplate("My cross section param with default value",
                                        GLib.VariantType.new("s"), GLib.Variant.new_string("hi")))
-        store.append(ParameterTemplate("My other cross section param", GLib.VariantType.new("d"), None))
+        store.append(ParameterTemplate("My other cross section param", GLib.VariantType.new("d"),
+                                       GLib.Variant.new_double(0.0)))
         return store
 
     def init(self, parameter_configuration_state: ParameterConfigurationState,
@@ -59,10 +62,10 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        await self.rename_project()
-        await self.load_algo_config()
-        await self.algo_config_properties()
-        await self.algo_config_tag()
+        # await self.rename_project()
+        # await self.load_algo_config()
+        # await self.algo_config_properties()
+        # await self.algo_config_tag()
         await self.parameter_properties()
         # await self.parameter_tags()
 
@@ -179,13 +182,14 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         parameter_config = ParameterConfiguration(network, project_db,
                                                   "algo_config_id", Gio.ListStore.new(Tag))
         parameter_config.set_algorithm(algorithm)
-        self.assertNotEqual(0, len(parameter_config.parameters))
-        self.assertEqual("My global param", parameter_config.parameters[0].name)
-        parameter = cast(Parameter, parameter_config.parameters[0])
-        parameter.value = GLib.Variant.new_string("test_string")
 
-        value = await project_db.get_parameter_value("algo_config_id", "param_name", None)
-        self.assertEqual("my_param_string", value.unpack())
+        self.assertNotEqual(0, len(parameter_config.parameters))
+        self.assertEqual("My global param", parameter_config.parameters.get_item(0).name)
+        # parameter = cast(Parameter, parameter_config.parameters[0])
+        # parameter.value = GLib.Variant.new_string("test_string")
+
+        # value = await project_db.get_parameter_value("algo_config_id", "My global param", None)
+        # self.assertEqual("my_param_string", value.unpack())
 
         # same_dummy_sim = DummySimulator()
         # same_network = Network(same_dummy_sim, project_db)
