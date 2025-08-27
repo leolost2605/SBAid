@@ -10,6 +10,8 @@ import gi
 from sbaid.view import utils
 from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSectionDialog
 from sbaid.view_model.network.network import Network
+from sbaid.view.i18n import i18n
+
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -31,10 +33,10 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         super().__init__()
         self.__network = network
 
-        manual_button = Gtk.Button.new_with_label("Manual...")
+        manual_button = Gtk.Button.new_with_label(i18n._("Manual..."))
         manual_button.connect("clicked", self.__on_manual_clicked)
 
-        import_button = Gtk.Button.new_with_label("Import...")
+        import_button = Gtk.Button.new_with_label(i18n._("Import..."))
         import_button.connect("clicked", self.__on_import_clicked)
 
         box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 3)

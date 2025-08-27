@@ -15,6 +15,7 @@ from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSection
 from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
+from sbaid.view.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -71,12 +72,12 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         self.__move_icon.set_valign(Gtk.Align.CENTER)
         self.__move_icon.set_visible(False)
 
-        self.__move_button = Gtk.Button.new_with_label("Move")
+        self.__move_button = Gtk.Button.new_with_label(i18n._("Move"))
         self.__move_button.add_css_class("suggested-action")
         self.__move_button.set_visible(False)
         self.__move_button.connect("clicked", lambda button: self.__end_move(True))
 
-        self.__cancel_move_button = Gtk.Button.new_with_label("Cancel")
+        self.__cancel_move_button = Gtk.Button.new_with_label(i18n._("Cancel"))
         self.__cancel_move_button.add_css_class("osd")
         self.__cancel_move_button.set_visible(False)
         self.__cancel_move_button.connect("clicked", lambda button: self.__end_move(False))

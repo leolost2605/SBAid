@@ -7,7 +7,7 @@ import sys
 import gi
 
 from sbaid.view_model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
-
+from sbaid.view.i18n import i18n
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
@@ -78,5 +78,5 @@ class AlgoConfigRow(Adw.Bin):
                                                     GObject.BindingFlags.SYNC_CREATE)
 
         self.__menu_model.remove_all()
-        self.__menu_model.append("Delete", Gio.Action.print_detailed_name(
+        self.__menu_model.append(i18n._("Delete"), Gio.Action.print_detailed_name(
             "algo-config.delete", GLib.Variant.new_string(config.id)))

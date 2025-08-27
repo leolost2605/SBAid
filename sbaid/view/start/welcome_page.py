@@ -2,12 +2,11 @@
 This module contains the welcome page.
 """
 import sys
-from typing import Any, Callable
+from typing import Any
 import gi
-import sbaid.view.i18n as i18n
+from sbaid.view.i18n import i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
-from sbaid.view.i18n import LanguageWrapper
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -25,19 +24,15 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
     as allowing to view all projects and the result view.
     """
     __language_selection: Gtk.DropDown | None = None
-    __gsignals__ = {
-        'language_changed': (GObject.SIGNAL_RUN_LAST, None, ())
-    }
 
     def __init__(self, context: Context) -> None:
-        from sbaid.view.i18n import _
-        print(_)
         super().__init__()
         self.__context = context
         header_bar = Adw.HeaderBar()
 
         self.__handle_language_dropdown()
         header_bar.pack_start(self.__language_selection)
+        _ = i18n._
 
         self.__create_project_button = Gtk.Button(label=_("Create Project"))
         self.__create_project_button.set_action_name("win.create-project-page")
@@ -49,7 +44,7 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
         self.__last_projects_box = Gtk.ListBox()
         self.__last_projects_box.add_css_class("background")
-        self.__last_projects_box.set_placeholder(Gtk.Label.new("No recently opened projects"))
+        self.__last_projects_box.set_placeholder(Gtk.Label.new(_("No recently opened projects")))
         self.__last_projects_box.bind_model(
             recent_projects_slice, self.__create_last_project_button)
 
@@ -58,7 +53,6 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
         self.__results_button = Gtk.Button(label=_("Results"))
         self.__results_button.set_action_name("win.results")
-
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, valign=Gtk.Align.CENTER,
                       halign=Gtk.Align.CENTER)
@@ -94,21 +88,15 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
 
     def __on_language_changed(self, selection: Gtk.SingleSelection,
                               pspec: GObject.ParamSpec) -> None:
-        self.emit("language_changed")
         item = self.__language_selection.get_selected_item()
         assert isinstance(item, Gtk.StringObject)
-        print(item.get_string())
-        i18n.i18n.set_active_language(item.get_string())
+        i18n.set_active_language(item.get_string())
         self.__init__(self.__context)
 
-    def __handle_language_dropdown(self):
+    def __handle_language_dropdown(self) -> None:
         """todo"""
         if self.__language_selection is None:
             self.__language_selection = Gtk.DropDown.new_from_strings(["en", "de"])
             self.__language_selection.connect("notify::selected-item", self.__on_language_changed)
         else:
             self.__language_selection.unparent()
-
-    def do_language_changed(self) -> None:
-        """todo"""
-        print("do language changed signal is working")

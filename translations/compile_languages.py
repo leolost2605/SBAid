@@ -4,4 +4,6 @@ import polib
 po = polib.pofile("translations/de/LC_MESSAGES/de.po")
 po.save_as_mofile("translations/de/LC_MESSAGES/de.mo")
 
+# call following command from working directory to compile mo file
+#  python translations/compile_languages.py
 print("Compiled SBAid.po -> SBAid.mo")

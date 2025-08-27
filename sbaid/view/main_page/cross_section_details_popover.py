@@ -10,6 +10,7 @@ from sbaid.common.location import Location
 from sbaid.view import utils
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
+from sbaid.view.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -54,7 +55,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
                                     GObject.BindingFlags.SYNC_CREATE,
                                     self.__transform_location_to_y)
 
-        delete_button = Gtk.Button.new_with_label("Delete")
+        delete_button = Gtk.Button.new_with_label(i18n._("Delete"))
         delete_button.add_css_class("destructive-action")
         delete_button.connect("clicked", self.__on_delete_clicked)
 
@@ -63,11 +64,11 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         builder.add_value(GLib.Variant.new_string(cross_section.id))
         target = builder.end()
 
-        edit_button = Gtk.Button.new_with_label("Edit")
+        edit_button = Gtk.Button.new_with_label(i18n._("Edit"))
         edit_button.set_action_name("win.edit-cross-section")
         edit_button.set_action_target_value(target)
 
-        move_button = Gtk.Button.new_with_label("Move")
+        move_button = Gtk.Button.new_with_label(i18n._("Move"))
         move_button.set_action_name("cross-section.move")
         move_button.set_action_target_value(GLib.Variant.new_string(cross_section.id))
 

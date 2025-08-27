@@ -5,6 +5,7 @@ from enum import Enum
 import gi
 
 from sbaid.view_model.project import Project
+from sbaid.view.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -94,9 +95,9 @@ class ProjectCell(Adw.Bin):
                     GObject.BindingFlags.SYNC_CREATE, self.__date_time_transform_func)
 
         self.__menu_model.remove_all()
-        self.__menu_model.append("Rename", Gio.Action.print_detailed_name(
+        self.__menu_model.append(i18n._("Rename"), Gio.Action.print_detailed_name(
             "project.rename", GLib.Variant.new_string(project.id)))
-        self.__menu_model.append("Delete", Gio.Action.print_detailed_name(
+        self.__menu_model.append(i18n._("Delete"), Gio.Action.print_detailed_name(
             "project.delete", GLib.Variant.new_string(project.id)))
 
     @staticmethod

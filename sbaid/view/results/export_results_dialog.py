@@ -12,6 +12,8 @@ from sbaid.common.image import Image
 from sbaid.view import utils
 from sbaid.view.results.cross_section_row import CrossSectionRow
 from sbaid.view_model.results.result import Result, CrossSectionSnapshotWrapper
+from sbaid.view.i18n import i18n
+
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -44,7 +46,7 @@ class ExportResultsDialog(Adw.Window):
                                                   diagram_type_name_expression)
         diagram_type_drop_down.bind_property("selected", result.diagram_types, "selected")
 
-        cross_sections_check_button = Gtk.CheckButton.new_with_label("Cross Sections")
+        cross_sections_check_button = Gtk.CheckButton.new_with_label(i18n._("Cross Sections"))
         cross_sections_check_button.set_halign(Gtk.Align.START)
         cross_sections_check_button.connect("toggled", self.__on_toggled)
 
@@ -86,7 +88,7 @@ class ExportResultsDialog(Adw.Window):
         image_format_drop_down = Gtk.DropDown.new(result.formats, image_format_name_expression)
         image_format_drop_down.bind_property("selected", result.formats, "selected")
 
-        export_button = Gtk.Button.new_with_label("Export")
+        export_button = Gtk.Button.new_with_label(i18n._("Export"))
         export_button.add_css_class("suggested-action")
         export_button.set_halign(Gtk.Align.END)
         export_button.set_margin_bottom(6)

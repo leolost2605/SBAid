@@ -8,6 +8,7 @@ import gi
 
 from sbaid.common.location import Location
 from sbaid.view import utils
+from sbaid.view.i18n import i18n
 from sbaid.view_model.network.network import Network
 from sbaid.view_model.network.cross_section import CrossSection
 
@@ -39,27 +40,27 @@ class CrossSectionEditingPage(Adw.NavigationPage):
 
         header_bar = Adw.HeaderBar()
 
-        lanes_label = Gtk.Label.new("Lanes:")
+        lanes_label = Gtk.Label.new(i18n._("Lanes:"))
 
         lanes_value_label = Gtk.Label(halign=Gtk.Align.START)
         cross_section.bind_property("lanes", lanes_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
 
-        hard_shoulder_available_label = Gtk.Label.new("Rightmost lane is hard shoulder:")
+        hard_shoulder_available_label = Gtk.Label.new(i18n._("Rightmost lane is hard shoulder:"))
 
         hard_shoulder_available_value_label = Gtk.Label(halign=Gtk.Align.START)
         cross_section.bind_property("hard-shoulder-available",
                                     hard_shoulder_available_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
 
-        hard_shoulder_active_label = Gtk.Label.new("Hard shoulder openable:")
+        hard_shoulder_active_label = Gtk.Label.new(i18n._("Hard shoulder openable:"))
 
         hard_shoulder_active_switch = Gtk.Switch(halign=Gtk.Align.START)
         cross_section.bind_property("hard-shoulder-usable", hard_shoulder_active_switch,
                                     "state", GObject.BindingFlags.SYNC_CREATE |
                                     GObject.BindingFlags.BIDIRECTIONAL)
 
-        b_display_active_label = Gtk.Label.new("B Display usable:")
+        b_display_active_label = Gtk.Label.new(i18n._("B Display usable:"))
 
         b_display_active_switch = Gtk.Switch(halign=Gtk.Align.START)
         cross_section.bind_property("b-display-usable", b_display_active_switch,
@@ -80,7 +81,7 @@ class CrossSectionEditingPage(Adw.NavigationPage):
                                     GObject.BindingFlags.SYNC_CREATE,
                                     self.__transform_location_to_y)
 
-        move_button = Gtk.Button.new_with_label("Move")
+        move_button = Gtk.Button.new_with_label(i18n._("Move"))
         move_button.connect("clicked", self.__on_move)
 
         move_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 3)

@@ -9,8 +9,8 @@ from sbaid.view import utils
 from sbaid.view.common.rename_dialog import RenameDialog
 from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
-
 from sbaid.view_model.project import Project
+from sbaid.view.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -37,20 +37,20 @@ class AllProjects(Adw.NavigationPage):
         name_factory.connect("setup", self.__on_factory_setup, ProjectCellType.NAME)
         name_factory.connect("bind", self.__on_factory_bind)
 
-        name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
+        name_column = Gtk.ColumnViewColumn.new(i18n._("Name"), name_factory)
         name_column.set_expand(True)
 
         last_opened_factory = Gtk.SignalListItemFactory()
         last_opened_factory.connect("setup", self.__on_factory_setup, ProjectCellType.LAST_OPENED)
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
-        last_opened_column = Gtk.ColumnViewColumn.new("Last Opened", last_opened_factory)
+        last_opened_column = Gtk.ColumnViewColumn.new(i18n._("Last Opened"), last_opened_factory)
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
         created_at_factory.connect("bind", self.__on_factory_bind)
 
-        created_at_column = Gtk.ColumnViewColumn.new("Created at", created_at_factory)
+        created_at_column = Gtk.ColumnViewColumn.new(i18n._("Created at"), created_at_factory)
 
         selection = Gtk.NoSelection.new(self.__context.projects)
 
@@ -72,7 +72,7 @@ class AllProjects(Adw.NavigationPage):
         main_view.set_content(column_view_frame)
 
         self.set_child(main_view)
-        self.set_title("All Projects")
+        self.set_title(i18n._("All Projects"))
 
         self.install_action("project.delete", "s", self.__on_delete)
         self.install_action("project.rename", "s", self.__on_rename_project)

@@ -3,62 +3,37 @@ This module contains methods for the internationalization
 (translation between languages) of the SBAid Program.
 """
 import gettext
-import os
 from typing import Callable
-from gi.repository import Gio, GObject
 
-# def get_translator(language_code: str) -> Callable[[str], str]:
-#
- #   return gettext.translation(language_code,
-#                            localedir="../translations",
-#                            languages=["en", "de"],
-#                            fallback=True).gettext
-
-class LanguageWrapper(GObject.GObject):
-    """This class is a wrapper class for the languages"""
-    language_code: str = GObject.Property(  # type: ignore
-        type=str,
-        flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE |
-        GObject.ParamFlags.CONSTRUCT)
-
-    translator: Callable[[str], str]
-
-    def __init__(self, language: str):
-        super().__init__(language_code=language)
-        self.translator = gettext.translation(language,
-                                         localedir="../translations",
-                                         languages=["en", "de"],
-                                         fallback=True).gettext
 
 class Internationalization:
     """This class keeps track of the active language"""
-    translator = Callable[[str], str]
+    _: Callable[[str], str]
+
     def __init__(self, default_lang: str):
-        self.translator = gettext.translation(default_lang,
-                                              localedir="../translations",
-                                              languages=[default_lang, "de"],
-                                              fallback=True).gettext
+        super().__init__()
+        self._ = gettext.translation(default_lang,
+                                     localedir="../translations",
+                                     languages=[default_lang, "de"],
+                                     fallback=True).gettext
 
     def set_active_language(self, language: str) -> None:
-        self.translator = gettext.translation(language,
-                                              localedir="../translations",
-                                              languages=["en", "de"],
-                                              fallback=True).gettext
+        """Sets the active language"""
+        self._ = gettext.translation(language,
+                                     localedir="../translations",
+                                     languages=["en", "de"],
+                                     fallback=True).gettext
 
+# global singleton
 i18n = Internationalization("en")
-_ = i18n.translator
-
-
-
 
 # def get_available_languages() -> Gio.ListModel:
 #    """Returns a list of available languages by reading what is present in the translation files.
 #    Returns ListModel containing the LanguageWrapper class."""
 #    available_languages = Gio.ListStore.new(LanguageWrapper)
- #   available_languages.append(LanguageWrapper("en"))  # add default language code
+#    available_languages.append(LanguageWrapper("en"))  # add default language code
 
-    # add languages that have translation files
+# add languages that have translation files
 #    for directory in os.listdir("../translations"):
 #        if "." not in directory:
 #            available_languages.append(LanguageWrapper(directory))
