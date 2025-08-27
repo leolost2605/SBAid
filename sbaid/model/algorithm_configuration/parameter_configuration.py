@@ -90,6 +90,7 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         self.__loaded = True
 
         for param in common.list_model_iterator(self.__parameters):
+            print(f"load from db for parameter {param.name} called")
             await param.load_from_db()
 
     def set_algorithm(self, algorithm: Algorithm) -> None:
@@ -97,17 +98,27 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         Informs the param configuration about the currently used algorithm.
         It will then build the list of parameters from the algorithms template.
         """
+        print("before: ", len(self.__parameters))
         self.__global_params_map_model.set_model(algorithm.get_global_parameter_template())
         self.__cs_params_map_model.set_model(algorithm.get_cross_section_parameter_template())
+        print("after: ", len(self.__parameters))
 
     def __map_cs_params(self, template: ParameterTemplate) -> GObject.Object:
         return Gtk.MapListModel.new(self.__network.cross_sections, self.__map_cs_param, template)
 
     def __map_cs_param(self, cross_section: CrossSection,
                        template: ParameterTemplate) -> Parameter:
-        return Parameter(template.name, template.value_type, template.default_value,
+        param = Parameter(template.name, template.value_type, template.default_value,
                          cross_section, self.__db, self.__algo_config_id, self.__available_tags)
+        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
+                                                              param.name, cross_section.id,
+                                                              template.default_value))
+        return param
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
-        return Parameter(template.name, template.value_type, template.default_value,
+        param = Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
+        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
+                                                              param.name, None,
+                                                              template.default_value))
+        return param

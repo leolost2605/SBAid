@@ -1,19 +1,52 @@
 import asyncio
 import unittest
+from typing import cast
 
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio, GLib
 
+from sbaid.common.a_display import ADisplay
 from sbaid.common.tag import Tag
+from sbaid.model.algorithm.algorithm import Algorithm
+from sbaid.model.algorithm.parameter_template import ParameterTemplate
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 from sbaid.model.algorithm_configuration.parameter import Parameter
+from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
+from sbaid.model.context import Context as ModelContext
 from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
-from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.network.network import Network
-from sbaid.model.project import Project
-from sbaid.model.results.result_manager import ResultManager
+from sbaid.model.simulation.display import Display
+from sbaid.model.simulation.input import Input
+from sbaid.model.simulation.network_state import NetworkState
+from sbaid.model.simulation.parameter_configuration_state import ParameterConfigurationState
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+
+
+class AlgorithmImpl(Algorithm):
+    def get_global_parameter_template(self) -> Gio.ListModel:
+        store = Gio.ListStore.new(ParameterTemplate)
+        store.append(ParameterTemplate("My global param", GLib.VariantType.new("s"), None))
+        store.append(ParameterTemplate("My other global param", GLib.VariantType.new("d"), None))
+        return store
+
+    def get_cross_section_parameter_template(self) -> Gio.ListModel:
+        store = Gio.ListStore.new(ParameterTemplate)
+        store.append(ParameterTemplate("My cross section param with default value",
+                                       GLib.VariantType.new("s"), GLib.Variant.new_string("hi")))
+        store.append(ParameterTemplate("My other cross section param", GLib.VariantType.new("d"), None))
+        return store
+
+    def init(self, parameter_configuration_state: ParameterConfigurationState,
+             network_state: NetworkState) -> None:
+        self.__network_state = network_state
+
+    def calculate_display(self, algorithm_input: Input) -> Display:
+        display = Display()
+        for cs_state in self.__network_state.cross_section_states:
+            for lane in range(cs_state.lanes):
+                display.set_a_display(cs_state.id, lane, ADisplay.SPEED_LIMIT_130)
+        return display
 
 
 class ProjectDatabaseTestCase(unittest.TestCase):
@@ -26,39 +59,41 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        # await self.rename_project()
+        await self.rename_project()
         await self.load_algo_config()
         await self.algo_config_properties()
         await self.algo_config_tag()
-        # await self.parameter_properties()
+        await self.parameter_properties()
         # await self.parameter_tags()
 
     async def rename_project(self) -> None:
-        project_db_file = Gio.File.new_for_path("test_project_db")
-        project_db = ProjectSQLite(project_db_file)
-        global_db_file = Gio.File.new_for_path("test_global_db")
-        global_db = GlobalSQLite(global_db_file)
-        await project_db.open()
-        result_manager = ResultManager(global_db)
-        project = Project("my_project_id", SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                          "my_sim_file_path",
-                          "project_file_path",
-                          result_manager)
-        project.name = "my_project_name"
+        global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
 
-        same_project = Project("my_project_id", SimulatorType("dummy_json", "JSON Dummy Simulator"),
-                          "my_sim_file_path",
-                          "project_file_path",
-                          result_manager)
+        context1 = ModelContext()
+        await context1.load()
 
-        self.assertEqual("Unknown Project Name", same_project.name)
+        proj_id = await context1.create_project("project name",
+                                                SimulatorType("dummy_json",
+                                                              "JSON Dummy Simulator"),
+                                                "simulation_file_path",
+                                                "test_project")
 
-        await same_project.load_from_db()
+        self.assertEqual(context1.projects.get_n_items(), 1)
+        self.assertEqual(context1.projects.get_item(0).id, proj_id)
+        self.assertEqual(context1.projects.get_item(0).name, "project name")
 
-        self.assertEqual("my_project_name", same_project.name)
+        context2 = ModelContext()
+        await context2.load()
 
-        await project_db_file.delete_async(0, None)
-        await global_db_file.delete_async(0, None)
+        self.assertIsNotNone(context2.projects.get_item(0))
+        self.assertEqual(context2.projects.get_item(0).id, proj_id)
+        self.assertEqual(context2.projects.get_n_items(), 1)
+
+        await global_file.delete_async(0, None)
+        project_file = Gio.File.new_for_path("test_project/db")
+        project_dir = Gio.File.new_for_path("test_project")
+        await project_file.delete_async(0, None)
+        await project_dir.delete_async(0, None)
 
     async def load_algo_config(self) -> None:
         project_db_file = Gio.File.new_for_path("test_project_db")
@@ -133,33 +168,35 @@ class ProjectDatabaseTestCase(unittest.TestCase):
 
         await project_db_file.delete_async(0, None)
 
+
     async def parameter_properties(self) -> None:
         project_db_file = Gio.File.new_for_path("test_project_db")
         project_db = ProjectSQLite(project_db_file)
         await project_db.open()
-        parameter = Parameter("param_name",
-                  GLib.VariantType.new('s'),
-                  GLib.Variant.new_string("my_param_string"),
-                  None,
-                  project_db,
-                  "algo_config_id",
-                  Gio.ListStore.new(Tag))
+        dummy_sim = DummySimulator()
+        network = Network(dummy_sim, project_db)
+        algorithm = AlgorithmImpl()
+        parameter_config = ParameterConfiguration(network, project_db,
+                                                  "algo_config_id", Gio.ListStore.new(Tag))
+        parameter_config.set_algorithm(algorithm)
+        self.assertNotEqual(0, len(parameter_config.parameters))
+        self.assertEqual("My global param", parameter_config.parameters[0].name)
+        parameter = cast(Parameter, parameter_config.parameters[0])
         parameter.value = GLib.Variant.new_string("test_string")
 
         value = await project_db.get_parameter_value("algo_config_id", "param_name", None)
         self.assertEqual("my_param_string", value.unpack())
 
-        same_parameter = Parameter("param_name",
-                              GLib.VariantType.new('s'),
-                              GLib.Variant.new_string("not_test_string"),
-                              None,
-                              project_db,
-                              "algo_config_id",
-                              Gio.ListStore.new(Tag))
-
-        await same_parameter.load_from_db()
-
-        self.assertEqual("test_string", same_parameter.value.unpack())
+        # same_dummy_sim = DummySimulator()
+        # same_network = Network(same_dummy_sim, project_db)
+        # same_algorithm = AlgorithmImpl()
+        # same_parameter_config = ParameterConfiguration(same_network, project_db,
+        #                                           "algo_config_id", Gio.ListStore.new(Tag))
+        # same_parameter_config.set_algorithm(same_algorithm)
+        # await same_parameter_config.load()
+        # same_parameter = cast(Parameter, same_parameter_config.parameters[0])
+        #
+        # self.assertEqual("test_string", same_parameter.value.unpack())
 
     async def parameter_tags(self) -> None:
         project_db_file = Gio.File.new_for_path("test_project_db")
