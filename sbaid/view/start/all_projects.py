@@ -43,7 +43,8 @@ class AllProjects(Adw.NavigationPage):
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
-        name_sorter = Gtk.CustomSorter.new(self.__name_sort_func)
+        name_expr = Gtk.PropertyExpression.new(Project, None, "name")
+        name_sorter = Gtk.StringSorter.new(name_expr)
         name_column.set_sorter(name_sorter)
 
         last_opened_factory = Gtk.SignalListItemFactory()
@@ -138,15 +139,8 @@ class AllProjects(Adw.NavigationPage):
     def __project_rename_func(project: Project, new_name: str) -> None:
         project.name = new_name
 
-    def __name_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
-        if project1.name < project2.name:
-            return 1
-        if project1.name > project2.name:
-            return -1
-        return 0
-
     def __created_at_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
-        return project1.created_at.compare(project2.created_at)
+        return project2.created_at.compare(project1.created_at)
 
     def __last_opened_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
-        return project1.last_opened.compare(project2.last_opened)
+        return project2.last_opened.compare(project1.last_opened)

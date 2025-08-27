@@ -56,7 +56,8 @@ class ResultsPage(Adw.NavigationPage):
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
-        name_sorter = Gtk.CustomSorter.new(self.__string_sort_func)
+        name_expr = Gtk.PropertyExpression.new(Result, None, "name")
+        name_sorter = Gtk.StringSorter.new(name_expr)
         name_column.set_sorter(name_sorter)
 
         project_name_factory = Gtk.SignalListItemFactory()
@@ -64,7 +65,8 @@ class ResultsPage(Adw.NavigationPage):
         project_name_factory.connect("bind", self.__bind_cell)
 
         project_name_column = Gtk.ColumnViewColumn.new("Project Name", project_name_factory)
-        project_name_sorter = Gtk.CustomSorter.new(self.__string_sort_func)
+        project_name_expr = Gtk.PropertyExpression.new(Result, None, "project_name")
+        project_name_sorter = Gtk.StringSorter.new(project_name_expr)
         project_name_column.set_sorter(project_name_sorter)
 
         date_factory = Gtk.SignalListItemFactory()
@@ -106,15 +108,8 @@ class ResultsPage(Adw.NavigationPage):
         self.install_action("result.rename", "s", self.__on_rename_result)
         self.install_action("result.delete", "s", self.__on_delete_result)
 
-    def __string_sort_func(self, result1: Result, result2: Result, data: Any) -> int:
-        if result1.name > result2.name:
-            return -1
-        if result1.name < result2.name:
-            return 1
-        return 0
-
     def __date_sort_func(self, result1: Result, result2: Result, data: Any) -> int:
-        return result1.creation_date_time.compare(result2.creation_date_time)
+        return result2.creation_date_time.compare(result1.creation_date_time)
 
     def __on_search_entry_changed(self, entry: Gtk.SearchEntry) -> None:
         self.__filter.changed(Gtk.FilterChange.DIFFERENT)

@@ -188,7 +188,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
         name_column.set_expand(True)
-        name_sorter = Gtk.CustomSorter.new(self.__name_sort_func)
+        expr = Gtk.PropertyExpression.new(Parameter, None, "name")
+        name_sorter = Gtk.StringSorter.new(expr)
         name_column.set_sorter(name_sorter)
 
         value_type_factory = Gtk.SignalListItemFactory()
@@ -365,9 +366,9 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     def __value_type_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any)\
             -> int:
         if parameter1.value_type.dup_string() > parameter2.value_type.dup_string():
-            return -1
-        if parameter1.value_type.dup_string() < parameter2.value_type.dup_string():
             return 1
+        if parameter1.value_type.dup_string() < parameter2.value_type.dup_string():
+            return -1
         return 0
 
 
