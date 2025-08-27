@@ -24,6 +24,7 @@ class Internationalization:
                                      languages=["en", "de"],
                                      fallback=True).gettext
 
+
 # global singleton
 i18n = Internationalization("en")
 

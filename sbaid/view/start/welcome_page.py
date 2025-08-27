@@ -23,17 +23,17 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
     It welcomes the user and provides a list of recently used project as well
     as allowing to view all projects and the result view.
     """
-    __language_selection: Gtk.DropDown | None = None
 
     def __init__(self, context: Context) -> None:
         super().__init__()
         self.__context = context
         header_bar = Adw.HeaderBar()
 
-        self.__handle_language_dropdown()
+        self.__language_selection = Gtk.DropDown.new_from_strings(["en", "de"])
+        self.__language_selection.connect("notify::selected-item", self.__on_language_changed)
         header_bar.pack_start(self.__language_selection)
-        _ = i18n._
 
+        _ = i18n._
         self.__create_project_button = Gtk.Button(label=_("Create Project"))
         self.__create_project_button.set_action_name("win.create-project-page")
 
@@ -91,12 +91,12 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         item = self.__language_selection.get_selected_item()
         assert isinstance(item, Gtk.StringObject)
         i18n.set_active_language(item.get_string())
-        self.__init__(self.__context)
+        self.__refresh_labels()
 
-    def __handle_language_dropdown(self) -> None:
-        """todo"""
-        if self.__language_selection is None:
-            self.__language_selection = Gtk.DropDown.new_from_strings(["en", "de"])
-            self.__language_selection.connect("notify::selected-item", self.__on_language_changed)
-        else:
-            self.__language_selection.unparent()
+    def __refresh_labels(self) -> None:
+        """refreshes labels on this page"""
+        self.__all_projects_button.set_label(i18n._("All Projects"))
+        self.__create_project_button.set_label(i18n._("Create Project"))
+        self.__results_button.set_label(i18n._("Results"))
+        self.__last_projects_box.set_placeholder(Gtk.Label.new(i18n._(
+            "No recently opened projects")))
