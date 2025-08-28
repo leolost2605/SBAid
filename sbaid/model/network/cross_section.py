@@ -125,13 +125,16 @@ class CrossSection(GObject.GObject):
         db_name = await self.__project_db.get_cross_section_name(self.id)
         if db_name is not None:
             self.__name = db_name
+            self.notify("name")
         db_hard_shoulder_active = await (self.__project_db.
                                          get_cross_section_hard_shoulder_active(self.id))
         if db_hard_shoulder_active is not None:
             self.__hard_shoulder_active = db_hard_shoulder_active
+            self.notify("hard-shoulder-active")
         db_b_display_active = await (self.__project_db.
                                      get_cross_section_b_display_active(self.id))
         if db_b_display_active is not None:
+            self.notify("b-display-active")
             self.__b_display_active = db_b_display_active
 
     async def __update_b_display_active(self, value: bool) -> None:
