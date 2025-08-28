@@ -153,6 +153,7 @@ class Parameter(GObject.GObject):
         db_value = await self.__db.get_parameter_value(self.__algo_config_id, self.name, cs_id)
         if db_value is not None:
             self.__value = db_value
+            self.notify("value")
 
         tags = await self.__db.get_all_tag_ids_for_parameter(self.__algo_config_id,
                                                              self.name, cs_id)
