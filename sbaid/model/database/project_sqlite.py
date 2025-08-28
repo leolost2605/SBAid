@@ -313,7 +313,7 @@ class ProjectSQLite(ProjectDatabase):
         and parameter and possibly cross section."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT value FROM parameter
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
+                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id is ?""",
                                   (algorithm_configuration_id, parameter_name,
                                    cross_section_id)) as cursor:
                 result = await cursor.fetchone()
@@ -337,7 +337,7 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE parameter SET value = ?
                                 WHERE algorithm_configuration_id = ? AND name = ?
-                                AND cross_section_id = ?""",
+                                AND cross_section_id is ?""",
                              (parameter_value.print_(True), algorithm_configuration_id,
                               parameter_name, cross_section_id))
             await db.commit()
