@@ -14,7 +14,10 @@ from sbaid.common.cross_section_type import CrossSectionType
 
 class CrossSectionOperationsTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
-    __network = Network(__mock_simulator, unittest.mock.Mock())
+    __db = unittest.mock.Mock()
+    __db.get_cross_section_name = unittest.mock.AsyncMock()
+    __db.add_cross_section = unittest.mock.AsyncMock()
+    __network = Network(__mock_simulator, __db)
     __sim_cross_section = SimulatorCrossSection()
     __mock_cross_section = MockCrossSection("test_id",
                                             "start_name",
