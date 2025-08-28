@@ -56,7 +56,7 @@ class Network(GObject.Object):
         for cs in self.__cross_sections:
             cross_section = typing.cast(CrossSection, cs)
             exists = await self.__project_db.get_cross_section_name(cross_section.id)
-            if not exists:
+            if exists is None:
                 await self.__project_db.add_cross_section(cross_section.id,
                                                           cross_section.name,
                                                           cross_section.hard_shoulder_active,
