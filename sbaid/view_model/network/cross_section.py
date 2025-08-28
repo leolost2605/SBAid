@@ -106,4 +106,4 @@ class CrossSection(GObject.GObject):
         cross_section.connect("notify", self.__on_notify)
 
     def __on_notify(self, obj: GObject.Object, pspec: GObject.ParamSpec) -> None:
-        self.notify(pspec.name)
+        self.notify(pspec.name.replace("active", "usable"))
