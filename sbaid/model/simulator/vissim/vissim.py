@@ -227,6 +227,8 @@ class _CrossSection:
             for measurement in point.DataCollMeas.GetAll():
                 avg_speed = measurement.AttValue("SpeedAvgArith(Current,Last,All)")
                 traffic_volume = measurement.AttValue("Vehs(Current,Last,All)")
+                if avg_speed is None or traffic_volume is None:
+                    continue
                 algo_input.add_lane_info(self.id, lane_index, avg_speed, traffic_volume)
 
     def set_display(self, display: Display, distr_by_speed: dict[int, int]) -> None:

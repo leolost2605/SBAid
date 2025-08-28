@@ -11,6 +11,6 @@ In SBAid, a CSV file can be used to add parameter values in bulk. Guidelines for
 
 - A global parameter, meaning one that is to be applied to all cross sections, can be imported by leaving the cross section ID cell empty.
 
-All cells must contain a value that is correspondent to the parameter value type (given by the set algorithm), or else it will be deemed invalid. All empty or invalid cells will be skipped, while all valid cells will be added to the parameter configuration. 
+All cells must contain a value that is correspondent to the parameter value type (a [GLib.VariantType](https://docs.gtk.org/glib/struct.VariantType.html) given by the set algorithm), or else it will be deemed invalid. All empty or invalid cells will be skipped, while all valid cells will be added to the parameter configuration. 
 
 To facilitate the creation of a parameter configuration import file, feel free to use our [blueprint](parameter_configuration_import_blueprint.csv). To better understand the format, refer to our [example file](parameter_configuration_import_example.csv).
