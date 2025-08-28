@@ -317,10 +317,9 @@ class ProjectSQLite(ProjectDatabase):
                                   (algorithm_configuration_id, parameter_name,
                                    cross_section_id)) as cursor:
                 result = await cursor.fetchone()
-                result_list = list(result)
-                if result is None or result_list[0] is None:
+                if result is None or list(result)[0] is None:
                     return None
-                return GLib.Variant.parse(None, result_list[0])
+                return GLib.Variant.parse(None, list(result)[0])
 
     async def __ensure_parameter(self, algorithm_configuration_id: str, parameter_name: str,
                                  cross_section_id: str | None) -> None:
