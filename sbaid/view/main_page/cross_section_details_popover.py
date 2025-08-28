@@ -28,7 +28,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
     __network: Network
     __cross_section: CrossSection
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     def __init__(self, project_id: str, network: Network, cross_section: CrossSection) -> None:
         super().__init__()
         self.__network = network
