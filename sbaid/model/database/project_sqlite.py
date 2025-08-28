@@ -328,41 +328,34 @@ class ProjectSQLite(ProjectDatabase):
         """Return the value of the parameter of the given algorithm configuration
         and parameter and possibly cross section."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            if cross_section_id is None:
-                async with db.execute("""SELECT value FROM parameter
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
-                                      (algorithm_configuration_id, parameter_name)) as cursor:
-                    result = await cursor.fetchone()
-                    if result is None:
-                        return None
-                    return GLib.Variant.parse(None, list(result)[0])
-            else:
-                async with db.execute("""SELECT value FROM parameter
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
-                                      (algorithm_configuration_id, parameter_name,
-                                       cross_section_id)) as cursor:
-                    result = await cursor.fetchone()
-                    if result is None:
-                        return None
-                    return GLib.Variant.parse(None, list(result)[0])
+            async with db.execute("""SELECT value FROM parameter
+                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id is ?""",
+                                  (algorithm_configuration_id, parameter_name,
+                                   cross_section_id)) as cursor:
+                result = await cursor.fetchone()
+                if result is None or list(result)[0] is None:
+                    return None
+                return GLib.Variant.parse(None, list(result)[0])
+
+    async def __ensure_parameter(self, algorithm_configuration_id: str, parameter_name: str,
+                                 cross_section_id: str | None) -> None:
+        if await self.get_parameter_value(algorithm_configuration_id, parameter_name,
+                                          cross_section_id) is None:
+            await self.add_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
 
     async def set_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
                                   cross_section_id: str | None,
                                   parameter_value: GLib.Variant) -> None:
         """Update the value of the parameter of the given algorithm configuration,
         parameter name and cross section."""
+        await self.__ensure_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            if cross_section_id is None:
-                await db.execute("""UPDATE parameter SET value = ?
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                                 (parameter_value.print_(True),
-                                  algorithm_configuration_id, parameter_name))
-            else:
-                await db.execute("""UPDATE parameter SET value = ?
-                            WHERE algorithm_configuration_id = ? AND name = ?
-                            AND cross_section_id = ?""", (parameter_value.print_(True),
-                                                          algorithm_configuration_id,
-                                                          parameter_name, cross_section_id))
+            await db.execute("""UPDATE parameter SET value = ?
+                                WHERE algorithm_configuration_id = ? AND name = ?
+                                AND cross_section_id is ?""",
+                             (parameter_value.print_(True), algorithm_configuration_id,
+                              parameter_name, cross_section_id))
             await db.commit()
 
     async def add_cross_section(self, cross_section_id: str) -> None:
@@ -407,12 +400,12 @@ class ProjectSQLite(ProjectDatabase):
             await db.commit()
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
-                            cross_section_id: str | None, value: GLib.Variant) -> None:
+                            cross_section_id: str | None) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
-            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                             (algorithm_configuration_id, name, value.print_(True)))
+            name, cross_section_id) VALUES (?, ?, ?)""",
+                             (algorithm_configuration_id, name, cross_section_id))
             await db.commit()
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
