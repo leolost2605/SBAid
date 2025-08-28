@@ -50,10 +50,10 @@ class CSVCrossSectionParser(CrossSectionParser):
         return valid_cross_sections, invalid_cross_sections
 
     def __has_valid_header(self, row: list[str]) -> bool:
-        return (row[0].casefold() == "name"
-                and row[1].casefold() == "x-coordinate"
-                and row[2].casefold() == "y-coordinate"
-                and row[3].casefold() == "type")
+        return (row[0].casefold().strip() == "name"
+                and row[1].casefold().strip() == "x-coordinate"
+                and row[2].casefold().strip() == "y-coordinate"
+                and row[3].casefold().strip() == "type")
 
     def __parse_cross_section_syntax(self, row: list[str]) -> (
             tuple[Location, CrossSectionType] | None):
@@ -64,7 +64,7 @@ class CSVCrossSectionParser(CrossSectionParser):
                                    float(row[2]))
         except ValueError:
             return None
-        cs_type = self.__get_enum_from_type_str(row[3])
+        cs_type = self.__get_enum_from_type_str(row[3].strip())
         if cs_type is not None:
             return coordinates, cs_type
         return None
