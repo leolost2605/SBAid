@@ -413,7 +413,7 @@ class ProjectSQLite(ProjectDatabase):
                     return len(list(res)) > 0
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
-                            cross_section_id: str | None, value: GLib.Variant) -> None:
+                            cross_section_id: str | None, value: GLib.Variant | None) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if cross_section_id is None:
