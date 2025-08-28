@@ -135,18 +135,30 @@ class ProjectSQLite(ProjectDatabase):
             await db.execute("""UPDATE meta_information SET name = ?""", [name])
             await db.commit()
 
+    async def __ensure_cross_section(self, cross_section_id: str) -> None:
+        exists = False
+        async with aiosqlite.connect(str(self._file.get_path())) as db:
+            async with db.execute("""SELECT * FROM cross_section WHERE id = ?""",
+                                  [cross_section_id]) as cursor:
+                result = await cursor.fetchone()
+                exists = result is not None
+        if not exists:
+            await self.add_cross_section(cross_section_id)
+
     async def get_cross_section_name(self, cross_section_id: str) -> str | None:
         """Return the name of the cross_section with the given id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT name FROM cross_section WHERE id = ?""",
                                   [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
-                if result is None:
+                if result is None or list(result)[0] is None:
                     return None
                 return str(list(result)[0])
 
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
         """Update the name of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET name = ?
             WHERE id = ?""", (name, cross_section_id))
@@ -166,6 +178,8 @@ class ProjectSQLite(ProjectDatabase):
     async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
                                                      status: bool) -> None:
         """Update the hard_shoulder_active value of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET hard_shoulder_active = ?
             WHERE id = ?""", (status, cross_section_id))
@@ -184,6 +198,8 @@ class ProjectSQLite(ProjectDatabase):
 
     async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
         """Update the b_display_active value of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET b_display_active = ?
             WHERE id = ?""", (value, cross_section_id))
@@ -342,15 +358,12 @@ class ProjectSQLite(ProjectDatabase):
                               parameter_name, cross_section_id))
             await db.commit()
 
-    async def add_cross_section(self, cross_section_id: str, name: str,
-                                hard_shoulder_active: bool, b_display_active: bool) -> None:
-        """Add a new cross section with an id, a name and whether the hard shoulder
-        or b display are active."""
+    async def add_cross_section(self, cross_section_id: str) -> None:
+        """Add a new cross section with an id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""
-            INSERT INTO cross_section (id, name, hard_shoulder_active, b_display_active)
-            VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active,
-                                     b_display_active))
+            INSERT INTO cross_section (id)
+            VALUES (?)""", (cross_section_id,))
             await db.commit()
 
     async def remove_cross_section(self, cross_section_id: str) -> None:

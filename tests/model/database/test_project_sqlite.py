@@ -116,11 +116,17 @@ class ProjectSQLiteTest(unittest.TestCase):
         db = ProjectSQLite(file)
         await db.open()
         self.assertEqual(await db.get_cross_section_name("my_nonexistent_cross_section_id"), None)
-        await db.add_cross_section("my_cross_section_id", "my_cross_section_name", False, True)
+        await db.add_cross_section("my_cross_section_id")
+        await db.set_cross_section_name("my_cross_section_id", "my_cross_section_name")
+        await db.set_cross_section_hard_shoulder_active("my_cross_section_id", False)
+        await db.set_cross_section_b_display_active("my_cross_section_id", True)
 
         self.assertEqual(await db.get_cross_section_name("my_cross_section_id"), "my_cross_section_name")
 
-        await db.add_cross_section("my_cross_section_id_2", "my_cross_section_name_2", False, True)
+        await db.add_cross_section("my_cross_section_id_2")
+        await db.set_cross_section_name("my_cross_section_id_2", "my_cross_section_name_2")
+        await db.set_cross_section_hard_shoulder_active("my_cross_section_id_2", False)
+        await db.set_cross_section_b_display_active("my_cross_section_id_2", True)
 
         self.assertFalse(await db.get_cross_section_hard_shoulder_active("my_cross_section_id_2"))
         self.assertTrue(await db.get_cross_section_b_display_active("my_cross_section_id_2"))
