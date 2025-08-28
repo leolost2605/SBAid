@@ -105,9 +105,17 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
     def __map_cs_param(self, cross_section: CrossSection,
                        template: ParameterTemplate) -> Parameter:
-        return Parameter(template.name, template.value_type, template.default_value,
+        param = Parameter(template.name, template.value_type, template.default_value,
                          cross_section, self.__db, self.__algo_config_id, self.__available_tags)
+        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
+                                                              param.name, cross_section.id,
+                                                              template.default_value))
+        return param
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
-        return Parameter(template.name, template.value_type, template.default_value,
+        param = Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
+        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
+                                                              param.name, None,
+                                                              template.default_value))
+        return param
