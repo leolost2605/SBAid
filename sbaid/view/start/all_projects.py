@@ -63,9 +63,9 @@ class AllProjects(Adw.NavigationPage):
         created_at_sorter = Gtk.CustomSorter.new(self.__created_at_sort_func)
         created_at_column.set_sorter(created_at_sorter)
 
-        self.__selection = Gtk.NoSelection.new(sort_model)
+        selection = Gtk.NoSelection.new(sort_model)
 
-        column_view.set_model(self.__selection)
+        column_view.set_model(selection)
         column_view.set_single_click_activate(True)
         column_view.append_column(name_column)
         column_view.append_column(last_opened_column)
