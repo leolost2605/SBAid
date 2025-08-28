@@ -25,9 +25,10 @@ class Input(GObject.GObject):
                     and lane_number in self._average_speeds[cross_section_id]):
                 return self._average_speeds[cross_section_id][lane_number]
 
-        if len(self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, [])) == 0:
-            return None
         all_speeds_sum: float = 0.0
+        if len(self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, [])) == 0:
+            return all_speeds_sum
+
         for vehicle_info in self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, []):
             all_speeds_sum += vehicle_info.speed
         result: float = (all_speeds_sum
@@ -45,8 +46,6 @@ class Input(GObject.GObject):
 
         volume: int = len(self._all_vehicle_infos.get(cross_section_id, {})
                           .get(lane_number, {}))
-        if volume == 0:
-            return None
         return volume
 
     def get_all_vehicle_infos(self, cross_section_id: str, lane_number: int) -> list[VehicleInfo]:
