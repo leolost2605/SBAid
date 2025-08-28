@@ -98,6 +98,8 @@ class CrossSectionDetailsPopover(Gtk.Popover):
 
         self.set_child(grid)
 
+        self.connect("map", lambda widget: edit_button.grab_focus())
+
     @staticmethod
     def __transform_type(binding: GObject.Binding, type_enum: CrossSectionType) -> str:
         return type_enum.name
