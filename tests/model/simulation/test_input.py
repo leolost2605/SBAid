@@ -12,8 +12,8 @@ class InputTestCase(unittest.TestCase):
     def test_empty_input(self):
         """Test an empty display, raising a KeyError when getter is called."""
         test_input = Input()
-        self.assertIsNone(test_input.get_traffic_volume("my_cross_section_id", 0))
-        self.assertIsNone(test_input.get_average_speed("my_cross_section_id", 0))
+        self.assertEqual(test_input.get_traffic_volume("my_cross_section_id", 0), 0)
+        self.assertEqual(test_input.get_average_speed("my_cross_section_id", 0), 0)
         self.assertEqual(test_input.get_all_vehicle_infos("my_cross_section_id", 0), [])
 
     def test_single_vehicle_input(self):
@@ -65,7 +65,7 @@ class InputTestCase(unittest.TestCase):
 
         self.assertEqual(test_input.get_traffic_volume("my_cross_section_id", 0), 1)
         self.assertEqual(test_input.get_traffic_volume("my_cross_section_id", 1), 1)
-        self.assertIsNone(test_input.get_traffic_volume("my_cross_section_id", 2))
+        self.assertEqual(test_input.get_traffic_volume("my_cross_section_id", 2), 0)
 
     def test_different_cross_sections(self):
         test_input = Input()
@@ -74,4 +74,4 @@ class InputTestCase(unittest.TestCase):
 
         self.assertEqual(test_input.get_average_speed("my_cross_section_id", 0), 100)
         self.assertEqual(test_input.get_average_speed("my_other_cross_section_id", 0), 130)
-        self.assertIsNone(test_input.get_average_speed("my_nonexistent_cross_section_id", 0))
+        self.assertEqual(test_input.get_average_speed("my_nonexistent_cross_section_id", 0), 0)
