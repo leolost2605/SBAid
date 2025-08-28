@@ -397,14 +397,16 @@ class ProjectSQLite(ProjectDatabase):
                                    cross_section_id: str | None) -> bool:
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if cross_section_id is None:
-                async with db.execute("""SELECT * FROM parameter WHERE algorithm_configuration_id = ? AND
-                name = ? AND cross_section_id IS NULL""",
+                async with db.execute("""SELECT * FROM parameter
+                WHERE algorithm_configuration_id = ?
+                AND name = ? AND cross_section_id IS NULL""",
                                       (algorithm_configuration_id, parameter_name)) as cursor:
                     res = await cursor.fetchall()
                     return len(res) > 0
             else:
-                async with db.execute("""SELECT * FROM parameter WHERE algorithm_configuration_id = ? AND
-                name = ? AND cross_section_id = ?""",
+                async with db.execute("""SELECT * FROM parameter
+                WHERE algorithm_configuration_id = ?
+                AND name = ? AND cross_section_id = ?""",
                                       (algorithm_configuration_id, parameter_name,
                                        cross_section_id)) as cursor:
                     res = await cursor.fetchall()
