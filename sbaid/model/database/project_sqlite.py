@@ -330,11 +330,19 @@ class ProjectSQLite(ProjectDatabase):
                         return None
                     return GLib.Variant.parse(None, list(result)[0])
 
+    async def __ensure_parameter(self, algorithm_configuration_id: str, parameter_name: str,
+                                 cross_section_id: str | None) -> None:
+        if await self.get_parameter_value(algorithm_configuration_id, parameter_name,
+                                          cross_section_id) is None:
+            await self.add_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
+
     async def set_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
                                   cross_section_id: str | None,
                                   parameter_value: GLib.Variant) -> None:
         """Update the value of the parameter of the given algorithm configuration,
         parameter name and cross section."""
+        await self.__ensure_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             if cross_section_id is None:
                 await db.execute("""UPDATE parameter SET value = ?
@@ -394,12 +402,12 @@ class ProjectSQLite(ProjectDatabase):
             await db.commit()
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
-                            cross_section_id: str | None, value: GLib.Variant) -> None:
+                            cross_section_id: str | None) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
-            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                             (algorithm_configuration_id, name, value.print_(True)))
+            name, cross_section_id) VALUES (?, ?, ?)""",
+                             (algorithm_configuration_id, name, cross_section_id))
             await db.commit()
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,

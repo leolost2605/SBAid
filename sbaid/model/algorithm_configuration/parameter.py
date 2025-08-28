@@ -88,7 +88,7 @@ class Parameter(GObject.GObject):
         self.__db = db
         self.__algo_config_id = algo_config_id
         self.__available_tags = available_tags
-        self.value = value
+        self.__value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
 
         available_tags.connect("items-changed", self.__on_available_tags_changed)
