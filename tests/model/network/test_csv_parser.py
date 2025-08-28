@@ -32,7 +32,6 @@ class CsvParserTest(unittest.TestCase):
         network = Network(DummySimulator(), unittest.mock.Mock())
         return await network.create_cross_section(name, location, cross_section_type) is not None
 
-
     def test_valid_parsing(self):
         asyncio.run(self._test_valid_parsing())
 
