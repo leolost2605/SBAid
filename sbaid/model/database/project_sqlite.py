@@ -366,8 +366,7 @@ class ProjectSQLite(ProjectDatabase):
             await db.commit()
 
     async def add_cross_section(self, cross_section_id: str) -> None:
-        """Add a new cross section with an id, a name and whether the hard shoulder
-        or b display are active."""
+        """Add a new cross section with an id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""
             INSERT INTO cross_section (id)

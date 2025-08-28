@@ -126,8 +126,7 @@ class ProjectDatabase(ABC):
 
     @abstractmethod
     async def add_cross_section(self, cross_section_id: str) -> None:
-        """Add a new cross section with an id, a name and where the hard shoulder
-        or b display are active."""
+        """Add a new cross section with an id."""
 
     @abstractmethod
     async def remove_cross_section(self, cross_section_id: str) -> None:
