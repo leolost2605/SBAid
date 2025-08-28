@@ -7,6 +7,14 @@ import sys
 import asyncio
 from typing import Coroutine, Any
 
+# There is some black magic happening here but when we import these
+# just in time in the result generators the python interpreter
+# segfaults on the workstation. No clue why because that shouldn't
+# ever happen and I'm not going to gdb run cpython now
+import matplotlib  # noqa
+import numpy  # noqa
+import seaborn  # noqa
+
 from gi.repository import GLib
 from gi.events import GLibEventLoopPolicy  # type: ignore
 
