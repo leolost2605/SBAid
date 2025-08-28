@@ -317,7 +317,7 @@ class ProjectSQLite(ProjectDatabase):
                 WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
                                       (algorithm_configuration_id, parameter_name)) as cursor:
                     result = await cursor.fetchone()
-                    if result is None:
+                    if not result:
                         return None
                     return GLib.Variant.parse(None, list(result)[0])
             else:
@@ -326,7 +326,7 @@ class ProjectSQLite(ProjectDatabase):
                                       (algorithm_configuration_id, parameter_name,
                                        cross_section_id)) as cursor:
                     result = await cursor.fetchone()
-                    if result is None:
+                    if not result:
                         return None
                     return GLib.Variant.parse(None, list(result)[0])
 
