@@ -3,12 +3,12 @@ from gi.repository import Gio, GObject
 from sbaid.common.image import Image
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
-from sbaid.model.results.heatmap_generator import HeatmapGenerator
-from sbaid.model.results.qv_generator import QVGenerator
+# from sbaid.model.results.heatmap_generator import HeatmapGenerator
+# from sbaid.model.results.qv_generator import QVGenerator
 from sbaid.model.results.result import Result
 from sbaid.common.image_format import ImageFormat
 from sbaid.common.diagram_type import DiagramType
-from sbaid.model.results.velocity_generator import VelocityGenerator
+# from sbaid.model.results.velocity_generator import VelocityGenerator
 
 
 class DiagramExporter(GObject.GObject):

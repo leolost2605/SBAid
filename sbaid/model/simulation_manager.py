@@ -97,8 +97,8 @@ class SimulationManager(GObject.GObject):
                 display = algorithm.calculate_display(measurement)
                 await self.__simulator.set_display(display)
 
-            self.__add_to_results(measurement, display, network_state,
-                                  simulation_start_time, elapsed_time)
+            # self.__add_to_results(measurement, display, network_state,
+            #                       simulation_start_time, elapsed_time)
 
             self.__observer.update_progress(elapsed_time / simulation_duration)
 
