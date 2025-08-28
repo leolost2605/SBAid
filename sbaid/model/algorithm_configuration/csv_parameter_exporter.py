@@ -10,13 +10,14 @@ from gi.repository import Gio
 from sbaid.model.algorithm_configuration.parameter_exporter import ParameterExporter
 from sbaid.common import list_model_iterator
 from sbaid.model.algorithm_configuration.parameter import Parameter
+from sbaid.model.algorithm_configuration.parameter_export_format import ParameterExportFormat
 
 
 class CSVParameterExporter(ParameterExporter):
     """This class exports a parameter configuration to a csv file."""
 
-    def can_handle_format(self, export_format: str) -> bool:
-        return export_format == "csv"
+    def get_export_format(self) -> ParameterExportFormat:
+        return ParameterExportFormat("csv", "csv-standard")
 
     async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel) -> None:
         params = self.__populate_data(parameters)

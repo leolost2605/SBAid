@@ -3,14 +3,15 @@
 from abc import ABC, abstractmethod
 from gi.repository import Gio
 
+from sbaid.model.algorithm_configuration.parameter_export_format import ParameterExportFormat
+
 
 class ParameterExporter(ABC):
     """This interface defines the functions a parameter exporter is capable of."""
 
     @abstractmethod
-    def can_handle_format(self, export_format: str) -> bool:
-        """Takes in a file format and returns a boolean representing the exporter's capability
-         to export the parameter configuration in the given format."""
+    def get_export_format(self) -> ParameterExportFormat:
+        """Returns the export format."""
 
     @abstractmethod
     async def for_each_parameter(self, file: Gio.File,  parameters: Gio.ListModel) -> None:

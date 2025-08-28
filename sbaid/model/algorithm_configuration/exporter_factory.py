@@ -30,7 +30,8 @@ class ExporterFactory(metaclass=ExporterFactoryMeta):
 
     def get_exporter(self, export_format: str) -> ParameterExporter | None:
         """Looks for a suitable parser for the given export format in the available parsers."""
-        for exporter in self.__exporters:
-            if exporter.can_handle_format(export_format):
-                return exporter
+        for param_exporter in self.__exporters:
+            exporter_id = param_exporter.get_export_format().format_id
+            if exporter_id == export_format:
+                return param_exporter
         return None

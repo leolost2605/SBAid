@@ -9,7 +9,7 @@ from sbaid.model.algorithm_configuration.algorithm_configuration import Algorith
 from sbaid.model.algorithm_configuration.csv_parameter_parser import CSVParameterParser
 from sbaid.model.network.network import Network
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
-from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
+from sbaid.model.algorithm_configuration.parser_factory import ParameterExporter
 
 
 class MyTestCase(unittest.IsolatedAsyncioTestCase):
@@ -50,14 +50,14 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
 
     @unittest.skipUnless(sys.platform.startswith("win"), "Requires Windows")
     def test_can_handle_file(self) -> None:
-        parser_factory = ParserFactory()
+        parser_factory = ParameterExporter()
         file = Gio.File.new_for_path("./tests/model/algorithm_configuration/valid_parameter_config.csv")
-        parser = parser_factory.get_parser(file)
+        parser = parser_factory.get_format(file)
         self.assertIsInstance(parser, CSVParameterParser)
 
     def test_singleton_parser_factory(self) -> None:
-        factory_1 = ParserFactory()
-        factory_2 = ParserFactory()
+        factory_1 = ParameterExporter()
+        factory_2 = ParameterExporter()
         self.assertEqual(factory_1, factory_2)
 
 
