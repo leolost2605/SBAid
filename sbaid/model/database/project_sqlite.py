@@ -396,17 +396,11 @@ class ProjectSQLite(ProjectDatabase):
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
-        print("parameter (tried) to add")
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
             name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
                              (algorithm_configuration_id, name, value.print_(True)))
             await db.commit()
-            # async with db.execute("""SELECT value FROM parameter
-            #     WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
-            #                       (algorithm_configuration_id, name)) as cursor:
-            #     result = await cursor.fetchone()
-            #     print("added: ", result)
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,
                                cross_section_id: str | None) -> None:

@@ -1,6 +1,5 @@
 import asyncio
 import unittest
-from typing import cast
 
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio, GLib
@@ -21,6 +20,7 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.network_state import NetworkState
 from sbaid.model.simulation.parameter_configuration_state import ParameterConfigurationState
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
+from tests.mock_simulator import MockSimulator
 
 
 class AlgorithmImpl(Algorithm):
@@ -176,31 +176,35 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         project_db_file = Gio.File.new_for_path("test_project_db")
         project_db = ProjectSQLite(project_db_file)
         await project_db.open()
-        dummy_sim = DummySimulator()
-        network = Network(dummy_sim, project_db)
+        mock_sim = MockSimulator()
         algorithm = AlgorithmImpl()
-        parameter_config = ParameterConfiguration(network, project_db,
-                                                  "algo_config_id", Gio.ListStore.new(Tag))
+        network = Network(mock_sim, project_db)
+        await network.load()
+        await network.load()
+
+        parameter_config = ParameterConfiguration(network, project_db, "algo_config_id",
+                                                  Gio.ListStore.new(Tag))
         parameter_config.set_algorithm(algorithm)
+        await parameter_config.load()  # this causes the program to get stuck and not terminate
 
-        self.assertNotEqual(0, len(parameter_config.parameters))
-        self.assertEqual("My global param", parameter_config.parameters.get_item(0).name)
-        # parameter = cast(Parameter, parameter_config.parameters[0])
-        # parameter.value = GLib.Variant.new_string("test_string")
+        self.assertEqual(parameter_config.parameters.get_n_items(),
+                         2 + 2 * network.cross_sections.get_n_items())
 
-        # value = await project_db.get_parameter_value("algo_config_id", "My global param", None)
-        # self.assertEqual("my_param_string", value.unpack())
-
-        # same_dummy_sim = DummySimulator()
-        # same_network = Network(same_dummy_sim, project_db)
+        # same_project_db = ProjectSQLite(project_db_file)
+        # same_mock_sim = MockSimulator()
         # same_algorithm = AlgorithmImpl()
-        # same_parameter_config = ParameterConfiguration(same_network, project_db,
-        #                                           "algo_config_id", Gio.ListStore.new(Tag))
+        # same_network = Network(same_mock_sim, same_project_db)
+        # await same_network.load()
+        # await network.load()
+        #
+        # same_parameter_config = ParameterConfiguration(same_network, same_project_db, "algo_config_id",
+        #                                           Gio.ListStore.new(Tag))
         # same_parameter_config.set_algorithm(same_algorithm)
         # await same_parameter_config.load()
-        # same_parameter = cast(Parameter, same_parameter_config.parameters[0])
         #
-        # self.assertEqual("test_string", same_parameter.value.unpack())
+        # self.assertEqual(2 + 2 * same_network.cross_sections.get_n_items(),
+        #                  same_parameter_config.parameters.get_n_items())
+        await project_db_file.delete_async(0, None)
 
     async def parameter_tags(self) -> None:
         project_db_file = Gio.File.new_for_path("test_project_db")
