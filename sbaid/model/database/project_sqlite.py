@@ -402,7 +402,7 @@ class ProjectSQLite(ProjectDatabase):
                 AND name = ? AND cross_section_id IS NULL""",
                                       (algorithm_configuration_id, parameter_name)) as cursor:
                     res = await cursor.fetchall()
-                    return len(res) > 0
+                    return len(list(res)) > 0
             else:
                 async with db.execute("""SELECT * FROM parameter
                 WHERE algorithm_configuration_id = ?
@@ -410,7 +410,7 @@ class ProjectSQLite(ProjectDatabase):
                                       (algorithm_configuration_id, parameter_name,
                                        cross_section_id)) as cursor:
                     res = await cursor.fetchall()
-                    return len(res) > 0
+                    return len(list(res)) > 0
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
                             cross_section_id: str | None, value: GLib.Variant) -> None:
