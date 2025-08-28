@@ -86,5 +86,6 @@ class QVGenerator(CrossSectionDiagramGenerator):
 
         sns.scatterplot(data=data, x="volume", y="speed", hue="display",
                         palette=colorscheme, legend=False, ax=ax)
+        ax.set_ylim(bottom=0)
 
         return fig
