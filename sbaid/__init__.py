@@ -7,11 +7,9 @@ and contains only the application and all other packages.
 # just in time in the result generators the python interpreter
 # segfaults on the workstation. No clue why because that shouldn't
 # ever happen and I'm not going to gdb run cpython now
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.figure import Figure
+import matplotlib
+import numpy
+import seaborn
 
 import sys
 import asyncio
