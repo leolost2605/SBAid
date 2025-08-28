@@ -105,17 +105,25 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
     def __map_cs_param(self, cross_section: CrossSection,
                        template: ParameterTemplate) -> Parameter:
-        param = Parameter(template.name, template.value_type, template.default_value,
+        param = Parameter(template.name, template.value_type, None,
                          cross_section, self.__db, self.__algo_config_id, self.__available_tags)
-        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
-                                                              param.name, cross_section.id,
-                                                              template.default_value))
+        common.run_coro_in_background(self.__add_param_if_not_exists(self.__algo_config_id,
+                                                                     param.name, cross_section.id,
+                                                                     None))
         return param
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
         param = Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
-        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
-                                                              param.name, None,
-                                                              template.default_value))
+        common.run_coro_in_background(self.__add_param_if_not_exists(self.__algo_config_id,
+                                                                     param.name, None,
+                                                                     None))
         return param
+
+    async def __add_param_if_not_exists(self, algo_config_id: str, param_name: str,
+                                        cs_id: str | None, value: GLib.Variant | None) -> None:
+        exists = await self.__db.does_parameter_exist(algo_config_id, param_name, cs_id)
+        if not exists:
+            await self.__db.add_parameter(self.__algo_config_id,
+                                          param_name, cs_id,
+                                          value)

@@ -135,6 +135,11 @@ class ProjectDatabase(ABC):
         """Remove a cross section from the database."""
 
     @abstractmethod
+    async def does_parameter_exist(self, algorithm_configuration_id: str, parameter_name: str,
+                                   cross_section_id: str | None) -> bool:
+        """Returns whether the given parameter is in the database."""
+
+    @abstractmethod
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
                             cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
