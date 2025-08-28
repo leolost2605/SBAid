@@ -89,9 +89,7 @@ class ProjectSQLiteTest(unittest.TestCase):
                                              "my_algorithm_configuration_name", 1, 1, "my_path")
         value_to_be_inserted = GLib.Variant.new_boolean(True)
         await db.add_parameter("my_algorithm_configuration_id", "my_parameter_name",
-                               None)
-        await db.set_parameter_value("my_algorithm_configuration_id", "my_parameter_name",
-                                     None, value_to_be_inserted)
+                               None, value_to_be_inserted)
 
         self.assertEqual(await db.get_parameter_value("my_algorithm_configuration_id",
                                                       "my_parameter_name", None),
@@ -99,9 +97,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         await db.remove_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
         self.assertIsNone(await db.get_parameter_value("my_algorithm_configuration_id", "my_parameter_name", None))
 
-        await db.add_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
-        await db.set_parameter_value("my_algorithm_configuration_id", "my_parameter_name",
-                                     None, value_to_be_inserted)
+        await db.add_parameter("my_algorithm_configuration_id", "my_parameter_name", None, value_to_be_inserted)
 
         new_value = GLib.Variant.new_int64(161)
         await db.set_parameter_value("my_algorithm_configuration_id", "my_parameter_name", None, new_value)
@@ -148,10 +144,7 @@ class ProjectSQLiteTest(unittest.TestCase):
                                              "my_algorithm_configuration_name", 1, 1, "my_path")
         value_to_be_inserted = GLib.Variant.new_boolean(True)
         await db.add_parameter("my_algorithm_configuration_id", "my_parameter_name",
-                               None)
-
-        await db.set_parameter_value("my_algorithm_configuration_id", "my_parameter_name",
-                                     None, value_to_be_inserted)
+                               None, value_to_be_inserted)
 
         await db.add_tag("my_tag_id", "my_tag_name")
 

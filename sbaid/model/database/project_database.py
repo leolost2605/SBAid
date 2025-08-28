@@ -136,7 +136,7 @@ class ProjectDatabase(ABC):
 
     @abstractmethod
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
-                            cross_section_id: str | None) -> None:
+                            cross_section_id: str | None, value: GLib.Variant) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
 
     @abstractmethod
