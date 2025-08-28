@@ -3,6 +3,10 @@ The main SBAid package. It is the entry point into the application
 and contains only the application and all other packages.
 """
 
+import sys
+import asyncio
+from typing import Coroutine, Any
+
 # There is some black magic happening here but when we import these
 # just in time in the result generators the python interpreter
 # segfaults on the workstation. No clue why because that shouldn't
@@ -10,10 +14,6 @@ and contains only the application and all other packages.
 import matplotlib
 import numpy
 import seaborn
-
-import sys
-import asyncio
-from typing import Coroutine, Any
 
 from gi.repository import GLib
 from gi.events import GLibEventLoopPolicy  # type: ignore
