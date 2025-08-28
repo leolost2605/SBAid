@@ -51,6 +51,8 @@ class GlobalParameter(Parameter):
         self.__parameter = parameter
         self.__tags = Gtk.MultiSelection.new(available_tags)
 
+        parameter.connect("notify", lambda param, pspec: self.notify(pspec.name))
+
         for i, tag in enumerate(common.list_model_iterator(available_tags)):
             for selected_tag in common.list_model_iterator(parameter.selected_tags):
                 if selected_tag == tag:
