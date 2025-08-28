@@ -135,18 +135,30 @@ class ProjectSQLite(ProjectDatabase):
             await db.execute("""UPDATE meta_information SET name = ?""", [name])
             await db.commit()
 
+    async def __ensure_cross_section(self, cross_section_id: str) -> None:
+        exists = False
+        async with aiosqlite.connect(str(self._file.get_path())) as db:
+            async with db.execute("""SELECT * FROM cross_section WHERE id = ?""",
+                                  [cross_section_id]) as cursor:
+                result = await cursor.fetchone()
+                exists = result is not None
+        if not exists:
+            await self.add_cross_section(cross_section_id)
+
     async def get_cross_section_name(self, cross_section_id: str) -> str | None:
         """Return the name of the cross_section with the given id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""SELECT name FROM cross_section WHERE id = ?""",
                                   [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
-                if result is None:
+                if result is None or list(result)[0] is None:
                     return None
                 return str(list(result)[0])
 
     async def set_cross_section_name(self, cross_section_id: str, name: str) -> None:
         """Update the name of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET name = ?
             WHERE id = ?""", (name, cross_section_id))
@@ -166,6 +178,8 @@ class ProjectSQLite(ProjectDatabase):
     async def set_cross_section_hard_shoulder_active(self, cross_section_id: str,
                                                      status: bool) -> None:
         """Update the hard_shoulder_active value of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET hard_shoulder_active = ?
             WHERE id = ?""", (status, cross_section_id))
@@ -184,6 +198,8 @@ class ProjectSQLite(ProjectDatabase):
 
     async def set_cross_section_b_display_active(self, cross_section_id: str, value: bool) -> None:
         """Update the b_display_active value of the cross_section with the given id."""
+        await self.__ensure_cross_section(cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""UPDATE cross_section SET b_display_active = ?
             WHERE id = ?""", (value, cross_section_id))
@@ -312,52 +328,42 @@ class ProjectSQLite(ProjectDatabase):
         """Return the value of the parameter of the given algorithm configuration
         and parameter and possibly cross section."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            if cross_section_id is None:
-                async with db.execute("""SELECT value FROM parameter
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS Null""",
-                                      (algorithm_configuration_id, parameter_name)) as cursor:
-                    result = await cursor.fetchone()
-                    if result is None:
-                        return None
-                    return GLib.Variant.parse(None, list(result)[0])
-            else:
-                async with db.execute("""SELECT value FROM parameter
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id = ?""",
-                                      (algorithm_configuration_id, parameter_name,
-                                       cross_section_id)) as cursor:
-                    result = await cursor.fetchone()
-                    if result is None:
-                        return None
-                    return GLib.Variant.parse(None, list(result)[0])
+            async with db.execute("""SELECT value FROM parameter
+                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id is ?""",
+                                  (algorithm_configuration_id, parameter_name,
+                                   cross_section_id)) as cursor:
+                result = await cursor.fetchone()
+                if result is None or list(result)[0] is None:
+                    return None
+                return GLib.Variant.parse(None, list(result)[0])
+
+    async def __ensure_parameter(self, algorithm_configuration_id: str, parameter_name: str,
+                                 cross_section_id: str | None) -> None:
+        if await self.get_parameter_value(algorithm_configuration_id, parameter_name,
+                                          cross_section_id) is None:
+            await self.add_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
 
     async def set_parameter_value(self, algorithm_configuration_id: str, parameter_name: str,
                                   cross_section_id: str | None,
                                   parameter_value: GLib.Variant) -> None:
         """Update the value of the parameter of the given algorithm configuration,
         parameter name and cross section."""
+        await self.__ensure_parameter(algorithm_configuration_id, parameter_name, cross_section_id)
+
         async with aiosqlite.connect(str(self._file.get_path())) as db:
-            if cross_section_id is None:
-                await db.execute("""UPDATE parameter SET value = ?
-                WHERE algorithm_configuration_id = ? AND name = ? AND cross_section_id IS NULL""",
-                                 (parameter_value.print_(True),
-                                  algorithm_configuration_id, parameter_name))
-            else:
-                await db.execute("""UPDATE parameter SET value = ?
-                            WHERE algorithm_configuration_id = ? AND name = ?
-                            AND cross_section_id = ?""", (parameter_value.print_(True),
-                                                          algorithm_configuration_id,
-                                                          parameter_name, cross_section_id))
+            await db.execute("""UPDATE parameter SET value = ?
+                                WHERE algorithm_configuration_id = ? AND name = ?
+                                AND cross_section_id is ?""",
+                             (parameter_value.print_(True), algorithm_configuration_id,
+                              parameter_name, cross_section_id))
             await db.commit()
 
-    async def add_cross_section(self, cross_section_id: str, name: str,
-                                hard_shoulder_active: bool, b_display_active: bool) -> None:
-        """Add a new cross section with an id, a name and whether the hard shoulder
-        or b display are active."""
+    async def add_cross_section(self, cross_section_id: str) -> None:
+        """Add a new cross section with an id."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""
-            INSERT INTO cross_section (id, name, hard_shoulder_active, b_display_active)
-            VALUES (?, ?, ?, ?)""", (cross_section_id, name, hard_shoulder_active,
-                                     b_display_active))
+            INSERT INTO cross_section (id)
+            VALUES (?)""", (cross_section_id,))
             await db.commit()
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
@@ -394,12 +400,12 @@ class ProjectSQLite(ProjectDatabase):
             await db.commit()
 
     async def add_parameter(self, algorithm_configuration_id: str, name: str,
-                            cross_section_id: str | None, value: GLib.Variant) -> None:
+                            cross_section_id: str | None) -> None:
         """Add a new parameter from the given algorithm configuration and parameter."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             await db.execute("""INSERT INTO parameter (algorithm_configuration_id,
-            name,  cross_section_id, value) VALUES (?, ?, NULL, ?)""",
-                             (algorithm_configuration_id, name, value.print_(True)))
+            name, cross_section_id) VALUES (?, ?, ?)""",
+                             (algorithm_configuration_id, name, cross_section_id))
             await db.commit()
 
     async def remove_parameter(self, algorithm_configuration_id: str, name: str,

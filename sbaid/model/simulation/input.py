@@ -18,24 +18,23 @@ class Input(GObject.GObject):
         self._average_speeds = {}
         self._traffic_volumes = {}
 
-    def get_average_speed(self, cross_section_id: str, lane_number: int) -> float | None:
+    def get_average_speed(self, cross_section_id: str, lane_number: int) -> float:
         """Return the average speed of all vehicles at the given cross-section and lane."""
         if not self._all_vehicle_infos:
             if (cross_section_id in self._average_speeds
                     and lane_number in self._average_speeds[cross_section_id]):
                 return self._average_speeds[cross_section_id][lane_number]
 
-        if len(self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, [])) == 0:
-            return None
         all_speeds_sum: float = 0.0
+        if len(self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, [])) == 0:
+            return all_speeds_sum
+
         for vehicle_info in self._all_vehicle_infos.get(cross_section_id, {}).get(lane_number, []):
             all_speeds_sum += vehicle_info.speed
-        result: float = (all_speeds_sum
-                         / float(len(self._all_vehicle_infos
-                                     .get(cross_section_id, {}).get(lane_number, []))))
-        return result
+        return (all_speeds_sum / float(len(self._all_vehicle_infos
+                                           .get(cross_section_id, {}).get(lane_number, []))))
 
-    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> int | None:
+    def get_traffic_volume(self, cross_section_id: str, lane_number: int) -> int:
         """Return the amount of vehicles at the given cross-section and lane.
         Return None if there is no vehicle."""
         if not self._all_vehicle_infos:
@@ -43,11 +42,8 @@ class Input(GObject.GObject):
                     and lane_number in self._traffic_volumes[cross_section_id]):
                 return self._traffic_volumes[cross_section_id][lane_number]
 
-        volume: int = len(self._all_vehicle_infos.get(cross_section_id, {})
-                          .get(lane_number, {}))
-        if volume == 0:
-            return None
-        return volume
+        return len(self._all_vehicle_infos.get(cross_section_id, {})
+                   .get(lane_number, {}))
 
     def get_all_vehicle_infos(self, cross_section_id: str, lane_number: int) -> list[VehicleInfo]:
         """Return a list of all vehicle information at the given cross-section and lane."""
