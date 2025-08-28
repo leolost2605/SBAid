@@ -15,6 +15,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
         self.__db_mock = Mock()
         self.__db_mock.get_parameter_value = AsyncMock()
         self.__db_mock.get_all_tag_ids_for_parameter = AsyncMock()
+        self.__db_mock.does_parameter_exist = AsyncMock()
         self.__ac_id = "acid"
         self.__algo_mock = Mock()
 
