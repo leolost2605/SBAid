@@ -8,10 +8,21 @@ Currently supported simulators are:
 - [PTV Vissim](https://www.ptvgroup.com/en/products/ptv-vissim)
 - A Dummy Simulator using a JSON file with real world measurements
 
-## Installing from source
+## Running from source
 
 SBAid ist written in python using GTK with libadwaita as its UI toolkit. We highly recommend
 taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation before getting started.
+
+### Windows
+
+To run SBAid you will need some dependencies. Most of them should be installed 
+(or are only available) via [msys2](https://www.msys2.org/). For setting
+up msys see the documentation on the linked page. Then install 
+the following dependencies
+
+(Right now non exhaustive)
+
+- 
 
 ## File input
 
