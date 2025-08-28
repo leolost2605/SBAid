@@ -15,6 +15,9 @@ from tests.mock_simulator import MockSimulator
 
 class NetworkTest(unittest.TestCase):
     __mock_simulator = MockSimulator()
+    __db = unittest.mock.Mock()
+    __db.get_cross_section_name = unittest.mock.AsyncMock()
+    __db.add_cross_section = unittest.mock.AsyncMock()
     __network = Network(__mock_simulator, unittest.mock.Mock())
 
     def test_factory_singleton(self):
