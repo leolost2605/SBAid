@@ -18,7 +18,7 @@ class NetworkTest(unittest.TestCase):
     __db = unittest.mock.Mock()
     __db.get_cross_section_name = unittest.mock.AsyncMock()
     __db.add_cross_section = unittest.mock.AsyncMock()
-    __network = Network(__mock_simulator, unittest.mock.Mock())
+    __network = Network(__mock_simulator, __db)
 
     def test_factory_singleton(self):
         first_instance = ParserFactory()
