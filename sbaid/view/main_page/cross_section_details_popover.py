@@ -106,8 +106,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
     def __transform_hard_shoulder(binding: GObject.Binding, available: bool) -> str:
         if available:
             return "Available"
-        else:
-            return "Unavailable"
+        return "Unavailable"
 
     def __on_delete_clicked(self, button: Gtk.Button) -> None:
         utils.run_coro_with_error_reporting(
