@@ -5,8 +5,8 @@ and contains only the application and all other packages.
 
 # There is some black magic happening here but when we import these
 # just in time in the result generators the python interpreter
-# (like the actual INTERPRETER that should handle everything gracefully
-# not our program or anything) segfaults
+# segfaults on the workstation. No clue why because that shouldn't
+# ever happen and I'm not going to gdb run cpython now
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
