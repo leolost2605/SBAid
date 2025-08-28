@@ -151,7 +151,7 @@ class ProjectSQLite(ProjectDatabase):
             async with db.execute("""SELECT name FROM cross_section WHERE id = ?""",
                                   [cross_section_id]) as cursor:
                 result = await cursor.fetchone()
-                if result is None:
+                if result is None or list(result)[0] is None:
                     return None
                 return str(list(result)[0])
 
