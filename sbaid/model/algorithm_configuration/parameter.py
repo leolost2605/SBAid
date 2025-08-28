@@ -88,7 +88,7 @@ class Parameter(GObject.GObject):
         self.__db = db
         self.__algo_config_id = algo_config_id
         self.__available_tags = available_tags
-        if value.is_of_type(value_type):
+        if value and value.is_of_type(value_type):
             self.__value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
 
