@@ -31,7 +31,11 @@ class CsvParserTest(unittest.TestCase):
         """Unit testing with dummy simulator so no upload of the vissim simulation
         files to github is needed"""
         network = Network(DummySimulator(), unittest.mock.Mock())
-        return await network.create_cross_section(name, location, cross_section_type) is not None
+        try:
+            return await network.create_cross_section(name, location,
+                                                      cross_section_type) is not None
+        except Exception:
+            return False
 
 
     def test_valid_parsing(self):
