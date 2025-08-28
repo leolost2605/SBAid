@@ -59,7 +59,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
                         cross_section_name = cs_snapshot.cross_section_name
                     for lane_snapshot in cs_snapshot.lane_snapshots:
                         assert isinstance(lane_snapshot, LaneSnapshot)
-                        if  lane_snapshot.traffic_volume != 0:
+                        if lane_snapshot.traffic_volume != 0:
                             average_speed.append(lane_snapshot.average_speed)
                             traffic_volume.append(lane_snapshot.traffic_volume)
                             a_displays.append(lane_snapshot.a_display)
