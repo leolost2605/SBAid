@@ -237,7 +237,7 @@ class ProjectSQLiteTest(unittest.TestCase):
 
     async def already_existed(self) -> None:
         file = Gio.File.new_for_path("test.db")
-        file.make_directory_async(0)
+        await file.make_directory_async(0)
 
         with self.assertRaises(InvalidDatabaseError):
             db = ProjectSQLite(file)
