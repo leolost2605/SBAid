@@ -61,7 +61,9 @@ class ContextTestCase(unittest.TestCase):
         self.assertEqual(context.projects.get_n_items(), 2)
         self.assertNotEqual(context.projects.get_item(0).id, context.projects.get_item(1).id)
 
-        await context.delete_project(proj_id_1)
+        with self.assertRaises(Exception):  # Can't trash on CI but it should be removed
+            await context.delete_project(proj_id_1)
+
         self.assertEqual(context.projects.get_item(0).id, proj_id_2)
         self.assertEqual(context.projects.get_n_items(), 1)
 
