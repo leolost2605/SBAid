@@ -65,7 +65,7 @@ class ContextProjectsTestCase(unittest.TestCase):
 
         self.assertIsNotNone(vm_project.algorithm_configuration_manager)
         alcom = cast(AlgorithmConfigurationManager, vm_project.algorithm_configuration_manager)
-        # pos = await alcom.create_algorithm_configuration()
+        # pos = await alcom.create_algorithm_configuration()  # TODO THIS DOESN'T TERMINATE HELPPPPPPP
         # algo_config = cast(AlgorithmConfiguration,
         #                    vm_project.algorithm_configuration_manager.algorithm_configurations[pos])
         # algo_config.script_path = "tests/integration/algo.py"
