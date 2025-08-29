@@ -62,12 +62,11 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        # await self.rename_project()
-        # await self.load_algo_config()
-        # await self.algo_config_properties()
-        # await self.algo_config_tag()
+        await self.rename_project()
+        await self.load_algo_config()
+        await self.algo_config_properties()
+        await self.algo_config_tag()
         await self.parameter_properties()
-        # await self.parameter_tags()
 
     async def rename_project(self) -> None:
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
@@ -214,50 +213,12 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         await alcom_2.load()
 
         self.assertEqual(1, alcom_2.algorithm_configurations.get_n_items())
+
         config_2 = cast(AlgorithmConfiguration, alcom_2.algorithm_configurations[0])
         await config_2.load_from_db()
         await config_2.parameter_configuration.load()
+
+        # 6 = 2 (global params) + 2 (cross sections) * 2 (cross sections params)
         self.assertEqual(6, config_2.parameter_configuration.parameters.get_n_items())
+
         await project_db_file.delete_async(0, None)
-
-    async def parameter_tags(self) -> None:
-        project_db_file = Gio.File.new_for_path("test_project_db")
-        project_db = ProjectSQLite(project_db_file)
-        await project_db.open()
-
-        parameter = Parameter("param_name",
-                              GLib.VariantType.new('s'),
-                              GLib.Variant.new_string("my_param_string"),
-                              None,
-                              project_db,
-                              "algo_config_id",
-                              Gio.ListStore.new(Tag))
-        parameter.add_tag(Tag("my_tag_id", "my_tag_name"))
-
-        self.assertEqual("my_tag_name", parameter.selected_tags[0].name)
-
-        same_parameter = Parameter("param_name",
-                              GLib.VariantType.new('s'),
-                              GLib.Variant.new_string("my_param_string"),
-                              None,
-                              project_db,
-                              "algo_config_id",
-                              Gio.ListStore.new(Tag))
-
-        await same_parameter.load_from_db()
-
-        self.assertEqual(1, len(same_parameter.selected_tags))
-        self.assertEqual("my_tag_name", same_parameter.selected_tags[0].name)
-
-        same_parameter.remove_tag(Tag("my_tag_id", "my_tag_name"))
-
-        other_same_parameter = Parameter("param_name",
-                                    GLib.VariantType.new('s'),
-                                    GLib.Variant.new_string("my_param_string"),
-                                    None,
-                                    project_db,
-                                    "algo_config_id",
-                                    Gio.ListStore.new(Tag))
-
-        await other_same_parameter.load_from_db()
-        self.assertEqual(0, len(other_same_parameter.selected_tags))
