@@ -4,7 +4,6 @@ import typing
 import csv
 import aiofiles
 from gi.repository import Gio
-from sbaid.common.i18n import i18n
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
 from sbaid.common.cross_section_type import CrossSectionType
@@ -81,5 +80,5 @@ class CSVCrossSectionParser(CrossSectionParser):
 class InvalidFileFormattingException(Exception):
     """Exception raised when the user inputs a file that has
     no valid cross section definitions."""
-    def __init__(self) -> None:
-        self.message = i18n._("File has no valid cross section definitions.")
+    def __init__(self, msg: str) -> None:
+        self.message = msg

@@ -31,9 +31,9 @@ class CSVParameterParser(ParameterParser):
             try:
                 header = next(csv_reader)
             except StopIteration as exc:
-                raise InvalidFileFormattingException() from exc
+                raise InvalidFileFormattingException("") from exc
             if header[0].casefold() != "cs_id":
-                raise InvalidFileFormattingException()
+                raise InvalidFileFormattingException("")
             for row in csv_reader:
                 for i in range(len(row)-1):
                     cs_id: str | None = row[0]

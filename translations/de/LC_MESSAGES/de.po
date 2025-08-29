@@ -224,7 +224,7 @@ msgstr "Wird Geladen..."
 
 # project_main_page.py:46
 msgid "Start Simulating"
-msgstr "Simulation Anfangen"
+msgstr "Simulation Starten"
 
 # project_main_page.py:52
 msgid "Edit Algorithm Configurations"
