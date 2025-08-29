@@ -76,11 +76,10 @@ class ExportResultsDialog(Adw.Window):
 
         preview_grid_view = Gtk.GridView.new(selection, preview_factory)
 
-        # preview_scrolled = Gtk.ScrolledWindow(child=preview_grid_view, propagate_natural_width=True,
-        #                                       propagate_natural_height=True,
-        #                                       hscrollbar_policy=Gtk.PolicyType.NEVER)
-        #
-        # preview_frame = Gtk.Frame(child=preview_scrolled)
+        preview_scrolled = Gtk.ScrolledWindow(child=preview_grid_view, propagate_natural_width=True,
+                                              propagate_natural_height=True)
+
+        preview_frame = Gtk.Frame(child=preview_scrolled)
 
         image_format_name_expression = Gtk.PropertyExpression.new(Adw.EnumListItem, None, "name")
 
@@ -100,7 +99,7 @@ class ExportResultsDialog(Adw.Window):
                         column_spacing=12, row_spacing=12, column_homogeneous=True)
         grid.attach(diagram_type_drop_down, 0, 0, 2, 1)
         grid.attach(cross_sections_frame, 0, 1, 1, 1)
-        grid.attach(preview_grid_view, 1, 1, 1, 1)
+        grid.attach(preview_frame, 1, 1, 1, 1)
         grid.attach(image_format_drop_down, 0, 2, 2, 1)
 
         toolbar_view = Adw.ToolbarView()
@@ -135,7 +134,8 @@ class ExportResultsDialog(Adw.Window):
             self.__result.cross_section.unselect_all()
 
     def __setup_preview(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
-        image = Gtk.Picture(content_fit=Gtk.ContentFit.CONTAIN, can_shrink=True)
+        image = Gtk.Picture(hexpand=True, vexpand=True, content_fit=Gtk.ContentFit.FILL,
+                            can_shrink=False)
         item.set_child(image)
 
     def __bind_preview(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
