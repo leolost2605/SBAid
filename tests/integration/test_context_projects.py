@@ -25,14 +25,13 @@ class ContextProjectsTestCase(unittest.TestCase):
 
     async def start(self) -> None:
         await self.simple()
-        # await self.start_simulation()
+        # await self.simulate()
 
     async def simple(self) -> None:
         model_context = ModelContext()
         vm_context = Context(model_context)
         await vm_context.load()
 
-        # TODO check for duplicate project id
         await vm_context.create_project("project_name_1",
                                   SimulatorType("dummy_json", "JSON Dummy"),
                                   "sim_file_path",
@@ -57,23 +56,6 @@ class ContextProjectsTestCase(unittest.TestCase):
 
         self.assertEqual(2, context_2.projects.get_n_items())
 
-
-        vm_project = cast(Project, vm_context.projects[0])
-
-        with self.assertRaises(AlgorithmConfigurationException):
-            await vm_project.start_simulation()
-
-        self.assertIsNotNone(vm_project.algorithm_configuration_manager)
-        alcom = cast(AlgorithmConfigurationManager, vm_project.algorithm_configuration_manager)
-        # pos = await alcom.create_algorithm_configuration()  # TODO THIS DOESN'T TERMINATE HELPPPPPPP
-        # algo_config = cast(AlgorithmConfiguration,
-        #                    vm_project.algorithm_configuration_manager.algorithm_configurations[pos])
-        # algo_config.script_path = "tests/integration/algo.py"
-        # vm_project.algorithm_configuration_manager.algorithm_configurations.set_selected(pos)
-        # self.assertIsNotNone(vm_project.algorithm_configuration_manager.algorithm_configurations.get_selected())
-        # await vm_project.start_simulation()
-        # self.assertEqual(1, len(vm_context.result_manager.results))
-
         await context_2.delete_project(context_2.projects[1].id)
 
         self.assertEqual(1, model_context_2.projects.get_n_items())
@@ -81,32 +63,35 @@ class ContextProjectsTestCase(unittest.TestCase):
 
         # tear down
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
+        project_file = Gio.File.new_for_path("project_file_path")
         await global_file.delete_async(0)
+        await project_file.delete_async(0)
 
-
-    async def start_simulation(self) -> None:
+    async def simulate(self) -> None:
         model_context = ModelContext()
-        vm_context = Context(model_context)
-        await vm_context.load()
+        context = Context(model_context)
+        await context.load()
+        await context.create_project("project_name",
+                                     SimulatorType("dummy_json", "JSON Dummy"),
+                                     "tests/integration/test_dummy.json",
+                                     "project_file")
+        project = cast(Project, context.projects.get_item(0))
 
-        # TODO check for duplicate project id
-        await vm_context.create_project("project_name_1",
-                                        SimulatorType("dummy_json", "JSON Dummy"),
-                                        "sim_file_path",
-                                        "project_file_path")
-        # vm_project = cast(Project, vm_context.projects[0])
+        with self.assertRaises(AlgorithmConfigurationException):
+            await project.start_simulation()
 
-        # with self.assertRaises(AlgorithmConfigurationException):
-        #     await vm_project.start_simulation()
-        #
-        # pos = await vm_project.algorithm_configuration_manager.create_algorithm_configuration()
-        # algo_config = cast(AlgorithmConfiguration,
-        #                    vm_project.algorithm_configuration_manager.algorithm_configurations[pos])
-        # algo_config.script_path = "tests/integration/algo.py"
-        # vm_project.algorithm_configuration_manager.algorithm_configurations.set_selected(pos)
-        # print("algo config:", vm_project.algorithm_configuration_manager
-        #       .algorithm_configurations.get_selected())
-        # self.assertIsNotNone(vm_project.algorithm_configuration_manager.algorithm_configurations.get_selected())
-        # await vm_project.start_simulation()
-        # self.assertEqual(1, len(vm_context.result_manager.results))
+        alcom = cast(AlgorithmConfigurationManager, project.algorithm_configuration_manager)
+        assert alcom is not None
+        await alcom.create_algorithm_configuration()
+        selected_alco = cast(AlgorithmConfiguration, alcom.algorithm_configurations.get_item(0))
+        selected_alco.script_path = "tests/integration/algo.py"
+        simulation = await project.start_simulation()
+        self.assertEqual(1, context.result_manager.results.get_n_items())
 
+        # cleanup:
+        global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
+        project_file = Gio.File.new_for_path("project_file/db")
+        project_directory = Gio.File.new_for_path("project_file")
+        await global_file.delete_async(0)
+        await project_file.delete_async(0)
+        await project_directory.delete_async(0)

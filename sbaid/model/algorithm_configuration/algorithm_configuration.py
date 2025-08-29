@@ -130,29 +130,39 @@ class AlgorithmConfiguration(GObject.GObject):
         await self.__load_algorithm()
 
     async def __load_algorithm(self) -> None:
+        print("algo loaded")
+        print("with path: ", self.__script_path)
         if self.__script_path is None:
+            print("script path is none")
             return
 
         base_name = os.path.basename(self.__script_path)
         module_name = base_name.removesuffix(".py")
 
         spec = importlib.util.spec_from_file_location(module_name, self.__script_path)
+        print(spec)
 
         # TODO: Qualitätssicherung: Add error state
         if spec is None:
+            print("spec is none")
             return
 
         module = importlib.util.module_from_spec(spec)
+        print(module)
 
         if module is None:
+            print("module is none")
             return
 
         sys.modules[module_name] = module
 
         if spec.loader is None:
+            print("loader is none")
             return
 
         spec.loader.exec_module(module)
+        print("module executed")
 
         self.algorithm = module.AlgorithmImpl()
+        print("algorithm:", self.algorithm)
         self.parameter_configuration.set_algorithm(self.algorithm)

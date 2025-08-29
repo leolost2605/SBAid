@@ -83,7 +83,9 @@ class SimulationManager(GObject.GObject):
 
         param_config_state = self.__build_parameter_configuration_state()
         network_state = self.__build_network_state()
+        print("before 'init'")
         algorithm.init(param_config_state, network_state)
+        print("after 'init'")
 
         self.__result_builder.begin_result(self.__project_name)
 

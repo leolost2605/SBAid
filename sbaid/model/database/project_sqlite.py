@@ -254,11 +254,11 @@ class ProjectSQLite(ProjectDatabase):
 
     async def set_selected_algorithm_configuration_id(self, configuration_id: str) -> None:
         """Update the currently selected algorithm_configuration id."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""UPDATE algorithm_configuration SET is_selected = 0""")
-            await db.execute("""UPDATE algorithm_configuration SET is_selected = 1
-            WHERE id = ?""", [configuration_id])
-            await db.commit()
+        # async with aiosqlite.connect(str(self._file.get_path())) as db:
+        #     await db.execute("""UPDATE algorithm_configuration SET is_selected = 0""")
+        #     await db.execute("""UPDATE algorithm_configuration SET is_selected = 1
+        #     WHERE id = ?""", [configuration_id])
+        #     await db.commit()
 
     async def get_display_interval(self, algorithm_configuration_id: str) -> int | None:
         """Return the display interval of the given algorithm_configuration id."""
