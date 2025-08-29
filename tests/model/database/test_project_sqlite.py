@@ -6,7 +6,6 @@ from gi.repository import Gio
 from gi.events import GLibEventLoopPolicy
 
 from sbaid.model.database.foreign_key_error import ForeignKeyError
-from sbaid.model.database.global_sqlite import GlobalSQLite
 from sbaid.model.database.project_sqlite import ProjectSQLite, InvalidDatabaseError
 
 
