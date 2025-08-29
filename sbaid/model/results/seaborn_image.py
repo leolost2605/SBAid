@@ -8,56 +8,45 @@ class SeabornImage(Image):
     """Implements methods for handling images made out of seaborn diagrams."""
 
     __image_bytes: bytes
-    __texture: Gdk.Texture | None
+    __texture: Gdk.Paintable
     __export_format: ImageFormat
 
     def __init__(self, image_bytes: bytes, export_format: ImageFormat):
         super().__init__()
-        self._image_bytes = image_bytes
+        self.__image_bytes = image_bytes
         self.__export_format = export_format
-        # separates supported types for gdk texture for the previews in the ui
-        if self.__export_format == ImageFormat.PNG:
+        try:
             self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
-        else:
-            self.__texture = None
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Warning failed to load texture for preview: ", e)
+            self.__texture = Gdk.Paintable.new_empty(100, 100)
 
     def save_to_file(self, path: str) -> None:
         """Saves image to desired file path"""
         path_with_ending = path + "." + self.__export_format.name.lower()
         with open(path_with_ending, 'wb') as f:
-            f.write(self._image_bytes)
+            f.write(self.__image_bytes)
 
     def do_snapshot(self, snapshot: Gdk.Snapshot, width: float, height: float) -> None:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            self.__texture.snapshot(snapshot, width, height)
+        self.__texture.snapshot(snapshot, width, height)
 
-    def do_get_intrinsic_width(self) -> int | None:
+    def do_get_intrinsic_width(self) -> int:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            return self.__texture.get_intrinsic_width()
-        return None
+        return self.__texture.get_intrinsic_width()
 
-    def do_get_intrinsic_height(self) -> int | None:
+    def do_get_intrinsic_height(self) -> int:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            return self.__texture.get_intrinsic_height()
-        return None
+        return self.__texture.get_intrinsic_height()
 
-    def do_get_intrinsic_aspect_ratio(self) -> float | None:
+    def do_get_intrinsic_aspect_ratio(self) -> float:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            return self.__texture.get_intrinsic_aspect_ratio()
-        return None
+        return self.__texture.get_intrinsic_aspect_ratio()
 
-    def do_get_flags(self) -> Gdk.PaintableFlags | None:
+    def do_get_flags(self) -> Gdk.PaintableFlags:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            return self.__texture.get_flags()
-        return None
+        return self.__texture.get_flags()
 
-    def do_get_current_image(self) -> Gdk.Paintable | None:
+    def do_get_current_image(self) -> Gdk.Paintable:
         """Delegate method to texture."""
-        if self.__texture is not None:
-            return self.__texture.get_current_image()
-        return None
+        return self.__texture.get_current_image()

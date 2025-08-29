@@ -182,7 +182,7 @@ class DummySimulator(Simulator):
         """Has no effect. Raises an exception."""
         raise NotSupportedException("The dummy simulator does not support moving cross sections.")
 
-    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
+    async def init_simulation(self, evaluation_interval: int) -> tuple[GLib.DateTime, int]:
         """Initialize the simulator. Always returns 0 as the starting point
         and the amount of input measurements as the simulation length."""
         self._pointer = 0
