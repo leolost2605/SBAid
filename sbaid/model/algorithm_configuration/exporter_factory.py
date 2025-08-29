@@ -28,30 +28,26 @@ class ExporterFactory(metaclass=ExporterFactoryMeta):
     """SBAid's parameter configuration exporter factory.
     Used to find a suitable exporter for a given file type."""
 
-    __exporters: Gio.ListStore
-
-    # GObject.Property definitions
-    parameter_exporters: Gio.ListModel = (
-        GObject.Property(type=Gio.ListModel))  # type: ignore[assignment]
-
-    @parameter_exporters.getter  # type: ignore
-    def parameter_exporters(self) -> Gio.ListModel:
-        """Returns ListModel of available diagram types"""
-        return self.__exporters
+    __exporters: list[ParameterExporter]
+    __formats: Gio.ListStore
 
     def __init__(self) -> None:
         super().__init__()
-        self.__exporters = Gio.ListStore.new(ParameterExportFormat)
-        self.__exporters.append(CSVParameterExporter().get_export_format())
+        self.__exporters = []
+        self.__exporters.append(CSVParameterExporter())
+
+        self.__formats = Gio.ListStore.new(ParameterExportFormat)
+        for exporter in self.__exporters:
+            self.__formats.append(exporter.get_export_format())
 
     def get_exporter(self, export_format: str) -> ParameterExporter | None:
         """Looks for a suitable exporter for the given export format in the available exporters."""
-        for param_exporter in list_model_iterator(self.__exporters):
+        for param_exporter in self.__exporters:
             exporter_id = param_exporter.get_export_format().format_id
             if exporter_id == export_format:
                 return param_exporter
         return None
 
     def get_all_formats(self) -> ListStore:
-        """Returns a list of all available exporters."""
-        return self.__exporters
+        """Returns a list of all available export formats."""
+        return self.__formats
