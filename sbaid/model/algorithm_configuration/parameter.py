@@ -88,7 +88,8 @@ class Parameter(GObject.GObject):
         self.__db = db
         self.__algo_config_id = algo_config_id
         self.__available_tags = available_tags
-        self.value = value
+        if value and value.is_of_type(value_type):
+            self.__value = value
         self.__selected_tags = Gio.ListStore.new(Tag)
 
         available_tags.connect("items-changed", self.__on_available_tags_changed)
@@ -152,6 +153,7 @@ class Parameter(GObject.GObject):
         db_value = await self.__db.get_parameter_value(self.__algo_config_id, self.name, cs_id)
         if db_value is not None:
             self.__value = db_value
+            self.notify("value")
 
         tags = await self.__db.get_all_tag_ids_for_parameter(self.__algo_config_id,
                                                              self.name, cs_id)

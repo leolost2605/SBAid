@@ -35,7 +35,7 @@ class DisplayTestCase(unittest.TestCase):
 
         cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
-        await sim.init_simulation()
+        await sim.init_simulation(0)  # eval interval is unused
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
@@ -54,7 +54,7 @@ class DisplayTestCase(unittest.TestCase):
 
         cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
-        await sim.init_simulation()
+        await sim.init_simulation(0)  # eval interval is unused
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
@@ -65,7 +65,7 @@ class DisplayTestCase(unittest.TestCase):
         self.assertEqual(fetched_input.get_average_speed("cs2", 0), 130.3)
 
         await sim.stop_simulation()
-        await sim.init_simulation()
+        await sim.init_simulation(0)  # eval interval is unused
 
         fetched_input = await sim.measure()
         self.assertEqual(fetched_input.get_traffic_volume("cs1", 0), 4)
@@ -102,7 +102,7 @@ class DisplayTestCase(unittest.TestCase):
 
         cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
-        await sim.init_simulation()
+        await sim.init_simulation(0)  # eval interval is unused
         await sim.load_file(cur_file)
         with self.assertRaises(EndOfSimulationException):
             await sim.continue_simulation(11)
@@ -112,7 +112,7 @@ class DisplayTestCase(unittest.TestCase):
 
         cur_file = Gio.File.new_for_path("tests/model/dummy_simulator/test.json")
 
-        await sim.init_simulation()
+        await sim.init_simulation(0)  # eval interval is unused
         await sim.load_file(cur_file)
         fetched_input = await sim.measure()
         veh_infos_cs1_lane0 = fetched_input.get_all_vehicle_infos("cs1", 0)
