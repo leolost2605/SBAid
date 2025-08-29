@@ -23,7 +23,6 @@ class ResultCellType(Enum):
     RESULT_NAME = 0
     PROJECT_NAME = 1
     DATE = 2
-    TAGS = 3
 
 
 class ResultCell(Adw.Bin):
@@ -95,8 +94,6 @@ class ResultCell(Adw.Bin):
                     self.__label.set_label(formatted_time)
                 else:
                     self.__label.set_label(i18n._("Unknown Time"))
-            case ResultCellType.TAGS:
-                self.__label.set_label(i18n._("Tags appear here"))  # TODO
 
         self.__menu_model.remove_all()
         self.__menu_model.append(i18n._("Rename"), Gio.Action.print_detailed_name(

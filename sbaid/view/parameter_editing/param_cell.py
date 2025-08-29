@@ -25,7 +25,6 @@ class ParamCellType(Enum):
     """
     NAME = 0
     VALUE = 1
-    TAGS = 2
     VALUE_TYPE = 3
 
 
@@ -59,9 +58,6 @@ class ParamCell(Adw.Bin):
                     secondary_icon_name="selection-mode-symbolic", secondary_icon_activatable=True)
                 self.__entry.connect("icon-release", self.__on_entry_icon_release)
                 self.__entry.connect("activate", self.__update_value)
-
-            case ParamCellType.TAGS:
-                self.__label = child = Gtk.Label(xalign=0)
 
         if child:
             self.set_child(child)
@@ -102,9 +98,6 @@ class ParamCell(Adw.Bin):
                 self.__value_binding = param.bind_property(
                     "value", self.__entry, "text",
                     GObject.BindingFlags.SYNC_CREATE, self.__value_transform_func)
-
-            case ParamCellType.TAGS:
-                self.__label.set_label(i18n._("tags"))
 
     @staticmethod
     def __value_transform_func(binding: GObject.Binding, value: GLib.Variant | None) -> str:
