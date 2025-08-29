@@ -7,6 +7,7 @@ import gi
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.view import utils
 from sbaid.view_model.context import Context
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -21,31 +22,31 @@ class ProjectCreation(Adw.NavigationPage):
     """This class represents the project creation page, that is used to create new projects."""
     def __init__(self, context: Context):
         super().__init__()
-
         self.__context = context
 
-        self.__enter_name_row = Adw.EntryRow(title="Name")
+        _ = i18n._
+        self.__enter_name_row = Adw.EntryRow(title=_("Name"))
 
-        self.__simulator_row = Adw.ComboRow(title="Simulator")
+        self.__simulator_row = Adw.ComboRow(title=_("Simulator"))
         self.__simulator_row.set_expression(Gtk.PropertyExpression.new(
             SimulatorType, None, "name"))
         self.__simulator_row.set_model(context.simulator_types)
 
-        select_simulation_path_button = Gtk.Button.new_with_label("Select...")
+        select_simulation_path_button = Gtk.Button.new_with_label(_("Select..."))
         select_simulation_path_button.set_valign(Gtk.Align.CENTER)
         select_simulation_path_button.connect("clicked", self.__on_simulation_path_clicked)
 
-        self.__simulation_path_row = Adw.ActionRow(title="Simulation File")
+        self.__simulation_path_row = Adw.ActionRow(title=_("Simulation File"))
         self.__simulation_path_row.add_suffix(select_simulation_path_button)
 
-        select_project_path_button = Gtk.Button.new_with_label("Select...")
+        select_project_path_button = Gtk.Button.new_with_label(_("Select..."))
         select_project_path_button.set_valign(Gtk.Align.CENTER)
         select_project_path_button.connect("clicked", self.__on_project_path_clicked)
 
-        self.__project_path_row = Adw.ActionRow(title="Project Folder")
+        self.__project_path_row = Adw.ActionRow(title=_("Project Folder"))
         self.__project_path_row.add_suffix(select_project_path_button)
 
-        enter_button = Gtk.Button(label="Create", margin_top=12)
+        enter_button = Gtk.Button(label=_("Create"), margin_top=12)
         enter_button.add_css_class("suggested-action")
         enter_button.connect("clicked", self.__on_enter)
 
@@ -67,7 +68,7 @@ class ProjectCreation(Adw.NavigationPage):
         main_view.set_content(clamp)
 
         self.set_child(main_view)
-        self.set_title("Project Creation")
+        self.set_title(_("Project Creation"))
 
     def __on_simulation_path_clicked(self, button: Gtk.Button) -> None:
         utils.run_coro_with_error_reporting(self.__collect_simulation_path())
@@ -78,7 +79,8 @@ class ProjectCreation(Adw.NavigationPage):
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:
@@ -95,7 +97,8 @@ class ProjectCreation(Adw.NavigationPage):
         try:
             file = await dialog.select_folder(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:

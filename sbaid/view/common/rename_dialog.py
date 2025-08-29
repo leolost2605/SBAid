@@ -3,6 +3,7 @@ import sys
 from typing import Callable, Any
 
 import gi
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -43,7 +44,7 @@ class RenameDialog(Adw.Dialog):
         toolbar_view.add_bottom_bar(rename_button)
 
         self.set_child(toolbar_view)
-        self.set_title("Rename")
+        self.set_title(i18n._("Rename"))
         self.set_content_width(300)
         self.set_default_widget(rename_button)
 

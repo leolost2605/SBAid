@@ -2,6 +2,7 @@
 from gi.repository import GLib, Gio
 
 from sbaid import common
+from sbaid.common.i18n import i18n
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.model.simulation.input import Input
@@ -56,7 +57,7 @@ class VissimSimulator(Simulator):
         path = file.get_path()
 
         if not path:
-            raise FileNotFoundError("Path not found")
+            raise FileNotFoundError(i18n._("Path not found"))
 
         route, cross_sections = await self.__connector.load_file(path)
 

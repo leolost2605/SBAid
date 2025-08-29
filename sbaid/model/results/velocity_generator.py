@@ -6,6 +6,7 @@ import pandas as pd
 from pandas import DataFrame
 from matplotlib.figure import Figure
 from sbaid.common.diagram_type import DiagramType
+from sbaid.common.i18n import i18n
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
@@ -26,7 +27,7 @@ class VelocityGenerator(CrossSectionDiagramGenerator):
 
     def get_diagram_type(self) -> DiagramType:
         """Returns the type of diagram."""
-        return DiagramType("Velocity-Diagram",  "Velocity-Diagram")
+        return DiagramType("Velocity-Diagram",  i18n._("Velocity-Diagram"))
 
     def get_diagram(self, result: Result, cross_section_id: str,
                     export_format: ImageFormat) -> Image:

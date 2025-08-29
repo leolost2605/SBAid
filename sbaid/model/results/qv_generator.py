@@ -7,6 +7,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
 from pandas import DataFrame
 from sbaid.common.diagram_type import DiagramType
+from sbaid.common.i18n import i18n
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 from sbaid.model.results.cross_section_diagram_generator import CrossSectionDiagramGenerator
@@ -25,7 +26,7 @@ class QVGenerator(CrossSectionDiagramGenerator):
 
     def get_diagram_type(self) -> DiagramType:
         """Returns the type of the diagram."""
-        return DiagramType("QV-Diagram", "QV-Diagram")
+        return DiagramType("QV-Diagram", i18n._("QV-Diagram"))
 
     def get_diagram(self, result: Result, cross_section_id: str,
                     export_format: ImageFormat) -> Image:
