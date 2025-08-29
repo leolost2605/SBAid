@@ -3,9 +3,8 @@ This module contains the welcome page.
 """
 import sys
 from typing import Any
-
 import gi
-
+from sbaid.common.i18n import i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 
@@ -18,19 +17,24 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class WelcomePage(Adw.NavigationPage):
+class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attributes
     """
     This page is the first page displayed when opening sbaid.
     It welcomes the user and provides a list of recently used project as well
     as allowing to view all projects and the result view.
     """
+
     def __init__(self, context: Context) -> None:
         super().__init__()
         self.__context = context
-
         header_bar = Adw.HeaderBar()
 
-        self.__create_project_button = Gtk.Button(label="Create Project")
+        self.__language_selection = Gtk.DropDown.new_from_strings(["en", "de"])
+        self.__language_selection.connect("notify::selected-item", self.__on_language_changed)
+        header_bar.pack_start(self.__language_selection)
+
+        _ = i18n._
+        self.__create_project_button = Gtk.Button(label=_("Create Project"))
         self.__create_project_button.set_action_name("win.create-project-page")
 
         self.__time_sorter = Gtk.CustomSorter.new(self.__sort_func)
@@ -40,14 +44,14 @@ class WelcomePage(Adw.NavigationPage):
 
         self.__last_projects_box = Gtk.ListBox()
         self.__last_projects_box.add_css_class("background")
-        self.__last_projects_box.set_placeholder(Gtk.Label.new("No recently opened projects"))
+        self.__last_projects_box.set_placeholder(Gtk.Label.new(_("No recently opened projects")))
         self.__last_projects_box.bind_model(
             recent_projects_slice, self.__create_last_project_button)
 
-        self.__all_projects_button = Gtk.Button(label="All Projects")
+        self.__all_projects_button = Gtk.Button(label=_("All Projects"))
         self.__all_projects_button.set_action_name("win.all-projects")
 
-        self.__results_button = Gtk.Button(label="Results")
+        self.__results_button = Gtk.Button(label=_("Results"))
         self.__results_button.set_action_name("win.results")
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, valign=Gtk.Align.CENTER,
@@ -67,7 +71,7 @@ class WelcomePage(Adw.NavigationPage):
         main_view.add_top_bar(header_bar)
         main_view.set_content(status_page)
 
-        self.set_title("SBAid")
+        self.set_title(i18n._("SBAid"))
         self.set_child(main_view)
         self.connect("map", self.__on_map)
 
@@ -83,3 +87,18 @@ class WelcomePage(Adw.NavigationPage):
 
     def __on_map(self, widget: Gtk.Widget) -> None:
         self.__time_sorter.changed(Gtk.SorterChange.DIFFERENT)
+
+    def __on_language_changed(self, selection: Gtk.SingleSelection,
+                              pspec: GObject.ParamSpec) -> None:
+        item = self.__language_selection.get_selected_item()
+        assert isinstance(item, Gtk.StringObject)
+        i18n.set_active_language(item.get_string())
+        self.__refresh_labels()
+
+    def __refresh_labels(self) -> None:
+        """refreshes labels on this page"""
+        self.__all_projects_button.set_label(i18n._("All Projects"))
+        self.__create_project_button.set_label(i18n._("Create Project"))
+        self.__results_button.set_label(i18n._("Results"))
+        self.__last_projects_box.set_placeholder(Gtk.Label.new(i18n._(
+            "No recently opened projects")))
