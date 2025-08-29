@@ -47,7 +47,7 @@ Now, navigate into your SBAid directory and set up a python
 virtual environment.
 
 ```
-python -m venv ./venv
+python -m venv --system-site-packages ./venv
 ```
 
 Using pip from the virtual environment, install
@@ -60,7 +60,7 @@ it is currently only supported to run SBAid from the
 project root. Navigate there and then run:
 
 ```
-PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.pi
+PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.py
 ```
 
 If you are running on a machine without a GPU, or in general
@@ -68,7 +68,7 @@ if SBAid immediately crashes without any meaningful error output,
 try running on the CPU renderer:
 
 ```
-GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
+GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.py
 ```
 
 #### TL;DR
@@ -101,7 +101,7 @@ cd SBAid
 ```
 Setup python virtual environment
 ```
-python -m venv ./venv
+python -m venv --system-site-packages ./venv
 ```
 Install the last pip dependencies inside the venv
 ```
@@ -109,11 +109,11 @@ Install the last pip dependencies inside the venv
 ```
 Run SBAid with GPU:
 ```
-PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.pi
+PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.py
 ```
 Run SBAid without GPU:
 ```
-GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
+GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.py
 ```
 
 ### Troubleshooting
