@@ -14,6 +14,6 @@ class ParameterExporter(ABC):
         """Returns the export format."""
 
     @abstractmethod
-    async def for_each_parameter(self, file: Gio.File,  parameters: Gio.ListModel) -> None:
+    async def export_parameters(self, file: Gio.File, parameters: Gio.ListModel) -> None:
         """Iterates all parameters in the parameter configuration and writes them
         into the given file."""

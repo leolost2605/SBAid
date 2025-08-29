@@ -19,7 +19,7 @@ class CSVParameterExporter(ParameterExporter):
     def get_export_format(self) -> ParameterExportFormat:
         return ParameterExportFormat("csv", "csv-standard")
 
-    async def for_each_parameter(self, file: Gio.File, parameters: Gio.ListModel) -> None:
+    async def export_parameters(self, file: Gio.File, parameters: Gio.ListModel) -> None:
         params = self.__populate_data(parameters)
         params[0][0] = "cs_id"
         cs_ids = ["cs_id"]

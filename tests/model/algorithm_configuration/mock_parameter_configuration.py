@@ -14,4 +14,4 @@ class MockParameterConfiguration:
         file = Gio.File.new_for_path(path)
         factory = ExporterFactory()
         exporter = factory.get_exporter(export_format)
-        await exporter.for_each_parameter(file, self.__parameters)
+        await exporter.export_parameters(file, self.__parameters)

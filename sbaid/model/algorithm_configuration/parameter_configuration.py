@@ -74,7 +74,7 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         parser = ParserFactory().get_parser(file)
         if parser is None:
             raise NoSuitableParserException()
-        return await parser.export_parameters(file, self.__import_param_func)
+        return await parser.for_each_parameter(file, self.__import_param_func)
 
     def __import_param_func(self, name: str, cross_section_id: str | None,
                             value: GLib.Variant) -> bool:
@@ -96,7 +96,7 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         if exporter is None:
             raise NoSuchExporterAvailableException(
                 f"No exporter available for format {export_format}")
-        await exporter.for_each_parameter(file, self.__parameters)
+        await exporter.export_parameters(file, self.__parameters)
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""
