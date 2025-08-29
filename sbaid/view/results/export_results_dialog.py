@@ -134,7 +134,7 @@ class ExportResultsDialog(Adw.Window):
             self.__result.cross_section.unselect_all()
 
     def __setup_preview(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
-        image = Gtk.Picture(hexpand=True, vexpand=True, content_fit=Gtk.ContentFit.FILL,
+        image = Gtk.Picture(hexpand=True, vexpand=True, content_fit=Gtk.ContentFit.CONTAIN,
                             can_shrink=False)
         item.set_child(image)
 

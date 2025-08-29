@@ -1,10 +1,10 @@
 """This module defines the ParameterConfiguration class."""
 import sys
-
 import gi
 
 from sbaid import common
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
+from sbaid.model.algorithm_configuration.exporter_factory import ExporterFactory
 from sbaid.model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parser_factory import ParserFactory
 from sbaid.model.database.project_database import ProjectDatabase
@@ -18,6 +18,11 @@ try:
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
+
+
+class NoSuchExporterAvailableException(Exception):
+    """Raised when the chosen parameter export format doesn't
+     have a compatible exporter in SBAid."""
 
 
 class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-instance-attributes
@@ -75,12 +80,29 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
                             value: GLib.Variant) -> bool:
         # TODO: Maybe wrap the listmodel in a custom hashing implementation for fast access
         for param in common.list_model_iterator(self.__parameters):
-            if (param.name == name and param.cross_section.id == cross_section_id
-                    and value.is_of_type(param.value_type)):
+            if not value.is_of_type(param.value_type):
+                continue
+
+            if param.name != name:
+                continue
+
+            if (cross_section_id is None and param.cross_section is None or
+                    param.cross_section is not None and param.cross_section.id == cross_section_id):
                 param.value = value
                 return True
 
         return False
+
+    async def export_parameter_configuration(self, path: str, export_format: str) -> None:
+        """Saves this parameter configuration, exported to a file of a chosen format,
+         to a path given by the user."""
+        file = Gio.File.new_for_path(path)
+        factory: ExporterFactory = ExporterFactory()
+        exporter = factory.get_exporter(export_format)
+        if exporter is None:
+            raise NoSuchExporterAvailableException(
+                f"No exporter available for format {export_format}")
+        await exporter.export_parameters(file, self.__parameters)
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""

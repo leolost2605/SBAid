@@ -52,7 +52,7 @@ class MyTestCase(unittest.IsolatedAsyncioTestCase):
     def test_can_handle_file(self) -> None:
         parser_factory = ParserFactory()
         file = Gio.File.new_for_path("./tests/model/algorithm_configuration/valid_parameter_config.csv")
-        parser = parser_factory.get_parser(file)
+        parser = parser_factory.get_format(file)
         self.assertIsInstance(parser, CSVParameterParser)
 
     def test_singleton_parser_factory(self) -> None:
