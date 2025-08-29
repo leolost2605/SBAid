@@ -55,7 +55,7 @@ python -m venv ./venv
 Using the pip from the virtual environment install
 the last few missing dependencies:
 
-- aiofiles
+- aiopathlib
 
 You should be ready to run SBAid now. In this mode
 it is currently only supported to run SBAid from the 
@@ -107,7 +107,7 @@ python -m venv ./venv
 ```
 Install the last pip dependencies inside the venv
 ```
-./venv/bin/pip install aiofiles
+./venv/bin/pip install aiopathlib
 ```
 Run SBAid with GPU:
 ```
