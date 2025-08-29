@@ -4,7 +4,6 @@ import typing
 import csv
 import aiofiles
 from gi.repository import Gio
-
 from sbaid.common.i18n import i18n
 from sbaid.model.network.cross_section_parser import (CrossSectionParser,
                                                       CrossSectionParserForeachFunc)
@@ -33,7 +32,7 @@ class CSVCrossSectionParser(CrossSectionParser):
             try:
                 has_header = self.__has_valid_header(next(csv_reader))
             except StopIteration as exc:  # raised if the file is empty
-                raise InvalidFileFormattingException() from exc
+                raise InvalidFileFormattingException("File is empty.") from exc
             if not has_header:
                 await csvfile.seek(0)  # restart reading from the beginning of file
             for row in csv_reader:
@@ -48,7 +47,7 @@ class CSVCrossSectionParser(CrossSectionParser):
                         next(csv_reader)
                         invalid_cross_sections += 1
         if valid_cross_sections == 0:
-            raise InvalidFileFormattingException()
+            raise InvalidFileFormattingException("File has no valid cross section definitions.")
         return valid_cross_sections, invalid_cross_sections
 
     def __has_valid_header(self, row: list[str]) -> bool:

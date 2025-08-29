@@ -9,10 +9,12 @@ from weakref import WeakValueDictionary
 import gi
 
 from sbaid import common
+from sbaid.model.algorithm_configuration.exporter_factory import ExporterFactory
 
 from sbaid.model.algorithm_configuration.parameter_configuration import (
     ParameterConfiguration as ModelParameterConfiguration)
 from sbaid.model.algorithm_configuration.parameter import Parameter as ModelParameter
+from sbaid.model.algorithm_configuration.parameter_export_format import ParameterExportFormat
 
 from sbaid.view_model.algorithm_configuration.cross_section_parameter import CrossSectionParameter
 from sbaid.view_model.algorithm_configuration.global_parameter import GlobalParameter
@@ -90,6 +92,12 @@ class ParameterConfiguration(GObject.Object):
         """
         return await self.__configuration.import_from_file(file)
 
+    async def export_parameter_values(self, file: Gio.File) -> None:
+        """Exports the parameter configuration to a given file.
+        :param file: the file to export values to
+        """
+        await self.__configuration.export_parameter_configuration(file)
+
     def __sort_func(self, first: ModelParameter, second: ModelParameter, data: Any) -> int:
         if first.cross_section is None and second.cross_section is not None:
             return -1
@@ -143,3 +151,21 @@ class ParameterConfiguration(GObject.Object):
             return isinstance(param, GlobalParameter)
 
         return isinstance(param, CrossSectionParameter)
+
+    @staticmethod
+    def get_export_file_filters() -> Gio.ListModel:
+        """
+        Gets a list of Gtk.FileFilter objects that contain the supported formats
+        for exporting this configuration via export_parameter_values. The returned list
+        can be used right away for Gtk.FileDialog.filters
+        :return: a list of file filters with the supported formats
+        """
+        filters = Gio.ListStore.new(Gtk.FileFilter)
+
+        for e in ExporterFactory().get_all_formats():
+            export_format = cast(ParameterExportFormat, e)
+            file_filter = Gtk.FileFilter()
+            file_filter.add_suffix(export_format.format_id)
+            filters.append(file_filter)
+
+        return filters

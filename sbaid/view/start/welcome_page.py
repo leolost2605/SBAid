@@ -63,7 +63,7 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
 
-        logo_texture = Gdk.Texture.new_from_filename("../data/logo.svg")
+        logo_texture = Gdk.Texture.new_from_filename("data/logo.svg")
 
         status_page = Adw.StatusPage(child=box, paintable=logo_texture)
 
