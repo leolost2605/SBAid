@@ -10,6 +10,7 @@ import gi
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
 from sbaid.view import utils
+from sbaid.common.i18n import i18n
 from sbaid.view_model.network.network import Network
 
 try:
@@ -34,7 +35,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
         header_bar = Adw.HeaderBar()
 
-        self.__name_row = Adw.EntryRow(title="Name")
+        self.__name_row = Adw.EntryRow(title=i18n._("Name"))
 
         self.__x_row = Adw.SpinRow.new_with_range(-180, 180, 0.5)
         self.__x_row.set_value(0)
@@ -54,7 +55,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
         types = Adw.EnumListModel.new(CrossSectionType)
         expression = Gtk.PropertyExpression.new(Adw.EnumListItem, None, "name")
-        self.__type_row = Adw.ComboRow(model=types, title="Type", expression=expression)
+        self.__type_row = Adw.ComboRow(model=types, title=i18n._("Type"), expression=expression)
 
         group = Adw.PreferencesGroup(margin_start=6, margin_end=6,
                                      margin_top=6, margin_bottom=6)
@@ -63,7 +64,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
         group.add(self.__y_row)
         group.add(self.__type_row)
 
-        done_button = Gtk.Button.new_with_label("Add")
+        done_button = Gtk.Button.new_with_label(i18n._("Add"))
         done_button.set_margin_end(6)
         done_button.set_margin_bottom(6)
         done_button.set_halign(Gtk.Align.END)
@@ -75,7 +76,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
         toolbar_view.add_bottom_bar(done_button)
 
         self.set_child(toolbar_view)
-        self.set_title("Add Cross Section")
+        self.set_title(i18n._("Add Cross Section"))
         self.set_content_width(500)
 
     def __on_done_clicked(self, button: Gtk.Button) -> None:

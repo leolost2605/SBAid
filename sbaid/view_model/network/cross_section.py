@@ -5,6 +5,7 @@ through properties from model cross sections.
 from gi.repository import GObject
 
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.common.i18n import i18n
 from sbaid.common.location import Location
 from sbaid.model.network.cross_section import CrossSection as ModelCrossSection
 
@@ -96,7 +97,7 @@ class CrossSection(GObject.GObject):
         index 0. Setting this is ignored if no hard shoulder is available.
         """
         if not self.hard_shoulder_available:
-            raise FunctionalityNotAvailableException("Hard shoulder is not available")
+            raise FunctionalityNotAvailableException(i18n._("Hard shoulder is not available."))
 
         self.__cross_section.hard_shoulder_active = value
 

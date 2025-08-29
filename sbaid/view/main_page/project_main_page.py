@@ -12,6 +12,7 @@ from sbaid.view.main_page.add_new_cross_section_list_popover import AddNewCrossS
 from sbaid.view.main_page.network_map import NetworkMap
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.project import Project
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -37,18 +38,18 @@ class ProjectMainPage(Adw.NavigationPage):
 
         self.__project = project
 
-        self.__placeholder = Adw.StatusPage(title="Loading...")
+        self.__placeholder = Adw.StatusPage(title=i18n._("Loading..."))
 
         placeholder_view = Adw.ToolbarView(content=self.__placeholder)
         placeholder_view.add_top_bar(Adw.HeaderBar())
 
-        start_button = Gtk.Button.new_with_label("Start Simulating")
+        start_button = Gtk.Button.new_with_label(i18n._("Start Simulating"))
         start_button.add_css_class("suggested-action")
         start_button.set_action_name("win.run-simulation")
         start_button.set_action_target_value(GLib.Variant.new_string(project.id))
 
         start_menu = Gio.Menu()
-        start_menu.append("Edit Algorithm Configurations",
+        start_menu.append(i18n._("Edit Algorithm Configurations"),
                           Gio.Action.print_detailed_name("win.edit-algo-configs",
                                                          GLib.Variant.new_string(project.id)))
 
@@ -73,7 +74,7 @@ class ProjectMainPage(Adw.NavigationPage):
         scrolled_window.set_vexpand(True)
 
         add_cs_button = Gtk.MenuButton(direction=Gtk.ArrowType.UP)
-        add_cs_button.set_label("+ Add Cross Section")
+        add_cs_button.set_label("+ " + i18n._("Add Cross Section"))
         add_cs_button.set_popover(AddNewCrossSectionListPopover(project.network))
 
         sidebar = Adw.ToolbarView()
@@ -115,5 +116,5 @@ class ProjectMainPage(Adw.NavigationPage):
             await self.__project.load()
             self.__stack.set_visible_child_name("main-view")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            self.__placeholder.set_title("Failed to load project")
+            self.__placeholder.set_title(i18n._("Failed to load project"))
             self.__placeholder.set_description(str(e))

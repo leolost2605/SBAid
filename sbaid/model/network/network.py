@@ -7,6 +7,7 @@ import gi
 import sbaid.common
 from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.common.i18n import i18n
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.common.location import Location
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
@@ -151,4 +152,4 @@ class FailedCrossSectionCreationException(Exception):
 class NoSuitableParserException(Exception):
     """Exception raised when a file SBAid has no parser for is input."""
     def __init__(self) -> None:
-        self.message = "Input file format not supported by SBAid."
+        self.message = i18n._("Input file format not supported by SBAid.")
