@@ -70,7 +70,7 @@ class Simulator(GObject.GObject):
                                  new_location: Location) -> None:
         """Move the cross section object."""
 
-    async def init_simulation(self) -> tuple[GLib.DateTime, int]:
+    async def init_simulation(self, evaluation_interval: int) -> tuple[GLib.DateTime, int]:
         """
         Initialize the simulation object. Return the internal simulation start time
         and runtime.
