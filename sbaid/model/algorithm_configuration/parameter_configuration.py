@@ -97,9 +97,7 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         Informs the param configuration about the currently used algorithm.
         It will then build the list of parameters from the algorithms template.
         """
-        self.__global_params_map_model.set_map_func(self.__map_global_params)
         self.__global_params_map_model.set_model(algorithm.get_global_parameter_template())
-        self.__cs_params_map_model.set_map_func(self.__map_cs_params)
         self.__cs_params_map_model.set_model(algorithm.get_cross_section_parameter_template())
 
     def __map_cs_params(self, template: ParameterTemplate) -> GObject.Object:
@@ -107,17 +105,9 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
     def __map_cs_param(self, cross_section: CrossSection,
                        template: ParameterTemplate) -> Parameter:
-        param = Parameter(template.name, template.value_type, template.default_value,
+        return Parameter(template.name, template.value_type, template.default_value,
                          cross_section, self.__db, self.__algo_config_id, self.__available_tags)
-        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
-                                                              param.name, cross_section.id,
-                                                              template.default_value))
-        return param
 
     def __map_global_params(self, template: ParameterTemplate) -> GObject.Object:
-        param = Parameter(template.name, template.value_type, template.default_value,
+        return Parameter(template.name, template.value_type, template.default_value,
                          None, self.__db, self.__algo_config_id, self.__available_tags)
-        common.run_coro_in_background(self.__db.add_parameter(self.__algo_config_id,
-                                                              param.name, None,
-                                                              template.default_value))
-        return param

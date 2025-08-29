@@ -442,10 +442,10 @@ class ProjectSQLite(ProjectDatabase):
         async with aiosqlite.connect(str(self._file.get_path())) as db:
             async with db.execute("""
             SELECT name FROM tag WHERE id = ?""", [tag_id]) as cursor:
-                result = await cursor.fetchone()
+                result = list(await cursor.fetchall())
                 if result is None:
                     return None
-                return str(result[0])
+                return str(result[0][0])
 
     async def add_parameter_tag(self, parameter_tag_id: str, parameter_name: str,
                                 algorithm_configuration_id: str,

@@ -53,14 +53,6 @@ class Network(GObject.Object):
          triggering the loading of cross section metadata from the database in the __map_func."""
         if self.__cross_sections.get_model() is None:
             self.__cross_sections.set_model(self.__simulator.cross_sections)
-        for cs in self.__cross_sections:
-            cross_section = typing.cast(CrossSection, cs)
-            exists = await self.__project_db.get_cross_section_name(cross_section.id)
-            if not exists:
-                await self.__project_db.add_cross_section(cross_section.id,
-                                                          cross_section.name,
-                                                          cross_section.hard_shoulder_active,
-                                                          cross_section.b_display_active)
 
     async def import_from_file(self, file: Gio.File) -> tuple[int, int]:
         """Parses the given file and creates the cross sections defined in it."""

@@ -1,5 +1,6 @@
 import asyncio
 import unittest
+from typing import cast
 
 from gi.events import GLibEventLoopPolicy
 from gi.repository import Gio, GLib
@@ -8,9 +9,9 @@ from sbaid.common.a_display import ADisplay
 from sbaid.common.tag import Tag
 from sbaid.model.algorithm.algorithm import Algorithm
 from sbaid.model.algorithm.parameter_template import ParameterTemplate
+from sbaid.model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
 from sbaid.model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 from sbaid.model.algorithm_configuration.parameter import Parameter
-from sbaid.model.algorithm_configuration.parameter_configuration import ParameterConfiguration
 from sbaid.model.context import Context as ModelContext
 from sbaid.model.database.project_sqlite import ProjectSQLite
 from sbaid.common.simulator_type import SimulatorType
@@ -20,7 +21,6 @@ from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.network_state import NetworkState
 from sbaid.model.simulation.parameter_configuration_state import ParameterConfigurationState
 from sbaid.model.simulator.dummy.dummy_simulator import DummySimulator
-from tests.mock_simulator import MockSimulator
 
 
 class AlgorithmImpl(Algorithm):
@@ -173,37 +173,51 @@ class ProjectDatabaseTestCase(unittest.TestCase):
 
 
     async def parameter_properties(self) -> None:
+        """Only uses model classes"""
         project_db_file = Gio.File.new_for_path("test_project_db")
         project_db = ProjectSQLite(project_db_file)
         await project_db.open()
-        mock_sim = MockSimulator()
-        algorithm = AlgorithmImpl()
-        network = Network(mock_sim, project_db)
+        simulator = DummySimulator()
+        sim_file = Gio.File.new_for_path("test_dummy.json")
+        await simulator.load_file(sim_file)
+        network = Network(simulator, project_db)
         await network.load()
-        await network.load()
 
-        parameter_config = ParameterConfiguration(network, project_db, "algo_config_id",
-                                                  Gio.ListStore.new(Tag))
-        parameter_config.set_algorithm(algorithm)
-        await parameter_config.load()  # this causes the program to get stuck and not terminate
+        self.assertEqual(2, network.cross_sections.get_n_items())
 
-        self.assertEqual(parameter_config.parameters.get_n_items(),
-                         2 + 2 * network.cross_sections.get_n_items())
+        alcom = AlgorithmConfigurationManager(network, project_db)
+        pos = await alcom.create_algorithm_configuration()
+        config = alcom.algorithm_configurations[pos]
+        config = cast(AlgorithmConfiguration, config)
 
-        # same_project_db = ProjectSQLite(project_db_file)
-        # same_mock_sim = MockSimulator()
-        # same_algorithm = AlgorithmImpl()
-        # same_network = Network(same_mock_sim, same_project_db)
-        # await same_network.load()
-        # await network.load()
-        #
-        # same_parameter_config = ParameterConfiguration(same_network, same_project_db, "algo_config_id",
-        #                                           Gio.ListStore.new(Tag))
-        # same_parameter_config.set_algorithm(same_algorithm)
-        # await same_parameter_config.load()
-        #
-        # self.assertEqual(2 + 2 * same_network.cross_sections.get_n_items(),
-        #                  same_parameter_config.parameters.get_n_items())
+        self.assertEqual(0, config.parameter_configuration.parameters.get_n_items())
+
+        config.script_path = "algo.py"
+
+        script = await project_db.get_script_path(config.id)
+        print(script)
+        # 6 = 2 (global params) + 2 (cross sections) * 2 (cross sections params)
+        self.assertEqual(6, config.parameter_configuration.parameters.get_n_items())
+
+        # re-instantiate every class in order to mimic an app restart
+        project_db_2 = ProjectSQLite(project_db_file)
+        await project_db_2.open()
+        simulator_2 = DummySimulator()
+        sim_file_2 = Gio.File.new_for_path("test_dummy.json")
+        await simulator_2.load_file(sim_file_2)
+        network_2 = Network(simulator_2, project_db_2)
+        await network_2.load()
+
+        self.assertEqual(2, network_2.cross_sections.get_n_items())
+
+        alcom_2 = AlgorithmConfigurationManager(network_2, project_db_2)
+        await alcom_2.load()
+
+        self.assertEqual(1, alcom_2.algorithm_configurations.get_n_items())
+        config_2 = cast(AlgorithmConfiguration, alcom_2.algorithm_configurations[0])
+        await config_2.load_from_db()
+        await config_2.parameter_configuration.load()
+        self.assertEqual(6, config_2.parameter_configuration.parameters.get_n_items())
         await project_db_file.delete_async(0, None)
 
     async def parameter_tags(self) -> None:
