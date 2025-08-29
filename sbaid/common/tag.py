@@ -23,4 +23,5 @@ class Tag(GObject.GObject):
         super().__init__(tag_id=tag_id, name=name)
 
     def __eq__(self, other: object) -> bool:
+        """Override Equals."""
         return isinstance(other, Tag) and self.tag_id == other.tag_id
