@@ -43,7 +43,7 @@ and not another python installation.
 Then, you can clone SBAid preferably via the msys
 git somewhere into your msys home folder.
 
-Now, navigate into your SBAid directory and setup a python
+Now, navigate into your SBAid directory and set up a python
 virtual environment.
 
 ```
