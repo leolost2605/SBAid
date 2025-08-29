@@ -15,19 +15,130 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 
 ### Windows
 
+Please read the following instructions carefully and
+most importantly completely before starting to follow
+them.
+
 To run SBAid you will need some dependencies. Most of them should be installed 
 (or are only available) via [msys2](https://www.msys2.org/). For setting
 up msys see the documentation on the linked page. Then install 
-the following dependencies in the ucrt version:
+the following dependencies in the [ucrt](https://www.msys2.org/docs/environments/) version:
 
 - gtk4
 - python3
 - gobject
 - libadwaita
 - libshumate
+- python-pywin32
+- python-pandas
 - python-seaborn
 - python-aiofiles
 - python-aiosqlite
+- python-jsonschema
+- python-sortedcontainers
+
+From now on everything should be done using msys.
+Most importantly you should use the msys ucrt python
+and not another python installation from somewhere else
+on your machine.
+
+Then you can clone SBAid preferably via the msys
+git somewhere into your msys home folder.
+
+Now navigate into your SBAid folder and setup a python
+virtual environment.
+
+```
+python -m venv ./venv
+```
+
+Using the pip from the virtual environment install
+the last few missing dependencies:
+
+- aiofiles
+
+You should be ready to run SBAid now. In this mode
+it is currently only supported to run SBAid from the 
+project root. Navigate there and then run:
+
+```
+PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.pi
+```
+
+If you are running on a machine without a GPU or in general
+if SBAid immediately crashes without any meaningful error output
+try running on the CPU renderer:
+
+```
+GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
+```
+
+#### TL;DR
+
+We definitely recommend reading the full instructions above.
+If you read them and understood what they do here is a
+list of commands that you can copy and paste into your
+msys2 terminal for getting SBAid quickly up and running.
+
+Update msys installation (might require closing the console
+and reopening it)
+```
+pacman -Syu
+```
+Install dependencies
+```
+pacman -S git mingw-w64-ucrt-x86_64-libadwaita mingw-w64-ucrt-x86_64-libshumate mingw-w64-ucrt-x86_64-python-aiofiles mingw-w64-ucrt-x86_64-python-aiosqlite mingw-w64-ucrt-x86_64-python-gobject mingw-w64-ucrt-x86_64-python-jsonschema mingw-w64-ucrt-x86_64-python-pywin32 mingw-w64-ucrt-x86_64-python-seaborn mingw-w64-ucrt-x86_64-python-sortedcontainers
+```
+Navigate where you want to clone SBAid to
+```
+cd ~ # Navigate where you want to clone SBAid to
+```
+Clone SBAid
+```
+git clone https://github.com/leolost2605/SBAid.git
+```
+Navigate into SBAid
+```
+cd SBAid
+```
+Setup python virtual environment
+```
+python -m venv ./venv
+```
+Install the last pip dependencies inside the venv
+```
+./venv/bin/pip install aiofiles
+```
+Run SBAid with GPU:
+```
+PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.pi
+```
+Run SBAid without GPU:
+```
+GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
+```
+
+### Troubleshooting
+
+If SBAid crashes before even starting, i.e. it doesn't
+even show a window you might want to try running it on
+the CPU renderer:
+```
+GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
+```
+
+The important part here is the `GSK_RENDERER=cairo` environment
+variable.
+
+---
+If SBAid sometimes crashes and in the msys terminal a warning gets printed
+along the lines of
+> failed to get console output format, falling back to utf8
+
+you can try setting the correct Codepage:
+```
+chcp.com 65001
+```
 
 ## File input
 
