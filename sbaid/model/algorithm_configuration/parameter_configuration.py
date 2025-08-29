@@ -97,6 +97,9 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
     async def export_parameter_configuration(self, file: Gio.File) -> None:
         """Saves this parameter configuration, exported to a file of a chosen format,
          to a path given by the user."""
+        if file.get_basename() is None:
+            raise NoFormatException("File name was None so no format could be detected.")
+
         split_name = file.get_basename().split('.')
         if not split_name:
             raise NoFormatException(f"No format detected in file name {file.get_basename()}")
