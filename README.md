@@ -15,8 +15,7 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 
 ### Windows
 
-Please read the following instructions carefully and
-most importantly completely before starting to follow
+Please read the following instructions carefully and thoroughly before starting to follow
 them.
 
 To run SBAid you will need some dependencies. Most of them should be installed 
@@ -37,22 +36,21 @@ the following dependencies in the [ucrt](https://www.msys2.org/docs/environments
 - python-jsonschema
 - python-sortedcontainers
 
-From now on everything should be done using msys.
+From now on, everything should be done using msys.
 Most importantly, you should use the msys ucrt python
-and not another python installation from somewhere else
-on your machine.
+and not another python installation.
 
 Then, you can clone SBAid preferably via the msys
 git somewhere into your msys home folder.
 
-Now, navigate into your SBAid folder and setup a python
+Now, navigate into your SBAid directory and setup a python
 virtual environment.
 
 ```
 python -m venv ./venv
 ```
 
-Using the pip from the virtual environment install
+Using pip from the virtual environment, install
 the last few missing dependencies:
 
 - aiopathlib
@@ -131,7 +129,7 @@ The important part here is the `GSK_RENDERER=cairo` environment
 variable.
 
 ---
-If SBAid sometimes crashes and in the msys terminal a warning gets printed
+If SBAid crashes sometimes and, in the msys terminal, a warning gets printed
 along the lines of
 > failed to get console output format, falling back to utf8
 
