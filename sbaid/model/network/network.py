@@ -97,7 +97,7 @@ class Network(GObject.Object):
             model_cross_section.name = name
             return position
         raise FailedCrossSectionCreationException("The given cross section is not compatible with"
-                                                  "the network.")
+                                                  " the network.")
 
     async def delete_cross_section(self, cs_id: str) -> None:
         """Deletes a cross section by calling the simulator's remove_cross_section method."""
