@@ -80,5 +80,3 @@ class CSVCrossSectionParser(CrossSectionParser):
 class InvalidFileFormattingException(Exception):
     """Exception raised when the user inputs a file that has
     no valid cross section definitions."""
-    def __init__(self, msg: str) -> None:
-        self.message = msg
