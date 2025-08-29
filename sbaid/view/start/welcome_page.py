@@ -12,7 +12,7 @@ from sbaid.view_model.project import Project
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, Gtk, GLib, GObject
+    from gi.repository import Adw, Gtk, GLib, GObject, Gdk
 except (ImportError, ValueError) as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
@@ -59,7 +59,9 @@ class WelcomePage(Adw.NavigationPage):
         box.append(self.__all_projects_button)
         box.append(self.__results_button)
 
-        status_page = Adw.StatusPage(child=box)
+        logo_texture = Gdk.Texture.new_from_filename("data/logo.svg")
+
+        status_page = Adw.StatusPage(child=box, paintable=logo_texture)
 
         main_view = Adw.ToolbarView()
         main_view.add_top_bar(header_bar)
