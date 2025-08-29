@@ -47,14 +47,15 @@ class ProjectTestCase(unittest.TestCase):
         other_project = Project(my_project_id, sim_type, "sim_file_path", "proj_file_path", result_manager)
         await other_project.load_from_db()
 
-        self.assertEqual(other_project.name, "my_cool_other_name")
+        self.assertEqual(other_project.name, "my_cool_name")
         self.assertEqual(other_project.id, my_project_id)
         self.assertEqual(other_project.simulation_file_path, "sim_file_path")
         self.assertEqual(other_project.project_file_path, "proj_file_path")
         self.assertIsNotNone(other_project.network)
         self.assertIsNotNone(other_project.algorithm_configuration_manager)
 
-        await Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"]).delete_async(0)
+        await Gio.File.new_build_filenamev(
+            [GLib.get_user_data_dir(), "sbaid", "global_db"]).delete_async(GLib.PRIORITY_DEFAULT)
 
     async def start_simulation(self):
         sim_type = SimulatorType("dummy_json", "Dummy Simulator")
