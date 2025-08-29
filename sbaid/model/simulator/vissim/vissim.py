@@ -535,11 +535,16 @@ class VissimConnector:
         link, pos = self.__network.get_link_and_position(location)
 
         data_collection_points = self.__vissim.Net.DataCollectionPoints
+        data_measurements = self.__vissim.Net.DataCollectionMeasurements
         des_speed_decisions = self.__vissim.Net.DesSpeedDecisions
 
         for lane in link.Lanes.GetAll():
             if cs_type in (CrossSectionType.MEASURING, CrossSectionType.COMBINED):
                 point = data_collection_points.AddDataCollectionPoint(first_id, lane, pos)
+
+                measurement = data_measurements.AddDataCollectionMeasurement(None)
+                measurement.SetAttValue("DataCollectionPoints", point.AttValue("No"))
+
                 first_id = None
                 cross_section.add_data_collection_point(point)
 
