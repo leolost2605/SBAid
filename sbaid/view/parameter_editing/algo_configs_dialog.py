@@ -16,6 +16,7 @@ from sbaid.view_model.algorithm_configuration.algorithm_configuration_manager im
     AlgorithmConfigurationManager
 from sbaid.view_model.algorithm_configuration.parameter import Parameter
 from sbaid.view_model.network.cross_section import CrossSection
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -106,22 +107,22 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         super().__init__()
 
         self.__name_entry_row = Adw.EntryRow()
-        self.__name_entry_row.set_title("Name")
+        self.__name_entry_row.set_title(i18n._("Name"))
 
         self.__eval_interval_row = Adw.SpinRow.new_with_range(1, 9999999999, 10)
-        self.__eval_interval_row.set_title("Evaluation Interval")
-        self.__eval_interval_row.set_subtitle("In seconds")
+        self.__eval_interval_row.set_title(i18n._("Evaluation Interval"))
+        self.__eval_interval_row.set_subtitle(i18n._("In seconds"))
 
         self.__display_interval_row = Adw.SpinRow.new_with_range(1, 9999999999, 10)
-        self.__display_interval_row.set_title("Display Interval")
-        self.__display_interval_row.set_subtitle("In seconds")
+        self.__display_interval_row.set_title(i18n._("Display Interval"))
+        self.__display_interval_row.set_subtitle(i18n._("In seconds"))
 
-        script_path_button = Gtk.Button.new_with_label("Select...")
+        script_path_button = Gtk.Button.new_with_label(i18n._("Select..."))
         script_path_button.set_valign(Gtk.Align.CENTER)
         script_path_button.connect("clicked", self.__on_script_path_clicked)
 
         self.__script_path_row = Adw.ActionRow()
-        self.__script_path_row.set_title("Script Path")
+        self.__script_path_row.set_title(i18n._("Script Path"))
         self.__script_path_row.add_suffix(script_path_button)
 
         preferences_group = Adw.PreferencesGroup(width_request=300)
@@ -130,12 +131,13 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         preferences_group.add(self.__display_interval_row)
         preferences_group.add(self.__script_path_row)
 
-        parameter_header_label = Gtk.Label.new("Parameters")
+        parameter_header_label = Gtk.Label.new(i18n._("Parameters"))
         parameter_header_label.set_hexpand(True)
         parameter_header_label.set_xalign(0)
         parameter_header_label.add_css_class("heading")
 
-        parameter_description_label = Gtk.Label.new("Configure the parameters of the algorithm.")
+        parameter_description_label = Gtk.Label.new(i18n._(
+            "Configure the parameters of the algorithm."))
         parameter_description_label.set_wrap(True)
         parameter_description_label.set_xalign(0)
         parameter_description_label.add_css_class("dimmed")
@@ -144,12 +146,12 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         header_label_box.append(parameter_header_label)
         header_label_box.append(parameter_description_label)
 
-        import_button = Gtk.Button.new_with_label("Import values...")
+        import_button = Gtk.Button.new_with_label(i18n._("Import values..."))
         import_button.set_halign(Gtk.Align.END)
         import_button.set_valign(Gtk.Align.CENTER)
         import_button.connect("clicked", self.__on_import_clicked)
 
-        export_button = Gtk.Button.new_with_label("Export values...")
+        export_button = Gtk.Button.new_with_label(i18n._("Export values..."))
         export_button.set_halign(Gtk.Align.END)
         export_button.set_valign(Gtk.Align.CENTER)
         export_button.connect("clicked", self.__on_export_clicked)
@@ -192,7 +194,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         name_factory.connect("setup", self.__setup_param_name_cell)
         name_factory.connect("bind", self.__bind_param_cell)
 
-        name_column = Gtk.ColumnViewColumn.new("Name", name_factory)
+        name_column = Gtk.ColumnViewColumn.new(i18n._("Name"), name_factory)
         name_column.set_expand(True)
         expr = Gtk.PropertyExpression.new(Parameter, None, "name")
         name_sorter = Gtk.StringSorter.new(expr)
@@ -202,7 +204,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         value_type_factory.connect("setup", self.__setup_param_value_type_cell)
         value_type_factory.connect("bind", self.__bind_param_cell)
 
-        value_type_column = Gtk.ColumnViewColumn.new("Value Type", value_type_factory)
+        value_type_column = Gtk.ColumnViewColumn.new(i18n._("Value Type"), value_type_factory)
         value_type_sorter = Gtk.CustomSorter.new(self.__value_type_sort_func)
         value_type_column.set_sorter(value_type_sorter)
 
@@ -210,13 +212,13 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         value_factory.connect("setup", self.__setup_param_value_cell)
         value_factory.connect("bind", self.__bind_param_cell)
 
-        value_column = Gtk.ColumnViewColumn.new("Value", value_factory)
+        value_column = Gtk.ColumnViewColumn.new(i18n._("Value"), value_factory)
 
         tag_factory = Gtk.SignalListItemFactory()
         tag_factory.connect("setup", self.__setup_param_tags_cell)
         tag_factory.connect("bind", self.__bind_param_cell)
 
-        tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
+        tag_column = Gtk.ColumnViewColumn.new(i18n._("Tags"), tag_factory)
 
         column_view.set_model(selection_model)
         column_view.set_hexpand(True)
@@ -231,7 +233,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         column_view_frame = Gtk.Frame(child=column_view_scrolled)
 
-        cross_sections_check_button = Gtk.CheckButton.new_with_label("Cross Sections")
+        cross_sections_check_button = Gtk.CheckButton.new_with_label(i18n._("Cross Sections"))
         cross_sections_check_button.set_halign(Gtk.Align.START)
         cross_sections_check_button.connect("toggled", self.__on_toggled)
 
@@ -325,7 +327,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:
@@ -354,7 +357,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:
@@ -433,7 +437,7 @@ class AlgoConfigsDialog(Adw.Window):
 
         scrolled_sidebar = Gtk.ScrolledWindow(child=sidebar)
 
-        add_button = Gtk.Button.new_with_label("+ Add")
+        add_button = Gtk.Button.new_with_label("+ " + i18n._("Add"))
         add_button.set_halign(Gtk.Align.START)
         add_button.set_margin_top(6)
         add_button.set_margin_start(6)
@@ -445,7 +449,7 @@ class AlgoConfigsDialog(Adw.Window):
         sidebar_view.set_content(scrolled_sidebar)
         sidebar_view.add_bottom_bar(add_button)
 
-        sidebar_page = Adw.NavigationPage.new(sidebar_view, "Algorithm Configurations")
+        sidebar_page = Adw.NavigationPage.new(sidebar_view, i18n._("Algorithm Configurations"))
 
         self.__split_view = Adw.NavigationSplitView()
         self.__split_view.set_content(content_page)

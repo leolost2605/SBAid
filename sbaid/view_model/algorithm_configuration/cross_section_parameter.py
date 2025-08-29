@@ -6,6 +6,7 @@ import sys
 from typing import cast
 import gi
 
+from sbaid.common.i18n import i18n
 from sbaid.common.tag import Tag
 from sbaid.view_model.algorithm_configuration.parameter import Parameter
 from sbaid.model.algorithm_configuration.parameter import Parameter as ModelParameter
@@ -118,7 +119,7 @@ class CrossSectionParameter(Parameter):
     def update_value(self, value: GLib.Variant) -> None:
         """Updates the value for the selected cross sections."""
         if not value.is_of_type(self.value_type):
-            raise ValueError("Value must be of the correct type for the parameter. Got "
+            raise ValueError(i18n._("Value must be of the correct type for the parameter. Got ") +
                              f"{value.get_type_string()}, expected {self.value_type.dup_string()}")
 
         for param in common.list_model_iterator(self.__parameters):

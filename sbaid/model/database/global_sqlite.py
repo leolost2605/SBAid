@@ -1,4 +1,5 @@
 """This module contains the GLobalSQLite class."""
+import sqlite3
 from typing import TypeVar
 
 import aiosqlite
@@ -44,11 +45,14 @@ class GlobalSQLite(GlobalDatabase):
         already_existed = self._file.query_exists()
         is_valid = True
         if already_existed:
-            async with aiosqlite.connect(str(self._file.get_path())) as db:
-                async with db.execute("""PRAGMA integrity_check""") as cursor:
-                    res = await cursor.fetchone()
-                    assert res is not None
-                    is_valid = res[0] == 'ok'
+            try:
+                async with aiosqlite.connect(str(self._file.get_path())) as db:
+                    async with db.execute("""PRAGMA schema_version""") as cursor:
+                        res = await cursor.fetchone()
+                        assert res is not None
+                        is_valid = res[0] != 0
+            except sqlite3.OperationalError as exc:
+                raise InvalidDatabaseError("The given file is not a database.") from exc
         if not is_valid:
             raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
         if not already_existed:
@@ -148,17 +152,6 @@ class GlobalSQLite(GlobalDatabase):
                     return []
                 return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]),
                                            get_date_time(str(x[3]))), await cursor.fetchall()))
-
-    async def add_result(self, result_id: str, result_name: str, project_name: str,
-                         creation_date_time: GLib.DateTime) -> None:
-        """Add a result to the database."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-            INSERT INTO result (id, name, project_name, date)
-            VALUES (?, ?, ?, ?);
-            """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
-            await db.commit()
 
     async def delete_result(self, result_id: str) -> None:
         """Remove a result and all sub-results from the database."""
