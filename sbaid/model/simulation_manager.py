@@ -73,10 +73,12 @@ class SimulationManager(GObject.GObject):
             print("Failed to stop simulation: ", e)
 
     async def __run_simulation(self) -> None:
-        simulation_start_time, simulation_duration = await self.__simulator.init_simulation()
+        eval_interval = self.__algorithm_configuration.evaluation_interval
+
+        simulation_start_time, simulation_duration = \
+            await self.__simulator.init_simulation(eval_interval)
 
         algorithm = self.__algorithm_configuration.algorithm
-        eval_interval = self.__algorithm_configuration.evaluation_interval
         display_interval = self.__algorithm_configuration.display_interval
 
         param_config_state = self.__build_parameter_configuration_state()
@@ -151,12 +153,10 @@ class SimulationManager(GObject.GObject):
                 self.__result_builder.begin_lane(lane)
 
                 avg_speed = measurement.get_average_speed(cs_state.id, lane)
-                if avg_speed:
-                    self.__result_builder.add_average_speed(avg_speed)
+                self.__result_builder.add_average_speed(avg_speed)
 
                 volume = measurement.get_traffic_volume(cs_state.id, lane)
-                if volume:
-                    self.__result_builder.add_traffic_volume(volume)
+                self.__result_builder.add_traffic_volume(volume)
 
                 if display:
                     self.__result_builder.add_a_display(display.get_a_display(cs_state.id, lane))

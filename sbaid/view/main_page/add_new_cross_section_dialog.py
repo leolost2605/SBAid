@@ -37,14 +37,16 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
         self.__name_row = Adw.EntryRow(title=i18n._("Name"))
 
-        self.__x_row = Adw.SpinRow.new_with_range(0, 180, 0.5)
+        self.__x_row = Adw.SpinRow.new_with_range(-180, 180, 0.5)
+        self.__x_row.set_value(0)
         self.__x_row.set_title("X")
         self.__x_row.set_digits(6)
 
         if x is not None:
             self.__x_row.set_value(x)
 
-        self.__y_row = Adw.SpinRow.new_with_range(0, 90, 0.5)
+        self.__y_row = Adw.SpinRow.new_with_range(-90, 90, 0.5)
+        self.__y_row.set_value(0)
         self.__y_row.set_title("Y")
         self.__y_row.set_digits(6)
 

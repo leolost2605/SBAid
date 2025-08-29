@@ -55,14 +55,18 @@ class CrossSectionEditingPage(Adw.NavigationPage):
 
         hard_shoulder_active_label = Gtk.Label.new(i18n._("Hard shoulder openable:"))
 
-        hard_shoulder_active_switch = Gtk.Switch(halign=Gtk.Align.START)
+        hard_shoulder_active_switch = Gtk.Switch(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
+        hard_shoulder_active_switch.bind_property("state", hard_shoulder_active_switch, "active")
+        cross_section.bind_property("hard-shoulder-available", hard_shoulder_active_switch,
+                                    "sensitive", GObject.BindingFlags.SYNC_CREATE)
         cross_section.bind_property("hard-shoulder-usable", hard_shoulder_active_switch,
                                     "state", GObject.BindingFlags.SYNC_CREATE |
                                     GObject.BindingFlags.BIDIRECTIONAL)
 
         b_display_active_label = Gtk.Label.new(i18n._("B Display usable:"))
 
-        b_display_active_switch = Gtk.Switch(halign=Gtk.Align.START)
+        b_display_active_switch = Gtk.Switch(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
+        b_display_active_switch.bind_property("state", b_display_active_switch, "active")
         cross_section.bind_property("b-display-usable", b_display_active_switch,
                                     "state", GObject.BindingFlags.SYNC_CREATE |
                                     GObject.BindingFlags.BIDIRECTIONAL)

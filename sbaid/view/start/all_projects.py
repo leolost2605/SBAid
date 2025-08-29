@@ -1,7 +1,7 @@
 """This module contains the all projects page."""
 import sys
 
-from typing import cast
+from typing import cast, Any
 
 import gi
 
@@ -9,6 +9,7 @@ from sbaid.view import utils
 from sbaid.view.common.rename_dialog import RenameDialog
 from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
+
 from sbaid.view_model.project import Project
 from sbaid.view.i18n import i18n
 
@@ -33,28 +34,39 @@ class AllProjects(Adw.NavigationPage):
 
         header_bar = Adw.HeaderBar()
 
+        column_view = Gtk.ColumnView()
+        sorter = column_view.get_sorter()
+        sort_model = Gtk.SortListModel.new(self.__context.projects, sorter)
+
         name_factory = Gtk.SignalListItemFactory()
         name_factory.connect("setup", self.__on_factory_setup, ProjectCellType.NAME)
         name_factory.connect("bind", self.__on_factory_bind)
 
         name_column = Gtk.ColumnViewColumn.new(i18n._("Name"), name_factory)
         name_column.set_expand(True)
+        name_expr = Gtk.PropertyExpression.new(Project, None, "name")
+        name_sorter = Gtk.StringSorter.new(name_expr)
+        name_column.set_sorter(name_sorter)
 
         last_opened_factory = Gtk.SignalListItemFactory()
         last_opened_factory.connect("setup", self.__on_factory_setup, ProjectCellType.LAST_OPENED)
         last_opened_factory.connect("bind", self.__on_factory_bind)
 
         last_opened_column = Gtk.ColumnViewColumn.new(i18n._("Last Opened"), last_opened_factory)
+        last_opened_sorter = Gtk.CustomSorter.new(self.__last_opened_sort_func)
+        last_opened_column.set_sorter(last_opened_sorter)
 
         created_at_factory = Gtk.SignalListItemFactory()
         created_at_factory.connect("setup", self.__on_factory_setup, ProjectCellType.CREATED_AT)
         created_at_factory.connect("bind", self.__on_factory_bind)
 
         created_at_column = Gtk.ColumnViewColumn.new(i18n._("Created at"), created_at_factory)
+        created_at_sorter = Gtk.CustomSorter.new(self.__created_at_sort_func)
+        created_at_column.set_sorter(created_at_sorter)
 
-        selection = Gtk.NoSelection.new(self.__context.projects)
+        selection = Gtk.NoSelection.new(sort_model)
 
-        column_view = Gtk.ColumnView.new(selection)
+        column_view.set_model(selection)
         column_view.set_single_click_activate(True)
         column_view.append_column(name_column)
         column_view.append_column(last_opened_column)
@@ -127,3 +139,9 @@ class AllProjects(Adw.NavigationPage):
     @staticmethod
     def __project_rename_func(project: Project, new_name: str) -> None:
         project.name = new_name
+
+    def __created_at_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
+        return project2.created_at.compare(project1.created_at)
+
+    def __last_opened_sort_func(self, project1: Project, project2: Project, data: Any) -> int:
+        return project2.last_opened.compare(project1.last_opened)
