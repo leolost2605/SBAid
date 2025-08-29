@@ -172,7 +172,7 @@ class DummySimulator(Simulator):
                                    cross_section_type: CrossSectionType) -> int:
         """Has no effect. Raises an exception."""
         raise NotSupportedException("The dummy simulator does not support creating"
-                                    "new cross sections.")
+                                    " new cross sections.")
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Has no effect. Raises an exception."""
