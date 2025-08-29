@@ -55,7 +55,7 @@ class AddNewCrossSectionDialog(Adw.Dialog):
 
         types = Adw.EnumListModel.new(CrossSectionType)
         expression = Gtk.PropertyExpression.new(Adw.EnumListItem, None, "name")
-        self.__type_row = Adw.ComboRow(model=types, title="Type", expression=expression)
+        self.__type_row = Adw.ComboRow(model=types, title=i18n._("Type"), expression=expression)
 
         group = Adw.PreferencesGroup(margin_start=6, margin_end=6,
                                      margin_top=6, margin_bottom=6)

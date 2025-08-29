@@ -438,8 +438,11 @@ msgstr "Nicht Verfügbar"
 msgid "Available"
 msgstr "Verfügbar"
 
-msgid "TYPE:"
-msgstr "TYP:"
+msgid "Type"
+msgstr "Typ:"
+
+msgid "Export values..."
+msgstr "Werte exportieren .."
 
 
 

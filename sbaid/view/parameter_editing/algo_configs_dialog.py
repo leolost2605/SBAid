@@ -151,7 +151,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         import_button.set_valign(Gtk.Align.CENTER)
         import_button.connect("clicked", self.__on_import_clicked)
 
-        export_button = Gtk.Button.new_with_label("Export values...")
+        export_button = Gtk.Button.new_with_label(i18n._("Export values..."))
         export_button.set_halign(Gtk.Align.END)
         export_button.set_valign(Gtk.Align.CENTER)
         export_button.connect("clicked", self.__on_export_clicked)
