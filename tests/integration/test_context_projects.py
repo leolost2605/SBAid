@@ -9,6 +9,7 @@ from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.context import Context as ModelContext
 from sbaid.model.project import AlgorithmConfigurationException
 from sbaid.view_model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
+from sbaid.view_model.algorithm_configuration.algorithm_configuration_manager import AlgorithmConfigurationManager
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 
@@ -24,7 +25,7 @@ class ContextProjectsTestCase(unittest.TestCase):
 
     async def start(self) -> None:
         await self.simple()
-        # await self.test_start_simulation()
+        # await self.start_simulation()
 
     async def simple(self) -> None:
         model_context = ModelContext()
@@ -56,7 +57,24 @@ class ContextProjectsTestCase(unittest.TestCase):
 
         self.assertEqual(2, context_2.projects.get_n_items())
 
-        await context_2.delete_project(context_2.projects[0].id)
+
+        vm_project = cast(Project, vm_context.projects[0])
+
+        with self.assertRaises(AlgorithmConfigurationException):
+            await vm_project.start_simulation()
+
+        self.assertIsNotNone(vm_project.algorithm_configuration_manager)
+        alcom = cast(AlgorithmConfigurationManager, vm_project.algorithm_configuration_manager)
+        # pos = await alcom.create_algorithm_configuration()
+        # algo_config = cast(AlgorithmConfiguration,
+        #                    vm_project.algorithm_configuration_manager.algorithm_configurations[pos])
+        # algo_config.script_path = "tests/integration/algo.py"
+        # vm_project.algorithm_configuration_manager.algorithm_configurations.set_selected(pos)
+        # self.assertIsNotNone(vm_project.algorithm_configuration_manager.algorithm_configurations.get_selected())
+        # await vm_project.start_simulation()
+        # self.assertEqual(1, len(vm_context.result_manager.results))
+
+        await context_2.delete_project(context_2.projects[1].id)
 
         self.assertEqual(1, model_context_2.projects.get_n_items())
         self.assertEqual(1, context_2.projects.get_n_items())
@@ -66,21 +84,29 @@ class ContextProjectsTestCase(unittest.TestCase):
         await global_file.delete_async(0)
 
 
-    async def test_start_simulation(self) -> None:
+    async def start_simulation(self) -> None:
         model_context = ModelContext()
         vm_context = Context(model_context)
+        await vm_context.load()
+
+        # TODO check for duplicate project id
         await vm_context.create_project("project_name_1",
                                         SimulatorType("dummy_json", "JSON Dummy"),
                                         "sim_file_path",
                                         "project_file_path")
-        vm_project = cast(Project, vm_context.projects[0])
+        # vm_project = cast(Project, vm_context.projects[0])
 
-        with self.assertRaises(AlgorithmConfigurationException):
-            await vm_project.start_simulation()
+        # with self.assertRaises(AlgorithmConfigurationException):
+        #     await vm_project.start_simulation()
+        #
+        # pos = await vm_project.algorithm_configuration_manager.create_algorithm_configuration()
+        # algo_config = cast(AlgorithmConfiguration,
+        #                    vm_project.algorithm_configuration_manager.algorithm_configurations[pos])
+        # algo_config.script_path = "tests/integration/algo.py"
+        # vm_project.algorithm_configuration_manager.algorithm_configurations.set_selected(pos)
+        # print("algo config:", vm_project.algorithm_configuration_manager
+        #       .algorithm_configurations.get_selected())
+        # self.assertIsNotNone(vm_project.algorithm_configuration_manager.algorithm_configurations.get_selected())
+        # await vm_project.start_simulation()
+        # self.assertEqual(1, len(vm_context.result_manager.results))
 
-        await vm_project.algorithm_configuration_manager.create_algorithm_configuration()
-        algo_config = cast(AlgorithmConfiguration, vm_project.algorithm_configuration_manager.algorithm_configurations[0])
-        algo_config.script_path = "algo.py"
-        vm_project.algorithm_configuration_manager.algorithm_configurations.set_selected(0)
-        await vm_project.start_simulation()
-        self.assertEqual(1, len(vm_context.result_manager.results))

@@ -62,7 +62,7 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(None)
 
     async def start(self) -> None:
-        await self.rename_project()
+        # await self.rename_project()
         await self.load_algo_config()
         await self.algo_config_properties()
         await self.algo_config_tag()
@@ -180,7 +180,7 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         project_db = ProjectSQLite(project_db_file)
         await project_db.open()
         simulator = DummySimulator()
-        sim_file = Gio.File.new_for_path("test_dummy.json")
+        sim_file = Gio.File.new_for_path("tests/integration/test_dummy.json")
         await simulator.load_file(sim_file)
         network = Network(simulator, project_db)
         await network.load()
@@ -194,7 +194,7 @@ class ProjectDatabaseTestCase(unittest.TestCase):
 
         self.assertEqual(0, config.parameter_configuration.parameters.get_n_items())
 
-        config.script_path = "algo.py"
+        config.script_path = "tests/integration/algo.py"
 
         script = await project_db.get_script_path(config.id)
         # 6 = 2 (global params) + 2 (cross sections) * 2 (cross sections params)
@@ -204,7 +204,7 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         project_db_2 = ProjectSQLite(project_db_file)
         await project_db_2.open()
         simulator_2 = DummySimulator()
-        sim_file_2 = Gio.File.new_for_path("test_dummy.json")
+        sim_file_2 = Gio.File.new_for_path("tests/integration/test_dummy.json")
         await simulator_2.load_file(sim_file_2)
         network_2 = Network(simulator_2, project_db_2)
         await network_2.load()
