@@ -98,7 +98,7 @@ class AlgorithmConfiguration(GObject.GObject):
     algorithm: Algorithm = GObject.Property(  # type: ignore
         type=Algorithm,
         flags=GObject.ParamFlags.READABLE |
-        GObject.ParamFlags.WRITABLE)  # TODO: Private writable
+        GObject.ParamFlags.WRITABLE)
 
     parameter_configuration: ParameterConfiguration = GObject.Property(  # type: ignore
         type=ParameterConfiguration,
@@ -138,7 +138,6 @@ class AlgorithmConfiguration(GObject.GObject):
 
         spec = importlib.util.spec_from_file_location(module_name, self.__script_path)
 
-        # TODO: Qualitätssicherung: Add error state
         if spec is None:
             return
 

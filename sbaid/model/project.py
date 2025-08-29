@@ -110,7 +110,7 @@ class Project(GObject.GObject):
                          project_file_path=project_file_path,
                          simulation_file_path=simulation_file_path,
                          created_at=GLib.DateTime.new_now_local(),
-                         last_opened=GLib.DateTime.new_now_local(),  # TODO: QS
+                         last_opened=GLib.DateTime.new_now_local(),
                          network=network,
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)

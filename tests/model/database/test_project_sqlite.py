@@ -189,10 +189,6 @@ class ProjectSQLiteTest(unittest.TestCase):
 
         await db.remove_tag("my_tag_id")
         await db.remove_parameter_tag("my_parameter_tag_id")
-        updated_parameter_tags = await db.get_all_tag_ids_for_parameter("my_algorithm_configuration_id", "my_parameter_name", None)
-        # print(await db.get_all_tags())
-        # print(updated_parameter_tags)
-        # self.assertEqual(len(updated_parameter_tags), 0) TODO: cascading deletion
 
         await db.add_tag("my_tag_id", "my_tag_name")
         await db.add_parameter_tag("my_parameter_tag_id", "my_parameter_name",  # parameter_tag.id

@@ -125,7 +125,7 @@ class Parameter(GObject.GObject):
 
         self.__selected_tags.append(tag)
 
-        # TODO, Parameter Tag fixen in db
+        # TODO: Parameter Tags in DB
         common.run_coro_in_background(self.__db.add_parameter_tag(
             "this field should be removed", self.name,
             self.__algo_config_id, self.__get_cs_id(), tag.tag_id))
@@ -138,7 +138,7 @@ class Parameter(GObject.GObject):
             if t == tag:
                 self.__selected_tags.remove(i)
 
-                # TODO, Parameter Tag fixen in db
+                # TODO: Parameter Tags in DB
                 common.run_coro_in_background(self.__db.remove_parameter_tag(
                     "we need algo config, name, cs id and tag id"))
 
