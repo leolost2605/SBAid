@@ -366,7 +366,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         utils.run_coro_with_error_reporting(self.__collect_export_config_file())
 
     async def __collect_export_config_file(self) -> None:
-        dialog = Gtk.FileDialog()
+        dialog = Gtk.FileDialog(
+            filters=self.__algo_config.parameter_configuration.get_export_file_filters())
 
         try:
             file = await dialog.save(self.get_root())  # type: ignore
