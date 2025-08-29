@@ -24,6 +24,12 @@ class NoExporterAvailableException(Exception):
     """Raised when the chosen parameter export format doesn't
      have a compatible exporter in SBAid."""
 
+class NoFormatException(Exception):
+    """
+    Raised when no format for exporting the parameter values was detected
+    for the given file.
+    """
+
 
 class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-instance-attributes
     """
@@ -90,7 +96,12 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
     async def export_parameter_configuration(self, file: Gio.File) -> None:
         """Saves this parameter configuration, exported to a file of a chosen format,
          to a path given by the user."""
-        export_format = file.get_basename().split('.')[-1].lower()
+        split_name = file.get_basename().split('.')
+        if not split_name:
+            raise NoFormatException(f"No format detected in file name {file.get_basename()}")
+
+        export_format = split_name[-1].lower()
+
         exporter = ExporterFactory().get_exporter(export_format)
         if exporter is None:
             raise NoExporterAvailableException(
