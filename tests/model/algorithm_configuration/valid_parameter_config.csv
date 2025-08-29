@@ -1,8 +1,9 @@
-CS_id,param_1,param_2,param_3,param_4
-AQ_00_KA,,true, 3.4, "string param"
-AQ_01_KA,2,true,, "string param"
-AQ_02_KA,2,false, 1.24,
-AQ_03_KA,2,, 4.23, "string param"
-AQ_04_KA,2,true, 3.1, "string param"
-AQ_05_KA,2,false, 3.5, "string param"
-AQ_06_KA,2,true, 1.1, "string param"
+CS_id,param_1,param_2,param_3,param_4,param_5
+AQ_00_KA,,true, 3.4, "string param",
+AQ_01_KA,2,true,, "string param",
+AQ_02_KA,2,false, 1.24,,
+,,,,,true
+AQ_03_KA,2,, 4.23, "string param",
+AQ_04_KA,2,true, 3.1, "string param",
+AQ_05_KA,2,false, 3.5, "string param",
+AQ_06_KA,2,true, 1.1, "string param",

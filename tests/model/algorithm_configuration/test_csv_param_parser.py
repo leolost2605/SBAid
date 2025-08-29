@@ -37,7 +37,7 @@ class CsvParameterParserTest(unittest.TestCase):
         }
         if ((param_name not in params_dict.keys()
                 or not variant.is_of_type(params_dict[param_name])
-                or cs_id not in cs_ids)):
+                or (cs_id is not None and cs_id not in cs_ids))):
             return False
         return True
 
@@ -45,7 +45,7 @@ class CsvParameterParserTest(unittest.TestCase):
         asyncio.run(self._test_valid_parsing())
 
     async def _test_valid_parsing(self) -> None:
-        self.assertEqual(await self._testing_callback_func("./tests/model/algorithm_configuration/valid_parameter_config.csv"), (24, 4))
+        self.assertEqual(await self._testing_callback_func("./tests/model/algorithm_configuration/valid_parameter_config.csv"), (25, 15))
 
     def test_invalid_parsing(self):
         with self.assertRaises(InvalidFileFormattingException):
