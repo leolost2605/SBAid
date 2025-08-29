@@ -3,7 +3,7 @@ import sys
 from typing import Callable, Any
 
 import gi
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

@@ -260,7 +260,7 @@ msgstr "Importieren... "
 
 # cross_section_editing_page.py:43
 msgid "Lanes:"
-msgstr "Fahrbahn:"
+msgstr "Fahrbahnen:"
 
 # cross_section_editing_page.py:49
 msgid "Rightmost lane is hard shoulder:"
@@ -275,6 +275,171 @@ msgid "B Display usable:"
 msgstr "B Anzeige nutzbar"
 
 
+msgid "SBAid"
+msgstr "SBAid"
+
+msgid "Value must be of the correct type for the parameter. Got "
+msgstr "Wert muss mit Parameterwert übereinstimmen. Bekommt  "
+
+msgid "Hard shoulder is not available"
+msgstr "Seitenstreife nicht verüfbar"
+
+msgid "Invalid value given"
+msgstr "Gegebener Wert nicht gültig"
+
+msgid "Unknown Time"
+msgstr "Unbekannte Zeit"
+
+msgid "Add new cross section"
+msgstr "Neuen Querschnitt hinzufügen"
+
+msgid "Lane snapshot creation has not begun"
+msgstr "Erstellung von Fahrbahn-Snapshot noch nicht angefangen"
+
+msgid "Current lane snapshot has not been set"
+msgstr "Aktuelle Fahrbahn-Snapshot noch nicht gesetzt"
+
+msgid "Vehicle snapshot creation has not begun"
+msgstr "Erstellung von PKW-Snapshot noch nicht angefangen"
+
+msgid "Vehicle snapshot has not been created"
+msgstr "Erstellung von PKW-Snapshot noch nicht angefangen"
+
+msgid "Lane snapshot creation cannot successfully finish"
+msgstr "Erstellung von Fahrbahn-Snapshot nicht erfolgreich beendet"
+
+msgid "Cross section snapshot creation cannot successfully finish"
+msgstr "Erstellung von Querschnitt-Snapshot nicht erfolgreich beendet"
+
+msgid "Result has not been set"
+msgstr "Ergebnis wurde noch nicht gesetzt"
+
+msgid "Current snapshot has not been set"
+msgstr "Aktueller Snapshot wurde noch nicht gesetzt "
+
+msgid "Cross section creation has not begun"
+msgstr "Erstellung von Querschnitt-Snapshot noch nicht angefangen"
+
+msgid "Current cross section snapshot has not been set"
+msgstr "Aktuelle Querschnitt-Snapshot noch nicht gesetzt"
+
+msgid "Snapshot creation cannot successfully finish"
+msgstr "Erstellung von Snapshot nicht erfolgreich beendet"
+
+msgid "Result cannot be created"
+msgstr "Ergebnis kann nicht erzeugt werden"
+
+msgid "Warning failed to load texture for preview: "
+msgstr "Laden von Texture für Previews fehlgeschlagen"
+
+msgid "Velocity-Diagram"
+msgstr "Velocity-Diagramm"
+
+msgid "JSON Dummy Simulator"
+msgstr "JSON Dummy Simulator"
+
+msgid "Cannot open new file during simulation"
+msgstr "Neue Datei kann nicht während Simulationslauf geöffnet werden"
+
+msgid "The dummy simulator does not support creating new cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "The dummy simulator does not support removing cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "The dummy simulator does not support moving cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "No simulator file has been loaded."
+msgstr "Keine Simulationsdatei geladen."
+
+msgid "The given location is not in the network."
+msgstr "Gegebene Position nicht im Netzwerk"
+
+msgid "Leftmost lane has no successor"
+msgstr "Linkeste Fahrban hat keine Successor"
+
+msgid "No link with the given location found"
+msgstr "Keinen Link mit gegebene Lokation"
+
+msgid "Path not found"
+msgstr "Pfad nicht gefunden"
+
+msgid "Failed to allow the user to choose a file: "
+msgstr "Benutzer kann kein Datei wählen"
+
+msgid "Hard shoulder:"
+msgstr "Seitenstreife: "
+
+
+msgid "Unknown Project Name"
+msgstr "Unbekannter Project Name"
+
+msgid "Failed to get current time, last opened will be wrong"
+msgstr "Konnte derzeitige Zeit nicht für Projekt speichern"
+
+msgid "No selected algorithm configuration found!"
+msgstr "Keine gewählte Algorithmuskonfiguration gefunden!"
+
+msgid "Simulation was cancelled."
+msgstr "Simulation war abgebrochen."
+
+msgid "Failed to stop simulation: "
+msgstr "Simulation konnte nicht pausiert werden: "
+
+msgid "Failed to cancel simulation: "
+msgstr "Simulation konnte nicht abgebrochen werden: "
+
+msgid "Failed to simulate: "
+msgstr "Konnte nicht simulieren: "
+
+msgid "Unknown cross section"
+msgstr "Unbekannter Querschnitt"
+
+msgid "New Algorithm Configuration"
+msgstr "Neue Algorithmuskonfiguration"
+
+msgid "The algorithm configuration "
+msgstr "Die Algorithmuskonfiguration "
+
+msgid "The given file is not a valid global sqlite database."
+msgstr "Gegebene Datei ist kein gültiger globale SQLite-Datenbank"
+
+msgid "Hard shoulder is not available."
+msgstr "Seitenstreife nicht verfügbar."
+
+msgid "File has no valid cross section definitions."
+msgstr "Datei hat keine gültige Querschnitten definiert."
+
+msgid "Cross section creation in simulator failed."
+msgstr "Erstellung vom Querschnitt im Simulator durchgeschlagen."
+
+msgid "Input file format not supported by SBAid."
+msgstr "Eingabedatei nicht vom SBAid unterstützt."
+
+msgid "Display-Diagram"
+msgstr "Display-Diagramm"
+
+msgid "Heatmap-Diagram"
+msgstr "Heatmap-Diagramm"
+
+msgid " from project "
+msgstr " vom Projekt "
+
+msgid "QV-Diagram"
+msgstr "QV-Diagramm"
+
+msgid "Could not get current time from local system"
+msgstr "Konnte vom lokalen System die aktuelle Uhrzeit nicht lesen"
+
+msgid "Unavailable"
+msgstr "Nicht Verfügbar"
+
+msgid "Available"
+msgstr "Verfügbar"
+
+msgid "TYPE:"
+msgstr "TYP:"
 
 
 

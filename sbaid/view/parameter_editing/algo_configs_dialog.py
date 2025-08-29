@@ -16,7 +16,7 @@ from sbaid.view_model.algorithm_configuration.algorithm_configuration_manager im
     AlgorithmConfigurationManager
 from sbaid.view_model.algorithm_configuration.parameter import Parameter
 from sbaid.view_model.network.cross_section import CrossSection
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -321,7 +321,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:
@@ -350,7 +351,8 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:

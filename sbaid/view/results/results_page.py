@@ -9,7 +9,7 @@ from sbaid.view.common.rename_dialog import RenameDialog
 from sbaid.view.results.result_cell import ResultCell, ResultCellType
 from sbaid.view_model.results.result import Result
 from sbaid.view_model.results.result_manager import ResultManager
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

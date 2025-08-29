@@ -15,7 +15,7 @@ from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSection
 from sbaid.view.main_page.cross_section_marker import CrossSectionMarker
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -179,7 +179,8 @@ class NetworkMap(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             target = builder.end()
 
             self.__menu_model.remove_all()
-            self.__menu_model.append("Add new cross section", Gio.Action.print_detailed_name(
+            self.__menu_model.append(i18n._("Add new cross section"),
+                                     Gio.Action.print_detailed_name(
                 "cross-section.add", target))
 
             if not self.__menu.get_parent():

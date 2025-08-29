@@ -12,7 +12,7 @@ from sbaid.view.main_page.add_new_cross_section_list_popover import AddNewCrossS
 from sbaid.view.main_page.network_map import NetworkMap
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.project import Project
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

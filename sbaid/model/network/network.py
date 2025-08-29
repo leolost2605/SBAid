@@ -7,6 +7,7 @@ import gi
 import sbaid.common
 from sbaid.common import list_model_iterator
 from sbaid.common.cross_section_type import CrossSectionType
+from sbaid.common.i18n import i18n
 from sbaid.model.simulator.simulator import Simulator
 from sbaid.common.location import Location
 from sbaid.model.simulator.simulator_cross_section import SimulatorCrossSection
@@ -94,7 +95,7 @@ class Network(GObject.Object):
                 position = await self.__simulator.create_cross_section(location, cs_type)
             except Exception as exc:
                 raise FailedCrossSectionCreationException(
-                    "Cross section creation in simulator failed.") from exc
+                    i18n._("Cross section creation in simulator failed.")) from exc
             model_cross_section = typing.cast(CrossSection,
                                               self.cross_sections.get_item(position))
             model_cross_section.name = name
@@ -153,4 +154,4 @@ class FailedCrossSectionCreationException(Exception):
 class NoSuitableParserException(Exception):
     """Exception raised when a file SBAid has no parser for is input."""
     def __init__(self) -> None:
-        self.message = "Input file format not supported by SBAid."
+        self.message = i18n._("Input file format not supported by SBAid.")

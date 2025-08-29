@@ -7,7 +7,7 @@ import gi
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.view import utils
 from sbaid.view_model.context import Context
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -79,7 +79,8 @@ class ProjectCreation(Adw.NavigationPage):
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:
@@ -96,7 +97,8 @@ class ProjectCreation(Adw.NavigationPage):
         try:
             file = await dialog.select_folder(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:

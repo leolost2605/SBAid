@@ -4,7 +4,7 @@ This module contains the welcome page.
 import sys
 from typing import Any
 import gi
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 from sbaid.view_model.context import Context
 from sbaid.view_model.project import Project
 
@@ -71,7 +71,7 @@ class WelcomePage(Adw.NavigationPage):  # pylint:disable=too-many-instance-attri
         main_view.add_top_bar(header_bar)
         main_view.set_content(status_page)
 
-        self.set_title("SBAid")
+        self.set_title(i18n._("SBAid"))
         self.set_child(main_view)
         self.connect("map", self.__on_map)
 

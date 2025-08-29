@@ -9,7 +9,7 @@ from enum import Enum
 import gi
 
 from sbaid.view_model.algorithm_configuration.parameter import Parameter
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
@@ -77,7 +77,7 @@ class ParamCell(Adw.Bin):
             variant = GLib.Variant.parse(None, entry.get_text())
             self.__parameter.update_value(variant)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Invalid value given", e)
+            print(i18n._("Invalid value given"), e)
             self.__parameter.notify("value")  # Retrigger the binding
 
     def bind(self, param: Parameter) -> None:

@@ -12,7 +12,7 @@ from sbaid.common.image import Image
 from sbaid.view import utils
 from sbaid.view.results.cross_section_row import CrossSectionRow
 from sbaid.view_model.results.result import Result, CrossSectionSnapshotWrapper
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 
 try:
@@ -154,7 +154,8 @@ class ExportResultsDialog(Adw.Window):
         try:
             file = await dialog.select_folder(self)  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:

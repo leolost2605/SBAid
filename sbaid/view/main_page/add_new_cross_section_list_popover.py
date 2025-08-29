@@ -10,7 +10,7 @@ import gi
 from sbaid.view import utils
 from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSectionDialog
 from sbaid.view_model.network.network import Network
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 
 try:
@@ -63,7 +63,8 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
         try:
             file = await dialog.open(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
+            msg = i18n._("Failed to allow the user to choose a file: ")
+            print(msg, e)
             return
 
         if file is None:

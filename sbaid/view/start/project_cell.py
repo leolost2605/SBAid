@@ -5,7 +5,7 @@ from enum import Enum
 import gi
 
 from sbaid.view_model.project import Project
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

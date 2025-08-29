@@ -10,7 +10,7 @@ from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.view import utils
 from sbaid.view_model.network.cross_section import CrossSection
 from sbaid.view_model.network.network import Network
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -40,7 +40,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
                                     GObject.BindingFlags.SYNC_CREATE |
                                     GObject.BindingFlags.BIDIRECTIONAL)
 
-        type_label = Gtk.Label.new("Type:")
+        type_label = Gtk.Label.new(i18n._("Type:"))
         type_label.set_halign(Gtk.Align.END)
         type_value_label = Gtk.Label.new(None)
         type_value_label.set_halign(Gtk.Align.START)
@@ -55,7 +55,7 @@ class CrossSectionDetailsPopover(Gtk.Popover):
         cross_section.bind_property("lanes", lanes_value_label, "label",
                                     GObject.BindingFlags.SYNC_CREATE)
 
-        hard_shoulder_label = Gtk.Label.new("Hard shoulder:")
+        hard_shoulder_label = Gtk.Label.new(i18n._("Hard shoulder:"))
         hard_shoulder_label.set_halign(Gtk.Align.END)
         hard_shoulder_value_label = Gtk.Label.new(None)
         hard_shoulder_value_label.set_halign(Gtk.Align.START)
@@ -108,8 +108,8 @@ class CrossSectionDetailsPopover(Gtk.Popover):
     @staticmethod
     def __transform_hard_shoulder(binding: GObject.Binding, available: bool) -> str:
         if available:
-            return "Available"
-        return "Unavailable"
+            return i18n._("Available")
+        return i18n._("Unavailable")
 
     def __on_delete_clicked(self, button: Gtk.Button) -> None:
         utils.run_coro_with_error_reporting(

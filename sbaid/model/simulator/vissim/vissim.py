@@ -20,6 +20,7 @@ from gi.repository import GLib, Gio
 
 from sbaid.common.a_display import ADisplay
 from sbaid.common.b_display import BDisplay
+from sbaid.common.i18n import i18n
 from sbaid.common.location import Location
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.model.simulation.display import Display
@@ -509,7 +510,7 @@ class VissimConnector:
         assert threading.current_thread() == self.__thread
 
         if not self.__network.contains_point(new_location):
-            raise InvalidLocationException("The given location is not in the network.")
+            raise InvalidLocationException(i18n._("The given location is not in the network."))
 
         cross_section = self.__cross_sections_by_id[cs_id]
 

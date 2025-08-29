@@ -11,7 +11,7 @@ from sbaid.view.start.project_cell import ProjectCellType, ProjectCell
 from sbaid.view_model.context import Context
 
 from sbaid.view_model.project import Project
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

@@ -10,7 +10,7 @@ import gi
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
 from sbaid.view import utils
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 from sbaid.view_model.network.network import Network
 
 try:

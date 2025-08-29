@@ -5,7 +5,7 @@ from enum import Enum
 import gi
 
 from sbaid.view_model.results.result import Result
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -94,7 +94,7 @@ class ResultCell(Adw.Bin):
                 if formatted_time:
                     self.__label.set_label(formatted_time)
                 else:
-                    self.__label.set_label("Unknown Time")
+                    self.__label.set_label(i18n._("Unknown Time"))
             case ResultCellType.TAGS:
                 self.__label.set_label(i18n._("Tags appear here"))  # TODO
 

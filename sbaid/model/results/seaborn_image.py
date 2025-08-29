@@ -1,5 +1,7 @@
 """This module defines the seaborn image"""
 from gi.repository import Gdk, GLib
+
+from sbaid.common.i18n import i18n
 from sbaid.common.image import Image
 from sbaid.common.image_format import ImageFormat
 
@@ -18,7 +20,7 @@ class SeabornImage(Image):
         try:
             self.__texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(list(image_bytes)))
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Warning failed to load texture for preview: ", e)
+            print(i18n._("Warning failed to load texture for preview: "), e)
             self.__texture = Gdk.Paintable.new_empty(100, 100)
 
     def save_to_file(self, path: str) -> None:

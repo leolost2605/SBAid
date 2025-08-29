@@ -7,7 +7,7 @@ import sys
 import gi
 
 from sbaid.view_model.algorithm_configuration.algorithm_configuration import AlgorithmConfiguration
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 try:
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')

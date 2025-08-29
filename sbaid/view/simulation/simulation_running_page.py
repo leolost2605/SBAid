@@ -8,7 +8,7 @@ import gi
 
 from sbaid.view import utils
 from sbaid.view_model.simulation import Simulation
-from sbaid.view.i18n import i18n
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')

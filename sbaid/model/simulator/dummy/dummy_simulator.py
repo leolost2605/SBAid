@@ -7,6 +7,7 @@ from jsonschema import validate, ValidationError
 
 from gi.repository import GLib, Gio
 
+from sbaid.common.i18n import i18n
 from sbaid.model.simulator.dummy.dummy_cross_section import DummyCrossSection
 from sbaid.common.simulator_type import SimulatorType
 from sbaid.model.simulator.simulator import Simulator
@@ -118,7 +119,7 @@ class DummySimulator(Simulator):
         super().__init__()
         self._route_points = Gio.ListStore.new(Location)
         self._cross_sections = Gio.ListStore.new(DummyCrossSection)
-        self._type = SimulatorType("dummy_json", "JSON Dummy Simulator")
+        self._type = SimulatorType("dummy_json", i18n._("JSON Dummy Simulator"))
         self._sequence = {}
         self._pointer = 0
         self._simulation_start_time = 0
@@ -130,7 +131,7 @@ class DummySimulator(Simulator):
         sequence of input measurements."""
         async with aiofiles.open(str(file.get_path()), 'r', encoding="utf-8") as json_file:
             if self._pointer != 0:
-                raise RuntimeError("Cannot open new file during simulation")
+                raise RuntimeError(i18n._("Cannot open new file during simulation"))
             data = json.loads(await json_file.read())
             try:
                 validate(instance=data, schema=self._schema)
@@ -171,16 +172,18 @@ class DummySimulator(Simulator):
     async def create_cross_section(self, location: Location,
                                    cross_section_type: CrossSectionType) -> int:
         """Has no effect. Raises an exception."""
-        raise NotSupportedException("The dummy simulator does not support creating"
-                                    "new cross sections.")
+        raise NotSupportedException(i18n._("The dummy simulator does not support"
+                                           " creating new cross sections."))
 
     async def remove_cross_section(self, cross_section_id: str) -> None:
         """Has no effect. Raises an exception."""
-        raise NotSupportedException("The dummy simulator does not support removing cross sections.")
+        raise NotSupportedException(i18n._(
+            "The dummy simulator does not support removing cross sections."))
 
     async def move_cross_section(self, cross_section_id: str, new_location: Location) -> None:
         """Has no effect. Raises an exception."""
-        raise NotSupportedException("The dummy simulator does not support moving cross sections.")
+        raise NotSupportedException(i18n._(
+            "The dummy simulator does not support moving cross sections."))
 
     async def init_simulation(self, evaluation_interval: int) -> tuple[GLib.DateTime, int]:
         """Initialize the simulator. Always returns 0 as the starting point
@@ -200,7 +203,7 @@ class DummySimulator(Simulator):
         If there is no measurement given at the current time,
         the nearest neighbouring measurement is returned."""
         if not self._sequence:
-            raise FileNotFoundError("No simulator file has been loaded.")
+            raise FileNotFoundError(i18n._("No simulator file has been loaded."))
         if not self._sequence.keys().__contains__(self._pointer):
             nearest = min(self._sequence.keys(), key=lambda x: abs(x - self._pointer))
             return self._sequence[nearest]
