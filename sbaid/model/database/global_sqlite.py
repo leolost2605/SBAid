@@ -149,17 +149,6 @@ class GlobalSQLite(GlobalDatabase):
                 return list(map(lambda x: (str(x[0]), str(x[1]), str(x[2]),
                                            get_date_time(str(x[3]))), await cursor.fetchall()))
 
-    async def add_result(self, result_id: str, result_name: str, project_name: str,
-                         creation_date_time: GLib.DateTime) -> None:
-        """Add a result to the database."""
-        async with aiosqlite.connect(str(self._file.get_path())) as db:
-            await db.execute("""PRAGMA foreign_keys=ON;""")
-            await db.execute("""
-            INSERT INTO result (id, name, project_name, date)
-            VALUES (?, ?, ?, ?);
-            """, (result_id, result_name, project_name, creation_date_time.format_iso8601()))
-            await db.commit()
-
     async def delete_result(self, result_id: str) -> None:
         """Remove a result and all sub-results from the database."""
         async with aiosqlite.connect(str(self._file.get_path())) as db:
