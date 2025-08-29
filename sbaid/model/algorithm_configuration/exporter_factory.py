@@ -4,12 +4,10 @@ to a specified file type"""
 import typing
 
 from gi.repository import Gio
-from gi.repository.Gio import ListStore
 
 from sbaid.model.algorithm_configuration.parameter_export_format import ParameterExportFormat
 from sbaid.model.algorithm_configuration.parameter_exporter import ParameterExporter
 from sbaid.model.algorithm_configuration.csv_parameter_exporter import CSVParameterExporter
-from sbaid.common import list_model_iterator
 
 
 class ExporterFactoryMeta(type):
@@ -48,6 +46,6 @@ class ExporterFactory(metaclass=ExporterFactoryMeta):
                 return param_exporter
         return None
 
-    def get_all_formats(self) -> ListStore:
+    def get_all_formats(self) -> Gio.ListStore:
         """Returns a list of all available export formats."""
         return self.__formats
