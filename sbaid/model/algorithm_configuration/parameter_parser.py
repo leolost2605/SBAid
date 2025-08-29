@@ -20,8 +20,8 @@ class ParameterParser(ABC):
         """
 
     @abstractmethod
-    async def for_each_parameter(self, file: Gio.File,
-                                 foreach_func: ParameterParserForeachFunc) -> tuple[int, int]:
+    async def export_parameters(self, file: Gio.File,
+                                foreach_func: ParameterParserForeachFunc) -> tuple[int, int]:
         """
         Parses the given file and runs the foreach func for each parameter found in the file.
         Should only be called after can_handle_file returned true for the file.

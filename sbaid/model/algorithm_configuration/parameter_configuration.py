@@ -20,6 +20,11 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
+class NoSuchExporterAvailableException(Exception):
+    """Raised when the chosen parameter export format doesn't
+     have a compatible exporter in SBAid."""
+
+
 class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-instance-attributes
     """
     This class manages the parameters for an algorithm configuration. It automatically
@@ -69,7 +74,7 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
         parser = ParserFactory().get_parser(file)
         if parser is None:
             raise NoSuitableParserException()
-        return await parser.for_each_parameter(file, self.__import_param_func)
+        return await parser.export_parameters(file, self.__import_param_func)
 
     def __import_param_func(self, name: str, cross_section_id: str | None,
                             value: GLib.Variant) -> bool:
@@ -82,16 +87,16 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
         return False
 
-    async def export_parameter_configuration(self, path: str, export_format: str) -> bool:
-        """Saves this parameter configuration, exported to a csv file,
+    async def export_parameter_configuration(self, path: str, export_format: str) -> None:
+        """Saves this parameter configuration, exported to a file of a chosen format,
          to a path given by the user."""
         file = Gio.File.new_for_path(path)
         factory: ExporterFactory = ExporterFactory()
         exporter = factory.get_exporter(export_format)
         if exporter is None:
-            return False
+            raise NoSuchExporterAvailableException(
+                f"No exporter available for format {export_format}")
         await exporter.for_each_parameter(file, self.__parameters)
-        return True
 
     async def load(self) -> None:
         """Loads the parameter values from the database."""

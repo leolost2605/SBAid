@@ -35,3 +35,7 @@ class ExporterFactory(metaclass=ExporterFactoryMeta):
             if exporter_id == export_format:
                 return param_exporter
         return None
+
+    def get_all_formats(self) -> list[ParameterExporter]:
+        """Returns a list of all available exporters."""
+        return self.__exporters

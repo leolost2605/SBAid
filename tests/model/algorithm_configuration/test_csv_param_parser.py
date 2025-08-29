@@ -22,7 +22,7 @@ class CsvParameterParserTest(unittest.TestCase):
     async def _testing_callback_func(self, path: str) -> tuple[int, int]:
         parser = CSVParameterParser()
         file = Gio.File.new_for_path(path)
-        return await parser.for_each_parameter(file, self.foreach_func_callback_func)
+        return await parser.export_parameters(file, self.foreach_func_callback_func)
 
     def foreach_func_callback_func(self, param_name: str, cs_id: str,
                                    variant: GLib.Variant) -> bool:

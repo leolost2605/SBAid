@@ -17,8 +17,8 @@ class CSVParameterParser(ParameterParser):
         """Checks if the given file is a csv file."""
         return Gio.content_type_guess(file_path)[0] == ".csv"
 
-    async def for_each_parameter(self, file: Gio.File,
-                                 foreach_func: ParameterParserForeachFunc) -> tuple[int, int]:
+    async def export_parameters(self, file: Gio.File,
+                                foreach_func: ParameterParserForeachFunc) -> tuple[int, int]:
         """Loads the file contents asynchronously and reads the input CSV file row by row,
         attempting to add the parameter to the parameter configuration.
         Returns the amount of added and skipped parameters."""
