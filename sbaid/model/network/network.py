@@ -68,7 +68,7 @@ class Network(GObject.Object):
         try:
             await self.create_cross_section(name, location, cross_section_type)
             return True
-        except FailedCrossSectionCreationException:
+        except Exception:  # pylint: disable=broad-exception-caught
             return False
 
     async def create_cross_section(self, name: str, location: Location,
@@ -90,16 +90,14 @@ class Network(GObject.Object):
                 model_cross_section.name = (existing_cross_section.name + "_"
                                             + model_cross_section.name)
                 return position
-            try:
-                position = await self.__simulator.create_cross_section(location, cs_type)
-            except Exception as exc:
-                raise FailedCrossSectionCreationException(
-                    "Cross section creation in simulator failed.") from exc
+
+            position = await self.__simulator.create_cross_section(location, cs_type)
             model_cross_section = typing.cast(CrossSection,
                                               self.cross_sections.get_item(position))
             model_cross_section.name = name
             return position
-        raise FailedCrossSectionCreationException()
+        raise FailedCrossSectionCreationException("The given cross section is not compatible with"
+                                                  " the network.")
 
     async def delete_cross_section(self, cs_id: str) -> None:
         """Deletes a cross section by calling the simulator's remove_cross_section method."""
