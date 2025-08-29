@@ -18,11 +18,16 @@ taking a look at the [PyGObject](https://pygobject.gnome.org/) documentation bef
 To run SBAid you will need some dependencies. Most of them should be installed 
 (or are only available) via [msys2](https://www.msys2.org/). For setting
 up msys see the documentation on the linked page. Then install 
-the following dependencies
+the following dependencies in the ucrt version:
 
-(Right now non exhaustive)
-
-- 
+- gtk4
+- python3
+- gobject
+- libadwaita
+- libshumate
+- python-seaborn
+- python-aiofiles
+- python-aiosqlite
 
 ## File input
 
