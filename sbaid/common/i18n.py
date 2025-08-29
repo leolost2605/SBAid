@@ -29,15 +29,3 @@ class Internationalization:
 
 # global singleton
 i18n = Internationalization("en")
-
-# def get_available_languages() -> Gio.ListModel:
-#    """Returns a list of available languages by reading what is present in the translation files.
-#    Returns ListModel containing the LanguageWrapper class."""
-#    available_languages = Gio.ListStore.new(LanguageWrapper)
-#    available_languages.append(LanguageWrapper("en"))  # add default language code
-
-# add languages that have translation files
-#    for directory in os.listdir("../translations"):
-#        if "." not in directory:
-#            available_languages.append(LanguageWrapper(directory))
-#    return available_languages
