@@ -30,6 +30,7 @@ class ProjectDatabaseTestCase(unittest.TestCase):
 
     async def start(self) -> None:
         await self.result_nest()
+        # projects are tested for integration in different module
 
     async def result_nest(self):
         global_db_file = Gio.File.new_for_path("test_global_db")

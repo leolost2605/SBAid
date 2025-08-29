@@ -94,6 +94,9 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         await global_file.delete_async(0, None)
         project_file = Gio.File.new_for_path("test_project/db")
         project_dir = Gio.File.new_for_path("test_project")
+
+        # for project in context2.projects:
+        #     await context2.delete_project(project.id)
         await project_file.delete_async(0, None)
         await project_dir.delete_async(0, None)
 
@@ -194,7 +197,6 @@ class ProjectDatabaseTestCase(unittest.TestCase):
         config.script_path = "algo.py"
 
         script = await project_db.get_script_path(config.id)
-        print(script)
         # 6 = 2 (global params) + 2 (cross sections) * 2 (cross sections params)
         self.assertEqual(6, config.parameter_configuration.parameters.get_n_items())
 
