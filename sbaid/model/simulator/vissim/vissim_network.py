@@ -6,6 +6,7 @@ loaded from a file into vissim as a directed graph with links as vertices.
 from typing import Any
 from sortedcontainers import SortedDict
 
+from sbaid.common.i18n import i18n
 from sbaid.common.location import Location
 
 
@@ -53,7 +54,7 @@ class _Link:
                     if from_lane.AttValue("Index") == leftmost_lane:  # Both are 1 indexed
                         return connector
 
-        raise InvalidSuccessorsException("Leftmost lane has no successor")
+        raise InvalidSuccessorsException(i18n._("Leftmost lane has no successor"))
 
     @property
     def points(self) -> list[Location]:
@@ -229,7 +230,7 @@ class VissimNetwork:
             if result:
                 return link.vissim_link, distance
 
-        raise InvalidLocationException("No link with the given location found")
+        raise InvalidLocationException(i18n._("No link with the given location found"))
 
     def contains_point(self, location: Location) -> bool:
         """

@@ -35,11 +35,6 @@ class GlobalDatabase(ABC):
         """Return all results in the database."""
 
     @abstractmethod
-    async def add_result(self, result_id: str, result_name: str, project_name: str,
-                         creation_date_time: GLib.DateTime) -> None:
-        """Add a result to the database."""
-
-    @abstractmethod
     async def delete_result(self, result_id: str) -> None:
         """Remove a result and all sub-results from the database."""
 
