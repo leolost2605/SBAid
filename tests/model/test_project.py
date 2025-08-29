@@ -47,7 +47,7 @@ class ProjectTestCase(unittest.TestCase):
         other_project = Project(my_project_id, sim_type, "sim_file_path", "proj_file_path", result_manager)
         await other_project.load_from_db()
 
-        self.assertEqual(other_project.name, "my_cool_name")
+        self.assertEqual(other_project.name, "my_cool_other_name")
         self.assertEqual(other_project.id, my_project_id)
         self.assertEqual(other_project.simulation_file_path, "sim_file_path")
         self.assertEqual(other_project.project_file_path, "proj_file_path")
