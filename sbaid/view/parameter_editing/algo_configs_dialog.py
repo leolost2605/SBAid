@@ -388,6 +388,7 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             return -1
         return 0
 
+
 class AlgoConfigsDialog(Adw.Window):
     """
     Represents a dialog shown to the user to allow configuring the algorithm configurations
