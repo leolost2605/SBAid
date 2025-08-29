@@ -25,7 +25,7 @@ class ContextProjectsTestCase(unittest.TestCase):
 
     async def start(self) -> None:
         await self.simple()
-        # await self.simulate()
+        await self.simulate()
 
     async def simple(self) -> None:
         model_context = ModelContext()
@@ -85,7 +85,11 @@ class ContextProjectsTestCase(unittest.TestCase):
         await alcom.create_algorithm_configuration()
         selected_alco = cast(AlgorithmConfiguration, alcom.algorithm_configurations.get_item(0))
         selected_alco.script_path = "tests/integration/algo.py"
+        await asyncio.sleep(2)  # Wait for the algo to be loaded in the background
         simulation = await project.start_simulation()
+        simulation.connect("finished", self.__on_finished)
+        await asyncio.sleep(1)  # Wait for the simulation
+        self.assertEqual(self.__finished, True)
         self.assertEqual(1, context.result_manager.results.get_n_items())
 
         # cleanup:
@@ -95,3 +99,6 @@ class ContextProjectsTestCase(unittest.TestCase):
         await global_file.delete_async(0)
         await project_file.delete_async(0)
         await project_directory.delete_async(0)
+
+    def __on_finished(self, simulation, res_id: str) -> None:
+        self.__finished = True
