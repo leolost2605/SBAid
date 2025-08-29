@@ -128,5 +128,5 @@ class ResultManager(GObject.GObject):
             snapshot_data.append((str(snapshot.id), result.id,
                                   str(snapshot.capture_timestamp.format_iso8601()),
                                   cs_sn_data))
-        # await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name,
-        #                                          result.creation_date_time, snapshot_data)
+        await self.__global_db.add_entire_result(result.id, result.result_name, result.project_name,
+                                                 result.creation_date_time, snapshot_data)

@@ -80,17 +80,23 @@ class ContextProjectsTestCase(unittest.TestCase):
         with self.assertRaises(AlgorithmConfigurationException):
             await project.start_simulation()
 
+        await project.load()
+
         alcom = cast(AlgorithmConfigurationManager, project.algorithm_configuration_manager)
         assert alcom is not None
         await alcom.create_algorithm_configuration()
         selected_alco = cast(AlgorithmConfiguration, alcom.algorithm_configurations.get_item(0))
         selected_alco.script_path = "tests/integration/algo.py"
+        selected_alco.evaluation_interval = 5
+        selected_alco.display_interval = 5
         await asyncio.sleep(2)  # Wait for the algo to be loaded in the background
         simulation = await project.start_simulation()
         simulation.connect("finished", self.__on_finished)
         await asyncio.sleep(1)  # Wait for the simulation
         self.assertEqual(self.__finished, True)
         self.assertEqual(1, context.result_manager.results.get_n_items())
+
+        await context.result_manager.delete_result(context.result_manager.results[0].id)
 
         # cleanup:
         global_file = Gio.File.new_build_filenamev([GLib.get_user_data_dir(), "sbaid", "global_db"])
