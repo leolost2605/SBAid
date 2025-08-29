@@ -61,6 +61,7 @@ class WelcomePage(Adw.NavigationPage):
 
         logo_texture = Gdk.Texture.new_from_filename("./data/logo.svg")
 
+
         status_page = Adw.StatusPage(child=box, paintable=logo_texture)
 
         main_view = Adw.ToolbarView()
