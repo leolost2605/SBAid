@@ -80,6 +80,7 @@ class ResultManager(GObject.GObject):
                 for result in self.__results:
                     assert isinstance(result, Result)
                     result.remove_tag(tag)
+                    # TODO?
                     # await self.__global_db.remove_result_tag(result.id, tag.tag_id)
                 break
             await self.__global_db.remove_tag(tags_id)

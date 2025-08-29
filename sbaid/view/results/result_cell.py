@@ -5,6 +5,7 @@ from enum import Enum
 import gi
 
 from sbaid.view_model.results.result import Result
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -92,10 +93,10 @@ class ResultCell(Adw.Bin):
                 if formatted_time:
                     self.__label.set_label(formatted_time)
                 else:
-                    self.__label.set_label("Unknown Time")
+                    self.__label.set_label(i18n._("Unknown Time"))
 
         self.__menu_model.remove_all()
-        self.__menu_model.append("Rename", Gio.Action.print_detailed_name(
+        self.__menu_model.append(i18n._("Rename"), Gio.Action.print_detailed_name(
             "result.rename", GLib.Variant.new_string(result.id)))
-        self.__menu_model.append("Delete", Gio.Action.print_detailed_name(
+        self.__menu_model.append(i18n._("Delete"), Gio.Action.print_detailed_name(
             "result.delete", GLib.Variant.new_string(result.id)))

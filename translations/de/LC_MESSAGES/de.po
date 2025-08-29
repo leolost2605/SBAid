@@ -1,0 +1,451 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: SBAid\n"
+"Language: de\n"
+
+# START PAGE
+
+# welcome_page.py:40
+msgid "Create Project"
+msgstr "Projekt Erstellen"
+
+# welcome_page.py:47
+msgid "No recently opened projects"
+msgstr "Keine zuletzt geöffneten Projekte"
+
+# welcome_page.py:54
+msgid "All Projects"
+msgstr "Alle Projekte"
+
+# welcome_page.py:57
+msgid "Results"
+msgstr "Ergebnisse"
+
+
+# PROJECT CREATION PAGE
+
+# project_creation.py:28
+# all_projects.py:40
+# algo_configs_dialog.py:110
+# algo_configs_dialog.py:187
+# add_new_cross_section_dialog.py:37
+
+msgid "Name"
+msgstr "Name"
+
+# project_creation.py:30
+msgid "Simulator"
+msgstr "Simulator"
+
+# project_creation.py:35
+msgid "Select..."
+msgstr "Auswählen..."
+
+# project_creation.py:39
+msgid "Simulation File"
+msgstr "Simulationsdatei"
+
+# project_creation.py:46
+msgid "Project Folder"
+msgstr "Projektordner"
+
+# project_creation.py:46
+msgid "Create"
+msgstr "Erstellen"
+
+# project_creation.py:71
+msgid "Project Creation"
+msgstr "Projekterstellung"
+
+# CELLS
+
+# project_cell.py:46
+# result_cell.py:101
+# rename_dialog:py:47
+msgid "Rename"
+msgstr "Umbenennen"
+
+# project_cell.py:46
+# result_cell.py:103
+# algo_config_row.py:81
+# cross_section_details_popover.py:58
+msgid "Delete"
+msgstr "Löschen"
+
+# result_cell.py:97
+msgid "Tags appear here"
+msgstr "Tags werden hier dargestellt"
+
+# param_cell.py:107
+msgid "tags"
+msgstr "tags"
+
+# ALL PROJECTS
+
+# all_projects.py:47
+msgid "Last Opened"
+msgstr "Zuletzt Geöffnet"
+
+# all_projects.py:53
+msgid "Created at"
+msgstr "Erstellungsdatum"
+
+# all_projects.py:75
+msgid "All Projects"
+msgstr "Alle Projekte"
+
+# simulation_running_page.py:41
+# network_map.py:80
+msgid "Cancel"
+msgstr "Abbrechen"
+
+# simulation_running_page.py:51
+msgid "Simulating…"
+msgstr "Simuliert…"
+
+# simulation_running_page.py:52
+msgid "A Simulation is ongoing."
+msgstr "Eine Simulation läuft"
+
+# simulation_running_page.py:60
+msgid "Simulation"
+msgstr "Simulation"
+
+# simulation_running_page.py:73
+msgid "Show Result"
+msgstr "Ergebnisse Darstellen"
+
+# simulation_running_page.py:80
+msgid "Simulation Completed"
+msgstr "Simulation Fertig"
+
+# simulation_running_page.py:81
+msgid "The Simulation was completed successfully. You can now view the result."
+msgstr "Die Simulation wurde erfolgreich abgeschlossen. Sie können jetzt die Ergebnisse anschauen."
+
+# simulation_running_page.py:88
+msgid  "Simulation Failed"
+msgstr "Simulation Fehlgeschlagen"
+
+# RESULTS PAGE
+
+# results_page.py:38
+msgid  "Search Results"
+msgstr "Ergebnisse Durchsuchen"
+
+# results_page.py:61
+msgid  "Project Name"
+msgstr "Projektname"
+
+# results_page.py:67
+msgid  "Date"
+msgstr "Datum"
+
+# results_page.py:73
+# algo_configs_dialog.py:206
+msgid  "Tags"
+msgstr "Tags"
+
+# results_page.py:95
+msgid  "Results"
+msgstr "Ergebnisse"
+
+# RESULTS DIALOG
+
+# export_results_dialog.py:49
+# algo_configs_dialog.py:221
+msgid  "Cross Sections"
+msgstr "Querschnitte"
+
+# export_results_dialog.py:91
+msgid  "Export"
+msgstr "Exportieren"
+
+# export_results_dialog.py:113 todo
+msgid "Export "
+msgstr "Exportieren: "
+
+# ALGORITHM CONFIGURATION DIALOG
+
+# algo_configs_dialog.py:113
+msgid "Evaluation Interval"
+msgstr "Auswertungsintervall"
+
+# algo_configs_dialog.py:117
+msgid "Display Interval"
+msgstr "Anzeigeintervall"
+
+# algo_configs_dialog.py:114,116
+msgid "In seconds"
+msgstr "Sekunden"
+
+# algo_configs_dialog.py:125
+msgid "Script Path"
+msgstr "Skriptpfad"
+
+# algo_configs_dialog.py:134
+msgid "Parameters"
+msgstr "Parameter"
+
+# algo_configs_dialog.py:139
+msgid "Configure the parameters of the algorithm."
+msgstr "Konfigurieren Sie die Parameter des Algorithmus."
+
+# algo_configs_dialog.py:
+msgid "Import values..."
+msgstr "Parameterwerte importieren..."
+
+# algo_configs_dialog.py: 159
+msgid "Value Type"
+msgstr "Typ"
+
+# algo_configs_dialog.py: 200
+msgid "Value"
+msgstr "Wert"
+
+# algo_configs_dialog.py:380
+msgid "Algorithm Configuration"
+msgid_plural "Algorithm Configurations"
+msgstr[0] "Algorithmuskonfiguration"
+msgstr[1] "Algorithmuskonfigurationen"
+
+# algo_configs_dialog.py:394
+# add_new_cross_section_dialog.py:65
+msgid "Add"
+msgstr "Hinzufügen"
+
+# MAIN PAGE:
+# project_main_page.py:41
+msgid "Loading..."
+msgstr "Wird Geladen..."
+
+# project_main_page.py:46
+msgid "Start Simulating"
+msgstr "Simulation Starten"
+
+# project_main_page.py:52
+msgid "Edit Algorithm Configurations"
+msgstr "Algorithmuskonfigurationen Bearbeiten"
+
+# project_main_page.py:77
+msgid "Add Cross Section"
+msgstr "Querschnitt Hinzufügen"
+
+# project_main_page.py:119
+msgid "Failed to load project"
+msgstr "Projekt konnte nicht geladen werden"
+
+# network_map.py:75
+# cross_section_details_popover.py:71
+# cross_section_editing_page.py:84
+msgid "Move"
+msgstr "Verschieben"
+
+# cross_section_details_popover.py:67
+msgid "Edit"
+msgstr "Bearbeiten"
+
+# add_new_cross_section_list_popover.py:
+msgid "Manual..."
+msgstr "Manuell..."
+
+# add_new_cross_section_list_popover.py:
+msgid "Import..."
+msgstr "Importieren... "
+
+# CROSS SECTION EDITING PAGE
+
+# cross_section_editing_page.py:43
+msgid "Lanes:"
+msgstr "Fahrbahnen:"
+
+# cross_section_editing_page.py:49
+msgid "Rightmost lane is hard shoulder:"
+msgstr "Die rechteste Fahrbahn ist der Seitenstreifen:"
+
+# cross_section_editing_page.py:56
+msgid "Hard shoulder openable:"
+msgstr "Standstreifen befahrbar:"
+
+# cross_section_editing_page.py:63
+msgid "B Display usable:"
+msgstr "B Anzeige nutzbar"
+
+
+msgid "SBAid"
+msgstr "SBAid"
+
+msgid "Value must be of the correct type for the parameter. Got "
+msgstr "Wert muss mit Parameterwert übereinstimmen. Bekommt  "
+
+msgid "Hard shoulder is not available"
+msgstr "Seitenstreife nicht verüfbar"
+
+msgid "Invalid value given"
+msgstr "Gegebener Wert nicht gültig"
+
+msgid "Unknown Time"
+msgstr "Unbekannte Zeit"
+
+msgid "Add new cross section"
+msgstr "Neuen Querschnitt hinzufügen"
+
+msgid "Lane snapshot creation has not begun"
+msgstr "Erstellung von Fahrbahn-Snapshot noch nicht angefangen"
+
+msgid "Current lane snapshot has not been set"
+msgstr "Aktuelle Fahrbahn-Snapshot noch nicht gesetzt"
+
+msgid "Vehicle snapshot creation has not begun"
+msgstr "Erstellung von PKW-Snapshot noch nicht angefangen"
+
+msgid "Vehicle snapshot has not been created"
+msgstr "Erstellung von PKW-Snapshot noch nicht angefangen"
+
+msgid "Lane snapshot creation cannot successfully finish"
+msgstr "Erstellung von Fahrbahn-Snapshot nicht erfolgreich beendet"
+
+msgid "Cross section snapshot creation cannot successfully finish"
+msgstr "Erstellung von Querschnitt-Snapshot nicht erfolgreich beendet"
+
+msgid "Result has not been set"
+msgstr "Ergebnis wurde noch nicht gesetzt"
+
+msgid "Current snapshot has not been set"
+msgstr "Aktueller Snapshot wurde noch nicht gesetzt "
+
+msgid "Cross section creation has not begun"
+msgstr "Erstellung von Querschnitt-Snapshot noch nicht angefangen"
+
+msgid "Current cross section snapshot has not been set"
+msgstr "Aktuelle Querschnitt-Snapshot noch nicht gesetzt"
+
+msgid "Snapshot creation cannot successfully finish"
+msgstr "Erstellung von Snapshot nicht erfolgreich beendet"
+
+msgid "Result cannot be created"
+msgstr "Ergebnis kann nicht erzeugt werden"
+
+msgid "Warning failed to load texture for preview: "
+msgstr "Laden von Texture für Previews fehlgeschlagen"
+
+msgid "Velocity-Diagram"
+msgstr "Velocity-Diagramm"
+
+msgid "JSON Dummy Simulator"
+msgstr "JSON Dummy Simulator"
+
+msgid "Cannot open new file during simulation"
+msgstr "Neue Datei kann nicht während Simulationslauf geöffnet werden"
+
+msgid "The dummy simulator does not support creating new cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "The dummy simulator does not support removing cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "The dummy simulator does not support moving cross sections."
+msgstr "Dummy-Simulator erlaubt keine Querschnittoperationen"
+
+msgid "No simulator file has been loaded."
+msgstr "Keine Simulationsdatei geladen."
+
+msgid "The given location is not in the network."
+msgstr "Gegebene Position nicht im Netzwerk"
+
+msgid "Leftmost lane has no successor"
+msgstr "Linkeste Fahrban hat keine Successor"
+
+msgid "No link with the given location found"
+msgstr "Keinen Link mit gegebene Lokation"
+
+msgid "Path not found"
+msgstr "Pfad nicht gefunden"
+
+msgid "Failed to allow the user to choose a file: "
+msgstr "Benutzer kann kein Datei wählen"
+
+msgid "Hard shoulder:"
+msgstr "Seitenstreife: "
+
+
+msgid "Unknown Project Name"
+msgstr "Unbekannter Project Name"
+
+msgid "Failed to get current time, last opened will be wrong"
+msgstr "Konnte derzeitige Zeit nicht für Projekt speichern"
+
+msgid "No selected algorithm configuration found!"
+msgstr "Keine gewählte Algorithmuskonfiguration gefunden!"
+
+msgid "Simulation was cancelled."
+msgstr "Simulation war abgebrochen."
+
+msgid "Failed to stop simulation: "
+msgstr "Simulation konnte nicht pausiert werden: "
+
+msgid "Failed to cancel simulation: "
+msgstr "Simulation konnte nicht abgebrochen werden: "
+
+msgid "Failed to simulate: "
+msgstr "Konnte nicht simulieren: "
+
+msgid "Unknown cross section"
+msgstr "Unbekannter Querschnitt"
+
+msgid "New Algorithm Configuration"
+msgstr "Neue Algorithmuskonfiguration"
+
+msgid "The algorithm configuration "
+msgstr "Die Algorithmuskonfiguration "
+
+msgid "The given file is not a valid global sqlite database."
+msgstr "Gegebene Datei ist kein gültiger globale SQLite-Datenbank"
+
+msgid "Hard shoulder is not available."
+msgstr "Seitenstreife nicht verfügbar."
+
+msgid "File has no valid cross section definitions."
+msgstr "Datei hat keine gültige Querschnitten definiert."
+
+msgid "Cross section creation in simulator failed."
+msgstr "Erstellung vom Querschnitt im Simulator durchgeschlagen."
+
+msgid "Input file format not supported by SBAid."
+msgstr "Eingabedatei nicht vom SBAid unterstützt."
+
+msgid "Display-Diagram"
+msgstr "Display-Diagramm"
+
+msgid "Heatmap-Diagram"
+msgstr "Heatmap-Diagramm"
+
+msgid " from project "
+msgstr " vom Projekt "
+
+msgid "QV-Diagram"
+msgstr "QV-Diagramm"
+
+msgid "Could not get current time from local system"
+msgstr "Konnte vom lokalen System die aktuelle Uhrzeit nicht lesen"
+
+msgid "Unavailable"
+msgstr "Nicht Verfügbar"
+
+msgid "Available"
+msgstr "Verfügbar"
+
+msgid "Type"
+msgstr "Typ:"
+
+msgid "Export values..."
+msgstr "Werte exportieren .."
+
+
+
+
+
+

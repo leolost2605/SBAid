@@ -9,6 +9,7 @@ from sbaid.view.common.rename_dialog import RenameDialog
 from sbaid.view.results.result_cell import ResultCell, ResultCellType
 from sbaid.view_model.results.result import Result
 from sbaid.view_model.results.result_manager import ResultManager
+from sbaid.common.i18n import i18n
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -35,7 +36,7 @@ class ResultsPage(Adw.NavigationPage):
 
         self.__manager = result_manager
 
-        self.__search_entry = Gtk.SearchEntry(placeholder_text="Search Results")
+        self.__search_entry = Gtk.SearchEntry(placeholder_text=i18n._("Search Results"))
         self.__search_entry.connect("search-changed", self.__on_search_entry_changed)
 
         header_bar = Adw.HeaderBar()
@@ -64,7 +65,7 @@ class ResultsPage(Adw.NavigationPage):
         project_name_factory.connect("setup", self.__setup_project_name_cell)
         project_name_factory.connect("bind", self.__bind_cell)
 
-        project_name_column = Gtk.ColumnViewColumn.new("Project Name", project_name_factory)
+        project_name_column = Gtk.ColumnViewColumn.new(i18n._("Project Name"), project_name_factory)
         project_name_expr = Gtk.PropertyExpression.new(Result, None, "project_name")
         project_name_sorter = Gtk.StringSorter.new(project_name_expr)
         project_name_column.set_sorter(project_name_sorter)
@@ -73,7 +74,7 @@ class ResultsPage(Adw.NavigationPage):
         date_factory.connect("setup", self.__setup_date_cell)
         date_factory.connect("bind", self.__bind_cell)
 
-        date_column = Gtk.ColumnViewColumn.new("Date", date_factory)
+        date_column = Gtk.ColumnViewColumn.new(i18n._("Date"), date_factory)
         date_sorter = Gtk.CustomSorter.new(self.__date_sort_func)
         date_column.set_sorter(date_sorter)
 
@@ -96,7 +97,7 @@ class ResultsPage(Adw.NavigationPage):
         toolbar_view.add_top_bar(header_bar)
 
         self.set_child(toolbar_view)
-        self.set_title("Results")
+        self.set_title(i18n._("Results"))
 
         self.install_action("result.rename", "s", self.__on_rename_result)
         self.install_action("result.delete", "s", self.__on_delete_result)

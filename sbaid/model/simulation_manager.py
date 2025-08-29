@@ -3,6 +3,7 @@ import asyncio
 
 from gi.repository import GObject, GLib
 
+from sbaid.common.i18n import i18n
 from sbaid.model.simulation.display import Display
 from sbaid.model.simulation.input import Input
 from sbaid.model.simulation.parameter_state import ParameterState
@@ -50,10 +51,11 @@ class SimulationManager(GObject.GObject):
 
         try:
             await self.__simulator.stop_simulation()
-            self.__observer.failed(GLib.Error("Simulation was cancelled."))
+            self.__observer.failed(GLib.Error(i18n._("Simulation was cancelled.")))
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to stop simulation: ", e)
-            self.__observer.failed(GLib.Error("Failed to cancel simulation: " + str(e)))
+            msg = i18n._("Failed to stop simulation: ")
+            print(msg, e)
+            self.__observer.failed(GLib.Error(i18n._("Failed to cancel simulation: ") + str(e)))
 
     def start(self) -> None:
         """Start the simulation"""
@@ -64,13 +66,15 @@ class SimulationManager(GObject.GObject):
         try:
             await self.__run_simulation()
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to simulate: ", e)
-            self.__observer.failed(GLib.Error("Failed to simulate: " + str(e)))
+            msg = i18n._("Failed to simulate: ")
+            print(msg, e)
+            self.__observer.failed(GLib.Error(i18n._("Failed to simulate: ") + str(e)))
 
         try:
             await self.__simulator.stop_simulation()
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to stop simulation: ", e)
+            msg = i18n._("Failed to stop simulation: ")
+            print(msg, e)
 
     async def __run_simulation(self) -> None:
         eval_interval = self.__algorithm_configuration.evaluation_interval
@@ -137,7 +141,7 @@ class SimulationManager(GObject.GObject):
         self.__result_builder.begin_snapshot(new_time)
 
         for cs_state in network_state.cross_section_states:
-            cs_name = "Unknown cross section"
+            cs_name = i18n._("Unknown cross section")
 
             for cs in common.list_model_iterator(self.__network.cross_sections):
                 if cs.id == cs_state.id:
