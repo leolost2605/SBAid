@@ -6,6 +6,7 @@ import sys
 
 import gi
 
+
 try:
     gi.require_version('Gtk', '4.0')
     from gi.repository import GObject, Gio, Gtk
@@ -15,7 +16,6 @@ except (ImportError, ValueError) as exc:
 
 from sbaid.common.cross_section_type import CrossSectionType
 from sbaid.common.location import Location
-
 from sbaid.model.network.network import Network as ModelNetwork
 from sbaid.model.network.cross_section import CrossSection as ModelCrossSection
 from sbaid.view_model.network.cross_section import CrossSection
