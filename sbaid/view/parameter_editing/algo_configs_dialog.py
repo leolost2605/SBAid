@@ -152,11 +152,12 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
         export_button = Gtk.Button.new_with_label("Export values...")
         export_button.set_halign(Gtk.Align.END)
         export_button.set_valign(Gtk.Align.CENTER)
-        import_button.connect("clicked", self.__on_export_clicked)
+        export_button.connect("clicked", self.__on_export_clicked)
 
         header_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
         header_box.append(header_label_box)
         header_box.append(import_button)
+        header_box.append(export_button)
 
         explanation_label = Gtk.Label()
         explanation_label.set_markup(
@@ -344,9 +345,6 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
     def __on_import_clicked(self, button: Gtk.Button) -> None:
         utils.run_coro_with_error_reporting(self.__collect_import_file())
 
-    def __on_export_clicked(self, button: Gtk.Button) -> None:
-        utils.run_coro_with_error_reporting(self.__collect_export_config_folder())
-
     async def __collect_import_file(self) -> None:
         if self.__algo_config is None:
             return
@@ -364,19 +362,14 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         await self.__algo_config.parameter_configuration.import_parameter_values(file)
 
-    def __value_type_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any)\
-            -> int:
-        if parameter1.value_type.dup_string() > parameter2.value_type.dup_string():
-            return 1
-        if parameter1.value_type.dup_string() < parameter2.value_type.dup_string():
-            return -1
-        return 0
+    def __on_export_clicked(self, button: Gtk.Button) -> None:
+        utils.run_coro_with_error_reporting(self.__collect_export_config_file())
 
-    async def __collect_export_config_folder(self) -> None:
+    async def __collect_export_config_file(self) -> None:
         dialog = Gtk.FileDialog()
 
         try:
-            file = await dialog.select_folder(self.get_root())  # type: ignore
+            file = await dialog.save(self.get_root())  # type: ignore
         except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to allow the user to choose a file: ", e)
             return
@@ -385,6 +378,14 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
             return
 
         await self.__algo_config.parameter_configuration.export_parameter_values(file)
+
+    def __value_type_sort_func(self, parameter1: Parameter, parameter2: Parameter, data: Any)\
+            -> int:
+        if parameter1.value_type.dup_string() > parameter2.value_type.dup_string():
+            return 1
+        if parameter1.value_type.dup_string() < parameter2.value_type.dup_string():
+            return -1
+        return 0
 
 class AlgoConfigsDialog(Adw.Window):
     """

@@ -20,7 +20,7 @@ except (ImportError, ValueError) as exc:
     sys.exit(1)
 
 
-class NoSuchExporterAvailableException(Exception):
+class NoExporterAvailableException(Exception):
     """Raised when the chosen parameter export format doesn't
      have a compatible exporter in SBAid."""
 
@@ -87,14 +87,13 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
         return False
 
-    async def export_parameter_configuration(self, path: str, export_format: str) -> None:
+    async def export_parameter_configuration(self, file: Gio.File) -> None:
         """Saves this parameter configuration, exported to a file of a chosen format,
          to a path given by the user."""
-        file = Gio.File.new_for_path(path)
-        factory: ExporterFactory = ExporterFactory()
-        exporter = factory.get_exporter(export_format)
+        export_format = file.get_basename().split('.')[-1].lower()
+        exporter = ExporterFactory().get_exporter(export_format)
         if exporter is None:
-            raise NoSuchExporterAvailableException(
+            raise NoExporterAvailableException(
                 f"No exporter available for format {export_format}")
         await exporter.export_parameters(file, self.__parameters)
 
