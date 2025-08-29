@@ -94,4 +94,3 @@ class SimulationRunningPage(Adw.NavigationPage):
 
         button.set_sensitive(False)
         utils.run_coro_with_error_reporting(self.__simulation.cancel())
-        # TODO: Auto navigate back?

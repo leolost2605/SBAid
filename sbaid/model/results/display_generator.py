@@ -9,7 +9,6 @@ from sbaid.model.results.result import Result
 
 class DisplayGenerator(CrossSectionDiagramGenerator):
     """Contains methods for generating the 'Display-Diagram'."""
-    # TODO
 
     def get_diagram_type(self) -> DiagramType:
         """Return diagram type of the display generator"""
