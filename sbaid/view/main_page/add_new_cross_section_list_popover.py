@@ -53,18 +53,4 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
 
     def __on_import_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
-        utils.run_coro_with_error_reporting(self.__collect_import_file())
-
-    async def __collect_import_file(self) -> None:
-        dialog = Gtk.FileDialog()
-
-        try:
-            file = await dialog.open(self.get_root())  # type: ignore
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            print("Failed to allow the user to choose a file: ", e)
-            return
-
-        if file is None:
-            return
-
-        await self.__network.import_cross_sections(file)
+        self.activate_action("cross-section.import")

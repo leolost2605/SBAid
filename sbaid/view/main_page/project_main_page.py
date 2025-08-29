@@ -31,6 +31,7 @@ class ProjectMainPage(Adw.NavigationPage):
 
     __project: Project
     __network_map: NetworkMap
+    __toast_overlay: Adw.ToastOverlay
 
     def __init__(self, project: Project) -> None:
         super().__init__()
@@ -94,8 +95,12 @@ class ProjectMainPage(Adw.NavigationPage):
         self.__stack.add_child(placeholder_view)
         self.__stack.add_named(main_view, "main-view")
 
-        self.set_child(self.__stack)
+        self.__toast_overlay = Adw.ToastOverlay(child=self.__stack)
+
+        self.set_child(self.__toast_overlay)
         self.set_title(project.name)
+
+        self.install_action("cross-section.import", None, self.__on_cross_section_import)
 
         utils.run_coro_with_error_reporting(self.__load())
 
@@ -117,3 +122,25 @@ class ProjectMainPage(Adw.NavigationPage):
         except Exception as e:  # pylint: disable=broad-exception-caught
             self.__placeholder.set_title("Failed to load project")
             self.__placeholder.set_description(str(e))
+
+    def __on_cross_section_import(self, widget: Gtk.Widget, action_name: str,
+                                  parameter: GLib.Variant | None) -> None:
+        utils.run_coro_with_error_reporting(self.__collect_import_file())
+
+    async def __collect_import_file(self) -> None:
+        dialog = Gtk.FileDialog()
+
+        try:
+            file = await dialog.open(self.get_root())  # type: ignore
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("Failed to allow the user to choose a file: ", e)
+            return
+
+        if file is None:
+            return
+
+        imported, failed = await self.__project.network.import_cross_sections(file)
+
+        toast = Adw.Toast(title=f"Successfully imported {imported} "
+                                f"cross section and skipped {failed} cross sections")
+        self.__toast_overlay.add_toast(toast)
