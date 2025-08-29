@@ -80,7 +80,8 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
                             value: GLib.Variant) -> bool:
         # TODO: Maybe wrap the listmodel in a custom hashing implementation for fast access
         for param in common.list_model_iterator(self.__parameters):
-            if (param.name == name and param.cross_section.id == cross_section_id
+            if (param.name == name and (cross_section_id is None and param.cross_section is None or
+                param.cross_section is not None and param.cross_section.id == cross_section_id)
                     and value.is_of_type(param.value_type)):
                 param.value = value
                 return True
