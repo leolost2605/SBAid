@@ -5,6 +5,7 @@ from gi.repository import GObject, GLib, Gio
 
 
 from sbaid import common
+from sbaid.common.i18n import i18n
 from sbaid.model.simulator.simulator_factory import SimulatorFactory
 from sbaid.model.database.project_database import ProjectDatabase
 from sbaid.model.database.project_sqlite import ProjectSQLite
@@ -114,7 +115,7 @@ class Project(GObject.GObject):
                          algorithm_configuration_manager=algo_manager,
                          result_manager=result_manager)
 
-        self.__name = "Unknown Project Name"
+        self.__name = i18n._("Unknown Project Name")
 
     async def load(self) -> None:
         """Loads the project, i.e. the algorithm configurations and the network."""
@@ -125,7 +126,7 @@ class Project(GObject.GObject):
             self.last_opened = new_last_opened
             await self.__project_db.set_last_opened(self.last_opened)
         else:
-            print("Failed to get current time, last opened will be wrong")
+            print(i18n._("Failed to get current time, last opened will be wrong"))
 
         if self.__loaded:
             return
@@ -154,7 +155,8 @@ class Project(GObject.GObject):
                 break
 
         if not algo_config:
-            raise AlgorithmConfigurationException("No selected algorithm configuration found!")
+            raise AlgorithmConfigurationException(i18n._(
+                "No selected algorithm configuration found!"))
 
         manager = SimulationManager(self.name, algo_config, self.network, self.__simulator,
                                     self.result_manager, observer)

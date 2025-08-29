@@ -6,6 +6,8 @@ import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
 from gi.repository import GLib
+
+from sbaid.common.i18n import i18n
 from sbaid.model.results.global_diagram_generator import GlobalDiagramGenerator
 from sbaid.common.image_format import ImageFormat
 from sbaid.common.image import Image
@@ -32,7 +34,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         return SeabornImage(buffer.getvalue(), image_format)
 
     def get_diagram_type(self) -> DiagramType:
-        return DiagramType("heatmap_diagram", "Heatmap-Diagram")
+        return DiagramType("heatmap_diagram", i18n._("Heatmap-Diagram"))
 
     def __filter_result_data(self, result: Result, cross_section_ids: list[str])\
             -> tuple[list[float], list[str], list[str]]:
@@ -67,7 +69,7 @@ class HeatmapGenerator(GlobalDiagramGenerator):
         sns.heatmap(diagram_data, cmap=colorscheme, cbar=True, cbar_kws={'label': 'V [km/h]'},
                     square=False, xticklabels=cross_sections, yticklabels=timestamps, ax=ax)
         ax.invert_yaxis()
-        ax.set_title(result_name + " from project " + project_name)
+        ax.set_title(result_name + i18n._(" from project ") + project_name)
         ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
         ax.tick_params(left=False)
         ax.annotate(str(formatted_date), (0, 0), (-60, -20), xycoords='axes fraction',

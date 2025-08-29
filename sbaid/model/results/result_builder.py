@@ -3,6 +3,7 @@ import uuid
 from typing import Self
 from gi.repository import GLib, GObject
 from sbaid.common.a_display import ADisplay
+from sbaid.common.i18n import i18n
 from sbaid.common.vehicle_type import VehicleType
 from sbaid.model.database.global_database import GlobalDatabase
 from sbaid.model.results.cross_section_snapshot import CrossSectionSnapshot
@@ -161,7 +162,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         now = GLib.DateTime.new_now_local()
 
         if now is None:
-            raise GLibErrorException("Could not get current time from local system")
+            raise GLibErrorException(i18n._("Could not get current time from local system"))
 
         self.__current_result = Result(str(uuid.uuid4()),
                                        project_name, now, self.__global_db)
@@ -169,7 +170,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     def begin_snapshot(self, simulation_timestamp: GLib.DateTime) -> None:
         """Sets current_snapshot to a new snapshot with the given timestamp."""
         if self.__current_result is None:
-            raise WrongOrderException("Result has not been set")
+            raise WrongOrderException(i18n._("Result has not been set"))
 
         self.__current_snapshot = Snapshot(str(uuid.uuid4()),
                                            simulation_timestamp, self.__global_db)
@@ -178,7 +179,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         """Sets the current cs builder to a new instance, constructed with
         the given cross-section name and current snapshot id."""
         if self.__current_snapshot is None:
-            raise WrongOrderException("Current snapshot has not been set")
+            raise WrongOrderException(i18n._("Current snapshot has not been set"))
         self.__current_cs_builder = _CrossSectionBuilder(cross_section_name,
                                                          self.__current_snapshot.id,
                                                          cross_section_id,
@@ -189,7 +190,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     def add_b_display(self, b_display: BDisplay) -> None:
         """Sets b-display in the current cross-section builder to desired value."""
         if self.__current_cs_builder is None:
-            raise WrongOrderException("Cross section creation has not begun")
+            raise WrongOrderException(i18n._("Cross section creation has not begun"))
 
         # chained methods that first add the new value
         # and then tries to build the cross-section snapshot
@@ -209,38 +210,38 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
     def add_average_speed(self, speed: float) -> None:
         """Sets average speed in the current lane builder to given value."""
         if self.__current_lane_builder is None:
-            raise WrongOrderException("Lane snapshot creation has not begun")
+            raise WrongOrderException(i18n._("Lane snapshot creation has not begun"))
         self.__current_lane = self.__current_lane_builder.set_average_speed(speed).try_build()
 
     def add_traffic_volume(self, volume: int) -> None:
         """Sets traffic volume in the current lane builder to given value."""
         if self.__current_lane_builder is None:
-            raise WrongOrderException("Lane snapshot creation has not begun")
+            raise WrongOrderException(i18n._("Lane snapshot creation has not begun"))
         self.__current_lane = self.__current_lane_builder.set_traffic_volume(volume).try_build()
 
     def add_a_display(self, a_display: ADisplay) -> None:
         """Sets the a-display in the current lane builder to given value."""
         if self.__current_lane_builder is None:
-            raise WrongOrderException("Lane snapshot creation has not begun")
+            raise WrongOrderException(i18n._("Lane snapshot creation has not begun"))
         self.__current_lane = self.__current_lane_builder.set_a_display(a_display).try_build()
 
     def begin_vehicle(self) -> None:
         """Sets the current vehicle builder to a new instance."""
         if self.__current_lane is None:
-            raise WrongOrderException("Current lane snapshot has not been set")
+            raise WrongOrderException(i18n._("Current lane snapshot has not been set"))
         self.__current_vehicle_builder = _VehicleBuilder(self.__current_lane.id)
 
     def add_vehicle_type(self, vehicle_type: VehicleType) -> None:
         """Sets the vehicle type in the current vehicle builder to given value."""
         if self.__current_vehicle_builder is None:
-            raise WrongOrderException("Vehicle snapshot creation has not begun")
+            raise WrongOrderException(i18n._("Vehicle snapshot creation has not begun"))
         self.__current_vehicle = self.__current_vehicle_builder.set_vehicle_type(
             vehicle_type).try_build()
 
     def add_vehicle_speed(self, speed: float) -> None:
         """Sets the vehicle speed in the current vehicle builder to given value."""
         if self.__current_vehicle_builder is None:
-            raise WrongOrderException("Vehicle snapshot creation has not begun")
+            raise WrongOrderException(i18n._("Vehicle snapshot creation has not begun"))
         self.__current_vehicle = self.__current_vehicle_builder.set_vehicle_speed(speed).try_build()
 
     def end_vehicle(self) -> None:
@@ -249,7 +250,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
         Raises WrongOrderException if vehicle snapshot has not been created."""
 
         if self.__current_vehicle is None or self.__current_lane is None:
-            raise WrongOrderException("Vehicle snapshot has not been created")
+            raise WrongOrderException(i18n._("Vehicle snapshot has not been created"))
 
         self.__current_lane.add_vehicle_snapshot(self.__current_vehicle)
         self.__current_vehicle_builder = None
@@ -263,7 +264,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         if (self.__current_lane is None or self.__current_vehicle_builder is not None
                 or self.__current_cross_section is None):
-            raise WrongOrderException("Lane snapshot creation cannot successfully finish")
+            raise WrongOrderException(i18n._("Lane snapshot creation cannot successfully finish"))
 
         self.__current_cross_section.add_lane_snapshot(self.__current_lane)
         self.__current_lane_builder = None
@@ -277,7 +278,8 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         if (self.__current_cross_section is None or self.__current_lane_builder is not None
                 or self.__current_snapshot is None):
-            raise WrongOrderException("Cross section snapshot creation cannot successfully finish")
+            raise WrongOrderException(i18n._(
+                "Cross section snapshot creation cannot successfully finish"))
 
         self.__current_snapshot.add_cross_section_snapshot(self.__current_cross_section)
 
@@ -291,7 +293,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
 
         if (self.__current_snapshot is None or self.__current_cs_builder is not None
                 or self.__current_result is None):
-            raise WrongOrderException("Snapshot creation cannot successfully finish")
+            raise WrongOrderException(i18n._("Snapshot creation cannot successfully finish"))
 
         self.__current_result.add_snapshot(self.__current_snapshot)
         self.__current_snapshot = None
@@ -301,7 +303,7 @@ class ResultBuilder(GObject.GObject):  # pylint:disable=too-many-instance-attrib
          Raises WrongOrderException if result has not been
          created or a snapshot is in the process of being created"""
         if self.__current_result is None or self.__current_snapshot is not None:
-            raise WrongOrderException("Result cannot be created")
+            raise WrongOrderException(i18n._("Result cannot be created"))
 
         result = self.__current_result
 
