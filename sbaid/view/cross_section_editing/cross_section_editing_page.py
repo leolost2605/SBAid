@@ -56,6 +56,8 @@ class CrossSectionEditingPage(Adw.NavigationPage):
 
         hard_shoulder_active_switch = Gtk.Switch(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
         hard_shoulder_active_switch.bind_property("state", hard_shoulder_active_switch, "active")
+        cross_section.bind_property("hard-shoulder-available", hard_shoulder_active_switch,
+                                    "sensitive", GObject.BindingFlags.SYNC_CREATE)
         cross_section.bind_property("hard-shoulder-usable", hard_shoulder_active_switch,
                                     "state", GObject.BindingFlags.SYNC_CREATE |
                                     GObject.BindingFlags.BIDIRECTIONAL)
