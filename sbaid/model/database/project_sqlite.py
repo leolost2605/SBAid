@@ -37,7 +37,7 @@ class ProjectSQLite(ProjectDatabase):
             except sqlite3.OperationalError as exc:
                 raise InvalidDatabaseError("The given file is not a database.") from exc
         if not is_valid:
-            raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
+            raise InvalidDatabaseError("The given file is not a valid project sqlite database.")
         if not already_existed:
             async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
             if not await async_path.exists():
