@@ -6,7 +6,7 @@ from gi.repository import Gio
 from gi.events import GLibEventLoopPolicy
 
 from sbaid.model.database.foreign_key_error import ForeignKeyError
-from sbaid.model.database.project_sqlite import ProjectSQLite
+from sbaid.model.database.project_sqlite import ProjectSQLite, InvalidDatabaseError
 
 
 class ProjectSQLiteTest(unittest.TestCase):
@@ -24,6 +24,7 @@ class ProjectSQLiteTest(unittest.TestCase):
         await self.parameters()
         await self.cross_section()
         await self.tag_and_parameter_tag()
+        await self.already_existed()
 
     def on_delete_async(self, file, result, user_data):
         try:
@@ -75,9 +76,27 @@ class ProjectSQLiteTest(unittest.TestCase):
         all_configs = await db.get_all_algorithm_configuration_ids()
         self.assertEqual(len(all_configs), 2)
 
+        await db.set_display_interval("my_algorithm_configuration_id", 123)
+        await db.set_evaluation_interval("my_algorithm_configuration_id", 234)
+
+        display_interval_1 = await db.get_display_interval("my_algorithm_configuration_id")
+        eval_interval_1 = await db.get_evaluation_interval("my_algorithm_configuration_id")
+        self.assertEqual(123, display_interval_1)
+        self.assertEqual(234, eval_interval_1)
+
+        await db.set_script_path("my_algorithm_configuration_id_2", "my/new/path")
+        script_path_2 = await db.get_script_path("my_algorithm_configuration_id_2")
+        self.assertEqual("my/new/path", script_path_2)
+
         await db.set_selected_algorithm_configuration_id("my_algorithm_configuration_id")
 
         self.assertEqual(await db.get_selected_algorithm_configuration_id(), "my_algorithm_configuration_id")
+
+        await db.set_algorithm_configuration_name("my_algorithm_configuration_id", "my_new_name")
+        new_name = await db.get_algorithm_configuration_name("my_algorithm_configuration_id")
+        self.assertEqual("my_new_name", new_name)
+        algo_config = await db.get_algorithm_configuration("my_algorithm_configuration_id")
+        self.assertIsNotNone(algo_config)
 
         file.delete_async(0, None)
 
@@ -215,3 +234,12 @@ class ProjectSQLiteTest(unittest.TestCase):
 
             self.assertTrue(False)
         file.delete_async(0, None)
+
+    async def already_existed(self) -> None:
+        file = Gio.File.new_for_path("test.db")
+        file.make_directory_async(0)
+
+        with self.assertRaises(InvalidDatabaseError):
+            db = ProjectSQLite(file)
+            await db.open()
+        file.delete_async(0)

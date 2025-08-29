@@ -1,4 +1,5 @@
 """This module contains the ProjectSQLite class."""
+import sqlite3
 from typing import cast
 
 import aiosqlite
@@ -27,13 +28,16 @@ class ProjectSQLite(ProjectDatabase):
         already_existed = self._file.query_exists()
         is_valid = True
         if already_existed:
-            async with aiosqlite.connect(str(self._file.get_path())) as db:
-                async with db.execute("""PRAGMA integrity_check""") as cursor:
-                    res = await cursor.fetchone()
-                    assert res is not None
-                    is_valid = res[0] == 'ok'
+            try:
+                async with aiosqlite.connect(str(self._file.get_path())) as db:
+                    async with db.execute("""PRAGMA schema_version""") as cursor:
+                        res = await cursor.fetchone()
+                        assert res is not None
+                        is_valid = res[0] != 0
+            except sqlite3.OperationalError as exc:
+                raise InvalidDatabaseError("The given file is not a database.") from exc
         if not is_valid:
-            raise InvalidDatabaseError("The given file is not a valid global sqlite database.")
+            raise InvalidDatabaseError("The given file is not a valid project sqlite database.")
         if not already_existed:
             async_path = aiopathlib.AsyncPath(self._file.get_parent().get_path())  # type: ignore
             if not await async_path.exists():
