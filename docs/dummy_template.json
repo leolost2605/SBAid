@@ -1,0 +1,17 @@
+{
+    "cross_section_locations": {
+        "cs1": { "x": 0.0, "y": 0.0 }
+    },
+    "vehicle_infos": {
+        "0": {
+            "cs1": {
+                "0": [
+                    {
+                        "type": 0,
+                        "speed": 0.0
+                    }
+                ]
+            }
+        }
+    }
+}

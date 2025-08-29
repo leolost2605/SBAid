@@ -28,6 +28,14 @@ Instead of python lists, Gio listmodels are mostly used. If you need to create y
 
 For the different value types for parameters, GLib.Variant and GLib.VariantType are used. Refer to https://api.pygobject.gnome.org/GLib-2.0/structure-VariantType.html and https://api.pygobject.gnome.org/GLib-2.0/structure-Variant.html for documentation about them.
 
+### Dummy Simulator
+
+The Dummy simulator is a simulator implementation that
+uses collected traffic data in JSON format in order to provide deterministic simulation output data. The algorithm
+has no effect on the simulation in this implementation.
+
+[blueprint for dummy simulation file](docs/dummy_template.json)
+
 ### Bulk operations import guidelines
 
 SBAid allows certain bulk import operations. In order to successfully use these features, it is recommended that the user follows the set guidelines:
