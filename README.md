@@ -38,14 +38,14 @@ the following dependencies in the [ucrt](https://www.msys2.org/docs/environments
 - python-sortedcontainers
 
 From now on everything should be done using msys.
-Most importantly you should use the msys ucrt python
+Most importantly, you should use the msys ucrt python
 and not another python installation from somewhere else
 on your machine.
 
-Then you can clone SBAid preferably via the msys
+Then, you can clone SBAid preferably via the msys
 git somewhere into your msys home folder.
 
-Now navigate into your SBAid folder and setup a python
+Now, navigate into your SBAid folder and setup a python
 virtual environment.
 
 ```
@@ -65,8 +65,8 @@ project root. Navigate there and then run:
 PYTHONPATH=. GTK_A11Y=none ./venv/bin/python ./sbaid/__init__.pi
 ```
 
-If you are running on a machine without a GPU or in general
-if SBAid immediately crashes without any meaningful error output
+If you are running on a machine without a GPU, or in general
+if SBAid immediately crashes without any meaningful error output,
 try running on the CPU renderer:
 
 ```
@@ -76,7 +76,7 @@ GSK_RENDERER=cairo PYTHONPATH=. GTK_A11Y=none ./venv/bin/python
 #### TL;DR
 
 We definitely recommend reading the full instructions above.
-If you read them and understood what they do here is a
+If you read them and understood what they do, here is a
 list of commands that you can copy and paste into your
 msys2 terminal for getting SBAid quickly up and running.
 
