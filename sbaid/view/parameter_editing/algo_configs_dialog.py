@@ -206,19 +206,12 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
 
         value_column = Gtk.ColumnViewColumn.new("Value", value_factory)
 
-        tag_factory = Gtk.SignalListItemFactory()
-        tag_factory.connect("setup", self.__setup_param_tags_cell)
-        tag_factory.connect("bind", self.__bind_param_cell)
-
-        tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
-
         column_view.set_model(selection_model)
         column_view.set_hexpand(True)
         column_view.set_vexpand(True)
         column_view.append_column(name_column)
         column_view.append_column(value_type_column)
         column_view.append_column(value_column)
-        column_view.append_column(tag_column)
 
         column_view_scrolled = Gtk.ScrolledWindow(child=column_view, propagate_natural_width=True,
                                                   propagate_natural_height=True)
@@ -282,11 +275,6 @@ class _AlgoConfigView(Adw.Bin):  # pylint: disable=too-many-instance-attributes
                                  obj: GObject.Object) -> None:
         list_item = cast(Gtk.ListItem, obj)
         list_item.set_child(ParamCell(ParamCellType.VALUE))
-
-    def __setup_param_tags_cell(self, factory: Gtk.SignalListItemFactory,
-                                obj: GObject.Object) -> None:
-        list_item = cast(Gtk.ListItem, obj)
-        list_item.set_child(ParamCell(ParamCellType.TAGS))
 
     def __bind_param_cell(self, factory: Gtk.SignalListItemFactory,
                           obj: GObject.Object) -> None:

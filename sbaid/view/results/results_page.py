@@ -77,12 +77,6 @@ class ResultsPage(Adw.NavigationPage):
         date_sorter = Gtk.CustomSorter.new(self.__date_sort_func)
         date_column.set_sorter(date_sorter)
 
-        tag_factory = Gtk.SignalListItemFactory()
-        tag_factory.connect("setup", self.__setup_tags_cell)
-        tag_factory.connect("bind", self.__bind_cell)
-
-        tag_column = Gtk.ColumnViewColumn.new("Tags", tag_factory)
-
         column_view.set_model(selection_model)
         column_view.set_single_click_activate(True)
         column_view.set_hexpand(True)
@@ -90,7 +84,6 @@ class ResultsPage(Adw.NavigationPage):
         column_view.append_column(name_column)
         column_view.append_column(project_name_column)
         column_view.append_column(date_column)
-        column_view.append_column(tag_column)
         column_view.connect("activate", self.__on_activate)
 
         column_view_scrolled = Gtk.ScrolledWindow(child=column_view, propagate_natural_width=True,
@@ -151,11 +144,6 @@ class ResultsPage(Adw.NavigationPage):
     def __setup_date_cell(factory: Gtk.SignalListItemFactory,
                           list_item: Gtk.ListItem) -> None:
         list_item.set_child(ResultCell(ResultCellType.DATE))
-
-    @staticmethod
-    def __setup_tags_cell(factory: Gtk.SignalListItemFactory,
-                          list_item: Gtk.ListItem) -> None:
-        list_item.set_child(ResultCell(ResultCellType.TAGS))
 
     @staticmethod
     def __bind_cell(factory: Gtk.SignalListItemFactory,
