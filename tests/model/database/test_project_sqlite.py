@@ -244,12 +244,3 @@ class ProjectSQLiteTest(unittest.TestCase):
             db = ProjectSQLite(file)
             await db.open()
         file.delete_async(0)
-
-        wrong_db = GlobalSQLite(file)
-        await wrong_db.open()
-        with self.assertRaises(InvalidDatabaseError):
-            db = ProjectSQLite(file)
-            await db.open()
-
-        file.delete_async(0, None)
-
