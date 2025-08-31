@@ -85,7 +85,6 @@ class ParameterConfiguration(GObject.GObject):  # pylint: disable=too-many-insta
 
     def __import_param_func(self, name: str, cross_section_id: str | None,
                             value: GLib.Variant) -> bool:
-        # TODO: Maybe wrap the listmodel in a custom hashing implementation for fast access
         for param in common.list_model_iterator(self.__parameters):
             if not value.is_of_type(param.value_type):
                 continue

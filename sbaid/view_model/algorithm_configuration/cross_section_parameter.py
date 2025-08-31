@@ -77,8 +77,6 @@ class CrossSectionParameter(Parameter):
 
         selected_cross_sections.connect("selection-changed", self.__on_cs_selection_changed)
 
-        # TODO: Qualitätssicherung: Tags synchronisieren wenn sie das nicht sind
-        #  (sollte nie passieren)
         reference_param = cast(ModelParameter, self.__parameters.get_item(0))
         for i, tag in enumerate(common.list_model_iterator(self.__tags)):
             for selected_tag in common.list_model_iterator(reference_param.selected_tags):

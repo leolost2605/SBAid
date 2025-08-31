@@ -163,7 +163,8 @@ class _Link:
         distance = 0.0
         for current_point in self.__points:
             if point.is_between(other_point, current_point):
-                return True, distance + other_point.distance(point)
+                return True, min(distance + other_point.distance(point),
+                                 self.__vissim_link.AttValue("Length2D") - 0.1)
 
             distance += other_point.distance(current_point)
             other_point = current_point
