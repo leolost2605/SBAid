@@ -7,11 +7,9 @@ from typing import cast
 
 import gi
 
-from sbaid.view import utils
 from sbaid.view.main_page.add_new_cross_section_dialog import AddNewCrossSectionDialog
 from sbaid.view_model.network.network import Network
 from sbaid.common.i18n import i18n
-
 
 try:
     gi.require_version('Gtk', '4.0')
@@ -55,19 +53,4 @@ class AddNewCrossSectionListPopover(Gtk.Popover):
 
     def __on_import_clicked(self, button: Gtk.Button) -> None:
         self.popdown()
-        utils.run_coro_with_error_reporting(self.__collect_import_file())
-
-    async def __collect_import_file(self) -> None:
-        dialog = Gtk.FileDialog()
-
-        try:
-            file = await dialog.open(self.get_root())  # type: ignore
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            msg = i18n._("Failed to allow the user to choose a file: ")
-            print(msg, e)
-            return
-
-        if file is None:
-            return
-
-        await self.__network.import_cross_sections(file)
+        self.activate_action("cross-section.import")

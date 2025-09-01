@@ -79,9 +79,9 @@ class Network(GObject.GObject):
         """
         return await self.__network.move_cross_section(cs_id, new_location)
 
-    async def import_cross_sections(self, file: Gio.File) -> None:
+    async def import_cross_sections(self, file: Gio.File) -> tuple[int, int]:
         """
         Imports cross sections from the given file
         :param file: the file to import cross sections from
         """
-        await self.__network.import_from_file(file)
+        return await self.__network.import_from_file(file)
